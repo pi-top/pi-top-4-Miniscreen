@@ -1,0 +1,13 @@
+Source: pt-sys-menu
+Section: utils
+Priority: optional
+Maintainer: pi-top <deb-maintainers@pi-top.com>
+Build-Depends: debhelper (>= 7), dh-python, dh-systemd (>= 1.5)
+Standards-Version: 3.8.4
+Homepage: https://pi-top.com/
+
+Package: pt-sys-menu
+Architecture: armhf
+Depends: python3-pt-oled, pt-hub, python3-pt-common
+Description: pi-top OLED system menu application
+The intended behaviour of this application is to manage user projects and display important system information onto the onboard OLED screen. Navigation is managed by the onboard buttons, which is handled by the centralised pi-top device manager.

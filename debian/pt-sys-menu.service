@@ -1,0 +1,10 @@
+[Unit]
+Description=pi-top OLED system menu
+
+[Service]
+Restart=always
+WorkingDirectory=/usr/lib/pt-sys-menu
+ExecStart=/usr/bin/python /usr/lib/pt-sys-menu/sys_info.py
+
+[Install]
+WantedBy=local-fs.target
