@@ -9,7 +9,6 @@ from hotspot import uptime, batt_level
 
 
 def main():
-    utime = snapshot(device.width, device.height, uptime.render, interval=1.0)
     battery = snapshot(device.width, device.height, batt_level.render, interval=1.0)
 
     virtual = viewport(device, width=device.width, height=device.height)

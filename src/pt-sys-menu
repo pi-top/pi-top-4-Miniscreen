@@ -8,14 +8,12 @@ Demonstrate being able to work with widgets.
 Adapted from carousel from luma.examples by Richard Hull and contributors
 """
 
-import psutil
-
 from demo_opts import get_device
 from luma.core.virtual import viewport, snapshot
 import os
 
 
-def position(max):
+def position_updater(max):
     forwards = range(0, max)
     backwards = range(max, 0, -1)
     while True:
@@ -116,6 +114,18 @@ def get_widgets_from_config():
     return widgets_obj_arr
 
 
+def get_p_key_pressed(current_p_key_state):
+    new_p_key_state = current_p_key_state
+    for event in device._pygame.event.get():
+        if event.type == device._pygame.KEYDOWN:
+            if event.key == device._pygame.K_p:
+                new_p_key_state = True
+        if event.type == device._pygame.KEYUP:
+            if event.key == device._pygame.K_p:
+                new_p_key_state = False
+    return new_p_key_state
+
+
 def create_viewport(widgets):
     total_widget_len = sum(widget.height for widget in widgets)
     virtual = viewport(device, width=device.width, height=total_widget_len)
@@ -134,12 +144,19 @@ def main():
 
     virtual = create_viewport(widgets)
 
-    # TODO: Move one device-width on key press
-    y_pos_generator = position(total_widget_len - device.height)
-    virtual.set_position((0, 0))
+    # TODO: Move one device-height on key press
+    y_pos_update_generator = position_updater(total_widget_len - device.height)
 
-    for y in get_y_pos(device.height, False, y_pos_generator):
-        virtual.set_position((0, y))
+    try:
+        pos = (0, 0)
+        p_key_down = False
+        while True:
+            p_key_down = get_p_key_pressed(p_key_down)
+            if p_key_down:
+                pos = (0, next(y_pos_update_generator))
+            virtual.set_position(pos)
+    except StopIteration:
+        pass
 
 
 if __name__ == "__main__":
