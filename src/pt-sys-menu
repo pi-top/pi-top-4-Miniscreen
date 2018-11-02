@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# PYTHON_ARGCOMPLETE_OK
+
+"""
+Demonstrate being able to work with widgets.
+
+Adapted from carousel from luma.examples by Richard Hull and contributors
+"""
+
+import psutil
+
+from demo_opts import get_device
+from luma.core.virtual import viewport, snapshot
+import os
+
+
+def position(max):
+    forwards = range(0, max)
+    backwards = range(max, 0, -1)
+    while True:
+        for y in forwards:
+            yield y
+        for y in backwards:
+            yield y
+
+
+def get_y_pos(interval, pause, position_generator):
+    try:
+        while True:
+            if not pause:
+                y = next(position_generator)
+                if y % interval == 0:
+                        yield y
+                else:
+                    yield y
+    except StopIteration:
+        pass
+
+
+def get_snapshot(render_func, interval, widget_width=128, widget_height=64):
+    return snapshot(widget_width, widget_height, render_func, interval=interval)
+
+
+def get_valid_widget_names():
+    return ["uptime", "battery", "memory", "disk", "cpu", "clock", "network"]
+
+
+def remove_invalid_widget_names(widget_name_list):
+    valid_widget_names = get_valid_widget_names()
+    for widget_name in widget_name_list:
+        if widget_name not in valid_widget_names:
+            widget_name_list.remove(widget_name)
+    return widget_name_list
+
+
+def get_widgets_from_config():
+    try:
+        with open(os.path.expanduser('~/.carousel'), 'r') as f:
+            widget_name_arr = remove_invalid_widget_names(f.read().splitlines())
+            # Do something if this ends up empty - show a "none selected" screen?
+
+    except FileNotFoundError as e:
+        # Default
+        print("No config file - falling back to default")
+        widget_name_arr = ["cpu", "battery", "clock"]
+
+    widgets_obj_arr = []
+
+    for widget_name in widget_name_arr:
+        if widget_name == "battery":
+            print(widget_name)
+            from hotspot import uptime
+            widgets_obj_arr.append(get_snapshot(batt_level.render, interval=1.0))
+
+        elif widget_name == "uptime":
+            print(widget_name)
+            from hotspot import uptime
+            widgets_obj_arr.append(get_snapshot(uptime.render, interval=1.0))
+
+        elif widget_name == "memory":
+            print(widget_name)
+            from hotspot import memory
+            widgets_obj_arr.append(get_snapshot(memory.render, interval=2.0))
+
+
+        elif widget_name == "disk":
+            from hotspot import disk
+            print(widget_name)
+            widgets_obj_arr.append(get_snapshot(disk.render, interval=2.0))
+
+
+        elif widget_name == "cpu":
+            print(widget_name)
+            from hotspot import cpu_load
+            widgets_obj_arr.append(get_snapshot(cpu_load.render, interval=0.5))
+
+        elif widget_name == "clock":
+            print(widget_name)
+            from hotspot import clock
+            widgets_obj_arr.append(get_snapshot(clock.render, interval=1.0))
+
+        elif widget_name == "network":
+            print(widget_name)
+            from hotspot import network
+
+            net_wlan = get_snapshot(network.stats("wlan0"), interval=2.0, widget_height=22)
+            net_eth = get_snapshot(network.stats("eth0"), interval=2.0, widget_height=21)
+            net_lo = get_snapshot(network.stats("lo"), interval=2.0, widget_height=21)
+            widgets_obj_arr.append(net_wlan)
+            widgets_obj_arr.append(net_eth)
+            widgets_obj_arr.append(net_lo)
+        else:
+            print("Not found: '" + widget_name + "'")
+
+    return widgets_obj_arr
+
+
+def create_viewport(widgets):
+    total_widget_len = sum(widget.height for widget in widgets)
+    virtual = viewport(device, width=device.width, height=total_widget_len)
+
+    created_viewport_height = 0
+    for i, widget in enumerate(widgets):
+        virtual.add_hotspot(widget, (0, created_viewport_height))
+        created_viewport_height += widget.height
+
+    return virtual
+
+
+def main():
+    widgets = get_widgets_from_config()
+    total_widget_len = sum(widget.height for widget in widgets)
+
+    virtual = create_viewport(widgets)
+
+    # TODO: Move one device-width on key press
+    y_pos_generator = position(total_widget_len - device.height)
+    virtual.set_position((0, 0))
+
+    for y in get_y_pos(device.height, False, y_pos_generator):
+        virtual.set_position((0, y))
+
+
+if __name__ == "__main__":
+    try:
+        device = get_device()
+        main()
+    except KeyboardInterrupt:
+        pass
