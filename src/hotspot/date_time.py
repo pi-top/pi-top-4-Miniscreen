@@ -5,19 +5,23 @@
 
 import time
 from luma.core.virtual import hotspot
-import os
-import subprocess
+import datetime
+from hotspot.common import title_text
+
 
 def render(draw, width, height):
-    battery_percentage = subprocess.Popen(["pt-battery", "-c"], stdout=subprocess.PIPE).communicate()[0]
+    date_time = datetime.datetime.now()
+    date = str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
+    time = str(date_time.hour) + ":" + str(date_time.minute) + ":" + str(date_time.second)
 
-    percentage = "batt_level:" + battery_percentage + "%"
-    draw.text((width/10, height/10), text=percentage, fill="white")
+    title_text(draw, height/10, width, date)
 
-class Battery_level(hotspot):
+    draw.text((width/3, height/3), text=time, fill="white")
+
+class DateTime(hotspot):
 
     def __init__(self, width, height, interval):
-        super(Battery_level, self).__init__(width, height)
+        super(DateTime, self).__init__(width, height)
         self._interval = interval
         self._last_updated = 0
 
