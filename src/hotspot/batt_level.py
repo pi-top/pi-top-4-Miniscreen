@@ -7,15 +7,17 @@ import time
 from luma.core.virtual import hotspot
 import subprocess
 
-def render(draw, width, height):
-    def get_battery():
-        try:
-            cmd = subprocess.Popen(["pt-battery -c"], stdout=subprocess.PIPE)
-            response = cmd.communicate()
-        except FileNotFoundError:
-            response = "TEST"
 
-        return str(response + "%")
+def get_battery():
+    try:
+        cmd = subprocess.Popen(["pt-battery -c"], stdout=subprocess.PIPE)
+        response = cmd.communicate()
+    except FileNotFoundError:
+        response = "TEST"
+
+    return str(response + "%")
+
+def render(draw, width, height):
 
     draw.text((width/10, height/10), text=get_battery(), fill="white")
 
