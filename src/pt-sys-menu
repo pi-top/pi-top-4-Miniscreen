@@ -92,26 +92,35 @@ def get_widgets_from_config():
     return widgets_obj_arr
 
 
-def create_viewport(widgets):
-    total_widget_len = sum(widget.height for widget in widgets)
-    virtual = viewport(device, width=device.width, height=total_widget_len)
+def create_viewport(widgets, viewport_height):
+    virtual = viewport(device, width=device.width, height=viewport_height)
 
-    created_viewport_height = 0
+    # Start at second page, so that last entry can be added to the start for scrolling
+    created_viewport_height = device.height
     for i, widget in enumerate(widgets):
         virtual.add_hotspot(widget, (0, created_viewport_height))
         created_viewport_height += widget.height
 
+        # Assumes that one widget = one page
+        first_page = (i == 0)
+        if first_page:
+            virtual.add_hotspot(widget, (0, viewport_height - device.height))
+
+        last_page = (i == (len(widgets) - 1))
+        if last_page:
+            virtual.add_hotspot(widget, (0, 0))
+
     return virtual
 
 
-def process_keypresses(total_widget_len):
+def process_keypresses(viewport_height):
     new_page_index = page_index
     action = None
 
     for event in pygame.event.get():
         if not moving and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q or event.key == pygame.K_a:
-                new_page_index = get_page_index(total_widget_len, event.key)
+                new_page_index = get_page_index(viewport_height, event.key)
             if event.key == pygame.K_p:
                 # action = select()  # Something to do with selection
                 pass
@@ -122,40 +131,56 @@ def process_keypresses(total_widget_len):
     return new_page_index, action
 
 
-def get_page_index(total_widget_len, event_key):
+def get_page_index(viewport_height, event_key):
     global page_index
 
-    max_no_of_pages = (total_widget_len / device.height) - 1
+    max_no_of_pages = (viewport_height / device.height) - 1
 
     if event_key == pygame.K_a:
         if page_index == max_no_of_pages:
             return 0
         else:
             return page_index + 1
+
     elif event_key == pygame.K_q:
         if page_index == 0:
             return max_no_of_pages
         else:
             return page_index - 1
+
     return page_index
 
 
 def main():
     global page_index
     global y_pos
+    global moving
 
     widgets = get_widgets_from_config()
     total_widget_len = sum(widget.height for widget in widgets)
+    viewport_height = total_widget_len + (2 * device.height)  # Needed to provide seamless scrolling
 
-    virtual = create_viewport(widgets)
+    main_menu = create_viewport(widgets, viewport_height)
 
     try:
         while True:
-            page_index, action = process_keypresses(total_widget_len)
+            page_index, action = process_keypresses(viewport_height)
 
             resting_pos = (page_index * device.height)
             if y_pos == resting_pos:
-                moving = False
+                if moving:
+                    moving = False
+
+                    # Update page_index and position immediately if we are at the ends
+                    max_no_of_pages = (viewport_height / device.height) - 1
+
+                    if page_index == 0:
+                        page_index = max_no_of_pages - 1
+
+                    elif page_index == (max_no_of_pages - 1):
+                        page_index = 0
+
+                y_pos = page_index * device.height
             else:
                 moving = True
                 if resting_pos < y_pos:
@@ -164,15 +189,15 @@ def main():
                     y_pos = y_pos + 1
 
             pos = (0, y_pos)
-            virtual.set_position(pos)
+            main_menu.set_position(pos)
     except StopIteration:
         pass
 
 if __name__ == "__main__":
     try:
         device = get_device()
-        page_index = 0
-        y_pos = 0
+        page_index = 1
+        y_pos = 64
         moving = False
         main()
     except KeyboardInterrupt:
