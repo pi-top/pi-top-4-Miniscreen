@@ -5,14 +5,19 @@
 
 import time
 from luma.core.virtual import hotspot
-import os
 import subprocess
 
 def render(draw, width, height):
-    battery_percentage = subprocess.Popen(["pt-battery", "-c"], stdout=subprocess.PIPE).communicate()[0]
+    def get_battery():
+        try:
+            cmd = subprocess.Popen(["pt-battery -c"], stdout=subprocess.PIPE)
+            response = cmd.communicate()
+        except FileNotFoundError:
+            response = "TEST"
 
-    percentage = "batt_level:" + battery_percentage + "%"
-    draw.text((width/10, height/10), text=percentage, fill="white")
+        return str(response + "%")
+
+    draw.text((width/10, height/10), text=get_battery(), fill="white")
 
 class Battery_level(hotspot):
 

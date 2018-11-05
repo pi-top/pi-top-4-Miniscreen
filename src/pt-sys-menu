@@ -13,29 +13,6 @@ from luma.core.virtual import viewport, snapshot
 import os
 
 
-def position_updater(max):
-    forwards = range(0, max)
-    backwards = range(max, 0, -1)
-    while True:
-        for y in forwards:
-            yield y
-        for y in backwards:
-            yield y
-
-
-def get_y_pos(interval, pause, position_generator):
-    try:
-        while True:
-            if not pause:
-                y = next(position_generator)
-                if y % interval == 0:
-                        yield y
-                else:
-                    yield y
-    except StopIteration:
-        pass
-
-
 def get_snapshot(render_func, interval, widget_width=128, widget_height=64):
     return snapshot(widget_width, widget_height, render_func, interval=interval)
 
@@ -114,18 +91,6 @@ def get_widgets_from_config():
     return widgets_obj_arr
 
 
-def get_p_key_pressed(current_p_key_state):
-    new_p_key_state = current_p_key_state
-    for event in device._pygame.event.get():
-        if event.type == device._pygame.KEYDOWN:
-            if event.key == device._pygame.K_p:
-                new_p_key_state = True
-        if event.type == device._pygame.KEYUP:
-            if event.key == device._pygame.K_p:
-                new_p_key_state = False
-    return new_p_key_state
-
-
 def create_viewport(widgets):
     total_widget_len = sum(widget.height for widget in widgets)
     virtual = viewport(device, width=device.width, height=total_widget_len)
@@ -138,30 +103,59 @@ def create_viewport(widgets):
     return virtual
 
 
+def get_page_index(total_widget_len):
+    max_no_of_pages = (total_widget_len / device.height) - 1
+
+    for event in device._pygame.event.get():
+        if not moving:
+            if event.type == device._pygame.KEYDOWN:
+                if event.key == device._pygame.K_p:
+                    if page_index == max_no_of_pages:
+                        return 0
+                    else:
+                        return page_index + 1
+                elif event.key == device._pygame.K_o:
+                    if page_index == 0:
+                        return max_no_of_pages
+                    else:
+                        return page_index - 1
+    return page_index
+
+
 def main():
+    global page_index
+    global y_pos
+
     widgets = get_widgets_from_config()
     total_widget_len = sum(widget.height for widget in widgets)
 
     virtual = create_viewport(widgets)
 
-    # TODO: Move one device-height on key press
-    y_pos_update_generator = position_updater(total_widget_len - device.height)
-
     try:
-        pos = (0, 0)
-        p_key_down = False
         while True:
-            p_key_down = get_p_key_pressed(p_key_down)
-            if p_key_down:
-                pos = (0, next(y_pos_update_generator))
+            page_index = get_page_index(total_widget_len)
+
+            resting_pos = (page_index * device.height)
+            if y_pos == resting_pos:
+                moving = False
+            else:
+                moving = True
+                if resting_pos < y_pos:
+                    y_pos = y_pos - 1
+                else:
+                    y_pos = y_pos + 1
+
+            pos = (0, y_pos)
             virtual.set_position(pos)
     except StopIteration:
         pass
 
-
 if __name__ == "__main__":
     try:
         device = get_device()
+        page_index = 0
+        y_pos = 0
+        moving = False
         main()
     except KeyboardInterrupt:
         pass
