@@ -39,46 +39,46 @@ def get_widgets_from_config():
     except FileNotFoundError as e:
         # Default
         print("No config file - falling back to default")
-        widget_name_arr = ["cpu", "battery", "clock"]
+        widget_name_arr = ["cpu"]
 
     widgets_obj_arr = []
 
     for widget_name in widget_name_arr:
         if widget_name == "battery":
             print(widget_name)
-            from hotspot import batt_level
+            from hotspot.sys_info import batt_level
             widgets_obj_arr.append(get_snapshot(batt_level.render, interval=1.0))
 
         elif widget_name == "uptime":
             print(widget_name)
-            from hotspot import uptime
+            from hotspot.sys_info import uptime
             widgets_obj_arr.append(get_snapshot(uptime.render, interval=1.0))
 
         elif widget_name == "memory":
             print(widget_name)
-            from hotspot import memory
+            from hotspot.sys_info import memory
             widgets_obj_arr.append(get_snapshot(memory.render, interval=2.0))
 
 
         elif widget_name == "disk":
-            from hotspot import disk
+            from hotspot.sys_info import disk
             print(widget_name)
             widgets_obj_arr.append(get_snapshot(disk.render, interval=2.0))
 
 
         elif widget_name == "cpu":
             print(widget_name)
-            from hotspot import cpu_load
+            from hotspot.sys_info import cpu_load
             widgets_obj_arr.append(get_snapshot(cpu_load.render, interval=0.5))
 
         elif widget_name == "clock":
             print(widget_name)
-            from hotspot import clock
+            from hotspot.sys_info import clock
             widgets_obj_arr.append(get_snapshot(clock.render, interval=1.0))
 
         elif widget_name == "network":
             print(widget_name)
-            from hotspot import network
+            from hotspot.sys_info import network
 
             net_wlan = get_snapshot(network.stats("wlan0"), interval=2.0, widget_height=22)
             net_eth = get_snapshot(network.stats("eth0"), interval=2.0, widget_height=21)
@@ -92,7 +92,8 @@ def get_widgets_from_config():
     return widgets_obj_arr
 
 
-def create_viewport(widgets, viewport_height):
+def create_viewport(widgets):
+    viewport_height = sum(widget.height for widget in widgets) + (2 * device.height)
     virtual = viewport(device, width=device.width, height=viewport_height)
 
     # Start at second page, so that last entry can be added to the start for scrolling
@@ -115,26 +116,31 @@ def create_viewport(widgets, viewport_height):
 
 def process_keypresses(viewport_height):
     new_page_index = page_index
-    action = None
 
     for event in pygame.event.get():
         if not moving and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q or event.key == pygame.K_a:
                 new_page_index = get_page_index(viewport_height, event.key)
             if event.key == pygame.K_p:
+                if current_viewport_name == "sys_info":
+                    # projects_menu = create_viewport(widgets, viewport_height)
+                    # go_to_child_viewport("main_menu")
+
+                    # viewport_list[current_viewport_name] = sys_info_viewport
                 # action = select()  # Something to do with selection
-                pass
+                    pass
             if event.key == pygame.K_l:
+                print("Cancelled page " + str(page_index))
                 # action = cancel()  # Something to do with cancelling
                 pass
 
-    return new_page_index, action
+    return new_page_index
 
 
 def get_page_index(viewport_height, event_key):
     global page_index
 
-    max_no_of_pages = (viewport_height / device.height) - 1
+    max_no_of_pages = int(viewport_height / device.height) - 1
 
     if event_key == pygame.K_a:
         if page_index == max_no_of_pages:
@@ -151,20 +157,29 @@ def get_page_index(viewport_height, event_key):
     return page_index
 
 
+def get_viewport_height(viewport):
+    w,h = viewport.size
+    return h
+
+
 def main():
     global page_index
     global y_pos
     global moving
+    global current_viewport_name
 
-    widgets = get_widgets_from_config()
-    total_widget_len = sum(widget.height for widget in widgets)
-    viewport_height = total_widget_len + (2 * device.height)  # Needed to provide seamless scrolling
+    sys_info_widgets = get_widgets_from_config()
 
-    main_menu = create_viewport(widgets, viewport_height)
+    sys_info_viewport = create_viewport(sys_info_widgets)
+
+    # projects_menu = create_viewport(widgets, viewport_height)
+
+    viewport_list[current_viewport_name] = sys_info_viewport
 
     try:
         while True:
-            page_index, action = process_keypresses(viewport_height)
+            viewport_height = get_viewport_height(viewport_list[current_viewport_name])
+            page_index = process_keypresses(viewport_height)
 
             resting_pos = (page_index * device.height)
             if y_pos == resting_pos:
@@ -175,12 +190,12 @@ def main():
                     max_no_of_pages = (viewport_height / device.height) - 1
 
                     if page_index == 0:
-                        page_index = max_no_of_pages - 1
+                        page_index = int(max_no_of_pages - 1)
 
-                    elif page_index == (max_no_of_pages - 1):
-                        page_index = 0
+                    elif page_index == max_no_of_pages:
+                        page_index = 1
 
-                y_pos = page_index * device.height
+                y_pos = int(page_index * device.height)
             else:
                 moving = True
                 if resting_pos < y_pos:
@@ -189,7 +204,7 @@ def main():
                     y_pos = y_pos + 1
 
             pos = (0, y_pos)
-            main_menu.set_position(pos)
+            sys_info_viewport.set_position(pos)
     except StopIteration:
         pass
 
@@ -199,6 +214,8 @@ if __name__ == "__main__":
         page_index = 1
         y_pos = 64
         moving = False
+        viewport_list = {}
+        current_viewport_name = "sys_info"
         main()
     except KeyboardInterrupt:
         pass
