@@ -9,13 +9,16 @@ Adapted from carousel from luma.examples by Richard Hull and contributors
 """
 
 from demo_opts import get_device
-from luma.core.virtual import viewport, snapshot
+from luma.core.virtual import viewport, snapshot, hotspot
 import os
 import pygame  # Used for keypress detection instead of buttons
 
 
-def get_snapshot(render_func, interval, widget_width=128, widget_height=64):
-    return snapshot(widget_width, widget_height, render_func, interval=interval)
+def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0):
+    if float(interval) == 0.0:
+        return hotspot(widget_width, widget_height, render_func)
+    else:
+        return snapshot(widget_width, widget_height, render_func, interval=interval)
 
 
 def get_valid_widget_names():
@@ -30,7 +33,7 @@ def remove_invalid_widget_names(widget_name_list):
     return widget_name_list
 
 
-def get_widgets_from_config():
+def get_sys_widgets_from_config():
     try:
         with open(os.path.expanduser('~/.carousel'), 'r') as f:
             widget_name_arr = remove_invalid_widget_names(f.read().splitlines())
@@ -47,47 +50,56 @@ def get_widgets_from_config():
         if widget_name == "battery":
             print(widget_name)
             from hotspot.sys_info import batt_level
-            widgets_obj_arr.append(get_snapshot(batt_level.render, interval=1.0))
+            widgets_obj_arr.append(get_hotspot(batt_level.render, interval=1.0))
 
         elif widget_name == "uptime":
             print(widget_name)
             from hotspot.sys_info import uptime
-            widgets_obj_arr.append(get_snapshot(uptime.render, interval=1.0))
+            widgets_obj_arr.append(get_hotspot(uptime.render, interval=1.0))
 
         elif widget_name == "memory":
             print(widget_name)
             from hotspot.sys_info import memory
-            widgets_obj_arr.append(get_snapshot(memory.render, interval=2.0))
+            widgets_obj_arr.append(get_hotspot(memory.render, interval=2.0))
 
 
         elif widget_name == "disk":
             from hotspot.sys_info import disk
             print(widget_name)
-            widgets_obj_arr.append(get_snapshot(disk.render, interval=2.0))
+            widgets_obj_arr.append(get_hotspot(disk.render, interval=2.0))
 
 
         elif widget_name == "cpu":
             print(widget_name)
             from hotspot.sys_info import cpu_load
-            widgets_obj_arr.append(get_snapshot(cpu_load.render, interval=0.5))
+            widgets_obj_arr.append(get_hotspot(cpu_load.render, interval=0.5))
 
         elif widget_name == "clock":
             print(widget_name)
             from hotspot.sys_info import clock
-            widgets_obj_arr.append(get_snapshot(clock.render, interval=1.0))
+            widgets_obj_arr.append(get_hotspot(clock.render, interval=1.0))
 
         elif widget_name == "network":
             print(widget_name)
             from hotspot.sys_info import network
 
-            net_wlan = get_snapshot(network.stats("wlan0"), interval=2.0, widget_height=22)
-            net_eth = get_snapshot(network.stats("eth0"), interval=2.0, widget_height=21)
-            net_lo = get_snapshot(network.stats("lo"), interval=2.0, widget_height=21)
+            net_wlan = get_hotspot(network.stats("wlan0"), interval=2.0, widget_height=22)
+            net_eth = get_hotspot(network.stats("eth0"), interval=2.0, widget_height=21)
+            net_lo = get_hotspot(network.stats("lo"), interval=2.0, widget_height=21)
             widgets_obj_arr.append(net_wlan)
             widgets_obj_arr.append(net_eth)
             widgets_obj_arr.append(net_lo)
         else:
             print("Not found: '" + widget_name + "'")
+
+    return widgets_obj_arr
+
+
+def get_main_menu_widgets():
+    widgets_obj_arr = []
+
+    from hotspot.main_menu import template as main_menu
+    widgets_obj_arr.append(get_hotspot(main_menu.page(title="Projects"), interval=0))
 
     return widgets_obj_arr
 
@@ -168,13 +180,15 @@ def main():
     global moving
     global current_viewport_name
 
-    sys_info_widgets = get_widgets_from_config()
-
+    sys_info_widgets = get_sys_widgets_from_config()
     sys_info_viewport = create_viewport(sys_info_widgets)
 
-    # projects_menu = create_viewport(widgets, viewport_height)
-
     viewport_list[current_viewport_name] = sys_info_viewport
+
+    main_menu_widgets = get_main_menu_widgets()
+    main_menu_viewport = create_viewport(main_menu_widgets)
+
+    viewport_list["main_menu"] = main_menu_viewport
 
     try:
         while True:
@@ -204,7 +218,7 @@ def main():
                     y_pos = y_pos + 1
 
             pos = (0, y_pos)
-            sys_info_viewport.set_position(pos)
+            viewport_list[current_viewport_name].set_position(pos)
     except StopIteration:
         pass
 
