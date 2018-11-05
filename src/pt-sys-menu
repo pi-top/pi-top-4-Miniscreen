@@ -11,6 +11,7 @@ Adapted from carousel from luma.examples by Richard Hull and contributors
 from demo_opts import get_device
 from luma.core.virtual import viewport, snapshot
 import os
+import pygame  # Used for keypress detection instead of buttons
 
 
 def get_snapshot(render_func, interval, widget_width=128, widget_height=64):
@@ -103,22 +104,39 @@ def create_viewport(widgets):
     return virtual
 
 
-def get_page_index(total_widget_len):
+def process_keypresses(total_widget_len):
+    new_page_index = page_index
+    action = None
+
+    for event in pygame.event.get():
+        if not moving and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q or event.key == pygame.K_a:
+                new_page_index = get_page_index(total_widget_len, event.key)
+            if event.key == pygame.K_p:
+                # action = select()  # Something to do with selection
+                pass
+            if event.key == pygame.K_l:
+                # action = cancel()  # Something to do with cancelling
+                pass
+
+    return new_page_index, action
+
+
+def get_page_index(total_widget_len, event_key):
+    global page_index
+
     max_no_of_pages = (total_widget_len / device.height) - 1
 
-    for event in device._pygame.event.get():
-        if not moving:
-            if event.type == device._pygame.KEYDOWN:
-                if event.key == device._pygame.K_p:
-                    if page_index == max_no_of_pages:
-                        return 0
-                    else:
-                        return page_index + 1
-                elif event.key == device._pygame.K_o:
-                    if page_index == 0:
-                        return max_no_of_pages
-                    else:
-                        return page_index - 1
+    if event_key == pygame.K_a:
+        if page_index == max_no_of_pages:
+            return 0
+        else:
+            return page_index + 1
+    elif event_key == pygame.K_q:
+        if page_index == 0:
+            return max_no_of_pages
+        else:
+            return page_index - 1
     return page_index
 
 
@@ -133,7 +151,7 @@ def main():
 
     try:
         while True:
-            page_index = get_page_index(total_widget_len)
+            page_index, action = process_keypresses(total_widget_len)
 
             resting_pos = (page_index * device.height)
             if y_pos == resting_pos:
