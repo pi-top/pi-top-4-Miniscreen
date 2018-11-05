@@ -14,7 +14,7 @@ import os
 import pygame  # Used for keypress detection instead of buttons
 
 
-def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0):
+def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
     if float(interval) == 0.0:
         return hotspot(widget_width, widget_height, render_func)
     else:
