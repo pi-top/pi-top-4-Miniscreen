@@ -158,10 +158,16 @@ class Menu:
     def get_current_page(self):
         return self.pages[self.page_index]
 
+    def second_to_last_page_no(self):
+        return len(self.pages) - 2
+
+    def last_page_no(self):
+        return len(self.pages) - 1
+
     def update_position_if_at_end_of_viewport(self):
         if self.page_index == 0:
-            self.move_instantly_to_page(len(self.pages) - 1)
-        elif self.page_index == len(self.pages):
+            self.move_instantly_to_page(self.second_to_last_page_no())
+        elif self.page_index == self.last_page_no():
             self.move_instantly_to_page(1)
 
     def update_position_based_on_state(self):
