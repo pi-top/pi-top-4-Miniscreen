@@ -14,81 +14,93 @@ import os
 import pygame  # Used for keypress detection instead of buttons
 from hotspot.sys_info import batt_level, uptime, memory, disk, cpu_load, clock
 from hotspot.main_menu import template as main_menu
+from enum import Enum
 
 
-class ButtonPress:
-    NONE = 0
-    UP = 1
-    DOWN = 2
-    SELECT = 3
-    CANCEL = 4
-
-    def __init__(self, event_type):
-        self.event_type = event_type
-
-    def is_direction(self):
-        return self.event_type == self.DOWN or \
-               self.event_type == self.UP
-
-    def is_action(self):
-        return self.event_type == self.SELECT or \
-               self.event_type == self.CANCEL
-
+class ButtonPressHelper:
     @staticmethod
     def get():
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    return ButtonPress(ButtonPress.DOWN)
+                    return ButtonPress(ButtonPress.ButtonType.DOWN)
                 elif event.key == pygame.K_q:
-                    return ButtonPress(ButtonPress.UP)
+                    return ButtonPress(ButtonPress.ButtonType.UP)
                 elif event.key == pygame.K_p:
-                    return ButtonPress(ButtonPress.SELECT)
+                    return ButtonPress(ButtonPress.ButtonType.SELECT)
                 elif event.key == pygame.K_l:
-                    return ButtonPress(ButtonPress.CANCEL)
+                    return ButtonPress(ButtonPress.ButtonType.CANCEL)
 
-        # Default case:
-        return ButtonPress(ButtonPress.NONE)
+        return ButtonPress(ButtonPress.ButtonType.NONE)
+
+
+class ButtonPress:
+    class ButtonType(Enum):
+        NONE = 0
+        UP = 1
+        DOWN = 2
+        SELECT = 3
+        CANCEL = 4
+
+    def __init__(self, event_type):
+        self.event_type = event_type
+
+    def is_direction(self):
+        return self.event_type == self.ButtonType.DOWN or \
+               self.event_type == self.ButtonType.UP
+
+    def is_action(self):
+        return self.event_type == self.ButtonType.SELECT or \
+               self.event_type == self.ButtonType.CANCEL
+
 
 class MenuHandler:
-    """Owner class for all menus. Handles input events and controls menu behaviour."""
+    """Owner class for all MenuHelper.Menus. Handles input events and controls menu behaviour."""
 
     def __init__(self):
         """Constructor for MenuHandler"""
-        # Create menus...
+        # Create MenuHelper.Menus...
         self.menus = dict()
-        self.menus["sys_info"] = Menu("sys_info")
-        self.menus["main_menu"] = Menu("main_menu")
+        self.menus[MenuHelper.Menus.SYS_INFO] = Menu(MenuHelper.Menus.SYS_INFO)
+        self.menus[MenuHelper.Menus.MAIN_MENU] = Menu(MenuHelper.Menus.MAIN_MENU)
 
-        self.current_menu = self.menus["sys_info"]
+        self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
 
     def update_state(self, button_press_type):
         if not self.current_menu.moving_to_page:
             # Check button state
-            if button_press_type.is_direction():
-                if button_press_type.event_type == ButtonPress.DOWN:
-                    self.current_menu.go_to_next_page()
-                elif button_press_type.event_type == ButtonPress.UP:
-                    self.current_menu.go_to_previous_page()
-            elif button_press_type.is_action():
-                if button_press_type.event_type == ButtonPress.SELECT:
-                    current_page = self.current_menu.get_current_page()
-                    self.current_menu = self.menus[current_page.select_action_menu]
-                elif button_press_type.event_type == ButtonPress.CANCEL:
-                    if self.current_menu.parent is not None:
-                        self.current_menu = self.menus[self.current_menu.parent]
+            if button_press_type.event_type != ButtonPress.ButtonType.NONE:
+                if button_press_type.is_direction():
+                    if button_press_type.event_type == ButtonPress.ButtonType.DOWN:
+                        self.current_menu.go_to_next_page()
+                    elif button_press_type.event_type == ButtonPress.ButtonType.UP:
+                        self.current_menu.go_to_previous_page()
+                elif button_press_type.is_action():
+                    if button_press_type.event_type == ButtonPress.ButtonType.SELECT:
+                        current_page = self.current_menu.get_current_page()
+                        self.current_menu = self.menus[current_page.select_action_menu]
+                    elif button_press_type.event_type == ButtonPress.ButtonType.CANCEL:
+                        if self.current_menu.parent is not None:
+                            self.current_menu = self.menus[self.current_menu.parent]
 
         self.current_menu.update_position_based_on_state()
 
     def main_loop(self):
         try:
             while True:
-                self.update_state(ButtonPress.get())
+                self.update_state(ButtonPressHelper.get())
         except StopIteration:
             pass
 
 
 class MenuHelper:
+    class Menus(Enum):
+        SYS_INFO = 0
+        MAIN_MENU = 1
+        PROJECTS = 2
+        SETTINGS = 3
+        WIFI_SETUP = 4
+
     @staticmethod
     def add_infinite_scroll_edge_pages(pages):
         pages.insert(0, pages[-1])
@@ -111,7 +123,7 @@ class MenuHelper:
 
 
 class Menu:
-    """A scrollable viewport of many menu pages."""
+    """A scrollable viewport of many menu MenuPageHelper.Pages.SysInfo."""
 
     def __init__(self, name):
         """Constructor for Menu"""
@@ -122,10 +134,10 @@ class Menu:
         self.name = name
         self.parent = None
 
-        if name == "sys_info":
+        if name == MenuHelper.Menus.SYS_INFO:
             pages = MenuPageHelper.get_sys_widgets_from_config()
-        elif name == "main_menu":
-            self.parent = "sys_info"
+        elif name == MenuHelper.Menus.MAIN_MENU:
+            self.parent = MenuHelper.Menus.SYS_INFO
             pages = MenuPageHelper.get_main_menu_widgets()
         else:
             raise Exception("Unrecognised menu name")
@@ -168,6 +180,41 @@ class Menu:
 class MenuPageHelper:
     """A widget that takes up the full size of the display. Component of a menu."""
 
+    class Pages:
+        class SysInfo(Enum):
+            BATTERY = "battery"
+            UPTIME = "uptime"
+            MEMORY = "memory"
+            DISK = "disk"
+            CPU = "cpu"
+            CLOCK = "clock"
+            # NETWORK = "network"
+
+        class MainMenu:
+            PROJECT_SELECT = "project_select"
+
+    @staticmethod
+    def get_menu_enum_class_from_name(menu_name):
+        if menu_name == MenuHelper.Menus.SYS_INFO:
+            return MenuPageHelper.Pages.SysInfo
+        elif menu_name == MenuHelper.Menus.MAIN_MENU:
+            return MenuPageHelper.Pages.MainMenu
+        else:
+            raise Exception("Unrecognised menu name: " + menu_name)
+
+    @staticmethod
+    def get_page_names(menu_name):
+        pages_enum = MenuPageHelper.get_menu_enum_class_from_name(menu_name)
+        return[page_name.value for page_id, page_name in pages_enum.__members__.items()]
+
+    @staticmethod
+    def get_enum_key_from_value(menu_name, value):
+        pages_enum = MenuPageHelper.get_menu_enum_class_from_name(menu_name)
+        for page_id, page_name in pages_enum.__members__.items():
+            if page_name.value == value:
+                return page_name
+        raise Exception("Unable to find enum key matching value: " + value)
+
     @staticmethod
     def _get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
         if float(interval) == 0.0:
@@ -176,26 +223,26 @@ class MenuPageHelper:
             return snapshot(widget_width, widget_height, render_func, interval=interval)
 
     @staticmethod
-    def get_hotspot(widget_name):
-        if widget_name == "battery":
+    def get_hotspot(widget_id):
+        if widget_id == MenuPageHelper.Pages.SysInfo.BATTERY:
             return MenuPageHelper._get_hotspot(batt_level.render, interval=1.0)
 
-        elif widget_name == "uptime":
+        elif widget_id == MenuPageHelper.Pages.SysInfo.UPTIME:
             return MenuPageHelper._get_hotspot(uptime.render, interval=1.0)
 
-        elif widget_name == "memory":
+        elif widget_id == MenuPageHelper.Pages.SysInfo.MEMORY:
             return MenuPageHelper._get_hotspot(memory.render, interval=2.0)
 
-        elif widget_name == "disk":
+        elif widget_id == MenuPageHelper.Pages.SysInfo.DISK:
             return MenuPageHelper._get_hotspot(disk.render, interval=2.0)
 
-        elif widget_name == "cpu":
+        elif widget_id == MenuPageHelper.Pages.SysInfo.CPU:
             return MenuPageHelper._get_hotspot(cpu_load.render, interval=0.5)
 
-        elif widget_name == "clock":
+        elif widget_id == MenuPageHelper.Pages.SysInfo.CLOCK:
             return MenuPageHelper._get_hotspot(clock.render, interval=1.0)
 
-        elif widget_name == "project_select":
+        elif widget_id == MenuPageHelper.Pages.MainMenu.PROJECT_SELECT:
             return MenuPageHelper._get_hotspot(main_menu.page(title="Projects"), interval=0.0)
 
         # Commented out until merged into one widget
@@ -208,17 +255,13 @@ class MenuPageHelper:
         #     widgets_obj_arr.append(net_eth)
         #     widgets_obj_arr.append(net_lo)
         else:
-            raise Exception("Not found: '" + widget_name + "'")
+            raise Exception("Not found: '" + widget_id + "'")
 
     @staticmethod
-    def get_valid_widget_names():
-        return ["uptime", "battery", "memory", "disk", "cpu", "clock", "network"]
-
-    @staticmethod
-    def remove_invalid_widget_names(widget_name_list):
-        valid_widget_names = MenuPageHelper.get_valid_widget_names()
+    def remove_invalid_sys_info_widget_names(widget_name_list):
+        valid_page_names = MenuPageHelper.get_page_names(MenuHelper.Menus.SYS_INFO)
         for widget_name in widget_name_list:
-            if widget_name not in valid_widget_names:
+            if widget_name not in valid_page_names:
                 widget_name_list.remove(widget_name)
         return widget_name_list
 
@@ -226,18 +269,19 @@ class MenuPageHelper:
     def get_sys_widgets_from_config():
         try:
             with open(os.path.expanduser('~/.carousel'), 'r') as f:
-                widget_name_arr = MenuPageHelper.remove_invalid_widget_names(f.read().splitlines())
+                widget_name_arr = MenuPageHelper.remove_invalid_sys_info_widget_names(f.read().splitlines())
                 # Do something if this ends up empty - show a "none selected" screen?
 
         except FileNotFoundError:
             # Default
             print("No config file - falling back to default")
-            widget_name_arr = ["cpu"]
+            widget_name_arr = ['cpu', 'clock', 'disk']
 
         widgets_obj_arr = []
 
         for widget_name in widget_name_arr:
-            page = MenuPage(hotspot_name=widget_name, select_action_menu="main_menu")
+            widget_id = MenuPageHelper.get_enum_key_from_value(MenuHelper.Menus.SYS_INFO, widget_name)
+            page = MenuPage(hotspot_id=widget_id, select_action_menu=MenuHelper.Menus.MAIN_MENU)
             widgets_obj_arr.append(page)
 
         return widgets_obj_arr
@@ -246,7 +290,7 @@ class MenuPageHelper:
     def get_main_menu_widgets():
         widgets_obj_arr = []
 
-        page = MenuPage(hotspot_name="project_select", select_action_menu="projects")
+        page = MenuPage(hotspot_id="project_select", select_action_menu=MenuHelper.Menus.PROJECTS)
         widgets_obj_arr.append(page)
 
         return widgets_obj_arr
@@ -254,10 +298,10 @@ class MenuPageHelper:
 class MenuPage:
     """Base view on screen"""
 
-    def __init__(self, hotspot_name, select_action_menu):
+    def __init__(self, hotspot_id, select_action_menu):
         """Constructor for MenuPage"""
         self.select_action_menu = select_action_menu
-        self.hotspot = MenuPageHelper.get_hotspot(hotspot_name)  # maybe an enum is better?
+        self.hotspot = MenuPageHelper.get_hotspot(hotspot_id)
 
 
 
