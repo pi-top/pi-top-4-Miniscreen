@@ -12,224 +12,264 @@ from demo_opts import get_device
 from luma.core.virtual import viewport, snapshot, hotspot
 import os
 import pygame  # Used for keypress detection instead of buttons
+from hotspot.sys_info import batt_level, uptime, memory, disk, cpu_load, clock
+from hotspot.main_menu import template as main_menu
 
 
-def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
-    if float(interval) == 0.0:
-        return hotspot(widget_width, widget_height, render_func)
-    else:
-        return snapshot(widget_width, widget_height, render_func, interval=interval)
+class ButtonPress:
+    NONE = 0
+    UP = 1
+    DOWN = 2
+    SELECT = 3
+    CANCEL = 4
+
+    def __init__(self, event_type):
+        self.event_type = event_type
+
+    def is_direction(self):
+        return self.event_type == self.DOWN or \
+               self.event_type == self.UP
+
+    def is_action(self):
+        return self.event_type == self.SELECT or \
+               self.event_type == self.CANCEL
+
+    @staticmethod
+    def get():
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    return ButtonPress(ButtonPress.DOWN)
+                elif event.key == pygame.K_q:
+                    return ButtonPress(ButtonPress.UP)
+                elif event.key == pygame.K_p:
+                    return ButtonPress(ButtonPress.SELECT)
+                elif event.key == pygame.K_l:
+                    return ButtonPress(ButtonPress.CANCEL)
+
+        # Default case:
+        return ButtonPress(ButtonPress.NONE)
+
+class MenuHandler:
+    """Owner class for all menus. Handles input events and controls menu behaviour."""
+
+    def __init__(self):
+        """Constructor for MenuHandler"""
+        # Create menus...
+        self.menus = dict()
+        self.menus["sys_info"] = Menu("sys_info")
+        self.menus["main_menu"] = Menu("main_menu")
+
+        self.current_menu = self.menus["sys_info"]
+
+    def update_state(self, button_press_type):
+        if not self.current_menu.moving:
+            # Check button state
+            if button_press_type.is_direction():
+                if button_press_type.event_type == ButtonPress.DOWN:
+                    self.current_menu.go_to_next_page()
+                elif button_press_type.event_type == ButtonPress.UP:
+                    self.current_menu.go_to_previous_page()
+            elif button_press_type.is_action():
+                if button_press_type.event_type == ButtonPress.SELECT:
+                    # Need to be able to access current page in menu
+                    # Then get its associated follow up page
+                    # Then update the current menu in the menu handler
+                    self.current_menu = self.menus[self.current_menu.parent]
+                elif button_press_type.event_type == ButtonPress.CANCEL:
+                    if self.current_menu.parent is not None:
+                        self.current_menu = self.menus[self.current_menu.parent]
+
+        self.current_menu.update_position_based_on_state()
+
+    def main_loop(self):
+        try:
+            while True:
+                self.update_state(ButtonPress.get())
+        except StopIteration:
+            pass
 
 
-def get_valid_widget_names():
-    return ["uptime", "battery", "memory", "disk", "cpu", "clock", "network"]
+class MenuHelper:
+    @staticmethod
+    def create_viewport(widgets):
+        viewport_height = sum(widget.height for widget in widgets) + (2 * device.height)
+        virtual = viewport(device, width=device.width, height=viewport_height)
+
+        # Start at second page, so that last entry can be added to the start for scrolling
+        created_viewport_height = device.height
+        for i, widget in enumerate(widgets):
+            virtual.add_hotspot(widget, (0, created_viewport_height))
+            created_viewport_height += widget.height
+
+            # Assumes that one widget = one page
+            first_page = (i == 0)
+            if first_page:
+                virtual.add_hotspot(widget, (0, viewport_height - device.height))
+
+            last_page = (i == (len(widgets) - 1))
+            if last_page:
+                virtual.add_hotspot(widget, (0, 0))
+
+        return virtual
 
 
-def remove_invalid_widget_names(widget_name_list):
-    valid_widget_names = get_valid_widget_names()
-    for widget_name in widget_name_list:
-        if widget_name not in valid_widget_names:
-            widget_name_list.remove(widget_name)
-    return widget_name_list
+class Menu:
+    """A scrollable viewport of many menu pages."""
+
+    def __init__(self, name):
+        """Constructor for Menu"""
+        self.page_index = 1
+        self.y_pos = 64
+        self.moving = False
+        self.name = name
+        self.parent = None
+
+        if name == "sys_info":
+            widgets = MenuPageHelper.get_sys_widgets_from_config()
+        elif name == "main_menu":
+            self.parent = "sys_info"
+            widgets = MenuPageHelper.get_main_menu_widgets()
+        else:
+            raise Exception("Unrecognised menu name")
+
+        self.viewport = MenuHelper.create_viewport(widgets)
+        self.no_of_pages = int(self.get_viewport_height() / device.height) - 1
+
+    def go_to_previous_page(self):
+        self.page_index = self.page_index - 1
+
+    def go_to_next_page(self):
+        self.page_index = self.page_index + 1
+
+    def get_current_page(self):
+        pass
+
+    def update_position_based_on_state(self):
+        resting_pos = (self.page_index * device.height)
+        if self.y_pos == resting_pos:
+            if self.moving:
+                self.moving = False
+
+                # Update page_index and position immediately if we are at the ends
+                if self.page_index == 0:
+                    self.page_index = int(self.no_of_pages - 1)
+
+                elif self.page_index == self.no_of_pages:
+                    self.page_index = 1
+
+                self.y_pos = int(self.page_index * device.height)
+        else:
+            self.moving = True
+            if resting_pos < self.y_pos:
+                self.y_pos = self.y_pos - 1
+            else:
+                self.y_pos = self.y_pos + 1
+
+        self.viewport.set_position((0, self.y_pos))
+
+    def get_viewport_height(self):
+        return self.viewport.size[1]
 
 
-def get_sys_widgets_from_config():
-    try:
-        with open(os.path.expanduser('~/.carousel'), 'r') as f:
-            widget_name_arr = remove_invalid_widget_names(f.read().splitlines())
-            # Do something if this ends up empty - show a "none selected" screen?
+class MenuPageHelper:
+    """A widget that takes up the full size of the display. Component of a menu."""
 
-    except FileNotFoundError as e:
-        # Default
-        print("No config file - falling back to default")
-        widget_name_arr = ["cpu"]
+    def __init__(self):
+        pass
 
-    widgets_obj_arr = []
+    @staticmethod
+    def _get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
+        if float(interval) == 0.0:
+            return hotspot(widget_width, widget_height, render_func)
+        else:
+            return snapshot(widget_width, widget_height, render_func, interval=interval)
 
-    for widget_name in widget_name_arr:
+    @staticmethod
+    def get_hotspot(widget_name):
         if widget_name == "battery":
-            print(widget_name)
-            from hotspot.sys_info import batt_level
-            widgets_obj_arr.append(get_hotspot(batt_level.render, interval=1.0))
+            return MenuPageHelper._get_hotspot(batt_level.render, interval=1.0)
 
         elif widget_name == "uptime":
-            print(widget_name)
-            from hotspot.sys_info import uptime
-            widgets_obj_arr.append(get_hotspot(uptime.render, interval=1.0))
+            return MenuPageHelper._get_hotspot(uptime.render, interval=1.0)
 
         elif widget_name == "memory":
-            print(widget_name)
-            from hotspot.sys_info import memory
-            widgets_obj_arr.append(get_hotspot(memory.render, interval=2.0))
-
+            return MenuPageHelper._get_hotspot(memory.render, interval=2.0)
 
         elif widget_name == "disk":
-            from hotspot.sys_info import disk
-            print(widget_name)
-            widgets_obj_arr.append(get_hotspot(disk.render, interval=2.0))
-
+            return MenuPageHelper._get_hotspot(disk.render, interval=2.0)
 
         elif widget_name == "cpu":
-            print(widget_name)
-            from hotspot.sys_info import cpu_load
-            widgets_obj_arr.append(get_hotspot(cpu_load.render, interval=0.5))
+            return MenuPageHelper._get_hotspot(cpu_load.render, interval=0.5)
 
         elif widget_name == "clock":
-            print(widget_name)
-            from hotspot.sys_info import clock
-            widgets_obj_arr.append(get_hotspot(clock.render, interval=1.0))
+            return MenuPageHelper._get_hotspot(clock.render, interval=1.0)
 
-        elif widget_name == "network":
-            print(widget_name)
-            from hotspot.sys_info import network
+        elif widget_name == "project-select":
+            return MenuPageHelper._get_hotspot(main_menu.page(title="Projects"), interval=0)
 
-            net_wlan = get_hotspot(network.stats("wlan0"), interval=2.0, widget_height=22)
-            net_eth = get_hotspot(network.stats("eth0"), interval=2.0, widget_height=21)
-            net_lo = get_hotspot(network.stats("lo"), interval=2.0, widget_height=21)
-            widgets_obj_arr.append(net_wlan)
-            widgets_obj_arr.append(net_eth)
-            widgets_obj_arr.append(net_lo)
+        # Commented out until merged into one widget
+
+        # elif widget_name == "network":
+        #     net_wlan = get_hotspot(network.stats("wlan0"), interval=2.0, widget_height=22)
+        #     net_eth = get_hotspot(network.stats("eth0"), interval=2.0, widget_height=21)
+        #     net_lo = get_hotspot(network.stats("lo"), interval=2.0, widget_height=21)
+        #     widgets_obj_arr.append(net_wlan)
+        #     widgets_obj_arr.append(net_eth)
+        #     widgets_obj_arr.append(net_lo)
         else:
             print("Not found: '" + widget_name + "'")
 
-    return widgets_obj_arr
+    @staticmethod
+    def get_valid_widget_names():
+        return ["uptime", "battery", "memory", "disk", "cpu", "clock", "network"]
 
+    @staticmethod
+    def remove_invalid_widget_names(widget_name_list):
+        valid_widget_names = MenuPageHelper.get_valid_widget_names()
+        for widget_name in widget_name_list:
+            if widget_name not in valid_widget_names:
+                widget_name_list.remove(widget_name)
+        return widget_name_list
 
-def get_main_menu_widgets():
-    widgets_obj_arr = []
+    @staticmethod
+    def get_sys_widgets_from_config():
+        try:
+            with open(os.path.expanduser('~/.carousel'), 'r') as f:
+                widget_name_arr = MenuPageHelper.remove_invalid_widget_names(f.read().splitlines())
+                # Do something if this ends up empty - show a "none selected" screen?
 
-    from hotspot.main_menu import template as main_menu
-    widgets_obj_arr.append(get_hotspot(main_menu.page(title="Projects"), interval=0))
+        except FileNotFoundError:
+            # Default
+            print("No config file - falling back to default")
+            widget_name_arr = ["cpu"]
 
-    return widgets_obj_arr
+        widgets_obj_arr = []
 
+        for widget_name in widget_name_arr:
+            page = MenuPageHelper.get_hotspot(widget_name)
+            widgets_obj_arr.append(page)
 
-def create_viewport(widgets):
-    viewport_height = sum(widget.height for widget in widgets) + (2 * device.height)
-    virtual = viewport(device, width=device.width, height=viewport_height)
+        return widgets_obj_arr
 
-    # Start at second page, so that last entry can be added to the start for scrolling
-    created_viewport_height = device.height
-    for i, widget in enumerate(widgets):
-        virtual.add_hotspot(widget, (0, created_viewport_height))
-        created_viewport_height += widget.height
+    @staticmethod
+    def get_main_menu_widgets():
+        widgets_obj_arr = []
 
-        # Assumes that one widget = one page
-        first_page = (i == 0)
-        if first_page:
-            virtual.add_hotspot(widget, (0, viewport_height - device.height))
+        page = MenuPageHelper.get_hotspot("project-select")  # maybe an enum is better?
+        widgets_obj_arr.append(page)
 
-        last_page = (i == (len(widgets) - 1))
-        if last_page:
-            virtual.add_hotspot(widget, (0, 0))
-
-    return virtual
-
-
-def process_keypresses(viewport_height):
-    new_page_index = page_index
-
-    for event in pygame.event.get():
-        if not moving and event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q or event.key == pygame.K_a:
-                new_page_index = get_page_index(viewport_height, event.key)
-            if event.key == pygame.K_p:
-                if current_viewport_name == "sys_info":
-                    # projects_menu = create_viewport(widgets, viewport_height)
-                    # go_to_child_viewport("main_menu")
-
-                    # viewport_list[current_viewport_name] = sys_info_viewport
-                # action = select()  # Something to do with selection
-                    pass
-            if event.key == pygame.K_l:
-                print("Cancelled page " + str(page_index))
-                # action = cancel()  # Something to do with cancelling
-                pass
-
-    return new_page_index
-
-
-def get_page_index(viewport_height, event_key):
-    global page_index
-
-    max_no_of_pages = int(viewport_height / device.height) - 1
-
-    if event_key == pygame.K_a:
-        if page_index == max_no_of_pages:
-            return 0
-        else:
-            return page_index + 1
-
-    elif event_key == pygame.K_q:
-        if page_index == 0:
-            return max_no_of_pages
-        else:
-            return page_index - 1
-
-    return page_index
-
-
-def get_viewport_height(viewport):
-    w,h = viewport.size
-    return h
+        return widgets_obj_arr
 
 
 def main():
-    global page_index
-    global y_pos
-    global moving
-    global current_viewport_name
+    app = MenuHandler()
+    app.main_loop()
 
-    sys_info_widgets = get_sys_widgets_from_config()
-    sys_info_viewport = create_viewport(sys_info_widgets)
-
-    viewport_list[current_viewport_name] = sys_info_viewport
-
-    main_menu_widgets = get_main_menu_widgets()
-    main_menu_viewport = create_viewport(main_menu_widgets)
-
-    viewport_list["main_menu"] = main_menu_viewport
-
-    try:
-        while True:
-            viewport_height = get_viewport_height(viewport_list[current_viewport_name])
-            page_index = process_keypresses(viewport_height)
-
-            resting_pos = (page_index * device.height)
-            if y_pos == resting_pos:
-                if moving:
-                    moving = False
-
-                    # Update page_index and position immediately if we are at the ends
-                    max_no_of_pages = (viewport_height / device.height) - 1
-
-                    if page_index == 0:
-                        page_index = int(max_no_of_pages - 1)
-
-                    elif page_index == max_no_of_pages:
-                        page_index = 1
-
-                y_pos = int(page_index * device.height)
-            else:
-                moving = True
-                if resting_pos < y_pos:
-                    y_pos = y_pos - 1
-                else:
-                    y_pos = y_pos + 1
-
-            pos = (0, y_pos)
-            viewport_list[current_viewport_name].set_position(pos)
-    except StopIteration:
-        pass
 
 if __name__ == "__main__":
     try:
         device = get_device()
-        page_index = 1
-        y_pos = 64
-        moving = False
-        viewport_list = {}
-        current_viewport_name = "sys_info"
         main()
     except KeyboardInterrupt:
         pass
