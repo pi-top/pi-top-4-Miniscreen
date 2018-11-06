@@ -79,6 +79,7 @@ class MenuHandler:
                     if button_press_type.event_type == ButtonPress.ButtonType.SELECT:
                         current_page = self.current_menu.get_current_page()
                         self.current_menu = self.menus[current_page.select_action_menu]
+                        self.current_menu.move_instantly_to_page(1)
                     elif button_press_type.event_type == ButtonPress.ButtonType.CANCEL:
                         if self.current_menu.parent is not None:
                             self.current_menu = self.menus[self.current_menu.parent]
@@ -128,8 +129,7 @@ class Menu:
     def __init__(self, name):
         """Constructor for Menu"""
         self.pages = []
-        self.page_index = 1
-        self.y_pos = self.page_index * device.height
+        self.move_instantly_to_page(1)
         self.moving_to_page = False
         self.name = name
         self.parent = None
@@ -145,6 +145,10 @@ class Menu:
         self.pages = MenuHelper.add_infinite_scroll_edge_pages(pages)
         self.viewport = MenuHelper.create_viewport(self.pages)
 
+    def move_instantly_to_page(self, page_index):
+        self.page_index = page_index
+        self.y_pos = self.page_index * device.height
+
     def go_to_previous_page(self):
         self.page_index = self.page_index - 1
 
@@ -156,10 +160,9 @@ class Menu:
 
     def update_position_if_at_end_of_viewport(self):
         if self.page_index == 0:
-            self.page_index = len(self.pages) - 1
+            self.move_instantly_to_page(len(self.pages) - 1)
         elif self.page_index == len(self.pages):
-            self.page_index = 1
-        self.y_pos = int(self.page_index * device.height)
+            self.move_instantly_to_page(1)
 
     def update_position_based_on_state(self):
         resting_pos = (self.page_index * device.height)
@@ -182,6 +185,7 @@ class MenuPageHelper:
 
     class Pages:
         class SysInfo(Enum):
+            # These are strings so that they can be enabled/disabled via a config file
             BATTERY = "battery"
             UPTIME = "uptime"
             MEMORY = "memory"
@@ -190,8 +194,10 @@ class MenuPageHelper:
             CLOCK = "clock"
             # NETWORK = "network"
 
-        class MainMenu:
-            PROJECT_SELECT = "project_select"
+        class MainMenu(Enum):
+            PROJECT_SELECT = 0
+            SETTINGS_SELECT = 1
+            WIFI_SETUP_SELECT = 2
 
     @staticmethod
     def get_menu_enum_class_from_name(menu_name):
@@ -208,12 +214,17 @@ class MenuPageHelper:
         return[page_name.value for page_id, page_name in pages_enum.__members__.items()]
 
     @staticmethod
+    def get_page_ids(menu_name):
+        pages_enum = MenuPageHelper.get_menu_enum_class_from_name(menu_name)
+        return pages_enum.__members__.items()
+
+    @staticmethod
     def get_enum_key_from_value(menu_name, value):
         pages_enum = MenuPageHelper.get_menu_enum_class_from_name(menu_name)
         for page_id, page_name in pages_enum.__members__.items():
             if page_name.value == value:
                 return page_name
-        raise Exception("Unable to find enum key matching value: " + value)
+        raise Exception("Unable to find enum key matching value: " + str(value))
 
     @staticmethod
     def _get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
@@ -245,6 +256,12 @@ class MenuPageHelper:
         elif widget_id == MenuPageHelper.Pages.MainMenu.PROJECT_SELECT:
             return MenuPageHelper._get_hotspot(main_menu.page(title="Projects"), interval=0.0)
 
+        elif widget_id == MenuPageHelper.Pages.MainMenu.SETTINGS_SELECT:
+            return MenuPageHelper._get_hotspot(main_menu.page(title="Settings"), interval=0.0)
+
+        elif widget_id == MenuPageHelper.Pages.MainMenu.WIFI_SETUP_SELECT:
+            return MenuPageHelper._get_hotspot(main_menu.page(title="Wi-Fi Setup"), interval=0.0)
+
         # Commented out until merged into one widget
 
         # elif widget_name == "network":
@@ -255,7 +272,7 @@ class MenuPageHelper:
         #     widgets_obj_arr.append(net_eth)
         #     widgets_obj_arr.append(net_lo)
         else:
-            raise Exception("Not found: '" + widget_id + "'")
+            raise Exception("Not found: '" + widget_id[0] + "'")
 
     @staticmethod
     def remove_invalid_sys_info_widget_names(widget_name_list):
@@ -290,8 +307,11 @@ class MenuPageHelper:
     def get_main_menu_widgets():
         widgets_obj_arr = []
 
-        page = MenuPage(hotspot_id="project_select", select_action_menu=MenuHelper.Menus.PROJECTS)
-        widgets_obj_arr.append(page)
+        page_names = MenuPageHelper.get_page_names(MenuHelper.Menus.MAIN_MENU)
+        for page_name in page_names:
+            page_id = MenuPageHelper.get_enum_key_from_value(MenuHelper.Menus.MAIN_MENU, page_name)
+            page = MenuPage(hotspot_id=page_id, select_action_menu=MenuHelper.Menus.PROJECTS)
+            widgets_obj_arr.append(page)
 
         return widgets_obj_arr
 
