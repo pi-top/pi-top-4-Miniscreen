@@ -63,7 +63,7 @@ class MenuHandler:
         self.current_menu = self.menus["sys_info"]
 
     def update_state(self, button_press_type):
-        if not self.current_menu.moving:
+        if not self.current_menu.moving_to_page:
             # Check button state
             if button_press_type.is_direction():
                 if button_press_type.event_type == ButtonPress.DOWN:
@@ -72,10 +72,8 @@ class MenuHandler:
                     self.current_menu.go_to_previous_page()
             elif button_press_type.is_action():
                 if button_press_type.event_type == ButtonPress.SELECT:
-                    # Need to be able to access current page in menu
-                    # Then get its associated follow up page
-                    # Then update the current menu in the menu handler
-                    self.current_menu = self.menus[self.current_menu.parent]
+                    current_page = self.current_menu.get_current_page()
+                    self.current_menu = self.menus[current_page.select_action_menu]
                 elif button_press_type.event_type == ButtonPress.CANCEL:
                     if self.current_menu.parent is not None:
                         self.current_menu = self.menus[self.current_menu.parent]
@@ -92,24 +90,22 @@ class MenuHandler:
 
 class MenuHelper:
     @staticmethod
-    def create_viewport(widgets):
-        viewport_height = sum(widget.height for widget in widgets) + (2 * device.height)
+    def add_infinite_scroll_edge_pages(pages):
+        pages.insert(0, pages[-1])
+        pages.append(pages[0])
+        return pages
+
+    @staticmethod
+    def create_viewport(pages):
+        viewport_height = sum(page.hotspot.height for page in pages) + (2 * device.height)
         virtual = viewport(device, width=device.width, height=viewport_height)
 
         # Start at second page, so that last entry can be added to the start for scrolling
         created_viewport_height = device.height
-        for i, widget in enumerate(widgets):
+        for i, page in enumerate(pages):
+            widget = page.hotspot
             virtual.add_hotspot(widget, (0, created_viewport_height))
             created_viewport_height += widget.height
-
-            # Assumes that one widget = one page
-            first_page = (i == 0)
-            if first_page:
-                virtual.add_hotspot(widget, (0, viewport_height - device.height))
-
-            last_page = (i == (len(widgets) - 1))
-            if last_page:
-                virtual.add_hotspot(widget, (0, 0))
 
         return virtual
 
@@ -119,22 +115,23 @@ class Menu:
 
     def __init__(self, name):
         """Constructor for Menu"""
+        self.pages = []
         self.page_index = 1
-        self.y_pos = 64
-        self.moving = False
+        self.y_pos = self.page_index * device.height
+        self.moving_to_page = False
         self.name = name
         self.parent = None
 
         if name == "sys_info":
-            widgets = MenuPageHelper.get_sys_widgets_from_config()
+            pages = MenuPageHelper.get_sys_widgets_from_config()
         elif name == "main_menu":
             self.parent = "sys_info"
-            widgets = MenuPageHelper.get_main_menu_widgets()
+            pages = MenuPageHelper.get_main_menu_widgets()
         else:
             raise Exception("Unrecognised menu name")
 
-        self.viewport = MenuHelper.create_viewport(widgets)
-        self.no_of_pages = int(self.get_viewport_height() / device.height) - 1
+        self.pages = MenuHelper.add_infinite_scroll_edge_pages(pages)
+        self.viewport = MenuHelper.create_viewport(self.pages)
 
     def go_to_previous_page(self):
         self.page_index = self.page_index - 1
@@ -143,29 +140,25 @@ class Menu:
         self.page_index = self.page_index + 1
 
     def get_current_page(self):
-        pass
+        return self.pages[self.page_index]
+
+    def update_position_if_at_end_of_viewport(self):
+        if self.page_index == 0:
+            self.page_index = len(self.pages) - 1
+        elif self.page_index == len(self.pages):
+            self.page_index = 1
+        self.y_pos = int(self.page_index * device.height)
 
     def update_position_based_on_state(self):
         resting_pos = (self.page_index * device.height)
-        if self.y_pos == resting_pos:
-            if self.moving:
-                self.moving = False
-
-                # Update page_index and position immediately if we are at the ends
-                if self.page_index == 0:
-                    self.page_index = int(self.no_of_pages - 1)
-
-                elif self.page_index == self.no_of_pages:
-                    self.page_index = 1
-
-                self.y_pos = int(self.page_index * device.height)
+        arrived_at_screen = (self.y_pos == resting_pos)
+        if arrived_at_screen:
+            if self.moving_to_page:
+                self.update_position_if_at_end_of_viewport()
         else:
-            self.moving = True
-            if resting_pos < self.y_pos:
-                self.y_pos = self.y_pos - 1
-            else:
-                self.y_pos = self.y_pos + 1
+            self.y_pos = self.y_pos - 1 if resting_pos < self.y_pos else self.y_pos + 1
 
+        self.moving_to_page = not arrived_at_screen
         self.viewport.set_position((0, self.y_pos))
 
     def get_viewport_height(self):
@@ -174,9 +167,6 @@ class Menu:
 
 class MenuPageHelper:
     """A widget that takes up the full size of the display. Component of a menu."""
-
-    def __init__(self):
-        pass
 
     @staticmethod
     def _get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
@@ -205,8 +195,8 @@ class MenuPageHelper:
         elif widget_name == "clock":
             return MenuPageHelper._get_hotspot(clock.render, interval=1.0)
 
-        elif widget_name == "project-select":
-            return MenuPageHelper._get_hotspot(main_menu.page(title="Projects"), interval=0)
+        elif widget_name == "project_select":
+            return MenuPageHelper._get_hotspot(main_menu.page(title="Projects"), interval=0.0)
 
         # Commented out until merged into one widget
 
@@ -218,7 +208,7 @@ class MenuPageHelper:
         #     widgets_obj_arr.append(net_eth)
         #     widgets_obj_arr.append(net_lo)
         else:
-            print("Not found: '" + widget_name + "'")
+            raise Exception("Not found: '" + widget_name + "'")
 
     @staticmethod
     def get_valid_widget_names():
@@ -247,7 +237,7 @@ class MenuPageHelper:
         widgets_obj_arr = []
 
         for widget_name in widget_name_arr:
-            page = MenuPageHelper.get_hotspot(widget_name)
+            page = MenuPage(hotspot_name=widget_name, select_action_menu="main_menu")
             widgets_obj_arr.append(page)
 
         return widgets_obj_arr
@@ -256,10 +246,19 @@ class MenuPageHelper:
     def get_main_menu_widgets():
         widgets_obj_arr = []
 
-        page = MenuPageHelper.get_hotspot("project-select")  # maybe an enum is better?
+        page = MenuPage(hotspot_name="project_select", select_action_menu="projects")
         widgets_obj_arr.append(page)
 
         return widgets_obj_arr
+
+class MenuPage:
+    """Base view on screen"""
+
+    def __init__(self, hotspot_name, select_action_menu):
+        """Constructor for MenuPage"""
+        self.select_action_menu = select_action_menu
+        self.hotspot = MenuPageHelper.get_hotspot(hotspot_name)  # maybe an enum is better?
+
 
 
 def main():
