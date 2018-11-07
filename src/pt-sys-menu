@@ -13,7 +13,8 @@ from luma.core.virtual import viewport, snapshot, hotspot
 import os
 import pygame  # Used for keypress detection instead of buttons
 from widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock
-from widgets.main_menu import template as main_menu
+from widgets.main import template as main_menu
+from widgets.projects import template as projects_menu
 from enum import Enum
 
 
@@ -189,6 +190,7 @@ class MenuPageHelper:
     """A widget that takes up the full size of the display. Component of a menu."""
 
     class Pages:
+        # Note - all enum values must be different!
         class SysInfo(Enum):
             # These are strings so that they can be enabled/disabled via a config file
             BATTERY = "battery"
@@ -203,6 +205,9 @@ class MenuPageHelper:
             PROJECT_SELECT = 0
             SETTINGS_SELECT = 1
             WIFI_SETUP_SELECT = 2
+
+        class Template(Enum):
+            PROJECT_PAGE = 3
 
     @staticmethod
     def get_menu_enum_class_from_name(menu_name):
@@ -266,6 +271,9 @@ class MenuPageHelper:
 
         elif widget_id == MenuPageHelper.Pages.MainMenu.WIFI_SETUP_SELECT:
             return MenuPageHelper._get_hotspot(main_menu.page(title="Wi-Fi Setup"), interval=0.0)
+
+        elif widget_id == MenuPageHelper.Pages.Template.PROJECT_PAGE:
+            return MenuPageHelper._get_hotspot(projects_menu.page(title="My Project"), interval=0.0)
 
         # Commented out until merged into one widget
 
