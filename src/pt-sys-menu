@@ -12,7 +12,7 @@ from demo_opts import get_device
 from luma.core.virtual import viewport, snapshot, hotspot
 import os
 import pygame  # Used for keypress detection instead of buttons
-from widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock
+from widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock, hud
 from widgets.main import template as main_menu
 from widgets.projects import template as projects_menu
 from enum import Enum
@@ -199,6 +199,7 @@ class MenuPageHelper:
             DISK = "disk"
             CPU = "cpu"
             CLOCK = "clock"
+            HUD = "hud"
             # NETWORK = "network"
 
         class MainMenu(Enum):
@@ -262,6 +263,9 @@ class MenuPageHelper:
 
         elif widget_id == MenuPageHelper.Pages.SysInfo.CLOCK:
             return MenuPageHelper._get_hotspot(clock.render, interval=1.0)
+
+        elif widget_id == MenuPageHelper.Pages.SysInfo.HUD:
+            return MenuPageHelper._get_hotspot(hud.render, interval=1.0)
 
         elif widget_id == MenuPageHelper.Pages.MainMenu.PROJECT_SELECT:
             return MenuPageHelper._get_hotspot(main_menu.page(title="Projects"), interval=0.0)

@@ -1,20 +1,12 @@
-from os import getloadavg
+from os import (
+    getloadavg,
+    path
+)
 from datetime import datetime
 import psutil
 import subprocess
 from fractions import Fraction
-
-from os import sys, path
-root = path.dirname(path.dirname(path.abspath(__file__)))
-sys.path.append(root)
-import ptoled
-
-ptoled.init()
-ptoled.set_font_path(path.abspath(path.join(path.dirname(__file__),
-                                     'fonts', 'C&C Red Alert [INET].ttf')))
-ptoled.set_font_size(12)
-ptoled.set_frame_rate(1)
-
+from PIL import Image, ImageFont
 
 def bytes2human(n):
     """
@@ -84,6 +76,8 @@ def get_battery():
     for line in cmd.stdout:
         return str(line).rstrip("\n") + "%"
 
+    return "lol%"
+
 
 def get_temperature():
     cmd = subprocess.Popen('vcgencmd measure_temp', shell=True,
@@ -91,26 +85,27 @@ def get_temperature():
     for line in cmd.stdout:
         return str(line).lstrip("temp=").rstrip("'C\n") + u'\N{DEGREE SIGN}' + "C"
 
-
-while True:
-    ptoled.clear()
-    
-
-    # ptoled.text((0, 26), disk_usage('/'))
-    # ptoled.text((0, 38), network_rate('wlan0'))
-
-    ptoled.text((0 * ptoled.get_width()/4, 0 * ptoled.get_height()/4), get_battery())
-    ptoled.image((1 * ptoled.get_width()/4, 0 * ptoled.get_height()/4), "battery.png")
-
-    ptoled.text((2 * ptoled.get_width()/4, 0 * ptoled.get_height()/4), network_strength('wlan0'))
-    ptoled.image((3 * ptoled.get_width()/4, 0 * ptoled.get_height()/4), "wifi_icon.png")
+    return "lol degrees"
 
 
-    ptoled.text((0 * ptoled.get_width()/4, 2 * ptoled.get_height()/4), cpu_percentage())
-    ptoled.image((1 * ptoled.get_width()/4, 2 * ptoled.get_height()/4), "cpu.png")
+font = ImageFont.truetype(
+    path.abspath(path.join(path.dirname(__file__), '..', '..', 'fonts', 'C&C Red Alert [INET].ttf')),
+    size=12)
 
-    ptoled.text((2 * ptoled.get_width()/4, 2 * ptoled.get_height()/4), get_temperature())
-    ptoled.image((3 * ptoled.get_width()/4, 2 * ptoled.get_height()/4), "thermometer.png")
 
-    ptoled.draw()
+def render(draw, width, height):
+    draw.text(xy=(0 * width/4, 0 * height/4), text=get_battery(), font=font)
+    img_bitmap = Image.open("widgets/sys_info/assets/battery.png").convert("RGBA")
+    draw.bitmap((1 * width/4, 0 * height/4), img_bitmap, fill="white")
 
+    draw.text(xy=(2 * width/4, 0 * height/4), text=network_strength('wlan0'), font=font)
+    img_bitmap = Image.open("widgets/sys_info/assets/wifi_icon.png").convert("RGBA")
+    draw.bitmap((3 * width/4, 0 * height/4), img_bitmap, fill="white")
+
+    draw.text(xy=(0 * width/4, 2 * height/4), text=cpu_percentage(), font=font)
+    img_bitmap = Image.open("widgets/sys_info/assets/cpu.png").convert("RGBA")
+    draw.bitmap((1 * width/4, 2 * height/4), img_bitmap, fill="white")
+
+    draw.text(xy=(2 * width/4, 2 * height/4), text=get_temperature(), font=font)
+    img_bitmap = Image.open("widgets/sys_info/assets/thermometer.png").convert("RGBA")
+    draw.bitmap((3 * width/4, 2 * height/4), img_bitmap, fill="white")
