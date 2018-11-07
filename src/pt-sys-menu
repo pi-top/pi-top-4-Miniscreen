@@ -23,10 +23,15 @@ class MenuManager:
     def __init__(self):
         """Constructor for MenuManager"""
         self.menus = dict()
-        self.menus[MenuHelper.Menus.SYS_INFO] = Menu(device, MenuHelper.Menus.SYS_INFO)
-        self.menus[MenuHelper.Menus.MAIN_MENU] = Menu(device, MenuHelper.Menus.MAIN_MENU)
-
+        self.create_menus()
         self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
+
+    def create_menus(self):
+        self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
+        self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
+
+    def add_menu_to_list(self, menu_id):
+        self.menus[menu_id] = Menu(device, menu_id)
 
     def update_state(self, button_press_type):
         if not self.current_menu.moving_to_page:
@@ -56,15 +61,12 @@ class MenuManager:
             pass
 
 
-def main():
-    app = MenuManager()
-    app.main_loop()
-
-
 if __name__ == "__main__":
     try:
         ButtonPressHelper.init()
         device = get_device()
-        main()
+        app = MenuManager()
+
+        app.main_loop()
     except KeyboardInterrupt:
         pass
