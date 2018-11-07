@@ -4,7 +4,6 @@
 # See LICENSE.rst for details.
 
 from PIL import ImageFont
-
 import os.path
 
 

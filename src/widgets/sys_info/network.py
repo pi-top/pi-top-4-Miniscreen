@@ -4,7 +4,7 @@
 # See LICENSE.rst for details.
 
 import psutil
-from hotspot.common import bytes2human, right_text, title_text, tiny_font
+from widgets.common import bytes2human, right_text, title_text, tiny_font
 
 
 def stats(interface):

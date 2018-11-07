@@ -5,26 +5,24 @@
 
 import time
 from luma.core.virtual import hotspot
-import subprocess
+import datetime
+from widgets.common import title_text
 
-
-def get_battery():
-    try:
-        cmd = subprocess.Popen(["pt-battery -c"], stdout=subprocess.PIPE)
-        response = cmd.communicate()
-    except FileNotFoundError:
-        response = "TEST"
-
-    return str(response + "%")
 
 def render(draw, width, height):
+    date_time = datetime.datetime.now()
+    date = str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
+    time = str(date_time.hour) + ":" + str(date_time.minute) + ":" + str(date_time.second)
 
-    draw.text((width/10, height/10), text=get_battery(), fill="white")
+    title_text(draw, height/10, width, date)
 
-class Battery_level(hotspot):
+    draw.text((width/3, height/3), text=time, fill="white")
+
+
+class DateTime(hotspot):
 
     def __init__(self, width, height, interval):
-        super(Battery_level, self).__init__(width, height)
+        super(DateTime, self).__init__(width, height)
         self._interval = interval
         self._last_updated = 0
 

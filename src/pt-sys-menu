@@ -12,8 +12,8 @@ from demo_opts import get_device
 from luma.core.virtual import viewport, snapshot, hotspot
 import os
 import pygame  # Used for keypress detection instead of buttons
-from hotspot.sys_info import batt_level, uptime, memory, disk, cpu_load, clock
-from hotspot.main_menu import template as main_menu
+from widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock
+from widgets.main_menu import template as main_menu
 from enum import Enum
 
 
@@ -54,12 +54,11 @@ class ButtonPress:
                self.event_type == self.ButtonType.CANCEL
 
 
-class MenuHandler:
-    """Owner class for all MenuHelper.Menus. Handles input events and controls menu behaviour."""
+class MenuManager:
+    """Owner class for all Menus. Handles input events and controls menu behaviour."""
 
     def __init__(self):
-        """Constructor for MenuHandler"""
-        # Create MenuHelper.Menus...
+        """Constructor for MenuManager"""
         self.menus = dict()
         self.menus[MenuHelper.Menus.SYS_INFO] = Menu(MenuHelper.Menus.SYS_INFO)
         self.menus[MenuHelper.Menus.MAIN_MENU] = Menu(MenuHelper.Menus.MAIN_MENU)
@@ -332,12 +331,13 @@ class MenuPage:
 
 
 def main():
-    app = MenuHandler()
+    app = MenuManager()
     app.main_loop()
 
 
 if __name__ == "__main__":
     try:
+        pygame.init()
         device = get_device()
         main()
     except KeyboardInterrupt:

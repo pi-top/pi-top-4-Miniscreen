@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from hotspot.common import title_text
+from widgets.common import title_text
 
 
 def page(title="Title"):
