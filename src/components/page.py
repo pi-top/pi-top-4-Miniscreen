@@ -1,10 +1,10 @@
-from components.helpers.MenuPageHelper import MenuPageHelper
+from components.helpers.MenuHelper import MenuHelper
 
 
 class MenuPage:
     """Base view on screen"""
 
-    def __init__(self, page_id, select_action_menu):
+    def __init__(self, hotspot, select_action_func):
         """Constructor for MenuPage"""
-        self.select_action_menu = select_action_menu
-        self.hotspot = MenuPageHelper.get_hotspot(page_id)
+        self.select_action_func = select_action_func
+        self.hotspot = hotspot

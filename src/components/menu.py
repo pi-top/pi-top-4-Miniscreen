@@ -1,10 +1,15 @@
+import sys
+
 from components.helpers.MenuHelper import MenuHelper
-from components.helpers.MenuPageHelper import MenuPageHelper
+from components.helpers.MenuHelper import (
+    MenuHelper,
+    set_app
+)
 from components.page import MenuPage
 
 
 class Menu:
-    """A scrollable viewport of many menu MenuPageHelper.Pages.SysInfo."""
+    """A scrollable viewport of many menu MenuHelper.Pages.SysInfo."""
 
     def __init__(self, device, name):
         """Constructor for Menu"""
@@ -14,12 +19,12 @@ class Menu:
         self.name = name
         self.parent = None
 
-        if name == MenuHelper.Menus.SYS_INFO:
-            page_ids = MenuPageHelper.get_sys_info_page_ids_from_config()
+        if name == Menus.SYS_INFO:
+            page_ids = MenuHelper.get_sys_info_page_ids_from_config()
             pages = self.get_menu_pages_from_ids(page_ids)
-        elif name == MenuHelper.Menus.MAIN_MENU:
-            self.parent = MenuHelper.Menus.SYS_INFO
-            page_ids = MenuPageHelper.get_main_menu_page_ids()
+        elif name == Menus.MAIN_MENU:
+            self.parent = Menus.SYS_INFO
+            page_ids = MenuHelper.get_main_menu_page_ids()
             pages = self.get_menu_pages_from_ids(page_ids)
         else:
             raise Exception("Unrecognised menu name")
@@ -28,13 +33,6 @@ class Menu:
         self.viewport = MenuHelper.create_viewport(self._device, self.pages)
 
         self.move_instantly_to_page(1)
-
-    @staticmethod
-    def get_menu_pages_from_ids(page_ids):
-        pages = []
-        for page_id in page_ids:
-            pages.append(MenuPage(page_id=page_id, select_action_menu=MenuHelper.Menus.MAIN_MENU))
-        return pages
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
@@ -45,10 +43,10 @@ class Menu:
         self.page_index = page_index
         self.y_pos = self.get_page_y_pos(self.page_index)
 
-    def go_to_previous_page(self):
+    def set_page_to_previous(self):
         self.page_index = self.page_index - 1
 
-    def go_to_next_page(self):
+    def set_page_to_next(self):
         self.page_index = self.page_index + 1
 
     def get_current_page(self):

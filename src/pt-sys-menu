@@ -15,6 +15,7 @@ from components.helpers.ButtonPressHelper import (
     ButtonPress
 )
 from components.helpers.MenuHelper import MenuHelper
+from components.helpers.MenuHelper import MenuHelper
 
 
 class MenuManager:
@@ -26,6 +27,8 @@ class MenuManager:
         self.create_menus()
         self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
 
+        MenuHelper.set_app(self)
+
     def create_menus(self):
         self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
         self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
@@ -33,20 +36,27 @@ class MenuManager:
     def add_menu_to_list(self, menu_id):
         self.menus[menu_id] = Menu(device, menu_id)
 
+    def change_menu(self, menu_to_go_to):
+        if menu_to_go_to in self.menus:
+            self.current_menu = self.menus[menu_to_go_to]
+            self.current_menu.move_instantly_to_page(1)
+        else:
+            raise Exception("Unable to find menu")
+
     def update_state(self, button_press_type):
         if not self.current_menu.moving_to_page:
             # Check button state
             if button_press_type.event_type != ButtonPress.ButtonType.NONE:
                 if button_press_type.is_direction():
                     if button_press_type.event_type == ButtonPress.ButtonType.DOWN:
-                        self.current_menu.go_to_next_page()
+                        self.current_menu.set_page_to_next()
                     elif button_press_type.event_type == ButtonPress.ButtonType.UP:
-                        self.current_menu.go_to_previous_page()
+                        self.current_menu.set_page_to_previous()
+
                 elif button_press_type.is_action():
                     if button_press_type.event_type == ButtonPress.ButtonType.SELECT:
-                        current_page = self.current_menu.get_current_page()
-                        self.current_menu = self.menus[current_page.select_action_menu]
-                        self.current_menu.move_instantly_to_page(1)
+                        # Do action according to page's function
+                        self.current_menu.get_current_page().select_action_func()
                     elif button_press_type.event_type == ButtonPress.ButtonType.CANCEL:
                         if self.current_menu.parent is not None:
                             self.current_menu = self.menus[self.current_menu.parent]
