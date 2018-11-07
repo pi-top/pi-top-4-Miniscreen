@@ -89,7 +89,7 @@ def get_temperature():
 
 
 font = ImageFont.truetype(
-    path.abspath(path.join(path.dirname(__file__), '..', '..', 'fonts', 'C&C Red Alert [INET].ttf')),
+    path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'fonts', 'C&C Red Alert [INET].ttf')),
     size=12)
 
 

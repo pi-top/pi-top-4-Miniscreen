@@ -6,7 +6,7 @@
 import math
 import datetime
 
-from widgets.common import title_text, tiny_font
+from components.widgets.common import title_text, tiny_font
 
 
 def posn(angle, arm_length):

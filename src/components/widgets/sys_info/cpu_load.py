@@ -6,7 +6,7 @@
 import time
 import psutil
 from luma.core.virtual import hotspot
-from widgets.common import title_text
+from components.widgets.common import title_text
 
 
 def vertical_bar(draw, x1, y1, x2, y2, yh):

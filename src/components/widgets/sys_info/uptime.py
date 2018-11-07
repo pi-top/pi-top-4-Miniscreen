@@ -5,7 +5,7 @@
 
 from datetime import datetime
 import psutil
-from widgets.common import title_text, right_text
+from components.widgets.common import title_text, right_text
 
 
 def render(draw, width, height):
