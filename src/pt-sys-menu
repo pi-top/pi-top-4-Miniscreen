@@ -14,8 +14,7 @@ from components.helpers.ButtonPressHelper import (
     ButtonPressHelper,
     ButtonPress
 )
-from components.helpers.MenuHelper import MenuHelper
-from components.helpers.MenuHelper import MenuHelper
+from components.helpers import MenuHelper
 
 
 class MenuManager:

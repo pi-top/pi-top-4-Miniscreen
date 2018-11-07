@@ -1,10 +1,6 @@
 import sys
 
-from components.helpers.MenuHelper import MenuHelper
-from components.helpers.MenuHelper import (
-    MenuHelper,
-    set_app
-)
+from components.helpers import MenuHelper
 from components.page import MenuPage
 
 
@@ -19,13 +15,11 @@ class Menu:
         self.name = name
         self.parent = None
 
-        if name == Menus.SYS_INFO:
-            page_ids = MenuHelper.get_sys_info_page_ids_from_config()
-            pages = self.get_menu_pages_from_ids(page_ids)
-        elif name == Menus.MAIN_MENU:
-            self.parent = Menus.SYS_INFO
-            page_ids = MenuHelper.get_main_menu_page_ids()
-            pages = self.get_menu_pages_from_ids(page_ids)
+        if name == MenuHelper.Menus.SYS_INFO:
+            pages = MenuHelper.get_sys_info_pages_from_config()
+        elif name == MenuHelper.Menus.MAIN_MENU:
+            self.parent = MenuHelper.Menus.SYS_INFO
+            pages = MenuHelper.get_main_menu_pages()
         else:
             raise Exception("Unrecognised menu name")
 

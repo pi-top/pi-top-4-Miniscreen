@@ -35,47 +35,11 @@ def run_project(project_title):
         # raise Exception("Top-level app is not available")
 
 
-def _get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
+def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
     if float(interval) == 0.0:
         return hotspot(widget_width, widget_height, render_func)
     else:
         return snapshot(widget_width, widget_height, render_func, interval=interval)
-
-
-def get_hotspot(widget_id):
-    if widget_id == Pages.SysInfo.BATTERY:
-        return _get_hotspot(batt_level.render, interval=1.0)
-
-    elif widget_id == Pages.SysInfo.UPTIME:
-        return _get_hotspot(uptime.render, interval=1.0)
-
-    elif widget_id == Pages.SysInfo.MEMORY:
-        return _get_hotspot(memory.render, interval=2.0)
-
-    elif widget_id == Pages.SysInfo.DISK:
-        return _get_hotspot(disk.render, interval=2.0)
-
-    elif widget_id == Pages.SysInfo.CPU:
-        return _get_hotspot(cpu_load.render, interval=0.5)
-
-    elif widget_id == Pages.SysInfo.CLOCK:
-        return _get_hotspot(clock.render, interval=1.0)
-
-    elif widget_id == Pages.SysInfo.HUD:
-        return _get_hotspot(hud.render, interval=1.0)
-
-    elif widget_id == Pages.MainMenu.PROJECT_SELECT:
-        return _get_hotspot(main_menu.page(title="Projects"), interval=0.0)
-
-    elif widget_id == Pages.MainMenu.SETTINGS_SELECT:
-        return _get_hotspot(main_menu.page(title="Settings"), interval=0.0)
-
-    elif widget_id == Pages.MainMenu.WIFI_SETUP_SELECT:
-        return _get_hotspot(main_menu.page(title="Wi-Fi Setup"), interval=0.0)
-
-    elif widget_id == Pages.Template.PROJECT_PAGE:
-        return _get_hotspot(projects_menu.page(title="My Project"), interval=0.0)
-
 
 class Menus(Enum):
     SYS_INFO = 0
@@ -87,30 +51,34 @@ class Menus(Enum):
 
 class Pages:
     class SysInfo(Enum):
-        get_hotspot = get_hotspot
-
-        BATTERY = MenuPage(hotspot=get_hotspot("battery"), change_menu(Menus.MAIN_MENU))
-        UPTIME = MenuPage(hotspot=get_hotspot("uptime"), change_menu(Menus.MAIN_MENU))
-        MEMORY = MenuPage(hotspot=get_hotspot("memory"), change_menu(Menus.MAIN_MENU))
-        DISK = MenuPage(hotspot=get_hotspot("disk"), change_menu(Menus.MAIN_MENU))
-        CPU = MenuPage(hotspot=get_hotspot("cpu"), change_menu(Menus.MAIN_MENU))
-        CLOCK = MenuPage(hotspot=get_hotspot("clock"), change_menu(Menus.MAIN_MENU))
-        HUD = MenuPage(hotspot=get_hotspot("hud"), change_menu(Menus.MAIN_MENU))
+        BATTERY = MenuPage("battery", get_hotspot(batt_level.render, interval=1.0), change_menu(Menus.MAIN_MENU))
+        UPTIME = MenuPage("uptime", get_hotspot(uptime.render, interval=1.0), change_menu(Menus.MAIN_MENU))
+        MEMORY = MenuPage("memory", get_hotspot(memory.render, interval=2.0), change_menu(Menus.MAIN_MENU))
+        DISK = MenuPage("disk", get_hotspot(disk.render, interval=2.0), change_menu(Menus.MAIN_MENU))
+        CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU))
+        CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU))
+        HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU))
         # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU))
 
     class MainMenu(Enum):
-        PROJECT_SELECT = MenuPage(hotspot=get_hotspot("Project Select"), change_menu(Menus.PROJECTS))
-        SETTINGS_SELECT = MenuPage(hotspot=get_hotspot("Settings"), change_menu(Menus.SETTINGS))
-        WIFI_SETUP_SELECT = MenuPage(hotspot=get_hotspot("Wi-Fi Setup"), change_menu(Menus.WIFI_SETUP))
+        PROJECT_SELECT = MenuPage(
+            "Project Select",
+            get_hotspot(main_menu.page(title="Project Select"), interval=0.0), change_menu(Menus.PROJECTS)
+        )
+        SETTINGS_SELECT = MenuPage(
+            "Settings",
+            get_hotspot(main_menu.page(title="Settings"), interval=0.0), change_menu(Menus.SETTINGS)
+        )
+        WIFI_SETUP_SELECT = MenuPage(
+            "Wi-Fi Setup",
+            get_hotspot(main_menu.page(title="Wi-Fi Setup"), interval=0.0), change_menu(Menus.WIFI_SETUP)
+        )
 
     class Template(Enum):
-        PROJECT_PAGE = MenuPage(hotspot=get_hotspot("Project X"), run_project())
-
-def get_menu_pages_from_ids(page_ids):
-    pages = []
-    for page_id in page_ids:
-        pages.append(MenuPage(hotspot=get_hotspot(page_id), select_action_func=Menus.MAIN_MENU))
-    return pages
+        PROJECT_PAGE = MenuPage(
+            "My Project",
+            get_hotspot(projects_menu.project(title="My Project"), interval=0.0), run_project("lol")
+        )
 
 
 def get_menu_enum_class_from_name(menu_name):
@@ -135,9 +103,9 @@ def get_page_ids(menu_name):
 def get_enum_key_from_value(menu_name, value):
     pages_enum = get_menu_enum_class_from_name(menu_name)
     for page_id, page_enum in pages_enum.__members__.items():
-        page_object = page_enum.value
-        if page_object["name"] == value:
-            return page_enum
+        page = page_enum.value
+        if page.name == value:
+            return pages_enum[page_id].value
     raise Exception("Unable to find enum key matching value: " + value)
 
 
@@ -169,21 +137,17 @@ def create_viewport(device, pages):
     #     widgets_obj_arr.append(net_wlan)
     #     widgets_obj_arr.append(net_eth)
     #     widgets_obj_arr.append(net_lo)
-    else:
-        print(widget_id)
-        print(Pages.MainMenu.PROJECT_SELECT)
-        raise Exception("Not found: '" + widget_id[0] + "'")
 
 
 def remove_invalid_sys_info_widget_names(widget_name_list):
-    valid_page_names = get_pages(Menus.SYS_INFO)
     for widget_name in widget_name_list:
-        if widget_name not in valid_page_names:
+        if widget_name not in (page.name for page in get_pages(Menus.SYS_INFO)):
+            print("Removing " + str(widget_name))
             widget_name_list.remove(widget_name)
     return widget_name_list
 
 
-def get_sys_info_page_ids_from_config():
+def get_sys_info_pages_from_config():
     try:
         with open(os.path.expanduser('~/.carousel'), 'r') as f:
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
@@ -193,8 +157,6 @@ def get_sys_info_page_ids_from_config():
         print("No config file - falling back to default")
         page_name_arr = ['cpu', 'clock', 'disk']
 
-    # print(page_name_arr)
-    # sys.exit()
     page_id_arr = []
     for page_name in page_name_arr:
         page_id = get_enum_key_from_value(Menus.SYS_INFO, page_name)
@@ -203,5 +165,5 @@ def get_sys_info_page_ids_from_config():
     return page_id_arr
 
 
-def get_main_menu_page_ids():
+def get_main_menu_pages():
     return get_pages(Menus.MAIN_MENU)
