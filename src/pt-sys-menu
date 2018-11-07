@@ -31,6 +31,7 @@ class MenuManager:
     def create_menus(self):
         self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
         self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
+        self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
 
     def add_menu_to_list(self, menu_id):
         self.menus[menu_id] = Menu(device, menu_id)
@@ -40,7 +41,7 @@ class MenuManager:
             self.current_menu = self.menus[menu_to_go_to]
             self.current_menu.move_instantly_to_page(1)
         else:
-            raise Exception("Unable to find menu")
+            raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def update_state(self, button_press_type):
         if not self.current_menu.moving_to_page:

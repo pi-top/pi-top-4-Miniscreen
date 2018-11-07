@@ -1,7 +1,4 @@
-import sys
-
 from components.helpers import MenuHelper
-from components.page import MenuPage
 
 
 class Menu:
@@ -19,14 +16,25 @@ class Menu:
             pages = MenuHelper.get_sys_info_pages_from_config()
         elif name == MenuHelper.Menus.MAIN_MENU:
             self.parent = MenuHelper.Menus.SYS_INFO
-            pages = MenuHelper.get_main_menu_pages()
+            pages = MenuHelper.get_pages(MenuHelper.Menus.MAIN_MENU)
+        elif name == MenuHelper.Menus.PROJECTS:
+            self.parent = MenuHelper.Menus.MAIN_MENU
+            pages = MenuHelper.get_pages(MenuHelper.Menus.PROJECTS)
         else:
             raise Exception("Unrecognised menu name")
 
         self.pages = MenuHelper.add_infinite_scroll_edge_pages(pages)
+
+        for page in self.pages:
+            print(page.name)
+
+        print("")
         self.viewport = MenuHelper.create_viewport(self._device, self.pages)
 
         self.move_instantly_to_page(1)
+        print("Current:")
+        print(self.get_current_page().name)
+        print("")
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
@@ -36,12 +44,15 @@ class Menu:
     def move_instantly_to_page(self, page_index):
         self.page_index = page_index
         self.y_pos = self.get_page_y_pos(self.page_index)
+        print("Moving instantly to " + str(self.get_current_page().name))
 
     def set_page_to_previous(self):
         self.page_index = self.page_index - 1
+        print("Scrolling to " + str(self.get_current_page().name))
 
     def set_page_to_next(self):
         self.page_index = self.page_index + 1
+        print("Scrolling to " + str(self.get_current_page().name))
 
     def get_current_page(self):
         return self.pages[self.page_index]
