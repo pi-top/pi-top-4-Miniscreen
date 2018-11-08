@@ -4,6 +4,7 @@ from components.Page import MenuPage
 from components.widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock, hud
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
+import os.path
 
 from luma.core.virtual import snapshot, hotspot
 import os
@@ -95,14 +96,23 @@ class Pages:
                 # Get name from path
                 title = project_subdir
 
+                img_path = check_for_proj_icon_use_default(project_dir + "/" + project_subdir + "/remote_rpi/icon.png")
+
                 project_page = MenuPage(title,
                     get_hotspot(
-                        projects_menu.project(title=title), interval=0.0
+                        projects_menu.project(title=title, img_path=img_path), interval=0.0
                     ),
                     run_project(project_subdir)
                 )
                 project_pages.append(project_page)
             return project_pages
+
+def check_for_proj_icon_use_default(icon_path):
+    if not os.path.isfile(icon_path):
+        dirname = os.path.dirname(__file__)
+        icon_path = os.path.join(dirname, '../../images/pi-top.png')
+    return icon_path
+
 
 def get_menu_enum_class_from_name(menu_name):
     if menu_name == Menus.SYS_INFO:

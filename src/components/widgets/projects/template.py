@@ -12,6 +12,5 @@ def project(title="My Project", img_path=""):
 
         if img_path != "":
             img_bitmap = Image.open(img_path).convert("RGBA")
-            draw.bitmap((width/4, height/6), img_bitmap.resize((width/2, height/2)), fill="white")
-
+            draw.bitmap((width/4, height/6), img_bitmap.resize((int(width/2), int(height/2))), fill="white")
     return render
