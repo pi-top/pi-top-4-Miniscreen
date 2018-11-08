@@ -86,19 +86,19 @@ class RequestClient:
             PTLogger.info("Received request: " + message.message_friendly_string())
             if message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
                 message.validate_parameters([])
-                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.UP))
+                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.UP))
 
             elif message.message_id() == Message.PUB_V3_BUTTON_DOWN_PRESSED:
                 message.validate_parameters([])
-                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.DOWN))
+                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.DOWN))
 
             elif message.message_id() == Message.PUB_V3_BUTTON_SELECT_PRESSED:
                 message.validate_parameters([])
-                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.SELECT))
+                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.SELECT))
 
             elif message.message_id() == Message.PUB_V3_BUTTON_CANCEL_PRESSED:
                 message.validate_parameters([])
-                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.CANCEL))
+                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.CANCEL))
 
             else:
                 PTLogger.warning("Unsupported request received: " + request)
@@ -112,6 +112,11 @@ class RequestClient:
 
             PTLogger.error("Unknown error processing message: " + str(e))
             PTLogger.info(traceback.format_exc())
+
+        # Sending pointless response
+        response = Message.from_parts(Message.RSP_SET_BRIGHTNESS, [])
+        PTLogger.info("Sending response: " + response.message_friendly_string())
+        return response.to_string()
 
 class ButtonPressHelper:
     @staticmethod
