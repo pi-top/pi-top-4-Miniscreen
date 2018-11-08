@@ -18,6 +18,7 @@ class MenuManager:
         self._request_client = RequestClient()
         self._request_client.initialise(self)
         if self._request_client.start_listening() is False:
+            self.stop()
             raise Exception("Unable to start listening on request client")
         self.button_press_stack = []
         self._continue = True
@@ -41,6 +42,7 @@ class MenuManager:
             self.current_menu = self.menus[menu_to_go_to]
             self.current_menu.move_instantly_to_page(1)
         else:
+            self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def add_button_press_to_stack(self, button_press_event):
@@ -66,10 +68,11 @@ class MenuManager:
             elif button_press.is_action():
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:
                     # Do action according to page's function
-                    self.current_menu.get_current_page().select_action_func()
+                    if self.current_menu.get_current_page().select_action_func is not None:
+                        self.current_menu.get_current_page().select_action_func()
                 elif button_press.event_type == ButtonPress.ButtonType.CANCEL:
-                    if self.current_menu.cancel_action_func is not None:
-                        self.current_menu.cancel_action_func()
+                    if self.current_menu.get_current_page().cancel_action_func is not None:
+                        self.current_menu.get_current_page().cancel_action_func()
                     elif self.current_menu.parent is not None:
                         self.current_menu = self.menus[self.current_menu.parent]
 
