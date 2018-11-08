@@ -84,9 +84,9 @@ class Pages:
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = os.path.expanduser('~/pt-sys-menu-projects')
+            project_dir = os.path.expanduser('~/Desktop/My Remote RPi Projects')
             # For each directory in project path
-            project_subdirs = [name for name in os.listdir(project_dir)
+            project_subdirs = [name for name in sorted(os.listdir(project_dir))
                     if os.path.isdir(os.path.join(project_dir, name))]
             project_pages = []
             for project_subdir in project_subdirs:
