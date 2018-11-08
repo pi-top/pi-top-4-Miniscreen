@@ -29,8 +29,6 @@ def run_project(path_to_project):
         # _app.change_menu(menu_id)
         pass
     return run
-    # else:
-        # raise Exception("Top-level app is not available")
 
 
 def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
@@ -86,24 +84,36 @@ class Pages:
         @staticmethod
         def generate_pages():
             project_dir = os.path.expanduser('~/Desktop/My Remote RPi Projects')
-            # For each directory in project path
-            project_subdirs = [name for name in sorted(os.listdir(project_dir))
-                    if os.path.isdir(os.path.join(project_dir, name))]
+
             project_pages = []
-            for project_subdir in project_subdirs:
-                print(project_subdir)
+            if os.path.exists(project_dir):
+                # For each directory in project path
+                project_subdirs = [name for name in sorted(os.listdir(project_dir))
+                        if os.path.isdir(os.path.join(project_dir, name))]
+                for project_subdir in project_subdirs:
+                    print(project_subdir)
 
-                # Get name from path
-                title = project_subdir
+                    # Get name from path
+                    title = project_subdir
+                    img_path = check_for_proj_icon_use_default(project_dir + "/" + project_subdir + "/remote_rpi/icon.png")
 
-                img_path = check_for_proj_icon_use_default(project_dir + "/" + project_subdir + "/remote_rpi/icon.png")
+                    project_page = MenuPage(title,
+                        get_hotspot(
+                            projects_menu.project(title=title, img_path=img_path), interval=0.0
+                        ),
+                        run_project(project_subdir)
+                    )
+                    project_pages.append(project_page)
+            else:
+                title = "No Projects Available"
+                img_path = check_for_proj_icon_use_default("")
 
                 project_page = MenuPage(title,
-                    get_hotspot(
-                        projects_menu.project(title=title, img_path=img_path), interval=0.0
-                    ),
-                    run_project(project_subdir)
-                )
+                                        get_hotspot(
+                                            projects_menu.project(title=title, img_path=img_path), interval=0.0
+                                        ),
+                                        None
+                                        )
                 project_pages.append(project_page)
             return project_pages
 
@@ -122,6 +132,7 @@ def get_menu_enum_class_from_name(menu_name):
     elif menu_name == Menus.PROJECTS:
         return Pages.ProjectSelectMenu
     else:
+        _app.stop()
         raise Exception("Unrecognised menu name: " + menu_name.name)
 
 
@@ -132,6 +143,7 @@ def get_pages(menu_name):
         return [page_name.value for page_id, page_name in pages_enum.__members__.items()]
     else:
         return pages_enum.generate_pages()
+
 
 def get_page_ids(menu_name):
     pages_enum = get_menu_enum_class_from_name(menu_name)
@@ -144,6 +156,7 @@ def get_enum_key_from_value(menu_name, value):
         page = page_enum.value
         if page.name == value:
             return pages_enum[page_id].value
+    _app.stop()
     raise Exception("Unable to find enum key matching value: " + value)
 
 
