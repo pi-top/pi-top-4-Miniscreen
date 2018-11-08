@@ -23,11 +23,9 @@ def change_menu(menu_id):
     return run
 
 
-def run_project(path_to_project):
-
+def start_stop_project(path_to_project):
     def run():
-        # _app.change_menu(menu_id)
-        pass
+        _app.start_stop_project(path_to_project)
     return run
 
 
@@ -85,7 +83,7 @@ class Pages:
         def generate_pages():
             project_dir = os.path.expanduser('~/Desktop/My Remote RPi Projects')
 
-            project_pages = []
+            project_pages = list()
             if os.path.exists(project_dir):
                 # For each directory in project path
                 project_subdirs = [name for name in sorted(os.listdir(project_dir))
@@ -101,7 +99,7 @@ class Pages:
                         get_hotspot(
                             projects_menu.project(title=title, img_path=img_path), interval=0.0
                         ),
-                        run_project(project_subdir)
+                        start_stop_project(project_dir + "/" + project_subdir)
                     )
                     project_pages.append(project_page)
             else:
@@ -210,7 +208,7 @@ def get_sys_info_pages_from_config():
         print("No config file - falling back to default")
         page_name_arr = ['cpu', 'clock', 'disk']
 
-    page_id_arr = []
+    page_id_arr = list()
     for page_name in page_name_arr:
         page_id = get_enum_key_from_value(Menus.SYS_INFO, page_name)
         page_id_arr.append(page_id)

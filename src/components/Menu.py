@@ -7,7 +7,7 @@ class Menu:
     def __init__(self, device, name):
         """Constructor for Menu"""
         self._device = device
-        self.pages = []
+        self.pages = list()
         self.moving_to_page = False
         self.name = name
         self.parent = None

@@ -5,34 +5,40 @@ from components.helpers.ButtonPressHelper import (
     ButtonPress
 )
 from components.helpers import MenuHelper
+from os import path
+from subprocess import (
+    check_output,
+    Popen
+)
+from psutil import Process
+
 
 class MenuManager:
     """Owner class for all Menus. Handles input events and controls menu behaviour."""
 
     def __init__(self, device):
         """Constructor for MenuManager"""
-        self.menus = dict()
         self._device = device
-        self.create_menus()
-        self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
+        self.button_press_stack = []
+        self._continue = True
         self._request_client = RequestClient()
         self._request_client.initialise(self)
         if self._request_client.start_listening() is False:
             self.stop()
             raise Exception("Unable to start listening on request client")
-        self.button_press_stack = []
-        self._continue = True
+
+        self.menus = dict()
+        self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
+        self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
+        self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
+
+        self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
 
         MenuHelper.set_app(self)
 
     def stop(self):
         self._continue = False
         self._request_client._continue = False
-
-    def create_menus(self):
-        self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
-        self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
-        self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
 
     def add_menu_to_list(self, menu_id):
         self.menus[menu_id] = Menu(self._device, menu_id)
@@ -44,6 +50,33 @@ class MenuManager:
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
+
+    def start_stop_project(self, path_to_project):
+        print("Attempting to start/stop project:")
+        print(path_to_project)
+
+        code_file = path_to_project + "/remote_rpi/run.py"
+
+        print("Checking if process is already running...")
+        pid = None
+
+        cmd = "pgrep -f \"" + code_file + "\" || true"
+        output = check_output(cmd, shell=True).decode('ascii', 'ignore')
+        try:
+            pid = int(output)
+        except ValueError:
+            pass  # No process found - don't worry about it
+
+        if pid is not None:
+            print("Process is running - attempting to kill")
+            Process(pid).terminate()
+        else:
+            print("Process is not running")
+            if path.exists(code_file):
+                print("Code file found at " + code_file + ". Running...")
+                Popen(["python3", code_file])
+            else:
+                print("No code file found at " + code_file)
 
     def add_button_press_to_stack(self, button_press_event):
         if button_press_event != ButtonPress.ButtonType.NONE:
