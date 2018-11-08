@@ -68,14 +68,16 @@ class Pages:
             get_hotspot(
                 main_menu.page(title="Settings"), interval=0.0
             ),
-            change_menu(Menus.SETTINGS)
+            # change_menu(Menus.SETTINGS)
+            None
         )
         WIFI_SETUP_SELECT = MenuPage(
             "Wi-Fi Setup",
             get_hotspot(
                 main_menu.page(title="Wi-Fi Setup"), interval=0.0
             ),
-            change_menu(Menus.WIFI_SETUP)
+            # change_menu(Menus.WIFI_SETUP)
+            None
         )
 
     class ProjectSelectMenu:
