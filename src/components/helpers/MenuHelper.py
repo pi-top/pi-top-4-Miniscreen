@@ -1,6 +1,6 @@
 from enum import Enum
 from luma.core.virtual import viewport
-from components.page import MenuPage
+from components.Page import MenuPage
 from components.widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock, hud
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu

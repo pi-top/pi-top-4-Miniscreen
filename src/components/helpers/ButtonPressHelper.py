@@ -1,5 +1,117 @@
 import pygame
 from enum import Enum
+from ptcommon.logger import PTLogger
+from ptcommon.ptdm_message import Message
+from threading import Thread
+from time import sleep
+import traceback
+import zmq
+
+
+# Creates a client for publish messages from device manager
+# Listens for button presses
+class RequestClient:
+    _thread = Thread()
+
+    def __init__(self):
+        self._thread = Thread(target=self._thread_method)
+        self._callback_client = None
+        self._zmq_context = zmq.Context()
+        self._zmq_socket = self._zmq_context.socket(zmq.REP)
+        self._continue = False
+
+    def initialise(self, callback_client):
+        self._callback_client = callback_client
+
+    def start_listening(self):
+        PTLogger.debug("Opening request socket...")
+
+        try:
+            self._zmq_socket.bind("tcp://*:3781")
+            PTLogger.info("Responder server ready.")
+
+        except zmq.error.ZMQError as e:
+            PTLogger.error("Error starting the request server: " + str(e))
+            PTLogger.info(traceback.format_exc())
+
+            return False
+
+        sleep(0.5)
+
+        self._continue = True
+        self._thread.start()
+
+        return True
+
+    def stop_listening(self):
+
+        PTLogger.info("Closing responder socket...")
+
+        self._continue = False
+        if self._thread.is_alive():
+            self._thread.join()
+
+        self._zmq_socket.close()
+        self._zmq_context.destroy()
+
+        PTLogger.debug("Closed responder socket.")
+
+    def _thread_method(self):
+
+        PTLogger.info("Listening for requests...")
+
+        while self._continue:
+
+            poller = zmq.Poller()
+            poller.register(self._zmq_socket, zmq.POLLIN)
+
+            events = poller.poll(500)
+
+            if len(events) > 0:
+
+                request = self._zmq_socket.recv_string()
+                PTLogger.debug("Request received: " + request)
+
+                response = self._process_request(request)
+
+                PTLogger.debug("Sending response: " + response)
+                self._zmq_socket.send_string(response)
+
+    def _process_request(self, request):
+
+        try:
+
+            message = Message.from_string(request)
+
+            PTLogger.info("Received request: " + message.message_friendly_string())
+            if message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
+                message.validate_parameters([])
+                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.UP))
+
+            elif message.message_id() == Message.PUB_V3_BUTTON_DOWN_PRESSED:
+                message.validate_parameters([])
+                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.DOWN))
+
+            elif message.message_id() == Message.PUB_V3_BUTTON_SELECT_PRESSED:
+                message.validate_parameters([])
+                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.SELECT))
+
+            elif message.message_id() == Message.PUB_V3_BUTTON_CANCEL_PRESSED:
+                message.validate_parameters([])
+                self._callback_client.update_state(ButtonPress(ButtonPress.ButtonType.CANCEL))
+
+            else:
+                PTLogger.warning("Unsupported request received: " + request)
+
+        except ValueError as e:
+
+            PTLogger.error("Error processing message: " + str(e))
+            PTLogger.info(traceback.format_exc())
+
+        except Exception as e:
+
+            PTLogger.error("Unknown error processing message: " + str(e))
+            PTLogger.info(traceback.format_exc())
 
 class ButtonPressHelper:
     @staticmethod
@@ -24,11 +136,11 @@ class ButtonPressHelper:
 
 class ButtonPress:
     class ButtonType(Enum):
-        NONE = 0
-        UP = 1
-        DOWN = 2
-        SELECT = 3
-        CANCEL = 4
+        NONE = "NONE"
+        UP = "UP"
+        DOWN = "DOWN"
+        SELECT = "SELECT"
+        CANCEL = "CANCEL"
 
     def __init__(self, event_type):
         self.event_type = event_type

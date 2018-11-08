@@ -3,80 +3,32 @@
 # PYTHON_ARGCOMPLETE_OK
 
 """
-Demonstrate being able to work with widgets.
-
 Adapted from carousel from luma.examples by Richard Hull and contributors
 """
 
 from demo_opts import get_device
-from components.menu import Menu
-from components.helpers.ButtonPressHelper import (
-    ButtonPressHelper,
-    ButtonPress
-)
-from components.helpers import MenuHelper
+import signal
+from components.MenuManager import MenuManager
+from components.helpers.ButtonPressHelper import ButtonPressHelper  # Soon not needed..
 
 
-class MenuManager:
-    """Owner class for all Menus. Handles input events and controls menu behaviour."""
+def signal_handler(signal, frame):
+    print("Stopping...")
+    app.stop()
+    print("Stopped!")
 
-    def __init__(self):
-        """Constructor for MenuManager"""
-        self.menus = dict()
-        self.create_menus()
-        self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
 
-        MenuHelper.set_app(self)
-
-    def create_menus(self):
-        self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
-        self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
-        self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
-
-    def add_menu_to_list(self, menu_id):
-        self.menus[menu_id] = Menu(device, menu_id)
-
-    def change_menu(self, menu_to_go_to):
-        if menu_to_go_to in self.menus:
-            self.current_menu = self.menus[menu_to_go_to]
-            self.current_menu.move_instantly_to_page(1)
-        else:
-            raise Exception("Unable to find menu: " + str(menu_to_go_to))
-
-    def update_state(self, button_press_type):
-        if not self.current_menu.moving_to_page:
-            # Check button state
-            if button_press_type.event_type != ButtonPress.ButtonType.NONE:
-                if button_press_type.is_direction():
-                    if button_press_type.event_type == ButtonPress.ButtonType.DOWN:
-                        self.current_menu.set_page_to_next()
-                    elif button_press_type.event_type == ButtonPress.ButtonType.UP:
-                        self.current_menu.set_page_to_previous()
-
-                elif button_press_type.is_action():
-                    if button_press_type.event_type == ButtonPress.ButtonType.SELECT:
-                        # Do action according to page's function
-                        self.current_menu.get_current_page().select_action_func()
-                    elif button_press_type.event_type == ButtonPress.ButtonType.CANCEL:
-                        if self.current_menu.parent is not None:
-                            self.current_menu = self.menus[self.current_menu.parent]
-
-        self.current_menu.update_position_based_on_state()
-
-    def main_loop(self):
-        try:
-            while True:
-                self.update_state(ButtonPressHelper.get())
-        except StopIteration:
-            pass
+# Capture and handle interrupts
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 
 if __name__ == "__main__":
     try:
-        ButtonPressHelper.init()
+        ButtonPressHelper.init()  # Soon not needed..
         device = get_device()
-        app = MenuManager()
-
+        app = MenuManager(device)
         app.main_loop()
+        app.stop()
     except KeyboardInterrupt:
         pass
