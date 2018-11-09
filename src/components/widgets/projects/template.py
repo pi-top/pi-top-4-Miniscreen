@@ -5,6 +5,7 @@
 
 from PIL import Image
 
+
 def project(title="My Project", img_path=""):
     def render(draw, width, height):
         w, h = draw.textsize(title)

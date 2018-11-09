@@ -1,14 +1,16 @@
-from enum import Enum
-from luma.core.virtual import viewport
+from components.System import device, is_pi
 from components.Page import MenuPage
 from components.widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock, hud
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
-import os.path
-from components.Device import device
 
-from luma.core.virtual import snapshot, hotspot
-import os
+from luma.core.virtual import snapshot, hotspot, viewport
+from enum import Enum
+from os import (
+    path,
+    listdir
+)
+
 
 _app = None
 
@@ -47,14 +49,14 @@ class Menus(Enum):
 
 class Pages:
     class SysInfoMenu(Enum):
-        BATTERY = MenuPage("battery", get_hotspot(batt_level.render, interval=1.0), change_menu(Menus.MAIN_MENU))
-        UPTIME = MenuPage("uptime", get_hotspot(uptime.render, interval=1.0), change_menu(Menus.MAIN_MENU))
-        MEMORY = MenuPage("memory", get_hotspot(memory.render, interval=2.0), change_menu(Menus.MAIN_MENU))
-        DISK = MenuPage("disk", get_hotspot(disk.render, interval=2.0), change_menu(Menus.MAIN_MENU))
-        CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU))
-        CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU))
-        HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU))
-        # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU))
+        BATTERY = MenuPage("battery", get_hotspot(batt_level.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        UPTIME = MenuPage("uptime", get_hotspot(uptime.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        MEMORY = MenuPage("memory", get_hotspot(memory.render, interval=2.0), change_menu(Menus.MAIN_MENU), None)
+        DISK = MenuPage("disk", get_hotspot(disk.render, interval=2.0), change_menu(Menus.MAIN_MENU), None)
+        CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU), None)
+        CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
 
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
@@ -62,7 +64,8 @@ class Pages:
             get_hotspot(
                 main_menu.page(title="Project Select"), interval=0.0
             ),
-            change_menu(Menus.PROJECTS)
+            change_menu(Menus.PROJECTS),
+            None
         )
         SETTINGS_SELECT = MenuPage(
             "Settings",
@@ -70,6 +73,7 @@ class Pages:
                 main_menu.page(title="Settings"), interval=0.0
             ),
             # change_menu(Menus.SETTINGS)
+            None,
             None
         )
         WIFI_SETUP_SELECT = MenuPage(
@@ -78,19 +82,20 @@ class Pages:
                 main_menu.page(title="Wi-Fi Setup"), interval=0.0
             ),
             # change_menu(Menus.WIFI_SETUP)
+            None,
             None
         )
 
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = os.path.expanduser('~/Desktop/My Remote RPi Projects')
+            project_dir = path.expanduser('~/Desktop/My Remote RPi Projects')
 
             project_pages = list()
-            if os.path.exists(project_dir):
+            if path.exists(project_dir):
                 # For each directory in project path
-                project_subdirs = [name for name in sorted(os.listdir(project_dir))
-                        if os.path.isdir(os.path.join(project_dir, name))]
+                project_subdirs = [name for name in sorted(listdir(project_dir))
+                        if path.isdir(path.join(project_dir, name))]
                 for project_subdir in project_subdirs:
                     # Get name from path
                     title = project_subdir
@@ -100,7 +105,8 @@ class Pages:
                         get_hotspot(
                             projects_menu.project(title=title, img_path=img_path), interval=0.0
                         ),
-                        start_stop_project(project_dir + "/" + project_subdir)
+                        start_stop_project(project_dir + "/" + project_subdir),
+                        None
                     )
                     project_pages.append(project_page)
             else:
@@ -111,6 +117,7 @@ class Pages:
                                         get_hotspot(
                                             projects_menu.project(title=title, img_path=img_path), interval=0.0
                                         ),
+                                        None,
                                         None
                                         )
                 project_pages.append(project_page)
@@ -120,8 +127,8 @@ class Pages:
 def get_project_icon(project_path):
     icon_path = project_path + "/remote_rpi/icon.png"
 
-    if not os.path.isfile(icon_path):
-        icon_path = os.path.join(os.path.dirname(__file__), '../../images/pi-top.png')
+    if not path.isfile(icon_path):
+        icon_path = path.join(path.dirname(__file__), '../../images/pi-top.png')
 
     return icon_path
 
@@ -177,21 +184,10 @@ def create_viewport(device, pages):
     # Start at second page, so that last entry can be added to the start for scrolling
     created_viewport_height = 0
     for i, page in enumerate(pages):
-        widget = page.hotspot
-        virtual.add_hotspot(widget, (0, created_viewport_height))
-        created_viewport_height += widget.height
+        virtual.add_hotspot(page.hotspot, (0, created_viewport_height))
+        created_viewport_height += page.hotspot.height
 
     return virtual
-
-    # Commented out until merged into one widget
-
-    # elif widget_name == "network":
-    #     net_wlan = get_hotspot(network.stats("wlan0"), interval=2.0, widget_height=22)
-    #     net_eth = get_hotspot(network.stats("eth0"), interval=2.0, widget_height=21)
-    #     net_lo = get_hotspot(network.stats("lo"), interval=2.0, widget_height=21)
-    #     widgets_obj_arr.append(net_wlan)
-    #     widgets_obj_arr.append(net_eth)
-    #     widgets_obj_arr.append(net_lo)
 
 
 def remove_invalid_sys_info_widget_names(widget_name_list):
@@ -203,14 +199,20 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages_from_config():
+    cfg_file = "/etc/pi-top/pt-sys-menu/prefs.cfg" if is_pi() else path.expanduser("~/.pt-sys-menu")
     try:
-        with open(os.path.expanduser('~/.carousel'), 'r') as f:
+        with open(cfg_file, 'r') as f:
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
             # Do something if this ends up empty - show a "none selected" screen?
     except FileNotFoundError:
         # Default
         print("No config file - falling back to default")
         page_name_arr = ['cpu', 'clock', 'disk']
+
+    # Write corrected list back to file
+    with open(cfg_file, 'w') as f:
+        for page_name in page_name_arr:
+            f.write("%s\n" % page_name)
 
     page_id_arr = list()
     for page_name in page_name_arr:

@@ -1,17 +1,19 @@
 from components.Menu import Menu
+from components.System import device, is_pi
+if not is_pi():
+    from components.helpers.ButtonPressHelper import ButtonPressHelper
 from components.helpers.ButtonPressHelper import (
     RequestClient,
-    ButtonPressHelper,  # Soon not needed..
     ButtonPress
 )
 from components.helpers import MenuHelper
+
 from os import path
 from subprocess import (
     check_output,
     Popen
 )
 from psutil import Process
-from components.Device import device
 
 
 class MenuManager:
@@ -115,7 +117,8 @@ class MenuManager:
     def main_loop(self):
         try:
             while self._continue:
-                self.add_button_press_to_stack(ButtonPressHelper.get())  # Soon not needed..
+                if not is_pi():
+                    self.add_button_press_to_stack(ButtonPressHelper.get())
                 self.update_state()
         except SystemExit:
             pass

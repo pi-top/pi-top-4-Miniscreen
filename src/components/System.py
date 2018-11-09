@@ -1,17 +1,7 @@
-import logging
 from os import uname
 
 
 _device = None
-
-
-# logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)-15s - %(message)s'
-)
-# ignore PIL debug messages
-logging.getLogger('PIL').setLevel(logging.ERROR)
 
 
 def is_pi():

@@ -44,7 +44,6 @@ class RequestClient:
         return True
 
     def stop_listening(self):
-
         PTLogger.info("Closing responder socket...")
 
         self._continue = False
@@ -57,18 +56,15 @@ class RequestClient:
         PTLogger.debug("Closed responder socket.")
 
     def _thread_method(self):
-
         PTLogger.info("Listening for requests...")
 
         while self._continue:
-
             poller = zmq.Poller()
             poller.register(self._zmq_socket, zmq.POLLIN)
 
             events = poller.poll(500)
 
             if len(events) > 0:
-
                 request = self._zmq_socket.recv_string()
                 PTLogger.debug("Request received: " + request)
 
@@ -78,9 +74,7 @@ class RequestClient:
                 self._zmq_socket.send_string(response)
 
     def _process_request(self, request):
-
         try:
-
             message = Message.from_string(request)
 
             PTLogger.info("Received request: " + message.message_friendly_string())
@@ -104,12 +98,10 @@ class RequestClient:
                 PTLogger.warning("Unsupported request received: " + request)
 
         except ValueError as e:
-
             PTLogger.error("Error processing message: " + str(e))
             PTLogger.info(traceback.format_exc())
 
         except Exception as e:
-
             PTLogger.error("Unknown error processing message: " + str(e))
             PTLogger.info(traceback.format_exc())
 
@@ -117,6 +109,7 @@ class RequestClient:
         response = Message.from_parts(Message.RSP_SET_BRIGHTNESS, [])
         PTLogger.info("Sending response: " + response.message_friendly_string())
         return response.to_string()
+
 
 class ButtonPressHelper:
     @staticmethod

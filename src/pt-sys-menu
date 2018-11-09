@@ -1,29 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PYTHON_ARGCOMPLETE_OK
-
-"""
-Adapted from carousel from luma.examples by Richard Hull and contributors
-"""
-
-
-import signal
 from components.MenuManager import MenuManager
+from signal import (
+    signal,
+    SIGINT,
+    SIGTERM
+)
+from logging import (
+    basicConfig,
+    getLogger,
+    DEBUG,
+    ERROR
+)
 
 
-def signal_handler(signal, frame):
-    print("Stopping...")
-    app.stop()
-    print("Stopped!")
+def configure_logging():
+    basicConfig(
+        level=DEBUG,
+        format='%(asctime)-15s - %(message)s'
+    )
+    # Ignore PIL debug messages
+    getLogger('PIL').setLevel(ERROR)
 
 
-# Capture and handle interrupts
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
+def configure_interrupt_signals():
+    def signal_handler(signal, frame):
+        print("Stopping...")
+        app.stop()
+        print("Stopped!")
+    signal(SIGINT, signal_handler)
+    signal(SIGTERM, signal_handler)
+
+
+def setup():
+    configure_logging()
+    configure_interrupt_signals()
 
 
 if __name__ == "__main__":
     try:
+        setup()
         app = MenuManager()
         app.main_loop()
         app.stop()

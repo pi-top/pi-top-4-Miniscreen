@@ -1,5 +1,5 @@
 from components.helpers import MenuHelper
-from components.Device import device
+from components.System import device
 
 
 class Menu:
