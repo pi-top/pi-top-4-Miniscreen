@@ -5,6 +5,7 @@ from components.widgets.sys_info import batt_level, uptime, memory, disk, cpu_lo
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
 import os.path
+from components.Device import device
 
 from luma.core.virtual import snapshot, hotspot
 import os
@@ -29,11 +30,11 @@ def start_stop_project(path_to_project):
     return run
 
 
-def get_hotspot(render_func, widget_width=128, widget_height=64, interval=0.0):
+def get_hotspot(render_func, interval=0.0):
     if float(interval) == 0.0:
-        return hotspot(widget_width, widget_height, render_func)
+        return hotspot(device.width, device.height, render_func)
     else:
-        return snapshot(widget_width, widget_height, render_func, interval=interval)
+        return snapshot(device.width, device.height, render_func, interval=interval)
 
 
 class Menus(Enum):
@@ -91,11 +92,9 @@ class Pages:
                 project_subdirs = [name for name in sorted(os.listdir(project_dir))
                         if os.path.isdir(os.path.join(project_dir, name))]
                 for project_subdir in project_subdirs:
-                    print(project_subdir)
-
                     # Get name from path
                     title = project_subdir
-                    img_path = check_for_proj_icon_use_default(project_dir + "/" + project_subdir + "/remote_rpi/icon.png")
+                    img_path = get_project_icon(project_dir + "/" + project_subdir)
 
                     project_page = MenuPage(title,
                         get_hotspot(
@@ -106,7 +105,7 @@ class Pages:
                     project_pages.append(project_page)
             else:
                 title = "No Projects Available"
-                img_path = check_for_proj_icon_use_default("")
+                img_path = get_project_icon("")
 
                 project_page = MenuPage(title,
                                         get_hotspot(
@@ -117,10 +116,13 @@ class Pages:
                 project_pages.append(project_page)
             return project_pages
 
-def check_for_proj_icon_use_default(icon_path):
+
+def get_project_icon(project_path):
+    icon_path = project_path + "/remote_rpi/icon.png"
+
     if not os.path.isfile(icon_path):
-        dirname = os.path.dirname(__file__)
-        icon_path = os.path.join(dirname, '../../images/pi-top.png')
+        icon_path = os.path.join(os.path.dirname(__file__), '../../images/pi-top.png')
+
     return icon_path
 
 

@@ -6,10 +6,9 @@
 Adapted from carousel from luma.examples by Richard Hull and contributors
 """
 
-from demo_opts import get_device
+
 import signal
 from components.MenuManager import MenuManager
-from components.helpers.ButtonPressHelper import ButtonPressHelper  # Soon not needed..
 
 
 def signal_handler(signal, frame):
@@ -25,9 +24,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 if __name__ == "__main__":
     try:
-        ButtonPressHelper.init()  # Soon not needed..
-        device = get_device()
-        app = MenuManager(device)
+        app = MenuManager()
         app.main_loop()
         app.stop()
     except KeyboardInterrupt:

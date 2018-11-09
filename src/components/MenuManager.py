@@ -11,14 +11,15 @@ from subprocess import (
     Popen
 )
 from psutil import Process
+from components.Device import device
 
 
 class MenuManager:
     """Owner class for all Menus. Handles input events and controls menu behaviour."""
 
-    def __init__(self, device):
+    def __init__(self):
         """Constructor for MenuManager"""
-        self._device = device
+
         self.button_press_stack = []
         self._continue = True
         self._request_client = RequestClient()
@@ -41,7 +42,7 @@ class MenuManager:
         self._request_client._continue = False
 
     def add_menu_to_list(self, menu_id):
-        self.menus[menu_id] = Menu(self._device, menu_id)
+        self.menus[menu_id] = Menu(device, menu_id)
 
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:
