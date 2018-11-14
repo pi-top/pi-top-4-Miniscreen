@@ -86,6 +86,16 @@ class Pages:
             None
         )
 
+    class SettingsMenu(Enum):
+        VNC_CONNECTION = MenuPage(
+            "VNC Connection",
+            get_hotspot(
+                main_menu.page(title="VNC Connection"), interval=0.0
+            ),
+            change_menu(Menus.PROJECTS),
+            None
+        )
+
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():

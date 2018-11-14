@@ -1,1 +1,3 @@
-src/                    /usr/lib/pt-sys-menu/
+src/pt-sys-menu                     /usr/lib/pt-sys-menu/
+src/fonts                           /usr/lib/pt-sys-menu/
+src/components                      /usr/lib/pt-sys-menu/
