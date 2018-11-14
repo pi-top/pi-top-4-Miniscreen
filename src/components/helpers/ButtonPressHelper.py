@@ -1,4 +1,4 @@
-import pygame
+import pygame  # Conditional...
 from enum import Enum
 from ptcommon.logger import PTLogger
 from ptcommon.ptdm_message import Message
@@ -17,7 +17,8 @@ class RequestClient:
         self._thread = Thread(target=self._thread_method)
         self._callback_client = None
         self._zmq_context = zmq.Context()
-        self._zmq_socket = self._zmq_context.socket(zmq.REP)
+        self._zmq_socket = self._zmq_context.socket(zmq.SUB)
+        self._zmq_socket.setsockopt_string(zmq.SUBSCRIBE, "")
         self._continue = False
 
     def initialise(self, callback_client):
@@ -27,7 +28,7 @@ class RequestClient:
         PTLogger.debug("Opening request socket...")
 
         try:
-            self._zmq_socket.bind("tcp://*:3781")
+            self._zmq_socket.connect("tcp://127.0.0.1:3781")
             PTLogger.info("Responder server ready.")
 
         except zmq.error.ZMQError as e:
@@ -64,51 +65,25 @@ class RequestClient:
 
             events = poller.poll(500)
 
-            if len(events) > 0:
-                request = self._zmq_socket.recv_string()
-                PTLogger.debug("Request received: " + request)
+            for i in range(len(events)):
+                message_string = self._zmq_socket.recv_string()
+                message = Message.from_string(message_string)
 
-                response = self._process_request(request)
+                if message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
+                    message.validate_parameters([])
+                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.UP))
 
-                PTLogger.debug("Sending response: " + response)
-                self._zmq_socket.send_string(response)
+                elif message.message_id() == Message.PUB_V3_BUTTON_DOWN_PRESSED:
+                    message.validate_parameters([])
+                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.DOWN))
 
-    def _process_request(self, request):
-        try:
-            message = Message.from_string(request)
+                elif message.message_id() == Message.PUB_V3_BUTTON_SELECT_PRESSED:
+                    message.validate_parameters([])
+                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.SELECT))
 
-            PTLogger.info("Received request: " + message.message_friendly_string())
-            if message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
-                message.validate_parameters([])
-                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.UP))
-
-            elif message.message_id() == Message.PUB_V3_BUTTON_DOWN_PRESSED:
-                message.validate_parameters([])
-                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.DOWN))
-
-            elif message.message_id() == Message.PUB_V3_BUTTON_SELECT_PRESSED:
-                message.validate_parameters([])
-                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.SELECT))
-
-            elif message.message_id() == Message.PUB_V3_BUTTON_CANCEL_PRESSED:
-                message.validate_parameters([])
-                self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.CANCEL))
-
-            else:
-                PTLogger.warning("Unsupported request received: " + request)
-
-        except ValueError as e:
-            PTLogger.error("Error processing message: " + str(e))
-            PTLogger.info(traceback.format_exc())
-
-        except Exception as e:
-            PTLogger.error("Unknown error processing message: " + str(e))
-            PTLogger.info(traceback.format_exc())
-
-        # Sending pointless response
-        response = Message.from_parts(Message.RSP_SET_BRIGHTNESS, [])
-        PTLogger.info("Sending response: " + response.message_friendly_string())
-        return response.to_string()
+                elif message.message_id() == Message.PUB_V3_BUTTON_CANCEL_PRESSED:
+                    message.validate_parameters([])
+                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.CANCEL))
 
 
 class ButtonPressHelper:

@@ -6,7 +6,7 @@ _device = None
 
 def is_pi():
     _, _, _, _, machine = uname()
-    return machine == "armvl"
+    return machine == "armv7l"
 
 
 def setup_pi_and_get_device():

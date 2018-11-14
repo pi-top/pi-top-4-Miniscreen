@@ -10,6 +10,7 @@ from os import (
     path,
     listdir
 )
+from pathlib import Path
 
 
 _app = None
@@ -209,7 +210,8 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages_from_config():
-    cfg_file = "/etc/pi-top/pt-sys-menu/prefs.cfg" if is_pi() else path.expanduser("~/.pt-sys-menu")
+    cfg_path = "/etc/pi-top/pt-sys-menu"
+    cfg_file = cfg_path + "/prefs.cfg" if is_pi() else path.expanduser("~/.pt-sys-menu")
     try:
         with open(cfg_file, 'r') as f:
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
@@ -220,6 +222,7 @@ def get_sys_info_pages_from_config():
         page_name_arr = ['cpu', 'clock', 'disk']
 
     # Write corrected list back to file
+    Path(cfg_path).mkdir(parents=True, exist_ok=True)
     with open(cfg_file, 'w') as f:
         for page_name in page_name_arr:
             f.write("%s\n" % page_name)
