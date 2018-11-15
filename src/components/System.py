@@ -1,4 +1,5 @@
 from os import uname
+from components.helpers import RequestServer
 
 
 _device = None
@@ -9,7 +10,14 @@ def is_pi():
     return machine == "armv7l"
 
 
+def take_control_of_oled():
+    global got_pi_control
+    got_pi_control = RequestServer.take_control_of_oled()
+
+
+
 def setup_pi_and_get_device():
+    take_control_of_oled()
     import RPi.GPIO as GPIO
     # Suppress warning in Luma serial class
     GPIO.setwarnings(False)
@@ -55,3 +63,4 @@ def setup_and_get_device():
 
 
 device = setup_and_get_device()
+got_pi_control = False

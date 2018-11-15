@@ -11,7 +11,11 @@ from os import (
     listdir
 )
 from pathlib import Path
-
+from subprocess import (
+    check_output,
+    Popen
+)
+from psutil import Process
 
 _app = None
 
@@ -29,7 +33,31 @@ def change_menu(menu_id):
 
 def start_stop_project(path_to_project):
     def run():
-        _app.start_stop_project(path_to_project)
+        print("Attempting to start/stop project:")
+        print(path_to_project)
+
+        code_file = path_to_project + "/remote_rpi/run.py"
+
+        print("Checking if process is already running...")
+        pid = None
+
+        cmd = "pgrep -f \"" + code_file + "\" || true"
+        output = check_output(cmd, shell=True).decode('ascii', 'ignore')
+        try:
+            pid = int(output)
+        except ValueError:
+            pass  # No process found - don't worry about it
+
+        if pid is not None:
+            print("Process is running - attempting to kill")
+            Process(pid).terminate()
+        else:
+            print("Process is not running")
+            if path.exists(code_file):
+                print("Code file found at " + code_file + ". Running...")
+                Popen(["python3", code_file])
+            else:
+                print("No code file found at " + code_file)
     return run
 
 
@@ -210,13 +238,16 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages_from_config():
-    cfg_path = "/etc/pi-top/pt-sys-menu"
-    cfg_file = cfg_path + "/prefs.cfg" if is_pi() else path.expanduser("~/.pt-sys-menu")
+    cfg_path = "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
+    cfg_file = cfg_path + "/prefs.cfg"
     try:
         with open(cfg_file, 'r') as f:
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
             # Do something if this ends up empty - show a "none selected" screen?
-    except FileNotFoundError:
+    except FileExistsError:
+        # Can be triggered by ~/.pt-sys-menu as file - fix edge case
+        pass
+    except (FileNotFoundError, NotADirectoryError):
         # Default
         print("No config file - falling back to default")
         page_name_arr = ['cpu', 'clock', 'disk']

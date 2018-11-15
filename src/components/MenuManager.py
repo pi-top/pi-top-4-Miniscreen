@@ -1,19 +1,16 @@
-from components.Menu import Menu
-from components.System import device, is_pi
+from components.System import is_pi
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
-from components.helpers.ButtonPressHelper import (
-    RequestClient,
-    ButtonPress
-)
-from components.helpers import MenuHelper
 
-from os import path
-from subprocess import (
-    check_output,
-    Popen
+from components.Menu import Menu
+from components.ButtonPress import ButtonPress
+from components.System import (
+    device,
+    got_pi_control  # Do something with this if it is false
 )
-from psutil import Process
+
+from components.helpers.RequestClient import RequestClient
+from components.helpers import MenuHelper
 
 
 class MenuManager:
@@ -22,6 +19,7 @@ class MenuManager:
     def __init__(self):
         """Constructor for MenuManager"""
 
+        self.got_pi_control = got_pi_control
         self.button_press_stack = []
         self._continue = True
         self._request_client = RequestClient()
@@ -53,33 +51,6 @@ class MenuManager:
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
-
-    def start_stop_project(self, path_to_project):
-        print("Attempting to start/stop project:")
-        print(path_to_project)
-
-        code_file = path_to_project + "/remote_rpi/run.py"
-
-        print("Checking if process is already running...")
-        pid = None
-
-        cmd = "pgrep -f \"" + code_file + "\" || true"
-        output = check_output(cmd, shell=True).decode('ascii', 'ignore')
-        try:
-            pid = int(output)
-        except ValueError:
-            pass  # No process found - don't worry about it
-
-        if pid is not None:
-            print("Process is running - attempting to kill")
-            Process(pid).terminate()
-        else:
-            print("Process is not running")
-            if path.exists(code_file):
-                print("Code file found at " + code_file + ". Running...")
-                Popen(["python3", code_file])
-            else:
-                print("No code file found at " + code_file)
 
     def add_button_press_to_stack(self, button_press_event):
         if button_press_event != ButtonPress.ButtonType.NONE:
