@@ -62,5 +62,5 @@ def setup_and_get_device():
     return _device
 
 
-device = setup_and_get_device()
 got_pi_control = False
+device = setup_and_get_device()

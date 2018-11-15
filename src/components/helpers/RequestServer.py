@@ -38,4 +38,4 @@ def take_control_of_oled():
         print("Error connecting to device manager: " + str(e))
     finally:
         _cleanup()
-        return message == Message.RSP_SET_OLED_CONTROL
+        return None if message is None else message.message_id() == Message.RSP_SET_OLED_CONTROL

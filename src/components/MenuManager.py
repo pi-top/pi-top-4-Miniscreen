@@ -19,7 +19,6 @@ class MenuManager:
     def __init__(self):
         """Constructor for MenuManager"""
 
-        self.got_pi_control = got_pi_control
         self.button_press_stack = []
         self._continue = True
         self._request_client = RequestClient()

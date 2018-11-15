@@ -115,6 +115,17 @@ class Pages:
             None
         )
 
+        # Alexa/Mycroft?
+        VOICE_ASSISTANT_SELECT = MenuPage(
+            "Voice Assistant",
+            get_hotspot(
+                main_menu.page(title="Voice Assistant"), interval=0.0
+            ),
+            # change_menu(Menus.WIFI_SETUP)
+            None,
+            None
+        )
+
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             "VNC Connection",
