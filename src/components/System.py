@@ -15,7 +15,6 @@ def take_control_of_oled():
     got_pi_control = RequestServer.take_control_of_oled()
 
 
-
 def setup_pi_and_get_device():
     take_control_of_oled()
     import RPi.GPIO as GPIO
