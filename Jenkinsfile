@@ -18,6 +18,6 @@ node ('master') {
     }
 
     stage ('Publish') {
-        publish('experimental-non-free')
+        publishSirius()
     }
 }
