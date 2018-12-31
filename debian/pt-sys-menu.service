@@ -1,5 +1,6 @@
 [Unit]
 Description=pi-top OLED system menu
+After=pt-device-manager.service
 
 [Service]
 Restart=always
@@ -7,4 +8,3 @@ ExecStart=/usr/lib/pt-sys-menu/pt-sys-menu
 
 [Install]
 WantedBy=local-fs.target
-After=pt-device-manager.service
