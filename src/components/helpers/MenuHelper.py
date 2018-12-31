@@ -3,6 +3,7 @@ from components.Page import MenuPage
 from components.widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock, hud
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
+from ptcommon.logger import PTLogger
 
 from luma.core.virtual import snapshot, hotspot, viewport
 from enum import Enum
@@ -84,7 +85,7 @@ class Pages:
         DISK = MenuPage("disk", get_hotspot(disk.render, interval=2.0), change_menu(Menus.MAIN_MENU), None)
         CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU), None)
         CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        # HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
         # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
 
     class MainMenu(Enum):
@@ -251,6 +252,7 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 def get_sys_info_pages_from_config():
     cfg_path = "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
     cfg_file = cfg_path + "/prefs.cfg"
+    page_name_arr = list()
     try:
         with open(cfg_file, 'r') as f:
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
@@ -261,7 +263,11 @@ def get_sys_info_pages_from_config():
     except (FileNotFoundError, NotADirectoryError):
         # Default
         print("No config file - falling back to default")
-        page_name_arr = ['cpu', 'clock', 'disk']
+
+    if len(page_name_arr) < 1:
+        page_name_arr = ['hud', 'clock', 'disk']
+
+    PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
     # Write corrected list back to file
     Path(cfg_path).mkdir(parents=True, exist_ok=True)

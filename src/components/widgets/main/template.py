@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from components.widgets.common import title_text
+from components.widgets.common_functions import title_text
 
 
 def page(title="Title"):

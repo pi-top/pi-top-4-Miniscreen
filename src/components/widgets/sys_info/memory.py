@@ -4,7 +4,7 @@
 # See LICENSE.rst for details.
 
 import psutil
-from components.widgets.common import bytes2human, right_text, title_text, tiny_font
+from components.widgets.common_functions import bytes2human, right_text, title_text, tiny_font
 
 
 def render(draw, width, height):
