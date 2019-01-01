@@ -1,5 +1,8 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
+from components.widgets.common import (
+    animated_gif
+)
 from components.widgets.sys_info import (
     batt_level,
     uptime,
@@ -87,14 +90,54 @@ class Menus(Enum):
 
 class Pages:
     class SysInfoMenu(Enum):
-        BATTERY = MenuPage("battery", get_hotspot(batt_level, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        UPTIME = MenuPage("uptime", get_hotspot(uptime, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        MEMORY = MenuPage("memory", get_hotspot(memory, interval=2.0), change_menu(Menus.MAIN_MENU), None)
-        DISK = MenuPage("disk", get_hotspot(disk, interval=2.0), change_menu(Menus.MAIN_MENU), None)
-        CPU = MenuPage("cpu", get_hotspot(cpu_load, interval=0.5), change_menu(Menus.MAIN_MENU), None)
-        CLOCK = MenuPage("clock", get_hotspot(clock, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        HUD = MenuPage("hud", get_hotspot(hud, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        WIFI = MenuPage("wifi", get_hotspot(wifi, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        BATTERY = MenuPage(
+            name="battery",
+            hotspot=get_hotspot(batt_level, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        UPTIME = MenuPage(
+            name="uptime",
+            hotspot=get_hotspot(uptime, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        MEMORY = MenuPage(
+            name="memory",
+            hotspot=get_hotspot(memory, interval=2.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        DISK = MenuPage(
+            name="disk",
+            hotspot=get_hotspot(disk, interval=2.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        CPU = MenuPage(
+            name="cpu",
+            hotspot=get_hotspot(cpu_load, interval=0.5),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        CLOCK = MenuPage(
+            name="clock",
+            hotspot=get_hotspot(clock, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        HUD = MenuPage(
+            name="hud",
+            hotspot=get_hotspot(hud, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+        WIFI = MenuPage(
+            name="wifi",
+            hotspot=get_hotspot(wifi, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
         # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
 
     class MainMenu(Enum):
@@ -104,26 +147,26 @@ class Pages:
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
-        SETTINGS_SELECT = MenuPage(
-            name="Settings",
-            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Settings")),
-            select_action_func=None,  # change_menu(Menus.SETTINGS)
-            cancel_action_func=None
-        )
-        WIFI_SETUP_SELECT = MenuPage(
-            name="Wi-Fi Setup",
-            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Wi-Fi Setup")),
-            select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
-            cancel_action_func=None
-        )
-
-        # Alexa/Mycroft?
-        VOICE_ASSISTANT_SELECT = MenuPage(
-            name="Voice Assistant",
-            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Voice Assistant")),
-            select_action_func=None,  # change_menu(Menus.VOICE_ASSIST)
-            cancel_action_func=None
-        )
+        # SETTINGS_SELECT = MenuPage(
+        #     name="Settings",
+        #     hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Settings")),
+        #     select_action_func=None,  # change_menu(Menus.SETTINGS)
+        #     cancel_action_func=None
+        # )
+        # WIFI_SETUP_SELECT = MenuPage(
+        #     name="Wi-Fi Setup",
+        #     hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Wi-Fi Setup")),
+        #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
+        #     cancel_action_func=None
+        # )
+        #
+        # # Alexa/Mycroft?
+        # VOICE_ASSISTANT_SELECT = MenuPage(
+        #     name="Voice Assistant",
+        #     hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Voice Assistant")),
+        #     select_action_func=None,  # change_menu(Menus.VOICE_ASSIST)
+        #     cancel_action_func=None
+        # )
 
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
