@@ -10,7 +10,7 @@ from components.widgets.common_functions import (
     title_text,
     tiny_font
 )
-from components.widgets.common_functions.base_widget_hotspot import BaseSnapshot
+from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 
 def get_network_id():

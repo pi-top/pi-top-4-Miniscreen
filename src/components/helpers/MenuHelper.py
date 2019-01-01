@@ -1,6 +1,15 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
-from components.widgets.sys_info import batt_level, uptime, memory, disk, cpu_load, clock, hud
+from components.widgets.sys_info import (
+    batt_level,
+    uptime,
+    memory,
+    disk,
+    cpu_load,
+    clock,
+    hud,
+    wifi
+)
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
 from ptcommon.logger import PTLogger
@@ -85,6 +94,7 @@ class Pages:
         CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU), None)
         CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
         HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        WIFI = MenuPage("wifi", get_hotspot(wifi.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
         # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
 
     class MainMenu(Enum):
