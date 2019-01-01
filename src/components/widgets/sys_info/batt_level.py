@@ -3,36 +3,25 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-import time
-from luma.core.virtual import hotspot
 import subprocess
+from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 
 def get_battery():
     try:
-        cmd = subprocess.Popen(["pt-battery -c"], stdout=subprocess.PIPE)
+        cmd = subprocess.Popen(["pt-battery", "-c"], stdout=subprocess.PIPE)
         response = cmd.communicate()
-    except FileNotFoundError:
+    except (FileNotFoundError, subprocess.CalledProcessError):
         response = "TEST"
 
     return str(response + "%")
 
 
 def render(draw, width, height):
-
     draw.text((width/10, height/10), text=get_battery(), fill="white")
 
 
-class Battery_level(hotspot):
+class Snapshot(BaseSnapshot):
+    def __init__(self, width, height, interval, render_func):
+        super(Snapshot, self).__init__(width, height, interval, render)
 
-    def __init__(self, width, height, interval):
-        super(Battery_level, self).__init__(width, height)
-        self._interval = interval
-        self._last_updated = 0
-
-    def should_redraw(self):
-        return time.time() - self._last_updated > self._interval
-
-    def update(self, draw):
-        render(draw, self.width, self.height)
-        self._last_updated = time.time()
