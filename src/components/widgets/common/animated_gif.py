@@ -9,13 +9,17 @@ class Snapshot(BaseSnapshot):
     def __init__(self, width, height, interval, render_func, **data):
         super(Snapshot, self).__init__(width, height, interval, self.render)
 
-        self.image_path = path.abspath(path.join(path.dirname(__file__), 'assets', 'banana.gif'))
-        self.image = None
-        if what_img(self.image_path) == "gif":
-            self.image = Image.open(self.image_path)
-
         self.frame_iterator = None
-        self.setup_frames()
+        self.image = None
+
+        for key, value in data.items():
+            if key == "image_path":
+                self.image_path = value
+                if what_img(self.image_path) == "gif":
+                    self.image = Image.open(self.image_path)
+
+        if self.image is not None:
+            self.setup_frames()
 
     def render(self, draw, width, height):
         if self.image is not None:
