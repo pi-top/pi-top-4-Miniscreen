@@ -85,7 +85,7 @@ class Pages:
         DISK = MenuPage("disk", get_hotspot(disk.render, interval=2.0), change_menu(Menus.MAIN_MENU), None)
         CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU), None)
         CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        # HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
         # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
 
     class MainMenu(Enum):

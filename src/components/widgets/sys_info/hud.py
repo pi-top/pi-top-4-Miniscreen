@@ -6,7 +6,12 @@ from datetime import datetime
 import psutil
 import subprocess
 from fractions import Fraction
-from PIL import Image, ImageFont
+from PIL import (
+    Image,
+    ImageFont
+)
+from components.widgets.common.base_widget_hotspot import BaseSnapshot
+
 
 def bytes2human(n):
     """
@@ -65,9 +70,8 @@ def network_strength(iface):
         if "Link Quality" in line:
           strength_str = line.lstrip(" ").lstrip("Link Quality=").split(" ")[0]
           strength = int(Fraction(strength_str) * 100)
-#          return "Wi-Fi Strength:  " + str(strength) + "%"
           return str(strength) + "%"
-    return ""
+    return "lolol%"
 
 
 def get_battery():
@@ -93,19 +97,29 @@ font = ImageFont.truetype(
     size=12)
 
 
+# TODO: Fix images loading correctly
 def render(draw, width, height):
-    draw.text(xy=(0 * width/4, 0 * height/4), text=get_battery(), font=font)
-    img_bitmap = Image.open("widgets/sys_info/assets/battery.png").convert("RGBA")
-    draw.bitmap((1 * width/4, 0 * height/4), img_bitmap, fill="white")
+    draw.text(xy=(0 * width/4, 0 * height/4), text=get_battery(), font=font, fill="white")
+    img_path = path.abspath(path.join(path.dirname(__file__), 'assets', 'battery.png'))
+    img_bitmap = Image.open(img_path).convert("RGBA")
+    draw.bitmap(xy=(1 * width/4, 0 * height/4), bitmap=img_bitmap, fill="white")
 
-    draw.text(xy=(2 * width/4, 0 * height/4), text=network_strength('wlan0'), font=font)
-    img_bitmap = Image.open("widgets/sys_info/assets/wifi_icon.png").convert("RGBA")
-    draw.bitmap((3 * width/4, 0 * height/4), img_bitmap, fill="white")
+    draw.text(xy=(2 * width/4, 0 * height/4), text=network_strength('wlan0'), font=font, fill="white")
+    img_path = path.abspath(path.join(path.dirname(__file__), 'assets', 'wifi_icon.png'))
+    img_bitmap = Image.open(img_path).convert("RGBA")
+    draw.bitmap(xy=(3 * width/4, 0 * height/4), bitmap=img_bitmap, fill="white")
 
-    draw.text(xy=(0 * width/4, 2 * height/4), text=cpu_percentage(), font=font)
-    img_bitmap = Image.open("widgets/sys_info/assets/cpu.png").convert("RGBA")
-    draw.bitmap((1 * width/4, 2 * height/4), img_bitmap, fill="white")
+    draw.text(xy=(0 * width/4, 2 * height/4), text=cpu_percentage(), font=font, fill="white")
+    img_path = path.abspath(path.join(path.dirname(__file__), 'assets', 'cpu.png'))
+    img_bitmap = Image.open(img_path).convert("RGBA")
+    draw.bitmap(xy=(1 * width/4, 2 * height/4), bitmap=img_bitmap, fill="white")
 
-    draw.text(xy=(2 * width/4, 2 * height/4), text=get_temperature(), font=font)
-    img_bitmap = Image.open("widgets/sys_info/assets/thermometer.png").convert("RGBA")
-    draw.bitmap((3 * width/4, 2 * height/4), img_bitmap, fill="white")
+    draw.text(xy=(2 * width/4, 2 * height/4), text=get_temperature(), font=font, fill="white")
+    img_path = path.abspath(path.join(path.dirname(__file__), 'assets', 'thermometer.png'))
+    img_bitmap = Image.open(img_path).convert("RGBA")
+    draw.bitmap(xy=(3 * width/4, 2 * height/4), bitmap=img_bitmap, fill="white")
+
+
+class Snapshot(BaseSnapshot):
+    def __init__(self, width, height, interval, render_func):
+        super(Snapshot, self).__init__(width, height, interval, render)
