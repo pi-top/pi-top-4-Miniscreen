@@ -71,4 +71,3 @@ class Snapshot(BaseSnapshot):
     def render(draw, width, height):
         clock = analog if height >= 64 else digital
         clock(draw, width, height)
-
