@@ -19,5 +19,5 @@ def project(title="My Project", img_path=""):
 
 
 class StaticHotspot(BaseStaticHotspot):
-    def __init__(self, width, height, render_func):
+    def __init__(self, width, height, render_func, **data):
         super(StaticHotspot, self).__init__(width, height, render_func)

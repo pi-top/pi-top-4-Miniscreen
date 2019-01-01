@@ -34,5 +34,5 @@ def stats(interface):
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, render_func):
+    def __init__(self, width, height, interval, render_func, **data):
         super(Hotspot, self).__init__(width, height, interval, render_func)

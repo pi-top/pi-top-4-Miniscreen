@@ -21,6 +21,6 @@ def render(draw, width, height):
 
 
 class Snapshot(BaseSnapshot):
-    def __init__(self, width, height, interval, render_func):
+    def __init__(self, width, height, interval, render_func, **data):
         super(Snapshot, self).__init__(width, height, interval, render)
 

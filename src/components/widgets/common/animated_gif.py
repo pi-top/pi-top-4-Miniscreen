@@ -6,7 +6,7 @@ from imghdr import what as what_img
 
 # TODO: Receive dynamic information - e.g. how do we pass it the file path?
 class Snapshot(BaseSnapshot):
-    def __init__(self, width, height, interval, render_func):
+    def __init__(self, width, height, interval, render_func, **data):
         super(Snapshot, self).__init__(width, height, interval, self.render)
 
         self.image_path = path.abspath(path.join(path.dirname(__file__), 'assets', 'banana.gif'))

@@ -73,11 +73,21 @@ def start_stop_project(path_to_project):
     return run
 
 
-def get_hotspot(widget, interval=0.0, render_func=None):
+def get_hotspot(widget, interval=0.0, render_func=None, **extra_data):
+    data = {
+        **{
+            "width": device.width,
+            "height": device.height,
+            "render_func": render_func,
+            "interval": interval
+        },
+        **extra_data
+    }
+
     if float(interval) == 0.0:
-        return widget.StaticHotspot(width=device.width, height=device.height, render_func=render_func)
+        return widget.StaticHotspot(**data)
     else:
-        return widget.Snapshot(width=device.width, height=device.height, interval=interval, render_func=render_func)
+        return widget.Snapshot(**data)
 
 
 class Menus(Enum):
@@ -90,6 +100,17 @@ class Menus(Enum):
 
 class Pages:
     class SysInfoMenu(Enum):
+        ANIMATED_GIF = MenuPage(
+            name="animated_gif",
+            hotspot=get_hotspot(animated_gif, interval=0.05,
+                                image_path=path.abspath(
+                                    path.join(path.dirname(__file__), '..', 'widgets', 'common', 'assets',
+                                              'banana.gif'))
+                                ),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+
         BATTERY = MenuPage(
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0),
