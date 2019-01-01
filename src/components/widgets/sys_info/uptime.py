@@ -12,14 +12,14 @@ from components.widgets.common_functions import (
 from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 
-def render(draw, width, height):
-    boot_time = datetime.fromtimestamp(psutil.boot_time())
-    elapsed = datetime.now() - boot_time
-    margin = 3
-    title_text(draw, margin, width, "Uptime")
-    right_text(draw, 20, width, margin, text="{0} s".format(int(elapsed.total_seconds())))
-
-
 class Snapshot(BaseSnapshot):
-    def __init__(self, width, height, interval, render_func, **data):
-        super(Snapshot, self).__init__(width, height, interval, render)
+    def __init__(self, width, height, interval, **data):
+        super(Snapshot, self).__init__(width, height, interval, Snapshot.render)
+
+    @staticmethod
+    def render(draw, width, height):
+        boot_time = datetime.fromtimestamp(psutil.boot_time())
+        elapsed = datetime.now() - boot_time
+        margin = 3
+        title_text(draw, margin, width, "Uptime")
+        right_text(draw, 20, width, margin, text="{0} s".format(int(elapsed.total_seconds())))

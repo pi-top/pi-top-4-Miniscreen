@@ -16,11 +16,10 @@ def get_battery():
     return str(battery_level + "%")
 
 
-def render(draw, width, height):
-    draw.text((width/10, height/10), text=get_battery(), fill="white")
-
-
 class Snapshot(BaseSnapshot):
-    def __init__(self, width, height, interval, render_func, **data):
-        super(Snapshot, self).__init__(width, height, interval, render)
+    def __init__(self, width, height, interval, **data):
+        super(Snapshot, self).__init__(width, height, interval, Snapshot.render)
 
+    @staticmethod
+    def render(draw, width, height):
+        draw.text((width / 10, height / 10), text=Snapshot.get_battery(), fill="white")

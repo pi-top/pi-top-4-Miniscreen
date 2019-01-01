@@ -11,7 +11,8 @@ from components.widgets.sys_info import (
     cpu_load,
     clock,
     hud,
-    wifi
+    wifi,
+    network
 )
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
@@ -73,12 +74,11 @@ def start_stop_project(path_to_project):
     return run
 
 
-def get_hotspot(widget, interval=0.0, render_func=None, **extra_data):
+def get_hotspot(widget, interval=0.0, **extra_data):
     data = {
         **{
             "width": device.width,
             "height": device.height,
-            "render_func": render_func,
             "interval": interval
         },
         **extra_data
@@ -159,24 +159,34 @@ class Pages:
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None
         )
-        # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
+        NETWORK = MenuPage(
+            name="network",
+            hotspot=get_hotspot(network, interval=1.0,
+                                interface="wlan0"
+                                ),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
 
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Project Select")),
+            hotspot=get_hotspot(main_menu,
+                                title="Project Select"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
         # SETTINGS_SELECT = MenuPage(
         #     name="Settings",
-        #     hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Settings")),
+        #     hotspot=get_hotspot(main_menu,
+        #                         title="Settings"),
         #     select_action_func=None,  # change_menu(Menus.SETTINGS)
         #     cancel_action_func=None
         # )
         # WIFI_SETUP_SELECT = MenuPage(
         #     name="Wi-Fi Setup",
-        #     hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Wi-Fi Setup")),
+        #     hotspot=get_hotspot(main_menu,
+        #                         title="Wi-Fi Setup"),
         #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
         #     cancel_action_func=None
         # )
@@ -184,7 +194,8 @@ class Pages:
         # # Alexa/Mycroft?
         # VOICE_ASSISTANT_SELECT = MenuPage(
         #     name="Voice Assistant",
-        #     hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Voice Assistant")),
+        #     hotspot=get_hotspot(main_menu,
+        #                         title="Voice Assistant"),
         #     select_action_func=None,  # change_menu(Menus.VOICE_ASSIST)
         #     cancel_action_func=None
         # )
@@ -192,7 +203,8 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="VNC Connection")),
+            hotspot=get_hotspot(main_menu,
+                                title="VNC Connection"),
             select_action_func=None,  # change_menu(Menus.VNC),
             cancel_action_func=None
         )
@@ -213,8 +225,9 @@ class Pages:
                     img_path = get_project_icon(project_dir + "/" + project_subdir)
 
                     project_page = MenuPage(title, get_hotspot(projects_menu,
-                                                               render_func=projects_menu.project(title=title,
-                                                                                                 img_path=img_path)),
+                                                               title=title,
+                                                               img_path=img_path
+                                                               ),
                                             start_stop_project(project_dir + "/" + project_subdir), None)
                     project_pages.append(project_page)
             else:
@@ -222,8 +235,9 @@ class Pages:
                 img_path = get_project_icon("")
 
                 project_page = MenuPage(title, get_hotspot(projects_menu,
-                                                           render_func=projects_menu.project(title=title,
-                                                                                             img_path=img_path)),
+                                                           title=title,
+                                                           img_path=img_path
+                                                           ),
                                         None, None)
                 project_pages.append(project_page)
             return project_pages

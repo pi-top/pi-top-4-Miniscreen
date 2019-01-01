@@ -63,11 +63,12 @@ def analog(draw, width, height):
     title_text(draw, margin, width, today_date)
 
 
-def render(draw, width, height):
-    clock = analog if height >= 64 else digital
-    clock(draw, width, height)
-
-
 class Snapshot(BaseSnapshot):
-    def __init__(self, width, height, interval, render_func, **data):
-        super(Snapshot, self).__init__(width, height, interval, render)
+    def __init__(self, width, height, interval, **data):
+        super(Snapshot, self).__init__(width, height, interval, Snapshot.render)
+
+    @staticmethod
+    def render(draw, width, height):
+        clock = analog if height >= 64 else digital
+        clock(draw, width, height)
+

@@ -7,17 +7,20 @@ from PIL import Image
 from components.widgets.common.base_widget_hotspot import BaseStaticHotspot
 
 
-def project(title="My Project", img_path=""):
-    def render(draw, width, height):
-        w, h = draw.textsize(title)
-        draw.text((width/2 - w/2, height - h*3/2), text=title, fill="white")
-
-        if img_path != "":
-            img_bitmap = Image.open(img_path).convert("RGBA")
-            draw.bitmap((width/4, height/6), img_bitmap.resize((int(width/2), int(height/2))), fill="white")
-    return render
-
-
 class StaticHotspot(BaseStaticHotspot):
-    def __init__(self, width, height, render_func, **data):
-        super(StaticHotspot, self).__init__(width, height, render_func)
+    def __init__(self, width, height, **data):
+        super(StaticHotspot, self).__init__(width, height, self.render)
+
+        for key, value in data.items():
+            if key == "title":
+                self.title = value
+            if key == "img_path":
+                self.img_path = value
+
+    def render(self, draw, width, height):
+        w, h = draw.textsize(self.title)
+        draw.text((width/2 - w/2, height - h*3/2), text=self.title, fill="white")
+
+        if self.img_path != "":
+            img_bitmap = Image.open(self.img_path).convert("RGBA")
+            draw.bitmap((width/4, height/6), img_bitmap.resize((int(width/2), int(height/2))), fill="white")
