@@ -17,7 +17,6 @@ class BaseStaticHotspot(hotspot):
 
     def should_redraw(self):
         # TODO: Find out why this is constantly going true again
-        # print("Redraw? " + str(self.redraw))
         return self.redraw
 
     def update(self, draw):

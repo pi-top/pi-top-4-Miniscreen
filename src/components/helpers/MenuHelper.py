@@ -34,12 +34,11 @@ def change_menu(menu_id):
 
 def start_stop_project(path_to_project):
     def run():
-        print("Attempting to start/stop project:")
-        print(path_to_project)
+        PTLogger.info("Attempting to start/stop project: " + str(path_to_project))
 
         code_file = path_to_project + "/remote_rpi/run.py"
 
-        print("Checking if process is already running...")
+        PTLogger.debug("Checking if process is already running...")
         pid = None
 
         cmd = "pgrep -f \"" + code_file + "\" || true"
@@ -50,15 +49,15 @@ def start_stop_project(path_to_project):
             pass  # No process found - don't worry about it
 
         if pid is not None:
-            print("Process is running - attempting to kill")
+            PTLogger.debug("Process is running - attempting to kill")
             Process(pid).terminate()
         else:
-            print("Process is not running")
+            PTLogger.debug("Process is not running")
             if path.exists(code_file):
-                print("Code file found at " + code_file + ". Running...")
+                PTLogger.debug("Code file found at " + code_file + ". Running...")
                 Popen(["python3", code_file])
             else:
-                print("No code file found at " + code_file)
+                PTLogger.debug("No code file found at " + code_file)
     return run
 
 
@@ -244,7 +243,7 @@ def create_viewport(device, pages):
 def remove_invalid_sys_info_widget_names(widget_name_list):
     for widget_name in widget_name_list:
         if widget_name not in (page.name for page in get_pages(Menus.SYS_INFO)):
-            print("Removing " + str(widget_name))
+            PTLogger.debug("Removing invalid sys info widget: " + str(widget_name))
             widget_name_list.remove(widget_name)
     return widget_name_list
 
@@ -262,7 +261,7 @@ def get_sys_info_pages_from_config():
         pass
     except (FileNotFoundError, NotADirectoryError):
         # Default
-        print("No config file - falling back to default")
+        PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
         page_name_arr = ['hud', 'clock', 'disk']

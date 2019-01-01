@@ -1,5 +1,6 @@
 from components.helpers import MenuHelper
 from components.System import device
+from ptcommon.logger import PTLogger
 
 
 class Menu:
@@ -40,15 +41,15 @@ class Menu:
         self.page_index = page_index
         self.y_pos = self.get_page_y_pos(self.page_index)
         if debug_print:
-            print("Moving instantly to " + str(self.get_current_page().name))
+            PTLogger.debug("Moving instantly to " + str(self.get_current_page().name))
 
     def set_page_to_previous(self):
         self.page_index = self.page_index - 1
-        print("Scrolling to " + str(self.get_current_page().name))
+        PTLogger.debug("Scrolling to " + str(self.get_current_page().name))
 
     def set_page_to_next(self):
         self.page_index = self.page_index + 1
-        print("Scrolling to " + str(self.get_current_page().name))
+        PTLogger.debug("Scrolling to " + str(self.get_current_page().name))
 
     def get_current_page(self):
         return self.pages[self.page_index]
@@ -69,7 +70,7 @@ class Menu:
         arrived_at_screen = (self.y_pos == self.get_page_y_pos())
         if arrived_at_screen:
             if self.moving_to_page:
-                print("Arrived at " + str(self.get_current_page().name))
+                PTLogger.debug("Arrived at " + str(self.get_current_page().name))
                 self.update_position_if_at_end_of_viewport()
         else:
             self.y_pos = self.y_pos - 1 if self.get_page_y_pos() < self.y_pos else self.y_pos + 1

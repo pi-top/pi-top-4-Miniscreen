@@ -12,6 +12,7 @@ from logging import (
     DEBUG,
     ERROR
 )
+from ptcommon.logger import PTLogger
 
 
 def configure_logging():
@@ -25,9 +26,9 @@ def configure_logging():
 
 def configure_interrupt_signals():
     def signal_handler(signal, frame):
-        print("Stopping...")
+        PTLogger.debug("Stopping...")
         app.stop()
-        print("Stopped!")
+        PTLogger.debug("Stopped!")
     signal(SIGINT, signal_handler)
     signal(SIGTERM, signal_handler)
 
