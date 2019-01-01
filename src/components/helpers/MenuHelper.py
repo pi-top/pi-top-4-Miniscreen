@@ -14,7 +14,7 @@ from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
 from ptcommon.logger import PTLogger
 
-from luma.core.virtual import snapshot, hotspot, viewport
+from luma.core.virtual import viewport
 from enum import Enum
 from os import (
     path,
@@ -70,11 +70,11 @@ def start_stop_project(path_to_project):
     return run
 
 
-def get_hotspot(render_func, interval=0.0):
+def get_hotspot(widget, interval=0.0, render_func=None):
     if float(interval) == 0.0:
-        return hotspot(device.width, device.height, render_func)
+        return widget.StaticHotspot(width=device.width, height=device.height, render_func=render_func)
     else:
-        return snapshot(device.width, device.height, render_func, interval=interval)
+        return widget.Snapshot(width=device.width, height=device.height, interval=interval, render_func=render_func)
 
 
 class Menus(Enum):
@@ -87,63 +87,50 @@ class Menus(Enum):
 
 class Pages:
     class SysInfoMenu(Enum):
-        BATTERY = MenuPage("battery", get_hotspot(batt_level.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        UPTIME = MenuPage("uptime", get_hotspot(uptime.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        MEMORY = MenuPage("memory", get_hotspot(memory.render, interval=2.0), change_menu(Menus.MAIN_MENU), None)
-        DISK = MenuPage("disk", get_hotspot(disk.render, interval=2.0), change_menu(Menus.MAIN_MENU), None)
-        CPU = MenuPage("cpu", get_hotspot(cpu_load.render, interval=0.5), change_menu(Menus.MAIN_MENU), None)
-        CLOCK = MenuPage("clock", get_hotspot(clock.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        HUD = MenuPage("hud", get_hotspot(hud.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
-        WIFI = MenuPage("wifi", get_hotspot(wifi.render, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        BATTERY = MenuPage("battery", get_hotspot(batt_level, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        UPTIME = MenuPage("uptime", get_hotspot(uptime, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        MEMORY = MenuPage("memory", get_hotspot(memory, interval=2.0), change_menu(Menus.MAIN_MENU), None)
+        DISK = MenuPage("disk", get_hotspot(disk, interval=2.0), change_menu(Menus.MAIN_MENU), None)
+        CPU = MenuPage("cpu", get_hotspot(cpu_load, interval=0.5), change_menu(Menus.MAIN_MENU), None)
+        CLOCK = MenuPage("clock", get_hotspot(clock, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        HUD = MenuPage("hud", get_hotspot(hud, interval=1.0), change_menu(Menus.MAIN_MENU), None)
+        WIFI = MenuPage("wifi", get_hotspot(wifi, interval=1.0), change_menu(Menus.MAIN_MENU), None)
         # NETWORK = MenuPage("network", change_menu(Menus.MAIN_MENU), None)
 
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
-            "Project Select",
-            get_hotspot(
-                main_menu.page(title="Project Select"), interval=0.0
-            ),
-            change_menu(Menus.PROJECTS),
-            None
+            name="Project Select",
+            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Project Select")),
+            select_action_func=change_menu(Menus.PROJECTS),
+            cancel_action_func=None
         )
         SETTINGS_SELECT = MenuPage(
-            "Settings",
-            get_hotspot(
-                main_menu.page(title="Settings"), interval=0.0
-            ),
-            # change_menu(Menus.SETTINGS)
-            None,
-            None
+            name="Settings",
+            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Settings")),
+            select_action_func=None,  # change_menu(Menus.SETTINGS)
+            cancel_action_func=None
         )
         WIFI_SETUP_SELECT = MenuPage(
-            "Wi-Fi Setup",
-            get_hotspot(
-                main_menu.page(title="Wi-Fi Setup"), interval=0.0
-            ),
-            # change_menu(Menus.WIFI_SETUP)
-            None,
-            None
+            name="Wi-Fi Setup",
+            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Wi-Fi Setup")),
+            select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
+            cancel_action_func=None
         )
 
         # Alexa/Mycroft?
         VOICE_ASSISTANT_SELECT = MenuPage(
-            "Voice Assistant",
-            get_hotspot(
-                main_menu.page(title="Voice Assistant"), interval=0.0
-            ),
-            # change_menu(Menus.WIFI_SETUP)
-            None,
-            None
+            name="Voice Assistant",
+            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="Voice Assistant")),
+            select_action_func=None,  # change_menu(Menus.VOICE_ASSIST)
+            cancel_action_func=None
         )
 
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
-            "VNC Connection",
-            get_hotspot(
-                main_menu.page(title="VNC Connection"), interval=0.0
-            ),
-            change_menu(Menus.PROJECTS),
-            None
+            name="VNC Connection",
+            hotspot=get_hotspot(main_menu, render_func=main_menu.page(title="VNC Connection")),
+            select_action_func=None,  # change_menu(Menus.VNC),
+            cancel_action_func=None
         )
 
     class ProjectSelectMenu:
@@ -161,25 +148,19 @@ class Pages:
                     title = project_subdir
                     img_path = get_project_icon(project_dir + "/" + project_subdir)
 
-                    project_page = MenuPage(title,
-                        get_hotspot(
-                            projects_menu.project(title=title, img_path=img_path), interval=0.0
-                        ),
-                        start_stop_project(project_dir + "/" + project_subdir),
-                        None
-                    )
+                    project_page = MenuPage(title, get_hotspot(projects_menu,
+                                                               render_func=projects_menu.project(title=title,
+                                                                                                 img_path=img_path)),
+                                            start_stop_project(project_dir + "/" + project_subdir), None)
                     project_pages.append(project_page)
             else:
                 title = "No Projects Available"
                 img_path = get_project_icon("")
 
-                project_page = MenuPage(title,
-                                        get_hotspot(
-                                            projects_menu.project(title=title, img_path=img_path), interval=0.0
-                                        ),
-                                        None,
-                                        None
-                                        )
+                project_page = MenuPage(title, get_hotspot(projects_menu,
+                                                           render_func=projects_menu.project(title=title,
+                                                                                             img_path=img_path)),
+                                        None, None)
                 project_pages.append(project_page)
             return project_pages
 
@@ -274,7 +255,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ['hud', 'clock', 'disk']
+        page_name_arr = ['clock', 'disk', 'wifi']
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
