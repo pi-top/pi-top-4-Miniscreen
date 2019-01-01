@@ -3,10 +3,9 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-import time
 import psutil
-from luma.core.virtual import hotspot
 from components.widgets.common_functions import title_text
+from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 
 def vertical_bar(draw, x1, y1, x2, y2, yh):
@@ -38,16 +37,6 @@ def render(draw, width, height):
         x += width_cpu
 
 
-class CPU_Load(hotspot):
-
-    def __init__(self, width, height, interval):
-        super(CPU_Load, self).__init__(width, height)
-        self._interval = interval
-        self._last_updated = 0
-
-    def should_redraw(self):
-        return time.time() - self._last_updated > self._interval
-
-    def update(self, draw):
-        render(draw, self.width, self.height)
-        self._last_updated = time.time()
+class Snapshot(BaseSnapshot):
+    def __init__(self, width, height, interval, render_func):
+        super(Snapshot, self).__init__(width, height, interval, render)

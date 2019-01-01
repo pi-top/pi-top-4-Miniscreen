@@ -4,7 +4,13 @@
 # See LICENSE.rst for details.
 
 import psutil
-from components.widgets.common_functions import bytes2human, right_text, title_text, tiny_font
+from components.widgets.common_functions import (
+    bytes2human,
+    right_text,
+    title_text,
+    tiny_font
+)
+from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 
 def render(draw, width, height):
@@ -22,3 +28,8 @@ def render(draw, width, height):
     right_text(draw, 20, width, margin, text="{0:0.1f}%".format(mem_used_pct))
     right_text(draw, 35, width, margin, text=bytes2human(mem.used))
     right_text(draw, 45, width, margin, text=bytes2human(swap.used))
+
+
+class Snapshot(BaseSnapshot):
+    def __init__(self, width, height, interval, render_func):
+        super(Snapshot, self).__init__(width, height, interval, render)

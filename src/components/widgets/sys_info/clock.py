@@ -6,7 +6,11 @@
 import math
 import datetime
 
-from components.widgets.common_functions import title_text, tiny_font
+from components.widgets.common_functions import (
+    title_text,
+    tiny_font
+)
+from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 
 def posn(angle, arm_length):
@@ -62,3 +66,8 @@ def analog(draw, width, height):
 def render(draw, width, height):
     clock = analog if height >= 64 else digital
     clock(draw, width, height)
+
+
+class Snapshot(BaseSnapshot):
+    def __init__(self, width, height, interval, render_func):
+        super(Snapshot, self).__init__(width, height, interval, render)

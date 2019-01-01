@@ -4,11 +4,16 @@
 # See LICENSE.rst for details.
 
 import psutil
-from widgets.common import bytes2human, right_text, title_text, tiny_font
+from components.widgets.common_functions import (
+    bytes2human,
+    right_text,
+    title_text,
+    tiny_font
+)
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 def stats(interface):
-
     def render(draw, width, height):
         margin = 3
         title_text(draw, margin, width, text="Net:{0}".format(interface))
@@ -26,3 +31,8 @@ def stats(interface):
             draw.text((margin, 20), text="n/a", font=tiny_font, fill="white")
 
     return render
+
+
+class Hotspot(BaseHotspot):
+    def __init__(self, width, height, interval, render_func):
+        super(Hotspot, self).__init__(width, height, interval, render_func)
