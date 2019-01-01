@@ -66,11 +66,13 @@ def network_rate(iface):
 def network_strength(iface):
     strength = -1
     try:
-        response = str(subprocess.check_output(["iwconfig", iface]).decode("utf-8"))
-        for line in response:
+        response_str = str(subprocess.check_output(["iwconfig", iface]).decode("utf-8"))
+        response_lines = response_str.splitlines()
+        for line in response_lines:
             if "Link Quality" in line:
                 strength_str = line.lstrip(" ").lstrip("Link Quality=").split(" ")[0]
                 strength = int(Fraction(strength_str) * 100)
+                break
     except (FileNotFoundError, subprocess.CalledProcessError):
         pass
 
