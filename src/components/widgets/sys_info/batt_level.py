@@ -9,12 +9,11 @@ from components.widgets.common.base_widget_hotspot import BaseSnapshot
 
 def get_battery():
     try:
-        cmd = subprocess.Popen(["pt-battery", "-c"], stdout=subprocess.PIPE)
-        response = cmd.communicate()
+        battery_level = str(subprocess.check_output(["pt-battery", "-c"]).decode("utf-8")).strip()
     except (FileNotFoundError, subprocess.CalledProcessError):
-        response = "TEST"
+        battery_level = "TEST"
 
-    return str(response + "%")
+    return str(battery_level + "%")
 
 
 def render(draw, width, height):

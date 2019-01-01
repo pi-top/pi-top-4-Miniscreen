@@ -64,32 +64,38 @@ def network_rate(iface):
 
 
 def network_strength(iface):
-    cmd = subprocess.Popen('iwconfig %s' % iface, shell=True,
-                           stdout=subprocess.PIPE)
-    for line in cmd.stdout:
-        if "Link Quality" in line:
-          strength_str = line.lstrip(" ").lstrip("Link Quality=").split(" ")[0]
-          strength = int(Fraction(strength_str) * 100)
-          return str(strength) + "%"
-    return "lolol%"
+    strength = -1
+    try:
+        response = str(subprocess.check_output(["iwconfig", iface]).decode("utf-8"))
+        for line in response:
+            if "Link Quality" in line:
+                strength_str = line.lstrip(" ").lstrip("Link Quality=").split(" ")[0]
+                strength = int(Fraction(strength_str) * 100)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+
+    return str(strength) + "%"
 
 
+# TODO: Get from same place as batt_level widget - should there be a common Python interface for this data?
 def get_battery():
-    cmd = subprocess.Popen('pt-battery -c', shell=True,
-                           stdout=subprocess.PIPE)
-    for line in cmd.stdout:
-        return str(line).rstrip("\n") + "%"
+    try:
+        battery_level = str(subprocess.check_output(["pt-battery", "-c"]).decode("utf-8")).strip()
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        battery_level = "TEST"
 
-    return "lol%"
+    return str(battery_level + "%")
 
 
 def get_temperature():
-    cmd = subprocess.Popen('vcgencmd measure_temp', shell=True,
-                           stdout=subprocess.PIPE)
-    for line in cmd.stdout:
-        return str(line).lstrip("temp=").rstrip("'C\n") + u'\N{DEGREE SIGN}' + "C"
+    try:
+        battery_level = str(subprocess.check_output(["vcgencmd", "measure_temp"]).decode("utf-8")).strip()\
+                            .lstrip("temp=")\
+                            .rstrip("'C\n")
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        battery_level = "TEST"
 
-    return "lol degrees"
+    return str(battery_level + u'\N{DEGREE SIGN}' + "C")
 
 
 font = ImageFont.truetype(
