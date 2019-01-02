@@ -93,21 +93,20 @@ class Menus(Enum):
 
 
 class Pages:
-    class MiscPages(Enum):
+    class SysInfoMenu(Enum):
         DEMO_STARTUP_SCREEN = MenuPage(
             name="demo_startup",
             hotspot=get_hotspot(
                 image,
                 image_path=path.abspath(
                     path.join(path.dirname(__file__), '..', '..', '..', 'demo', '0_ON_Animation_hyphen.gif')),
-                loop=False
+                loop=True
             ),
             # on_finished_func=change_menu(Menus.MAIN_MENU),
             select_action_func=None,
             cancel_action_func=None
         )
 
-    class SysInfoMenu(Enum):
         DEMO_HUD = MenuPage(
             name="demo_hud",
             hotspot=get_hotspot(
@@ -385,7 +384,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ['demo_hud', 'wifi']
+        page_name_arr = ['demo_startup', 'demo_hud']
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
