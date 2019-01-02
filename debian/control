@@ -9,6 +9,6 @@ Homepage: https://pi-top.com/
 Package: pt-sys-menu
 Architecture: armhf
 Depends: python3-luma-oled, pt-hub, python3-pt-common,
- python3-psutil
+ python3-psutil, python3-monotonic
 Description: pi-top OLED system menu application
  The intended behaviour of this application is to manage user projects and display important system information onto the onboard OLED screen. Navigation is managed by the onboard buttons, which is handled by the centralised pi-top device manager.
