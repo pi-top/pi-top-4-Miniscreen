@@ -199,7 +199,7 @@ class Pages:
             if path.exists(project_dir):
                 # For each directory in project path
                 project_subdirs = [name for name in sorted(listdir(project_dir))
-                        if path.isdir(path.join(project_dir, name))]
+                                   if path.isdir(path.join(project_dir, name))]
                 for project_subdir in project_subdirs:
                     # Get name from path
                     title = project_subdir
