@@ -1,5 +1,6 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
+from components.widgets.common import image
 from components.widgets.sys_info import (
     batt_level,
     uptime,
@@ -92,7 +93,32 @@ class Menus(Enum):
 
 
 class Pages:
+    class MiscPages(Enum):
+        DEMO_STARTUP_SCREEN = MenuPage(
+            name="demo_startup",
+            hotspot=get_hotspot(
+                image,
+                image_path=path.abspath(
+                    path.join(path.dirname(__file__), '..', '..', '..', 'demo', '0_ON_Animation_hyphen.gif')),
+                loop=False
+            ),
+            # on_finished_func=change_menu(Menus.MAIN_MENU),
+            select_action_func=None,
+            cancel_action_func=None
+        )
+
     class SysInfoMenu(Enum):
+        DEMO_HUD = MenuPage(
+            name="demo_hud",
+            hotspot=get_hotspot(
+                image,
+                image_path=path.abspath(
+                    path.join(path.dirname(__file__), '..', '..', '..', 'demo', '1_Static-screen.gif')),
+            ),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None
+        )
+
         BATTERY = MenuPage(
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0),
@@ -151,23 +177,68 @@ class Pages:
         )
 
     class MainMenu(Enum):
-        PROJECT_SELECT = MenuPage(
+        DEMO_PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(main_menu, interval=-1,
-                                title="Project Select"),
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                                                  '2_Projects.gif'))
+                                ),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
+
+        # Waiting on GIFs - Car, drone, rover
+
+        # Robot
+        DEMO_PROJECT_ROBOT = MenuPage(
+            name="Demo Project - Robot",
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                                                  '4_Robot.gif')),
+                                ),
+            select_action_func=None,
+            cancel_action_func=None
+        )
+
+        # Sensor
+        DEMO_PROJECT_SENSOR = MenuPage(
+            name="Demo Project - Sensor",
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                                                  '6_Sensor.gif')),
+                                ),
+            select_action_func=None,
+            cancel_action_func=None
+        )
+
+        # Connected to computer
+        DEMO_PROJECT_CONNECTED = MenuPage(
+            name="Demo Project - Connected",
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                                                  '7_Connected.gif')),
+                                ),
+            select_action_func=None,
+            cancel_action_func=None
+        )
+
+        # PROJECT_SELECT = MenuPage(
+        #     name="Project Select",
+        #     hotspot=get_hotspot(main_menu,
+        #                         title="Project Select"),
+        #     select_action_func=change_menu(Menus.PROJECTS),
+        #     cancel_action_func=None
+        # )
         # SETTINGS_SELECT = MenuPage(
         #     name="Settings",
-        #     hotspot=get_hotspot(main_menu, interval=-1,
+        #     hotspot=get_hotspot(main_menu,
         #                         title="Settings"),
         #     select_action_func=None,  # change_menu(Menus.SETTINGS)
         #     cancel_action_func=None
         # )
         # WIFI_SETUP_SELECT = MenuPage(
         #     name="Wi-Fi Setup",
-        #     hotspot=get_hotspot(main_menu, interval=-1,
+        #     hotspot=get_hotspot(main_menu,
         #                         title="Wi-Fi Setup"),
         #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
         #     cancel_action_func=None
@@ -175,7 +246,7 @@ class Pages:
         # # Alexa/Mycroft?
         # VOICE_ASSISTANT_SELECT = MenuPage(
         #     name="Voice Assistant",
-        #     hotspot=get_hotspot(main_menu, interval=-1,
+        #     hotspot=get_hotspot(main_menu,
         #                         title="Voice Assistant"),
         #     select_action_func=None,  # change_menu(Menus.VOICE_ASSIST)
         #     cancel_action_func=None
@@ -184,7 +255,7 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(main_menu, interval=-1,
+            hotspot=get_hotspot(main_menu,
                                 title="VNC Connection"),
             select_action_func=None,  # change_menu(Menus.VNC),
             cancel_action_func=None
@@ -314,7 +385,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ['clock', 'disk', 'wifi']
+        page_name_arr = ['demo_hud', 'wifi']
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
