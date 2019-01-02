@@ -1,8 +1,5 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
-from components.widgets.common import (
-    animated_gif
-)
 from components.widgets.sys_info import (
     batt_level,
     uptime,
@@ -83,11 +80,7 @@ def get_hotspot(widget, interval=0.0, **extra_data):
         },
         **extra_data
     }
-
-    if float(interval) == 0.0:
-        return widget.StaticHotspot(**data)
-    else:
-        return widget.Snapshot(**data)
+    return widget.Hotspot(**data)
 
 
 class Menus(Enum):
@@ -100,17 +93,6 @@ class Menus(Enum):
 
 class Pages:
     class SysInfoMenu(Enum):
-        ANIMATED_GIF = MenuPage(
-            name="animated_gif",
-            hotspot=get_hotspot(animated_gif, interval=0.05,
-                                image_path=path.abspath(
-                                    path.join(path.dirname(__file__), '..', 'widgets', 'common', 'assets',
-                                              'banana.gif'))
-                                ),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
-        )
-
         BATTERY = MenuPage(
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0),
@@ -190,7 +172,6 @@ class Pages:
         #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
         #     cancel_action_func=None
         # )
-        #
         # # Alexa/Mycroft?
         # VOICE_ASSISTANT_SELECT = MenuPage(
         #     name="Voice Assistant",

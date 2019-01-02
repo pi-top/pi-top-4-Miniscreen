@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 from components.widgets.common_functions import title_text
-from components.widgets.common.base_widget_hotspot import BaseStaticHotspot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
-class StaticHotspot(BaseStaticHotspot):
-    def __init__(self, width, height, **data):
-        super(StaticHotspot, self).__init__(width, height, self.render)
+class Hotspot(BaseHotspot):
+    def __init__(self, width, height, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, self.render)
 
         for key, value in data.items():
             if key == "title":

@@ -9,7 +9,7 @@ from components.widgets.common_functions import (
     title_text,
     tiny_font
 )
-from components.widgets.common.base_widget_hotspot import BaseSnapshot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common_functions import (
     get_network_id,
     get_internal_ip,
@@ -17,9 +17,9 @@ from components.widgets.common_functions import (
 )
 
 
-class Snapshot(BaseSnapshot):
+class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Snapshot, self).__init__(width, height, interval, Snapshot.render)
+        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod
     def render(draw, width, height):

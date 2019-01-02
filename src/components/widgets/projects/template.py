@@ -4,12 +4,12 @@
 # See LICENSE.rst for details.
 
 from PIL import Image
-from components.widgets.common.base_widget_hotspot import BaseStaticHotspot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
-class StaticHotspot(BaseStaticHotspot):
-    def __init__(self, width, height, **data):
-        super(StaticHotspot, self).__init__(width, height, self.render)
+class Hotspot(BaseHotspot):
+    def __init__(self, **data):
+        super(Hotspot, self).__init__(draw_fn=self.render, **data)
 
         for key, value in data.items():
             if key == "title":

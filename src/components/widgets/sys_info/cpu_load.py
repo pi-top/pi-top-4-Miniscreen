@@ -5,7 +5,7 @@
 
 import psutil
 from components.widgets.common_functions import title_text
-from components.widgets.common.base_widget_hotspot import BaseSnapshot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 def vertical_bar(draw, x1, y1, x2, y2, yh):
@@ -13,9 +13,9 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
     draw.rectangle((x1, yh) + (x2, y2), "white", "white")
 
 
-class Snapshot(BaseSnapshot):
+class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Snapshot, self).__init__(width, height, interval, Snapshot.render)
+        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod
     def render(draw, width, height):

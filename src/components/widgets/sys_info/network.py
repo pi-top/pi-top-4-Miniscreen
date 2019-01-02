@@ -10,12 +10,12 @@ from components.widgets.common_functions import (
     title_text,
     tiny_font
 )
-from components.widgets.common.base_widget_hotspot import BaseSnapshot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
-class Snapshot(BaseSnapshot):
+class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Snapshot, self).__init__(width, height, interval, self.render)
+        super(Hotspot, self).__init__(width, height, interval, self.render)
 
         for key, value in data.items():
             if key == "interface":

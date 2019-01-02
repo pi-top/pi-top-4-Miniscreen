@@ -1,48 +1,26 @@
 from time import time
-from luma.core.virtual import (
-    hotspot,
-    snapshot
-)
+from luma.core.virtual import snapshot
+try:
+    monotonic = time.monotonic
+except AttributeError:  # pragma: no cover
+    from monotonic import monotonic
 
 
-class BaseStaticHotspot(hotspot):
-    def __init__(self, width, height, render_func):
-        super(BaseStaticHotspot, self).__init__(width, height)
-        self.redraw = True
-
-        if callable(render_func):
-            self._render = render_func
-        else:
-            raise Exception("Render function is not callable")
-
-    def should_redraw(self):
-        # TODO: Find out why this is constantly going true again
-        return self.redraw
-
-    def update(self, draw):
-        if self._render is not None and self.redraw is True:
-            self._render(draw, self.width, self.height)
-            self.redraw = False
-
-
-class BaseSnapshot(snapshot):
-    def __init__(self, width, height, interval, render_func):
-        super(BaseSnapshot, self).__init__(width, height, interval)
-        self._interval = interval
-        self._last_updated = 0
-        if callable(render_func):
-            self._render = render_func
-        else:
-            raise Exception("Render function is not callable")
-
-    def update_last_updated(self):
-        self._last_updated = time()
+class BaseHotspot(snapshot):
+    """
+    A base class which has properties of luma hotspot and snapshot, as appropriate
+    """
+    def __init__(self, width, height, interval=0, draw_fn=None, **kwargs):
+        # Get from data?
+        super(BaseHotspot, self).__init__(width, height, draw_fn=draw_fn, interval=interval)
 
     def should_redraw(self):
-        return time() - self._last_updated > self._interval
-
-    def update(self, draw):
-        if self._render is not None:
-            self._render(draw, self.width, self.height)
-
-        self.update_last_updated()
+        """
+        Only requests a redraw after ``interval`` seconds have elapsed.
+        """
+        if self.interval < 0.0:
+            return False  # Less than 0 = Do not redraw
+        if self.interval == 0.0:
+            return True  # 0 = redraw as soon as possible
+        else:
+            return monotonic() - self.last_updated > self.interval

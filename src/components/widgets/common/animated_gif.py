@@ -1,13 +1,12 @@
-from os import path
 from PIL import Image, ImageSequence
-from components.widgets.common.base_widget_hotspot import BaseSnapshot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 from imghdr import what as what_img
 
 
 # TODO: Receive dynamic information - e.g. how do we pass it the file path?
-class Snapshot(BaseSnapshot):
+class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Snapshot, self).__init__(width, height, interval, self.render)
+        super(Hotspot, self).__init__(width, height, interval, self.render)
 
         self.frame_iterator = None
         self.image = None
@@ -39,7 +38,7 @@ class Snapshot(BaseSnapshot):
     def get_next_frame(self):
         try:
             return next(self.frame_iterator)
-        except StopIteration:
+        except (StopIteration, ValueError, Image.DecompressionBombError):
             # print("Reached end of GIF animation - attempting to reinitialise GIF frames")
             self.setup_frames()
         try:

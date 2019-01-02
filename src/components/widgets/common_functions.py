@@ -9,6 +9,7 @@ from datetime import datetime
 import psutil
 import subprocess
 from fractions import Fraction
+from os import getloadavg
 
 
 tiny_font = ImageFont.truetype(os.path.abspath(os.path.join(

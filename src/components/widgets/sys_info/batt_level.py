@@ -4,7 +4,7 @@
 # See LICENSE.rst for details.
 
 import subprocess
-from components.widgets.common.base_widget_hotspot import BaseSnapshot
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 def get_battery():
@@ -16,10 +16,10 @@ def get_battery():
     return str(battery_level + "%")
 
 
-class Snapshot(BaseSnapshot):
+class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Snapshot, self).__init__(width, height, interval, Snapshot.render)
+        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod
     def render(draw, width, height):
-        draw.text((width / 10, height / 10), text=Snapshot.get_battery(), fill="white")
+        draw.text((width / 10, height / 10), text=Hotspot.get_battery(), fill="white")
