@@ -4,17 +4,29 @@
 # See LICENSE.rst for details.
 
 import psutil
-from widgets.common import bytes2human, right_text, title_text, tiny_font
+from components.widgets.common_functions import (
+    bytes2human,
+    right_text,
+    title_text,
+    tiny_font
+)
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
-def stats(interface):
+class Hotspot(BaseHotspot):
+    def __init__(self, width, height, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, self.render)
 
-    def render(draw, width, height):
+        for key, value in data.items():
+            if key == "interface":
+                self.interface = value
+
+    def render(self, draw, width, height):
         margin = 3
-        title_text(draw, margin, width, text="Net:{0}".format(interface))
+        title_text(draw, margin, width, text="Net:{0}".format(self.interface))
         try:
-            address = psutil.net_if_addrs()[interface][0].address
-            counters = psutil.net_io_counters(pernic=True)[interface]
+            address = psutil.net_if_addrs()[self.interface][0].address
+            counters = psutil.net_io_counters(pernic=True)[self.interface]
 
             draw.text((margin, 20), text=address, font=tiny_font, fill="white")
             draw.text((margin, 35), text="Rx:", font=tiny_font, fill="white")
@@ -24,5 +36,3 @@ def stats(interface):
             right_text(draw, 45, width, margin, text=bytes2human(counters.bytes_sent))
         except:
             draw.text((margin, 20), text="n/a", font=tiny_font, fill="white")
-
-    return render

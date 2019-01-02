@@ -6,7 +6,11 @@
 import math
 import datetime
 
-from components.widgets.common import title_text, tiny_font
+from components.widgets.common_functions import (
+    title_text,
+    tiny_font
+)
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 def posn(angle, arm_length):
@@ -59,6 +63,11 @@ def analog(draw, width, height):
     title_text(draw, margin, width, today_date)
 
 
-def render(draw, width, height):
-    clock = analog if height >= 64 else digital
-    clock(draw, width, height)
+class Hotspot(BaseHotspot):
+    def __init__(self, width, height, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
+
+    @staticmethod
+    def render(draw, width, height):
+        clock = analog if height >= 64 else digital
+        clock(draw, width, height)

@@ -3,32 +3,21 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-import time
-from luma.core.virtual import hotspot
 import datetime
-from widgets.common import title_text
+from components.widgets.common_functions import title_text
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
-def render(draw, width, height):
-    date_time = datetime.datetime.now()
-    date = str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
-    time = str(date_time.hour) + ":" + str(date_time.minute) + ":" + str(date_time.second)
+class Hotspot(BaseHotspot):
+    def __init__(self, width, height, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
-    title_text(draw, height/10, width, date)
+    @staticmethod
+    def render(draw, width, height):
+        date_time = datetime.datetime.now()
+        date = str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
+        time = str(date_time.hour) + ":" + str(date_time.minute) + ":" + str(date_time.second)
 
-    draw.text((width/3, height/3), text=time, fill="white")
+        title_text(draw, height / 10, width, date)
 
-
-class DateTime(hotspot):
-
-    def __init__(self, width, height, interval):
-        super(DateTime, self).__init__(width, height)
-        self._interval = interval
-        self._last_updated = 0
-
-    def should_redraw(self):
-        return time.time() - self._last_updated > self._interval
-
-    def update(self, draw):
-        render(draw, self.width, self.height)
-        self._last_updated = time.time()
+        draw.text((width / 3, height / 3), text=time, fill="white")

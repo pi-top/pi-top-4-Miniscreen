@@ -1,5 +1,6 @@
 import zmq
 from ptcommon.ptdm_message import Message
+from ptcommon.logger import PTLogger
 
 zmq_socket = None
 
@@ -35,7 +36,7 @@ def take_control_of_oled():
         _connect_to_socket()
         message = _send_request(Message.REQ_SET_OLED_CONTROL, [str(1)])
     except Exception as e:
-        print("Error connecting to device manager: " + str(e))
+        PTLogger.warning("Error connecting to device manager: " + str(e))
     finally:
         _cleanup()
         return None if message is None else message.message_id() == Message.RSP_SET_OLED_CONTROL
