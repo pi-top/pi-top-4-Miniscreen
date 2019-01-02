@@ -10,7 +10,7 @@ class BaseHotspot(snapshot):
     """
     A base class which has properties of luma hotspot and snapshot, as appropriate
     """
-    def __init__(self, width, height, interval=0, draw_fn=None, **kwargs):
+    def __init__(self, width, height, interval=0.0, draw_fn=None, **kwargs):
         # Get from data?
         super(BaseHotspot, self).__init__(width, height, draw_fn=draw_fn, interval=interval)
 
@@ -18,9 +18,7 @@ class BaseHotspot(snapshot):
         """
         Only requests a redraw after ``interval`` seconds have elapsed.
         """
-        if self.interval < 0.0:
-            return False  # Less than 0 = Do not redraw
-        if self.interval == 0.0:
-            return True  # 0 = redraw as soon as possible
+        if self.interval <= 0.0:
+            return True
         else:
             return monotonic() - self.last_updated > self.interval
