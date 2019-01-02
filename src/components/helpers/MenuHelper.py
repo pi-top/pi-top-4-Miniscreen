@@ -99,7 +99,7 @@ class Pages:
             hotspot=get_hotspot(
                 image,
                 image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', '..', 'demo', '0_ON_Animation_hyphen.gif')),
+                    path.join(path.dirname(__file__), '..', '..', 'demo', '0_ON_Animation_hyphen.gif')),
                 loop=True
             ),
             # on_finished_func=change_menu(Menus.MAIN_MENU),
@@ -112,7 +112,7 @@ class Pages:
             hotspot=get_hotspot(
                 image,
                 image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', '..', 'demo', '1_Static-screen.gif')),
+                    path.join(path.dirname(__file__), '..', '..', 'demo', '1_Static-screen.gif')),
             ),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None
@@ -179,7 +179,7 @@ class Pages:
         DEMO_PROJECT_SELECT = MenuPage(
             name="Project Select",
             hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
                                                                   '2_Projects.gif'))
                                 ),
             select_action_func=change_menu(Menus.PROJECTS),
@@ -192,7 +192,7 @@ class Pages:
         DEMO_PROJECT_ROBOT = MenuPage(
             name="Demo Project - Robot",
             hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
                                                                   '4_Robot.gif')),
                                 ),
             select_action_func=None,
@@ -203,7 +203,7 @@ class Pages:
         DEMO_PROJECT_SENSOR = MenuPage(
             name="Demo Project - Sensor",
             hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
                                                                   '6_Sensor.gif')),
                                 ),
             select_action_func=None,
@@ -214,7 +214,7 @@ class Pages:
         DEMO_PROJECT_CONNECTED = MenuPage(
             name="Demo Project - Connected",
             hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', '..', 'demo',
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
                                                                   '7_Connected.gif')),
                                 ),
             select_action_func=None,
