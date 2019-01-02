@@ -264,13 +264,13 @@ class Pages:
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = path.expanduser('~/Desktop/My Remote RPi Projects')
-
+            project_dir = "/home/pi/Desktop/My Remote RPi Projects" if is_pi() else path.expanduser(
+                '~/Desktop/My Remote RPi Projects')
             project_pages = list()
             if path.exists(project_dir):
                 # For each directory in project path
                 project_subdirs = [name for name in sorted(listdir(project_dir))
-                        if path.isdir(path.join(project_dir, name))]
+                                   if path.isdir(path.join(project_dir, name))]
                 for project_subdir in project_subdirs:
                     # Get name from path
                     title = project_subdir
@@ -378,7 +378,7 @@ def get_sys_info_pages_from_config():
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
             # Do something if this ends up empty - show a "none selected" screen?
     except FileExistsError:
-        # Can be triggered by ~/.pt-sys-menu as file - fix edge case
+        # Can be triggered by cfg_path existing as file - fix edge case
         pass
     except (FileNotFoundError, NotADirectoryError):
         # Default
