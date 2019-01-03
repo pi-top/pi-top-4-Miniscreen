@@ -11,11 +11,8 @@ class Hotspot(BaseHotspot):
     def __init__(self, **data):
         super(Hotspot, self).__init__(draw_fn=self.render, **data)
 
-        for key, value in data.items():
-            if key == "title":
-                self.title = value
-            if key == "img_path":
-                self.img_path = value
+        self.title = data.get("title")
+        self.img_path = data.get("img_path")
 
     def render(self, draw, width, height):
         w, h = draw.textsize(self.title)
