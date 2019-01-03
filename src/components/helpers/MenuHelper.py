@@ -99,7 +99,7 @@ class Pages:
             hotspot=get_hotspot(
                 image,
                 image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', 'demo', '0_ON_Animation_hyphen.gif')),
+                    path.join(path.dirname(__file__), '..', '..', 'demo', 'startup.gif')),
                 loop=True
             ),
             # on_finished_func=change_menu(Menus.MAIN_MENU),
@@ -112,7 +112,7 @@ class Pages:
             hotspot=get_hotspot(
                 image,
                 image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', 'demo', '1_Static-screen.gif')),
+                    path.join(path.dirname(__file__), '..', '..', 'demo', 'mainmenu-hud.gif')),
             ),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None
@@ -180,20 +180,52 @@ class Pages:
             name="Project Select",
             hotspot=get_hotspot(image,
                                 image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  '2_Projects.gif'))
+                                                                  'mainmenu-select-project.gif'))
                                 ),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
 
-        # Waiting on GIFs - Car, drone, rover
+        # Car
+        DEMO_PROJECT_CAR = MenuPage(
+            name="Demo Project - Car",
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
+                                                                  'project-car.gif')),
+                                ),
+            select_action_func=None,
+            cancel_action_func=None
+        )
+
+        # Rover
+        DEMO_PROJECT_ROVER = MenuPage(
+            name="Demo Project - Rover",
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
+                                                                  'project-rover.gif')),
+                                ),
+            select_action_func=None,
+            cancel_action_func=None
+        )
+
+        # Drone
+        DEMO_PROJECT_DRONE = MenuPage(
+            name="Demo Project - Drone",
+            hotspot=get_hotspot(image,
+                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
+                                                                  'project-drone.gif')),
+                                playback_speed=1
+                                ),
+            select_action_func=None,
+            cancel_action_func=None
+        )
 
         # Robot
         DEMO_PROJECT_ROBOT = MenuPage(
             name="Demo Project - Robot",
             hotspot=get_hotspot(image,
                                 image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  '4_Robot.gif')),
+                                                                  'project-robot.gif')),
                                 ),
             select_action_func=None,
             cancel_action_func=None
@@ -204,7 +236,7 @@ class Pages:
             name="Demo Project - Sensor",
             hotspot=get_hotspot(image,
                                 image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  '6_Sensor.gif')),
+                                                                  'project-sensor.gif')),
                                 ),
             select_action_func=None,
             cancel_action_func=None
@@ -215,7 +247,7 @@ class Pages:
             name="Demo Project - Connected",
             hotspot=get_hotspot(image,
                                 image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  '7_Connected.gif')),
+                                                                  'project-connected.gif'))
                                 ),
             select_action_func=None,
             cancel_action_func=None
