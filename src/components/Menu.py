@@ -27,10 +27,18 @@ class Menu:
         else:
             raise Exception("Unrecognised menu name")
 
-        self.pages = MenuHelper.add_infinite_scroll_edge_pages(pages)
+        # Enable scrolling if there is more than one page
+        self.scroll_enabled = len(pages) > 1
+
+        if self.scroll_enabled:
+            self.pages = MenuHelper.add_infinite_scroll_edge_pages(pages)
+        else:
+            self.pages = pages
+
         self.viewport = MenuHelper.create_viewport(device, self.pages)
 
-        self.move_instantly_to_page(1, debug_print=False)
+        if self.scroll_enabled:
+            self.move_instantly_to_page(1, debug_print=False)
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
@@ -67,15 +75,17 @@ class Menu:
             self.move_instantly_to_page(1)
 
     def update_position_based_on_state(self):
-        arrived_at_screen = (self.y_pos == self.get_page_y_pos())
-        if arrived_at_screen:
-            if self.moving_to_page:
-                PTLogger.debug("Arrived at " + str(self.get_current_page().name))
-                self.update_position_if_at_end_of_viewport()
-        else:
-            self.y_pos = self.y_pos - 1 if self.get_page_y_pos() < self.y_pos else self.y_pos + 1
+        if self.scroll_enabled:
+            arrived_at_screen = (self.y_pos == self.get_page_y_pos())
+            if arrived_at_screen:
+                if self.moving_to_page:
+                    PTLogger.debug("Arrived at " + str(self.get_current_page().name))
+                    self.update_position_if_at_end_of_viewport()
+            else:
+                self.y_pos = self.y_pos - 1 if self.get_page_y_pos() < self.y_pos else self.y_pos + 1
 
-        self.moving_to_page = not arrived_at_screen
+            self.moving_to_page = not arrived_at_screen
+
         self.viewport.set_position((0, self.y_pos))
 
     def get_viewport_height(self):
