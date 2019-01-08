@@ -1,0 +1,3 @@
+[submodule "Demo-Projects"]
+	path = Demo-Projects
+	url = git@github.com:pi-top/Demo-Projects.git
