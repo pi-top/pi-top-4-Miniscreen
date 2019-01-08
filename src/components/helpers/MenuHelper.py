@@ -153,21 +153,21 @@ class Pages:
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(main_menu, interval=-1,
+            hotspot=get_hotspot(main_menu,
                                 title="Project Select"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
         # SETTINGS_SELECT = MenuPage(
         #     name="Settings",
-        #     hotspot=get_hotspot(main_menu, interval=-1,
+        #     hotspot=get_hotspot(main_menu,
         #                         title="Settings"),
         #     select_action_func=None,  # change_menu(Menus.SETTINGS)
         #     cancel_action_func=None
         # )
         # WIFI_SETUP_SELECT = MenuPage(
         #     name="Wi-Fi Setup",
-        #     hotspot=get_hotspot(main_menu, interval=-1,
+        #     hotspot=get_hotspot(main_menu,
         #                         title="Wi-Fi Setup"),
         #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
         #     cancel_action_func=None
@@ -175,7 +175,7 @@ class Pages:
         # # Alexa/Mycroft?
         # VOICE_ASSISTANT_SELECT = MenuPage(
         #     name="Voice Assistant",
-        #     hotspot=get_hotspot(main_menu, interval=-1,
+        #     hotspot=get_hotspot(main_menu,
         #                         title="Voice Assistant"),
         #     select_action_func=None,  # change_menu(Menus.VOICE_ASSIST)
         #     cancel_action_func=None
@@ -184,7 +184,7 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(main_menu, interval=-1,
+            hotspot=get_hotspot(main_menu,
                                 title="VNC Connection"),
             select_action_func=None,  # change_menu(Menus.VNC),
             cancel_action_func=None

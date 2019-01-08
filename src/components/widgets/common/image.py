@@ -32,16 +32,18 @@ class Hotspot(BaseHotspot):
         self._frame_no = 0
         self._image = None
         self._error = True  # Until image is set
+        self._error_text = ""
 
         self.image_path = None
         self.loop = True
+        self.playback_speed = 1.0
         self.update_props(**data)
 
     def _load_image_from_path(self, value):
         self._error = False
         self.image_path = value
         if not isfile(self.image_path):
-            print("Invalid path for image file")
+            self._error_text = "Invalid path for image file: " + str(self.image_path)
             self._error = True
             return
 
@@ -55,9 +57,11 @@ class Hotspot(BaseHotspot):
 
             self._error = False
         except Exception as e:
-            print("Error creating image widget:")
-            print(e)
+            self._error_text = str(e)
             self._error = True
+
+        if self._error:
+            print(self._error_text)
 
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:
@@ -69,7 +73,8 @@ class Hotspot(BaseHotspot):
         self._image.seek(self._frame_no)
 
         if self._image.is_animated:
-            self.interval = float(self._image.info['duration'] / 1000)
+            embedded_frame_speed_s = float(self._image.info['duration'] / 1000)
+            self.interval = float(embedded_frame_speed_s / self.playback_speed)
 
     def update_props(self, **data):
         for key, value in data.items():
@@ -77,9 +82,15 @@ class Hotspot(BaseHotspot):
                 self._load_image_from_path(value)
             if key == "loop":
                 self.loop = value
+            if key == "playback_speed":
+                self.playback_speed = value
 
     def render(self, draw, width, height):
-        if self._error is False and self._image is not None:
-            self._seek_next_frame_in_image()
-            img_bitmap = _create_bitmap_to_render(self._image, width, height)
-            draw.bitmap(xy=(0, 0), bitmap=img_bitmap, fill="white")
+        if self._error:
+            w, h = draw.textsize(self._error_text)
+            draw.text((width / 2 - w / 2, height / 2 - h / 2), text=self._error_text, fill="white")
+        else:
+            if self._image is not None:
+                self._seek_next_frame_in_image()
+                img_bitmap = _create_bitmap_to_render(self._image, width, height)
+                draw.bitmap(xy=(0, 0), bitmap=img_bitmap, fill="white")

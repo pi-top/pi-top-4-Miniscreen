@@ -22,4 +22,4 @@ class Hotspot(BaseHotspot):
 
     @staticmethod
     def render(draw, width, height):
-        draw.text((width / 10, height / 10), text=Hotspot.get_battery(), fill="white")
+        draw.text((width / 10, height / 10), text=get_battery(), fill="white")

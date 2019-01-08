@@ -67,9 +67,11 @@ class MenuManager:
         if not self.current_menu.moving_to_page and button_press.event_type != ButtonPress.ButtonType.NONE:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
-                    self.current_menu.set_page_to_next()
+                    if self.current_menu.scroll_enabled:
+                        self.current_menu.set_page_to_next()
                 elif button_press.event_type == ButtonPress.ButtonType.UP:
-                    self.current_menu.set_page_to_previous()
+                    if self.current_menu.scroll_enabled:
+                        self.current_menu.set_page_to_previous()
 
             elif button_press.is_action():
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:
