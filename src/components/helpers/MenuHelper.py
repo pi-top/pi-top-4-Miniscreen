@@ -1,6 +1,5 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
-from components.widgets.common import image
 from components.widgets.sys_info import (
     batt_level,
     uptime,
@@ -94,30 +93,6 @@ class Menus(Enum):
 
 class Pages:
     class SysInfoMenu(Enum):
-        DEMO_STARTUP_SCREEN = MenuPage(
-            name="demo_startup",
-            hotspot=get_hotspot(
-                image,
-                image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', 'demo', 'startup.gif')),
-                loop=True
-            ),
-            # on_finished_func=change_menu(Menus.MAIN_MENU),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        DEMO_HUD = MenuPage(
-            name="demo_hud",
-            hotspot=get_hotspot(
-                image,
-                image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', 'demo', 'mainmenu-hud.gif')),
-            ),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
-        )
-
         BATTERY = MenuPage(
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0),
@@ -176,90 +151,13 @@ class Pages:
         )
 
     class MainMenu(Enum):
-        DEMO_PROJECT_SELECT = MenuPage(
+        PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'mainmenu-select-project.gif'))
-                                ),
+            hotspot=get_hotspot(main_menu,
+                                title="Project Select"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
-
-        # Car
-        DEMO_PROJECT_CAR = MenuPage(
-            name="Demo Project - Car",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-car.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Rover
-        DEMO_PROJECT_ROVER = MenuPage(
-            name="Demo Project - Rover",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-rover.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Drone
-        DEMO_PROJECT_DRONE = MenuPage(
-            name="Demo Project - Drone",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-drone.gif')),
-                                playback_speed=1
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Robot
-        DEMO_PROJECT_ROBOT = MenuPage(
-            name="Demo Project - Robot",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-robot.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Sensor
-        DEMO_PROJECT_SENSOR = MenuPage(
-            name="Demo Project - Sensor",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-sensor.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Connected to computer
-        DEMO_PROJECT_CONNECTED = MenuPage(
-            name="Demo Project - Connected",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-connected.gif'))
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # PROJECT_SELECT = MenuPage(
-        #     name="Project Select",
-        #     hotspot=get_hotspot(main_menu,
-        #                         title="Project Select"),
-        #     select_action_func=change_menu(Menus.PROJECTS),
-        #     cancel_action_func=None
-        # )
         # SETTINGS_SELECT = MenuPage(
         #     name="Settings",
         #     hotspot=get_hotspot(main_menu,
@@ -416,7 +314,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ['demo_startup', 'demo_hud']
+        page_name_arr = ['clock', 'disk', 'wifi']
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
