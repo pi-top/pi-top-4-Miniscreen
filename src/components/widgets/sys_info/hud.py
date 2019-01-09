@@ -1,16 +1,15 @@
+from ptcommon.sys_info import (
+    cpu_percentage,
+    network_strength,
+    get_battery,
+    get_temperature
+)
 from os import path
 from PIL import (
     Image,
     ImageFont
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_functions import (
-    bytes2human,
-    cpu_percentage,
-    network_strength,
-    get_battery,
-    get_temperature
-)
 
 
 class Hotspot(BaseHotspot):
