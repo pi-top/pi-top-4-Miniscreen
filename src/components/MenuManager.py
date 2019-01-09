@@ -46,7 +46,7 @@ class MenuManager:
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:
             self.current_menu = self.menus[menu_to_go_to]
-            self.current_menu.move_instantly_to_page(1)
+            self.current_menu.move_instantly_to_first_page()
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
