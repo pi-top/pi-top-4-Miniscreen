@@ -20,14 +20,15 @@ from luma.core.virtual import viewport
 from enum import Enum
 from os import (
     path,
-    listdir
+    listdir,
+    kill
 )
 from pathlib import Path
+import signal
 from subprocess import (
     check_output,
     Popen
 )
-from psutil import Process
 
 _app = None
 
@@ -48,28 +49,31 @@ def start_stop_project(path_to_project):
         code_file = path_to_project + "/remote_rpi/run.py"
 
         PTLogger.debug("Checking if process is already running...")
-        pid = None
 
         cmd = "pgrep -f \"" + code_file + "\" || true"
         output = check_output(cmd, shell=True).decode('ascii', 'ignore')
-        try:
-            pid = int(output)
-        except ValueError:
-            pass  # No process found - don't worry about it
+        pids = list(filter(None, output.split('\n')))
 
         try:
-            if pid is not None:
+            if len(pids) > 1:
                 PTLogger.info("Project already running: " + str(path_to_project) + ". Attempting to stop...")
-                Process(pid).terminate()
+                
+                for pid in pids:
+                    try:
+                        kill(int(pid), signal.SIGTERM)
+                    except ValueError:
+                        pass
             else:
                 PTLogger.info("Starting project: " + str(path_to_project))
+
                 if path.exists(code_file):
                     PTLogger.debug("Code file found at " + code_file + ". Running...")
                     Popen(["python3", code_file])
                 else:
                     PTLogger.info("No code file found at " + code_file)
-        except:
-            pass 
+
+        except Exception as e:
+            PTLogger.warning("Error starting/stopping process: " + str(e))
 
     return run
 
