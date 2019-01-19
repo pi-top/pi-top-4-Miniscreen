@@ -246,21 +246,14 @@ class Pages:
                     project_pages.append(project_page)
             else:
                 title = "No Projects Available"
-                image_path = get_project_animation("")
 
                 project_page = MenuPage(title, get_hotspot(projects_menu,
                                                            title=title,
-                                                           image_path=image_path
+                                                           image_path=None
                                                            ),
                                         None, None)
                 project_pages.append(project_page)
             return project_pages
-
-
-def get_project_animation(project_path):
-    icon_path = project_path + "/animation.gif"
-
-    return icon_path
 
 
 def get_menu_enum_class_from_name(menu_name):
