@@ -186,80 +186,14 @@ class Pages:
             cancel_action_func=None
         )
 
-        # Car
-        DEMO_PROJECT_CAR = MenuPage(
-            name="Demo Project - Car",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-car.gif')),
-                                ),
-            select_action_func=None,
+        PROJECT_SELECT = MenuPage(
+            name="Project Select",
+            hotspot=get_hotspot(main_menu,
+                                title="Project Select"),
+            select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
 
-        # Rover
-        DEMO_PROJECT_ROVER = MenuPage(
-            name="Demo Project - Rover",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-rover.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Drone
-        DEMO_PROJECT_DRONE = MenuPage(
-            name="Demo Project - Drone",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-drone.gif')),
-                                playback_speed=1
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Robot
-        DEMO_PROJECT_ROBOT = MenuPage(
-            name="Demo Project - Robot",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-robot.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Sensor
-        DEMO_PROJECT_SENSOR = MenuPage(
-            name="Demo Project - Sensor",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-sensor.gif')),
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # Connected to computer
-        DEMO_PROJECT_CONNECTED = MenuPage(
-            name="Demo Project - Connected",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'project-connected.gif'))
-                                ),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        # PROJECT_SELECT = MenuPage(
-        #     name="Project Select",
-        #     hotspot=get_hotspot(main_menu,
-        #                         title="Project Select"),
-        #     select_action_func=change_menu(Menus.PROJECTS),
-        #     cancel_action_func=None
-        # )
         # SETTINGS_SELECT = MenuPage(
         #     name="Settings",
         #     hotspot=get_hotspot(main_menu,
@@ -305,32 +239,29 @@ class Pages:
                 for project_subdir in project_subdirs:
                     # Get name from path
                     title = project_subdir
-                    img_path = get_project_icon(project_dir + "/" + project_subdir)
+                    image_path = get_project_animation(project_dir + "/" + project_subdir)
 
                     project_page = MenuPage(title, get_hotspot(projects_menu,
                                                                title=title,
-                                                               img_path=img_path
+                                                               image_path=image_path
                                                                ),
                                             start_stop_project(project_dir + "/" + project_subdir), None)
                     project_pages.append(project_page)
             else:
                 title = "No Projects Available"
-                img_path = get_project_icon("")
+                image_path = get_project_animation("")
 
                 project_page = MenuPage(title, get_hotspot(projects_menu,
                                                            title=title,
-                                                           img_path=img_path
+                                                           image_path=image_path
                                                            ),
                                         None, None)
                 project_pages.append(project_page)
             return project_pages
 
 
-def get_project_icon(project_path):
-    icon_path = project_path + "/remote_rpi/icon.png"
-
-    if not path.isfile(icon_path):
-        icon_path = path.join(path.dirname(__file__), '../../images/pi-top.png')
+def get_project_animation(project_path):
+    icon_path = project_path + "/animation.gif"
 
     return icon_path
 
