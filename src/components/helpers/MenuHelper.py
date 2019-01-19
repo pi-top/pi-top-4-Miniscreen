@@ -45,8 +45,6 @@ def change_menu(menu_id):
 
 def start_stop_project(path_to_project):
     def run():
-        PTLogger.info("Attempting to start/stop project: " + str(path_to_project))
-
         code_file = path_to_project + "/remote_rpi/run.py"
 
         PTLogger.debug("Checking if process is already running...")
@@ -59,16 +57,20 @@ def start_stop_project(path_to_project):
         except ValueError:
             pass  # No process found - don't worry about it
 
-        if pid is not None:
-            PTLogger.debug("Process is running - attempting to kill")
-            Process(pid).terminate()
-        else:
-            PTLogger.debug("Process is not running")
-            if path.exists(code_file):
-                PTLogger.debug("Code file found at " + code_file + ". Running...")
-                Popen(["python3", code_file])
+        try:
+            if pid is not None:
+                PTLogger.info("Project already running: " + str(path_to_project) + ". Attempting to stop...")
+                Process(pid).terminate()
             else:
-                PTLogger.debug("No code file found at " + code_file)
+                PTLogger.info("Starting project: " + str(path_to_project))
+                if path.exists(code_file):
+                    PTLogger.debug("Code file found at " + code_file + ". Running...")
+                    Popen(["python3", code_file])
+                else:
+                    PTLogger.info("No code file found at " + code_file)
+        except:
+            pass 
+
     return run
 
 
