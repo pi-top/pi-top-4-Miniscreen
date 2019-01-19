@@ -7,6 +7,7 @@ from PIL import Image
 from os.path import isfile
 from components.widgets.common_functions import title_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from subprocess import check_output
 
 def _create_bitmap_to_render(image, width, height):
     size_tuple = (width, height)
@@ -93,12 +94,29 @@ class Hotspot(BaseHotspot):
             if key == "playback_speed":
                 self.playback_speed = value
 
+    def is_project_running(self):
+        code_file = self.project_path + "/remote_rpi/run.py"
+
+        cmd = "pgrep -f \"" + code_file + "\" || true"
+        output = check_output(cmd, shell=True).decode('ascii', 'ignore')
+        
+        pids = list(filter(None, output.split('\n')))
+
+        return (len(pids) > 1)
+
     def render(self, draw, width, height):
 
-        title_width, title_height = draw.textsize(self.title)
+        message = self.title
+
+        if (self.is_project_running()):
+            message += ": Running"
+        else:
+            message += ": Stopped"
+
+        title_width, title_height = draw.textsize(message)
 
         if self._error:
-            draw.text((width / 2 - title_width / 2, height / 2 - title_height / 2), text=self.title, fill="white")
+            draw.text((width / 2 - title_width / 2, height / 2 - title_height / 2), text=message, fill="white")
         else:
             if self._image is not None:
 
@@ -106,4 +124,4 @@ class Hotspot(BaseHotspot):
                 img_bitmap = _create_bitmap_to_render(self._image, width, height - title_height - 2)
                 draw.bitmap(xy=(0, 0), bitmap=img_bitmap, fill="white")
 
-                draw.text((width / 2 - title_width / 2, height - title_height - 1), text=self.title, fill="white")
+                draw.text((width / 2 - title_width / 2, height - title_height - 1), text=message, fill="white")
