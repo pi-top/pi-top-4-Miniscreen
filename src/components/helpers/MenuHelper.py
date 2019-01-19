@@ -245,14 +245,15 @@ class Pages:
                                             start_stop_project(project_path), None)
                     project_pages.append(project_page)
             else:
-                title = "No Projects Available"
+                title = "No Projects Found"
 
-                project_page = MenuPage(title, get_hotspot(projects_menu,
+                project_page = MenuPage(title, get_hotspot(main_menu,
                                                            title=title,
                                                            image_path=None
                                                            ),
                                         None, None)
                 project_pages.append(project_page)
+                project_pages.append(project_page) # For some reason there can't be only one page
             return project_pages
 
 
