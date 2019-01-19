@@ -40,14 +40,15 @@ class Hotspot(BaseHotspot):
         self._error_text = ""
 
         self.title = data.get("title")
+        self.project_path = None
         self.image_path = None
         self.loop = True
         self.playback_speed = 1.0
         self.update_props(**data)
 
-    def _load_image_from_path(self, value):
+    def _load_image(self):
         self._error = False
-        self.image_path = value
+        self.image_path = self.project_path + "/animation.gif"
         if not isfile(self.image_path):
             self._error_text = "Invalid path for image file: " + str(self.image_path)
             self._error = True
@@ -84,8 +85,9 @@ class Hotspot(BaseHotspot):
 
     def update_props(self, **data):
         for key, value in data.items():
-            if key == "image_path":
-                self._load_image_from_path(value)
+            if key == "project_path":
+                self.project_path = value
+                self._load_image()
             if key == "loop":
                 self.loop = value
             if key == "playback_speed":

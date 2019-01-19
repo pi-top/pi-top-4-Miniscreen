@@ -11,5 +11,5 @@ class Hotspot(BaseHotspot):
         self.title = data.get("title")
 
     def render(self, draw, width, height):
-        margin = 3
-        title_text(draw, margin, width, text=self.title)
+        text_width, text_height = draw.textsize(self.title)
+        draw.text((width / 2 - text_width / 2, height / 2 - text_height / 2), text=self.title, fill="white")

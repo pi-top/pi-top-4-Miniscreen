@@ -180,36 +180,27 @@ class Pages:
     class MainMenu(Enum):
         DEMO_PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(image,
-                                image_path=path.abspath(path.join(path.dirname(__file__), '..', '..', 'demo',
-                                                                  'mainmenu-select-project.gif'))
-                                ),
-            select_action_func=change_menu(Menus.PROJECTS),
-            cancel_action_func=None
-        )
-
-        PROJECT_SELECT = MenuPage(
-            name="Project Select",
             hotspot=get_hotspot(main_menu,
-                                title="Project Select"),
+                                title="Projects"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None
         )
 
-        # SETTINGS_SELECT = MenuPage(
-        #     name="Settings",
-        #     hotspot=get_hotspot(main_menu,
-        #                         title="Settings"),
-        #     select_action_func=None,  # change_menu(Menus.SETTINGS)
-        #     cancel_action_func=None
-        # )
-        # WIFI_SETUP_SELECT = MenuPage(
-        #     name="Wi-Fi Setup",
-        #     hotspot=get_hotspot(main_menu,
-        #                         title="Wi-Fi Setup"),
-        #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
-        #     cancel_action_func=None
-        # )
+        SETTINGS_SELECT = MenuPage(
+            name="Settings",
+            hotspot=get_hotspot(main_menu,
+                                title="Settings"),
+            select_action_func=None,  # change_menu(Menus.SETTINGS)
+            cancel_action_func=None
+        )
+
+        WIFI_SETUP_SELECT = MenuPage(
+            name="Wi-Fi Setup",
+            hotspot=get_hotspot(main_menu,
+                                title="Wi-Fi Setup"),
+            select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
+            cancel_action_func=None
+        )
         # # Alexa/Mycroft?
         # VOICE_ASSISTANT_SELECT = MenuPage(
         #     name="Voice Assistant",
@@ -241,13 +232,13 @@ class Pages:
                 for project_subdir in project_subdirs:
                     # Get name from path
                     title = project_subdir
-                    image_path = get_project_animation(project_dir + "/" + project_subdir)
+                    project_path = project_dir + "/" + project_subdir
 
                     project_page = MenuPage(title, get_hotspot(projects_menu,
                                                                title=title,
-                                                               image_path=image_path
+                                                               project_path=project_path
                                                                ),
-                                            start_stop_project(project_dir + "/" + project_subdir), None)
+                                            start_stop_project(project_path), None)
                     project_pages.append(project_page)
             else:
                 title = "No Projects Available"
