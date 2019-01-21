@@ -46,11 +46,12 @@ def change_menu(menu_id):
 
 def start_stop_project(path_to_project):
     def run():
-        code_file = path_to_project + "/remote_rpi/run.py"
+        start_script = path_to_project + "/start.sh"
+        stop_script = path_to_project + "/stop.sh"
 
         PTLogger.debug("Checking if process is already running...")
 
-        cmd = "pgrep -f \"" + code_file + "\" || true"
+        cmd = "pgrep -f \"" + path_to_project + "\" || true"
         output = check_output(cmd, shell=True).decode('ascii', 'ignore')
         pids = list(filter(None, output.split('\n')))
 
@@ -58,19 +59,22 @@ def start_stop_project(path_to_project):
             if len(pids) > 1:
                 PTLogger.info("Project already running: " + str(path_to_project) + ". Attempting to stop...")
                 
-                for pid in pids:
-                    try:
-                        kill(int(pid), signal.SIGTERM)
-                    except ValueError:
-                        pass
+                if path.exists(stop_script):
+                    Popen([stop_script])
+                else:
+                    for pid in pids:
+                        try:
+                            kill(int(pid), signal.SIGTERM)
+                        except ValueError:
+                            pass
             else:
                 PTLogger.info("Starting project: " + str(path_to_project))
 
-                if path.exists(code_file):
-                    PTLogger.debug("Code file found at " + code_file + ". Running...")
-                    Popen(["python3", code_file])
+                if path.exists(start_script):
+                    PTLogger.debug("Code file found at " + start_script + ". Running...")
+                    Popen([start_script])
                 else:
-                    PTLogger.info("No code file found at " + code_file)
+                    PTLogger.info("No code file found at " + start_script)
 
         except Exception as e:
             PTLogger.warning("Error starting/stopping process: " + str(e))
@@ -226,8 +230,8 @@ class Pages:
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = "/home/pi/Desktop/My Remote RPi Projects" if is_pi() else path.expanduser(
-                '~/Desktop/My Remote RPi Projects')
+            project_dir = "/home/pi/Desktop/Hero-Projects" if is_pi() else path.expanduser(
+                '~/Desktop/Hero-Projects')
             project_pages = list()
             if path.exists(project_dir):
                 # For each directory in project path

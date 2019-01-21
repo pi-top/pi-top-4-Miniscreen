@@ -95,9 +95,9 @@ class Hotspot(BaseHotspot):
                 self.playback_speed = value
 
     def is_project_running(self):
-        code_file = self.project_path + "/remote_rpi/run.py"
+        code_file = self.project_path + "/start.sh"
 
-        cmd = "pgrep -f \"" + code_file + "\" || true"
+        cmd = "pgrep -f \"" + self.project_path + "\" || true"
         output = check_output(cmd, shell=True).decode('ascii', 'ignore')
         
         pids = list(filter(None, output.split('\n')))
