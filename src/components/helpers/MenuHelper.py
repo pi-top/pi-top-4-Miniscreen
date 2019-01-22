@@ -280,7 +280,6 @@ class Pages:
                                 if path.isdir(path.join(animations_dir, name))]
             for project_subdir in subdirs:
                 # Get name from path
-                print("animation found")
                 project_path = animations_dir + "/" + project_subdir
                 title=""
                 project_page = MenuPage(title, get_hotspot(projects_menu,
