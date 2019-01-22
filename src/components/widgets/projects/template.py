@@ -94,34 +94,14 @@ class Hotspot(BaseHotspot):
             if key == "playback_speed":
                 self.playback_speed = value
 
-    def is_project_running(self):
-        code_file = self.project_path + "/start.sh"
-
-        cmd = "pgrep -f \"" + self.project_path + "\" || true"
-        output = check_output(cmd, shell=True).decode('ascii', 'ignore')
-        
-        pids = list(filter(None, output.split('\n')))
-
-        return (len(pids) > 1)
-
     def render(self, draw, width, height):
-
         message = self.title
-
-        if (self.is_project_running()):
-            message += ": Running"
-        else:
-            message += ": Stopped"
-
         title_width, title_height = draw.textsize(message)
 
         if self._error:
             draw.text((width / 2 - title_width / 2, height / 2 - title_height / 2), text=message, fill="white")
         else:
             if self._image is not None:
-
                 self._seek_next_frame_in_image()
-                img_bitmap = _create_bitmap_to_render(self._image, width, height - title_height - 2)
+                img_bitmap = _create_bitmap_to_render(self._image, width, height)
                 draw.bitmap(xy=(0, 0), bitmap=img_bitmap, fill="white")
-
-                draw.text((width / 2 - title_width / 2, height - title_height - 1), text=message, fill="white")
