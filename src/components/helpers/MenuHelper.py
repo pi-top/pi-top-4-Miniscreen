@@ -272,8 +272,8 @@ class Pages:
     class DemoProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            animations_dir = "~/Animations" if is_pi() else path.expanduser(
-                '~/Animations')
+            animations_dir = "/home/pi/Animations" if is_pi() else path.expanduser(
+                '/home/pi/Animations')
             animation_pages = list()
 
             subdirs = [name for name in sorted(listdir(animations_dir))
