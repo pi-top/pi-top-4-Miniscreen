@@ -4,8 +4,8 @@
 # See LICENSE.rst for details.
 
 import psutil
+from ptcommon.formatting import bytes2human
 from components.widgets.common_functions import (
-    bytes2human,
     right_text,
     title_text,
     tiny_font
