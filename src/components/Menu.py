@@ -4,7 +4,7 @@ from ptcommon.logger import PTLogger
 
 
 class Menu:
-    """A scrollable viewport of many menu MenuHelper.Pages.SysInfo."""
+    """A scrollable viewport of many menu widgets"""
 
     def __init__(self, device, name):
         """Constructor for Menu"""
@@ -80,7 +80,12 @@ class Menu:
         elif self.page_index == self.last_page_no():
             self.move_instantly_to_page(1)
 
+    def refresh_display(self):
+        self.viewport.set_position((0, self.y_pos))
+
     def update_position_based_on_state(self):
+        previous_y_pos = self.y_pos
+
         if self.scroll_enabled:
             arrived_at_screen = (self.y_pos == self.get_page_y_pos())
             if arrived_at_screen:
@@ -88,11 +93,12 @@ class Menu:
                     PTLogger.debug("Arrived at " + str(self.get_current_page().name))
                     self.update_position_if_at_end_of_viewport()
             else:
-                self.y_pos = self.y_pos - 1 if self.get_page_y_pos() < self.y_pos else self.y_pos + 1
+                self.y_pos = (self.y_pos - 1) if (self.get_page_y_pos() < self.y_pos) else (self.y_pos + 1)
 
             self.moving_to_page = not arrived_at_screen
 
-        self.viewport.set_position((0, self.y_pos))
+        if previous_y_pos != self.y_pos:
+            self.refresh_display()
 
     def get_viewport_height(self):
         return self.viewport.size[1]
