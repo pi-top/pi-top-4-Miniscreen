@@ -3,9 +3,9 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
+from ptcommon.formatting import bytes2human
 import psutil
 from components.widgets.common_functions import (
-    bytes2human,
     right_text,
     title_text,
     tiny_font

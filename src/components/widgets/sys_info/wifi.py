@@ -3,18 +3,17 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
+from ptcommon.sys_info import (
+    get_network_id,
+    get_internal_ip,
+    get_ssh_enabled_state
+)
 from components.widgets.common_functions import (
-    bytes2human,
     right_text,
     title_text,
     tiny_font
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_functions import (
-    get_network_id,
-    get_internal_ip,
-    get_ssh_enabled_state
-)
 
 
 class Hotspot(BaseHotspot):
