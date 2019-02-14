@@ -31,7 +31,6 @@ class MenuManager:
         self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
         self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
         self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
-        self.add_menu_to_list(MenuHelper.Menus.DEMO_PROJECTS)
 
         self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
 

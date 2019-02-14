@@ -98,37 +98,12 @@ class Menus(Enum):
     SYS_INFO = 0
     MAIN_MENU = 1
     PROJECTS = 2
-    DEMO_PROJECTS = 3
-    SETTINGS = 4
-    WIFI_SETUP = 5
+    SETTINGS = 3
+    WIFI_SETUP = 4
 
 
 class Pages:
     class SysInfoMenu(Enum):
-        DEMO_STARTUP_SCREEN = MenuPage(
-            name="demo_startup",
-            hotspot=get_hotspot(
-                image,
-                image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', 'demo', 'startup.gif')),
-                loop=True
-            ),
-            # on_finished_func=change_menu(Menus.MAIN_MENU),
-            select_action_func=None,
-            cancel_action_func=None
-        )
-
-        DEMO_HUD = MenuPage(
-            name="demo_hud",
-            hotspot=get_hotspot(
-                image,
-                image_path=path.abspath(
-                    path.join(path.dirname(__file__), '..', '..', 'demo', 'mainmenu-hud.gif')),
-            ),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
-        )
-
         BATTERY = MenuPage(
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0),
@@ -187,14 +162,6 @@ class Pages:
         )
 
     class MainMenu(Enum):
-        DEMO_PROJECT_SELECT = MenuPage(
-            name="Demo Project Select",
-            hotspot=get_hotspot(main_menu,
-                                title="Demo Projects"),
-            select_action_func=change_menu(Menus.DEMO_PROJECTS),
-            cancel_action_func=None
-        )
-
         PROJECT_SELECT = MenuPage(
             name="Project Select",
             hotspot=get_hotspot(main_menu,
@@ -211,13 +178,13 @@ class Pages:
             cancel_action_func=None
         )
 
-        WIFI_SETUP_SELECT = MenuPage(
-            name="Wi-Fi Setup",
-            hotspot=get_hotspot(main_menu,
-                                title="Wi-Fi Setup"),
-            select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
-            cancel_action_func=None
-        )
+        # WIFI_SETUP_SELECT = MenuPage(
+        #     name="Wi-Fi Setup",
+        #     hotspot=get_hotspot(main_menu,
+        #                         title="Wi-Fi Setup"),
+        #     select_action_func=None,  # change_menu(Menus.WIFI_SETUP)
+        #     cancel_action_func=None
+        # )
         # # Alexa/Mycroft?
         # VOICE_ASSISTANT_SELECT = MenuPage(
         #     name="Voice Assistant",
@@ -269,34 +236,12 @@ class Pages:
                 project_pages.append(project_page) # For some reason there can't be only one page
             return project_pages
 
-    class DemoProjectSelectMenu:
-        @staticmethod
-        def generate_pages():
-            animations_dir = "/home/pi/Animations" if is_pi() else path.expanduser(
-                '/home/pi/Animations')
-            animation_pages = list()
-
-            subdirs = [name for name in sorted(listdir(animations_dir))
-                                if path.isdir(path.join(animations_dir, name))]
-            for project_subdir in subdirs:
-                # Get name from path
-                project_path = animations_dir + "/" + project_subdir
-                title=""
-                project_page = MenuPage(title, get_hotspot(projects_menu,
-                                                            title=title,
-                                                            project_path=project_path
-                                                            ),
-                                                            None, None)
-                animation_pages.append(project_page)
-            return animation_pages
 
 def get_menu_enum_class_from_name(menu_name):
     if menu_name == Menus.SYS_INFO:
         return Pages.SysInfoMenu
     elif menu_name == Menus.MAIN_MENU:
         return Pages.MainMenu
-    elif menu_name == Menus.DEMO_PROJECTS:
-        return Pages.DemoProjectSelectMenu
     elif menu_name == Menus.PROJECTS:
         return Pages.ProjectSelectMenu
     else:
@@ -373,7 +318,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ['demo_startup', 'demo_hud']
+        page_name_arr = ['hud', 'wifi', 'network', 'cpu', 'disk']
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
