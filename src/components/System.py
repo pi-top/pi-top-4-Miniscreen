@@ -4,10 +4,10 @@ from ptcommon.logger import PTLogger
 
 
 _device = None
+_, _, _, _, machine = uname()
 
 
 def is_pi():
-    _, _, _, _, machine = uname()
     return machine == "armv7l"
 
 
