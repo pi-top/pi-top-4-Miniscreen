@@ -65,14 +65,12 @@ class MenuManager:
     def update_state(self):
         button_press = self.get_next_button_press_from_stack()
 
-        if not self.current_menu.moving_to_page and button_press.event_type != ButtonPress.ButtonType.NONE:
+        if button_press.event_type != ButtonPress.ButtonType.NONE:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
-                    if self.current_menu.scroll_enabled:
-                        self.current_menu.set_page_to_next()
+                    self.current_menu.move_instantly_to_page(self.current_menu.page_index - 1)
                 elif button_press.event_type == ButtonPress.ButtonType.UP:
-                    if self.current_menu.scroll_enabled:
-                        self.current_menu.set_page_to_previous()
+                    self.current_menu.move_instantly_to_page(self.current_menu.page_index + 1)
 
             elif button_press.is_action():
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:

@@ -9,10 +9,8 @@ class Menu:
     def __init__(self, device, name):
         """Constructor for Menu"""
         self.pages = list()
-        self.moving_to_page = False
         self.name = name
         self.parent = None
-        self.y_pos = 0
         self.page_index = 0
         self.last_displayed_image = None
 
@@ -27,18 +25,9 @@ class Menu:
         else:
             raise Exception("Unrecognised menu name")
 
-        # Enable scrolling if there is more than one page
-        self.scroll_enabled = len(pages) > 1
-
-        if self.scroll_enabled:
-            self.pages = MenuHelper.add_infinite_scroll_edge_pages(pages)
-        else:
-            self.pages = pages
-
+        self.pages = pages
         self.viewport = MenuHelper.create_viewport(device, self.pages)
-
-        if self.scroll_enabled:
-            self.move_instantly_to_page(1, debug_print=False)
+        self.move_instantly_to_page(1, debug_print=False)
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
@@ -46,24 +35,18 @@ class Menu:
         return page_index * device.height
 
     def move_instantly_to_first_page(self, debug_print=True):
-        if self.scroll_enabled:
-            self.move_instantly_to_page(1, debug_print)
-        else:
-            self.move_instantly_to_page(0, debug_print)
+        self.move_instantly_to_page(1, debug_print)
 
     def move_instantly_to_page(self, page_index, debug_print=True):
+        if page_index == self.last_page_no():
+            pass
+            #TODO
+        if page_index == 0:
+            pass
+            #TODO
         self.page_index = page_index
-        self.y_pos = self.get_page_y_pos(self.page_index)
         if debug_print:
             PTLogger.info("Moving instantly to " + str(self.get_current_page().name))
-
-    def set_page_to_previous(self):
-        self.page_index = self.page_index - 1
-        PTLogger.info("Setting page to " + str(self.get_current_page().name))
-
-    def set_page_to_next(self):
-        self.page_index = self.page_index + 1
-        PTLogger.info("Setting page to " + str(self.get_current_page().name))
 
     def get_current_page(self):
         return self.pages[self.page_index]
@@ -81,23 +64,7 @@ class Menu:
             self.move_instantly_to_page(1)
 
     def update_position_based_on_state(self):
-        if self.scroll_enabled:
-            arrived_at_screen = self.y_pos == self.get_page_y_pos()
-            if arrived_at_screen:
-                if self.moving_to_page:
-                    PTLogger.debug("Arrived at " + str(self.get_current_page().name))
-                    self.update_position_if_at_end_of_viewport()
-            else:
-                self.y_pos = (
-                    (self.y_pos - 1)
-                    if (self.get_page_y_pos() < self.y_pos)
-                    else (self.y_pos + 1)
-                )
-
-            self.moving_to_page = not arrived_at_screen
-
-
-        self.viewport._position = (0, self.y_pos)
+        self.viewport._position = (0, self.get_page_y_pos())
         image_to_display = self.viewport._backing_image.crop(
             box=self.viewport._crop_box()
         )

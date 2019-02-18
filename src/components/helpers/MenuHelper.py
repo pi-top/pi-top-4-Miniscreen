@@ -273,12 +273,12 @@ def get_enum_key_from_value(menu_name, value):
     raise Exception("Unable to find enum key matching value: " + value)
 
 
-def add_infinite_scroll_edge_pages(pages):
-    first_page = pages[0]
-    last_page = pages[-1]
-    pages.append(first_page)
-    pages.insert(0, last_page)
-    return pages
+# def add_infinite_scroll_edge_pages(pages):
+#     first_page = pages[0]
+#     last_page = pages[-1]
+#     pages.append(first_page)
+#     pages.insert(0, last_page)
+#     return pages
 
 
 def create_viewport(device, pages):
