@@ -20,10 +20,12 @@ def take_control_of_oled():
 def setup_pi_and_get_device():
     take_control_of_oled()
     import RPi.GPIO as GPIO
+
     # Suppress warning in Luma serial class
     GPIO.setwarnings(False)
 
     from luma.core.interface.serial import spi
+
     spi_serial_iface = spi(
         port=1,
         device=0,
@@ -32,23 +34,21 @@ def setup_pi_and_get_device():
         transfer_size=4096,
         gpio_DC=17,
         gpio_RST=27,
-        gpio=None
+        gpio=None,
     )
     from luma.oled.device import sh1106
+
     return sh1106(spi_serial_iface)
 
 
 def setup_debug_and_get_device():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
+
     ButtonPressHelper.init()
     from luma.emulator.device import pygame
+
     return pygame(
-        display='pygame',
-        height=64,
-        mode='1',
-        scale=4,
-        transform='identity',
-        width=128
+        display="pygame", height=64, mode="1", scale=4, transform="identity", width=128
     )
 
 

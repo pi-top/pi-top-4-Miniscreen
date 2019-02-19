@@ -6,10 +6,7 @@
 import math
 import datetime
 
-from components.widgets.common_functions import (
-    title_text,
-    tiny_font
-)
+from components.widgets.common_functions import title_text, tiny_font
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 

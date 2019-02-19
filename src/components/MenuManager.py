@@ -1,5 +1,6 @@
 from time import sleep
 from components.System import is_pi
+
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
 
@@ -7,7 +8,7 @@ from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.System import (
     device,
-    got_pi_control  # Do something with this if it is false
+    got_pi_control,  # Do something with this if it is false
 )
 
 from components.helpers.RequestClient import RequestClient
@@ -69,22 +70,34 @@ class MenuManager:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
                     if self.current_menu.page_index == 0:
-                        self.current_menu.move_instantly_to_page(self.current_menu.last_page_no())
+                        self.current_menu.move_instantly_to_page(
+                            self.current_menu.last_page_no()
+                        )
                     else:
-                        self.current_menu.move_instantly_to_page(self.current_menu.page_index - 1)
+                        self.current_menu.move_instantly_to_page(
+                            self.current_menu.page_index - 1
+                        )
                 elif button_press.event_type == ButtonPress.ButtonType.UP:
                     if self.current_menu.page_index == self.current_menu.last_page_no():
                         self.current_menu.move_instantly_to_page(0)
                     else:
-                        self.current_menu.move_instantly_to_page(self.current_menu.page_index + 1)
+                        self.current_menu.move_instantly_to_page(
+                            self.current_menu.page_index + 1
+                        )
 
             elif button_press.is_action():
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:
                     # Do action according to page's function
-                    if self.current_menu.get_current_page().select_action_func is not None:
+                    if (
+                        self.current_menu.get_current_page().select_action_func
+                        is not None
+                    ):
                         self.current_menu.get_current_page().select_action_func()
                 elif button_press.event_type == ButtonPress.ButtonType.CANCEL:
-                    if self.current_menu.get_current_page().cancel_action_func is not None:
+                    if (
+                        self.current_menu.get_current_page().cancel_action_func
+                        is not None
+                    ):
                         self.current_menu.get_current_page().cancel_action_func()
                     elif self.current_menu.parent is not None:
                         self.change_menu(self.current_menu.parent)

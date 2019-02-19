@@ -9,7 +9,9 @@ from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 def get_battery():
     try:
-        battery_level = str(subprocess.check_output(["pt-battery", "-c"]).decode("utf-8")).strip()
+        battery_level = str(
+            subprocess.check_output(["pt-battery", "-c"]).decode("utf-8")
+        ).strip()
     except (FileNotFoundError, subprocess.CalledProcessError):
         battery_level = "TEST"
 

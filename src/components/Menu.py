@@ -1,7 +1,6 @@
 from components.helpers import MenuHelper
 from components.System import device
 from ptcommon.logger import PTLogger
-from time import sleep
 
 
 class Menu:
@@ -61,10 +60,7 @@ class Menu:
             image_to_display_pixels = list(image_to_display.getdata())
             last_displayed_image_pixels = list(self.last_displayed_image.getdata())
 
-            image_has_updated = (
-                image_to_display_pixels
-                != last_displayed_image_pixels
-            )
+            image_has_updated = image_to_display_pixels != last_displayed_image_pixels
             draw_to_display = image_has_updated
 
         if draw_to_display:

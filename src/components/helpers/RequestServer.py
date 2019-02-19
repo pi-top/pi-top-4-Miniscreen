@@ -39,4 +39,8 @@ def take_control_of_oled():
         PTLogger.warning("Error connecting to device manager: " + str(e))
     finally:
         _cleanup()
-        return None if message is None else message.message_id() == Message.RSP_SET_OLED_CONTROL
+        return (
+            None
+            if message is None
+            else message.message_id() == Message.RSP_SET_OLED_CONTROL
+        )

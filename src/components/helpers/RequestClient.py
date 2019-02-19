@@ -70,16 +70,24 @@ class RequestClient:
 
                 if message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
                     message.validate_parameters([])
-                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.UP))
+                    self._callback_client.add_button_press_to_stack(
+                        ButtonPress(ButtonPress.ButtonType.UP)
+                    )
 
                 elif message.message_id() == Message.PUB_V3_BUTTON_DOWN_PRESSED:
                     message.validate_parameters([])
-                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.DOWN))
+                    self._callback_client.add_button_press_to_stack(
+                        ButtonPress(ButtonPress.ButtonType.DOWN)
+                    )
 
                 elif message.message_id() == Message.PUB_V3_BUTTON_SELECT_PRESSED:
                     message.validate_parameters([])
-                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.SELECT))
+                    self._callback_client.add_button_press_to_stack(
+                        ButtonPress(ButtonPress.ButtonType.SELECT)
+                    )
 
                 elif message.message_id() == Message.PUB_V3_BUTTON_CANCEL_PRESSED:
                     message.validate_parameters([])
-                    self._callback_client.add_button_press_to_stack(ButtonPress(ButtonPress.ButtonType.CANCEL))
+                    self._callback_client.add_button_press_to_stack(
+                        ButtonPress(ButtonPress.ButtonType.CANCEL)
+                    )

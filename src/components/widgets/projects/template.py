@@ -9,6 +9,7 @@ from components.widgets.common_functions import title_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from subprocess import check_output
 
+
 def _create_bitmap_to_render(image, width, height):
     size_tuple = (width, height)
     # # Forces a square - [64, 64]
@@ -81,7 +82,7 @@ class Hotspot(BaseHotspot):
         self._image.seek(self._frame_no)
 
         if self._image.is_animated:
-            embedded_frame_speed_s = float(self._image.info['duration'] / 1000)
+            embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
             self.interval = float(embedded_frame_speed_s / self.playback_speed)
 
     def update_props(self, **data):
@@ -99,7 +100,11 @@ class Hotspot(BaseHotspot):
         title_width, title_height = draw.textsize(message)
 
         if self._error:
-            draw.text((width / 2 - title_width / 2, height / 2 - title_height / 2), text=message, fill="white")
+            draw.text(
+                (width / 2 - title_width / 2, height / 2 - title_height / 2),
+                text=message,
+                fill="white",
+            )
         else:
             if self._image is not None:
                 self._seek_next_frame_in_image()
