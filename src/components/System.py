@@ -13,7 +13,7 @@ def is_pi():
 
 def take_control_of_oled():
     global got_pi_control
-    got_pi_csetup_and_get_deviceontrol = RequestServer.take_control_of_oled()
+    got_pi_control = RequestServer.take_control_of_oled()
     PTLogger.info("Pi has control of OLED? " + str(got_pi_control))
 
 
