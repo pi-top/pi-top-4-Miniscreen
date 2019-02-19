@@ -52,18 +52,18 @@ class Menu:
 
         if self.last_displayed_image == None:
             self.last_displayed_image = image_to_display
-            return True
+            should_redraw = True
         else:
             image_to_display_pixels = list(image_to_display.getdata())
             last_displayed_image_pixels = list(self.last_displayed_image.getdata())
 
             image_has_updated = image_to_display_pixels != last_displayed_image_pixels
             self.last_displayed_image = image_to_display if image_has_updated else self.last_displayed_image
-            return image_has_updated
+            should_redraw = image_has_updated
+        return should_redraw
 
     def redraw_if_necessary(self):
         if self.should_redraw():
-            # New pixelmap - update display
             self.viewport.refresh()
 
     def get_viewport_height(self):
