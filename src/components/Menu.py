@@ -34,9 +34,6 @@ class Menu:
             page_index = self.page_index
         return page_index * device.height
 
-    def move_instantly_to_first_page(self, debug_print=True):
-        self.move_instantly_to_page(1, debug_print)
-
     def move_instantly_to_page(self, page_index, debug_print=True):
         self.page_index = page_index
         if debug_print:

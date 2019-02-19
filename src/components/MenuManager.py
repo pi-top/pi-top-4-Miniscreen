@@ -35,7 +35,7 @@ class MenuManager:
         self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
 
         self.change_menu(MenuHelper.Menus.SYS_INFO)
-        self.current_menu.move_instantly_to_first_page()
+        self.current_menu.move_instantly_to_page(0)
 
         MenuHelper.set_app(self)
 
