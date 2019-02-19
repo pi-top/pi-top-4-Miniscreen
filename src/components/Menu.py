@@ -45,7 +45,7 @@ class Menu:
     def last_page_no(self):
         return len(self.pages) - 1
 
-    def update_position_based_on_state(self):
+    def redraw_if_necessary(self):
         self.viewport._position = (0, self.get_page_y_pos())
         image_to_display = self.viewport._backing_image.crop(
             box=self.viewport._crop_box()

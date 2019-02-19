@@ -102,7 +102,7 @@ class MenuManager:
                     elif self.current_menu.parent is not None:
                         self.change_menu(self.current_menu.parent)
 
-        self.current_menu.update_position_based_on_state()
+        self.current_menu.redraw_if_necessary()
 
     def main_loop(self):
         try:
