@@ -67,11 +67,10 @@ class MenuManager:
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             if button_press.is_direction():
-                new_page = None
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
                     on_first_page = self.current_menu.page_index == 0
                     new_page = self.current_menu.last_page_no() if on_first_page else self.current_menu.page_index - 1
-                elif button_press.event_type == ButtonPress.ButtonType.UP:
+                else:
                     on_last_page = self.current_menu.page_index == self.current_menu.last_page_no()
                     new_page = 0 if on_last_page else self.current_menu.page_index + 1
                 self.current_menu.move_instantly_to_page(new_page)
@@ -84,7 +83,7 @@ class MenuManager:
                         is not None
                     ):
                         self.current_menu.get_current_page().select_action_func()
-                elif button_press.event_type == ButtonPress.ButtonType.CANCEL:
+                else:
                     if (
                         self.current_menu.get_current_page().cancel_action_func
                         is not None
