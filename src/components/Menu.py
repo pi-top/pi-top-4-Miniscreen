@@ -27,7 +27,6 @@ class Menu:
 
         self.pages = pages
         self.viewport = MenuHelper.create_viewport(device, self.pages)
-        self.move_instantly_to_page(1, debug_print=False)
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
@@ -56,6 +55,7 @@ class Menu:
         else:
             image_to_display_pixels = list(image_to_display.getdata())
             last_displayed_image_pixels = list(self.last_displayed_image.getdata())
+
 
             image_has_updated = image_to_display_pixels != last_displayed_image_pixels
             draw_to_display = image_has_updated

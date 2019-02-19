@@ -234,9 +234,6 @@ class Pages:
                     None,
                 )
                 project_pages.append(project_page)
-                project_pages.append(
-                    project_page
-                )  # For some reason there can't be only one page
             return project_pages
 
 
