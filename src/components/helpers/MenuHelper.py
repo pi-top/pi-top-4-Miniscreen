@@ -314,7 +314,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ["hud", "wifi", "network", "cpu", "disk"]
+        page_name_arr = ["wifi", "network", "cpu", "disk"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
