@@ -68,9 +68,15 @@ class MenuManager:
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
-                    self.current_menu.move_instantly_to_page(self.current_menu.page_index - 1)
+                    if self.current_menu.page_index == 0:
+                        self.current_menu.move_instantly_to_page(self.current_menu.last_page_no())
+                    else:
+                        self.current_menu.move_instantly_to_page(self.current_menu.page_index - 1)
                 elif button_press.event_type == ButtonPress.ButtonType.UP:
-                    self.current_menu.move_instantly_to_page(self.current_menu.page_index + 1)
+                    if self.current_menu.page_index == self.current_menu.last_page_no():
+                        self.current_menu.move_instantly_to_page(0)
+                    else:
+                        self.current_menu.move_instantly_to_page(self.current_menu.page_index + 1)
 
             elif button_press.is_action():
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:
@@ -91,6 +97,6 @@ class MenuManager:
                 if not is_pi():
                     self.add_button_press_to_stack(ButtonPressHelper.get())
                 self.update_state()
-                sleep(0.001)
+                sleep(0.1)
         except SystemExit:
             pass

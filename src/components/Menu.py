@@ -1,6 +1,7 @@
 from components.helpers import MenuHelper
 from components.System import device
 from ptcommon.logger import PTLogger
+from time import sleep
 
 
 class Menu:
@@ -38,12 +39,6 @@ class Menu:
         self.move_instantly_to_page(1, debug_print)
 
     def move_instantly_to_page(self, page_index, debug_print=True):
-        if page_index == self.last_page_no():
-            pass
-            #TODO
-        if page_index == 0:
-            pass
-            #TODO
         self.page_index = page_index
         if debug_print:
             PTLogger.info("Moving instantly to " + str(self.get_current_page().name))
@@ -51,17 +46,8 @@ class Menu:
     def get_current_page(self):
         return self.pages[self.page_index]
 
-    def second_to_last_page_no(self):
-        return len(self.pages) - 2
-
     def last_page_no(self):
         return len(self.pages) - 1
-
-    def update_position_if_at_end_of_viewport(self):
-        if self.page_index == 0:
-            self.move_instantly_to_page(self.second_to_last_page_no())
-        elif self.page_index == self.last_page_no():
-            self.move_instantly_to_page(1)
 
     def update_position_based_on_state(self):
         self.viewport._position = (0, self.get_page_y_pos())
