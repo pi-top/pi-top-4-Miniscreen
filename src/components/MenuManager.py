@@ -1,4 +1,6 @@
+from time import sleep
 from components.System import is_pi
+
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
 
@@ -6,11 +8,12 @@ from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.System import (
     device,
-    got_pi_control  # Do something with this if it is false
+    got_pi_control,
 )
 
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
+from ptcommon.logger import PTLogger
 
 
 class MenuManager:
@@ -32,7 +35,7 @@ class MenuManager:
         self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
         self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
 
-        self.current_menu = self.menus[MenuHelper.Menus.SYS_INFO]
+        self.change_menu(MenuHelper.Menus.SYS_INFO)
 
         MenuHelper.set_app(self)
 
@@ -46,13 +49,13 @@ class MenuManager:
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:
             self.current_menu = self.menus[menu_to_go_to]
-            self.current_menu.move_instantly_to_first_page()
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def add_button_press_to_stack(self, button_press_event):
         if button_press_event != ButtonPress.ButtonType.NONE:
+            PTLogger.info("Adding " + button_press_event.event_type + "to stack")
             self.button_press_stack.append(button_press_event)
 
     def get_next_button_press_from_stack(self):
@@ -64,27 +67,34 @@ class MenuManager:
     def update_state(self):
         button_press = self.get_next_button_press_from_stack()
 
-        if not self.current_menu.moving_to_page and button_press.event_type != ButtonPress.ButtonType.NONE:
+        if button_press.event_type != ButtonPress.ButtonType.NONE:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
-                    if self.current_menu.scroll_enabled:
-                        self.current_menu.set_page_to_next()
-                elif button_press.event_type == ButtonPress.ButtonType.UP:
-                    if self.current_menu.scroll_enabled:
-                        self.current_menu.set_page_to_previous()
+                    on_first_page = self.current_menu.page_index == 0
+                    new_page = self.current_menu.last_page_no() if on_first_page else self.current_menu.page_index - 1
+                else:
+                    on_last_page = self.current_menu.page_index == self.current_menu.last_page_no()
+                    new_page = 0 if on_last_page else self.current_menu.page_index + 1
+                self.current_menu.move_instantly_to_page(new_page)
 
             elif button_press.is_action():
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:
                     # Do action according to page's function
-                    if self.current_menu.get_current_page().select_action_func is not None:
+                    if (
+                        self.current_menu.get_current_page().select_action_func
+                        is not None
+                    ):
                         self.current_menu.get_current_page().select_action_func()
-                elif button_press.event_type == ButtonPress.ButtonType.CANCEL:
-                    if self.current_menu.get_current_page().cancel_action_func is not None:
+                else:
+                    if (
+                        self.current_menu.get_current_page().cancel_action_func
+                        is not None
+                    ):
                         self.current_menu.get_current_page().cancel_action_func()
                     elif self.current_menu.parent is not None:
-                        self.current_menu = self.menus[self.current_menu.parent]
+                        self.change_menu(self.current_menu.parent)
 
-        self.current_menu.update_position_based_on_state()
+        self.current_menu.redraw_if_necessary()
 
     def main_loop(self):
         try:
@@ -92,5 +102,6 @@ class MenuManager:
                 if not is_pi():
                     self.add_button_press_to_stack(ButtonPressHelper.get())
                 self.update_state()
+                sleep(0.1)
         except SystemExit:
             pass

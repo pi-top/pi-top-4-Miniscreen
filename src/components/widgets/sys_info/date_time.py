@@ -15,8 +15,16 @@ class Hotspot(BaseHotspot):
     @staticmethod
     def render(draw, width, height):
         date_time = datetime.datetime.now()
-        date = str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
-        time = str(date_time.hour) + ":" + str(date_time.minute) + ":" + str(date_time.second)
+        date = (
+            str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
+        )
+        time = (
+            str(date_time.hour)
+            + ":"
+            + str(date_time.minute)
+            + ":"
+            + str(date_time.second)
+        )
 
         title_text(draw, height / 10, width, date)
 

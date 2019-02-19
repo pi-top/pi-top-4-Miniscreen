@@ -35,8 +35,8 @@ class Hotspot(BaseHotspot):
         for cpu in percentages:
             cpu_height = bar_height * (cpu / 100.0)
             y2 = height - bottom_margin
-            vertical_bar(draw,
-                         x, y2 - bar_height - 1,
-                         x + bar_width, y2, y2 - cpu_height)
+            vertical_bar(
+                draw, x, y2 - bar_height - 1, x + bar_width, y2, y2 - cpu_height
+            )
 
             x += width_cpu

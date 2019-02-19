@@ -73,7 +73,7 @@ class Hotspot(BaseHotspot):
         self._image.seek(self._frame_no)
 
         if self._image.is_animated:
-            embedded_frame_speed_s = float(self._image.info['duration'] / 1000)
+            embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
             self.interval = float(embedded_frame_speed_s / self.playback_speed)
 
     def update_props(self, **data):
@@ -88,7 +88,11 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         if self._error:
             w, h = draw.textsize(self._error_text)
-            draw.text((width / 2 - w / 2, height / 2 - h / 2), text=self._error_text, fill="white")
+            draw.text(
+                (width / 2 - w / 2, height / 2 - h / 2),
+                text=self._error_text,
+                fill="white",
+            )
         else:
             if self._image is not None:
                 self._seek_next_frame_in_image()

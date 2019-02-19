@@ -10,7 +10,7 @@ from components.widgets.sys_info import (
     clock,
     hud,
     wifi,
-    network
+    network,
 )
 from components.widgets.main import template as main_menu
 from components.widgets.projects import template as projects_menu
@@ -18,17 +18,10 @@ from ptcommon.logger import PTLogger
 
 from luma.core.virtual import viewport
 from enum import Enum
-from os import (
-    path,
-    listdir,
-    kill
-)
+from os import path, listdir, kill
 from pathlib import Path
 import signal
-from subprocess import (
-    check_output,
-    Popen
-)
+from subprocess import check_output, Popen
 
 _app = None
 
@@ -41,6 +34,7 @@ def set_app(top_level_app_obj):
 def change_menu(menu_id):
     def run():
         _app.change_menu(menu_id)
+
     return run
 
 
@@ -51,14 +45,18 @@ def start_stop_project(path_to_project):
 
         PTLogger.debug("Checking if process is already running...")
 
-        cmd = "pgrep -f \"" + path_to_project + "\" || true"
-        output = check_output(cmd, shell=True).decode('ascii', 'ignore')
-        pids = list(filter(None, output.split('\n')))
+        cmd = 'pgrep -f "' + path_to_project + '" || true'
+        output = check_output(cmd, shell=True).decode("ascii", "ignore")
+        pids = list(filter(None, output.split("\n")))
 
         try:
             if len(pids) > 1:
-                PTLogger.info("Project already running: " + str(path_to_project) + ". Attempting to stop...")
-                
+                PTLogger.info(
+                    "Project already running: "
+                    + str(path_to_project)
+                    + ". Attempting to stop..."
+                )
+
                 if path.exists(stop_script):
                     Popen([stop_script])
                 else:
@@ -71,7 +69,9 @@ def start_stop_project(path_to_project):
                 PTLogger.info("Starting project: " + str(path_to_project))
 
                 if path.exists(start_script):
-                    PTLogger.debug("Code file found at " + start_script + ". Running...")
+                    PTLogger.debug(
+                        "Code file found at " + start_script + ". Running..."
+                    )
                     Popen([start_script])
                 else:
                     PTLogger.info("No code file found at " + start_script)
@@ -84,12 +84,8 @@ def start_stop_project(path_to_project):
 
 def get_hotspot(widget, interval=0.0, **extra_data):
     data = {
-        **{
-            "width": device.width,
-            "height": device.height,
-            "interval": interval
-        },
-        **extra_data
+        **{"width": device.width, "height": device.height, "interval": interval},
+        **extra_data,
     }
     return widget.Hotspot(**data)
 
@@ -108,74 +104,70 @@ class Pages:
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         UPTIME = MenuPage(
             name="uptime",
             hotspot=get_hotspot(uptime, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         MEMORY = MenuPage(
             name="memory",
             hotspot=get_hotspot(memory, interval=2.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         DISK = MenuPage(
             name="disk",
             hotspot=get_hotspot(disk, interval=2.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         CPU = MenuPage(
             name="cpu",
             hotspot=get_hotspot(cpu_load, interval=0.5),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         CLOCK = MenuPage(
             name="clock",
             hotspot=get_hotspot(clock, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         HUD = MenuPage(
             name="hud",
             hotspot=get_hotspot(hud, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         WIFI = MenuPage(
             name="wifi",
             hotspot=get_hotspot(wifi, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
         NETWORK = MenuPage(
             name="network",
-            hotspot=get_hotspot(network, interval=1.0,
-                                interface="wlan0"
-                                ),
+            hotspot=get_hotspot(network, interval=1.0, interface="wlan0"),
             select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
 
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(main_menu,
-                                title="Other Projects"),
+            hotspot=get_hotspot(main_menu, title="Other Projects"),
             select_action_func=change_menu(Menus.PROJECTS),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
 
         SETTINGS_SELECT = MenuPage(
             name="Settings",
-            hotspot=get_hotspot(main_menu,
-                                title="Settings"),
+            hotspot=get_hotspot(main_menu, title="Settings"),
             select_action_func=None,  # change_menu(Menus.SETTINGS)
-            cancel_action_func=None
+            cancel_action_func=None,
         )
 
         # WIFI_SETUP_SELECT = MenuPage(
@@ -197,43 +189,51 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(main_menu,
-                                title="VNC Connection"),
+            hotspot=get_hotspot(main_menu, title="VNC Connection"),
             select_action_func=None,  # change_menu(Menus.VNC),
-            cancel_action_func=None
+            cancel_action_func=None,
         )
 
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = "/home/pi/Desktop/Hero-Projects" if is_pi() else path.expanduser(
-                '~/Desktop/Hero-Projects')
+            project_dir = (
+                "/home/pi/Desktop/Hero-Projects"
+                if is_pi()
+                else path.expanduser("~/Desktop/Hero-Projects")
+            )
             project_pages = list()
             if path.exists(project_dir):
                 # For each directory in project path
-                project_subdirs = [name for name in sorted(listdir(project_dir))
-                                   if path.isdir(path.join(project_dir, name))]
+                project_subdirs = [
+                    name
+                    for name in sorted(listdir(project_dir))
+                    if path.isdir(path.join(project_dir, name))
+                ]
                 for project_subdir in project_subdirs:
                     # Get name from path
                     title = project_subdir
                     project_path = project_dir + "/" + project_subdir
 
-                    project_page = MenuPage(title, get_hotspot(projects_menu,
-                                                               title=title,
-                                                               project_path=project_path
-                                                               ),
-                                            start_stop_project(project_path), None)
+                    project_page = MenuPage(
+                        title,
+                        get_hotspot(
+                            projects_menu, title=title, project_path=project_path
+                        ),
+                        start_stop_project(project_path),
+                        None,
+                    )
                     project_pages.append(project_page)
             else:
                 title = "No Projects Found"
 
-                project_page = MenuPage(title, get_hotspot(main_menu,
-                                                           title=title,
-                                                           image_path=None
-                                                           ),
-                                        None, None)
+                project_page = MenuPage(
+                    title,
+                    get_hotspot(main_menu, title=title, image_path=None),
+                    None,
+                    None,
+                )
                 project_pages.append(project_page)
-                project_pages.append(project_page) # For some reason there can't be only one page
             return project_pages
 
 
@@ -252,8 +252,10 @@ def get_menu_enum_class_from_name(menu_name):
 def get_pages(menu_name):
     pages_enum = get_menu_enum_class_from_name(menu_name)
 
-    if hasattr(pages_enum, '__members__'):
-        return [page_name.value for page_id, page_name in pages_enum.__members__.items()]
+    if hasattr(pages_enum, "__members__"):
+        return [
+            page_name.value for page_id, page_name in pages_enum.__members__.items()
+        ]
     else:
         return pages_enum.generate_pages()
 
@@ -271,14 +273,6 @@ def get_enum_key_from_value(menu_name, value):
             return pages_enum[page_id].value
     _app.stop()
     raise Exception("Unable to find enum key matching value: " + value)
-
-
-def add_infinite_scroll_edge_pages(pages):
-    first_page = pages[0]
-    last_page = pages[-1]
-    pages.append(first_page)
-    pages.insert(0, last_page)
-    return pages
 
 
 def create_viewport(device, pages):
@@ -303,11 +297,13 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages_from_config():
-    cfg_path = "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
+    cfg_path = (
+        "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
+    )
     cfg_file = cfg_path + "/prefs.cfg"
     page_name_arr = list()
     try:
-        with open(cfg_file, 'r') as f:
+        with open(cfg_file, "r") as f:
             page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
             # Do something if this ends up empty - show a "none selected" screen?
     except FileExistsError:
@@ -318,13 +314,13 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ['hud', 'wifi', 'network', 'cpu', 'disk']
+        page_name_arr = ["wifi", "network", "cpu", "disk"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
     # Write corrected list back to file
     Path(cfg_path).mkdir(parents=True, exist_ok=True)
-    with open(cfg_file, 'w') as f:
+    with open(cfg_file, "w") as f:
         for page_name in page_name_arr:
             f.write("%s\n" % page_name)
 

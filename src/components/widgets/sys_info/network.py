@@ -5,11 +5,7 @@
 
 from ptcommon.formatting import bytes2human
 import psutil
-from components.widgets.common_functions import (
-    right_text,
-    title_text,
-    tiny_font
-)
+from components.widgets.common_functions import right_text, title_text, tiny_font
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 

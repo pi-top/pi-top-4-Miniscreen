@@ -13,9 +13,13 @@ class ButtonPress:
         self.event_type = event_type
 
     def is_direction(self):
-        return self.event_type == self.ButtonType.DOWN or \
-               self.event_type == self.ButtonType.UP
+        return (
+            self.event_type == self.ButtonType.DOWN
+            or self.event_type == self.ButtonType.UP
+        )
 
     def is_action(self):
-        return self.event_type == self.ButtonType.SELECT or \
-               self.event_type == self.ButtonType.CANCEL
+        return (
+            self.event_type == self.ButtonType.SELECT
+            or self.event_type == self.ButtonType.CANCEL
+        )
