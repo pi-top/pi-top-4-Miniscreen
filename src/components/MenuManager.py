@@ -8,7 +8,7 @@ from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.System import (
     device,
-    got_pi_control,  # Do something with this if it is false
+    got_pi_control,
 )
 
 from components.helpers.RequestClient import RequestClient
