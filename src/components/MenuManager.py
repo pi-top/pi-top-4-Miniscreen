@@ -55,7 +55,7 @@ class MenuManager:
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def add_button_press_to_stack(self, button_press_event):
-        if button_press_event != ButtonPress.ButtonType.NONE:
+        if button_press_event.event_type != ButtonPress.ButtonType.NONE:
             PTLogger.info("Adding " + str(button_press_event.event_type) + " to stack")
             self.button_press_stack.append(button_press_event)
 
