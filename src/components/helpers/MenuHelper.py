@@ -18,7 +18,7 @@ from ptcommon.logger import PTLogger
 
 from luma.core.virtual import viewport
 from enum import Enum
-from os import path, listdir, kill
+from os import path, listdir, kill, system
 from pathlib import Path
 import signal
 from subprocess import check_output, Popen
@@ -36,6 +36,16 @@ def change_menu(menu_id):
         _app.change_menu(menu_id)
 
     return run
+
+
+def enable_ssh():
+    system("sudo systemctl enable ssh")
+    system("sudo systemctl start ssh")
+
+
+def disable_ssh():
+    system("sudo systemctl disable ssh")
+    system("sudo systemctl stop ssh")
 
 
 def start_stop_project(path_to_project):
@@ -192,6 +202,12 @@ class Pages:
             hotspot=get_hotspot(main_menu, title="VNC Connection"),
             select_action_func=None,  # change_menu(Menus.VNC),
             cancel_action_func=None,
+        )
+        SSH_CONNECTION = MenuPage(
+            name="SSH Connection",
+            hotspot=get_hotspot(main_menu, title="SSH Connection"),
+            select_action_func=enable_ssh,
+            cancel_action_func=disable_ssh, # TODO combine disable and enable into 1 function and put this back to None to have a way out of the page
         )
 
     class ProjectSelectMenu:
