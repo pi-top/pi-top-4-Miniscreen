@@ -166,7 +166,7 @@ class Pages:
         SETTINGS_SELECT = MenuPage(
             name="Settings",
             hotspot=get_hotspot(main_menu, title="Settings"),
-            select_action_func=None,  # change_menu(Menus.SETTINGS)
+            select_action_func=change_menu(Menus.SETTINGS),
             cancel_action_func=None,
         )
 
@@ -244,6 +244,8 @@ def get_menu_enum_class_from_name(menu_name):
         return Pages.MainMenu
     elif menu_name == Menus.PROJECTS:
         return Pages.ProjectSelectMenu
+    elif menu_name == Menus.SETTINGS:
+        return Pages.SettingsMenu
     else:
         _app.stop()
         raise Exception("Unrecognised menu name: " + menu_name.name)

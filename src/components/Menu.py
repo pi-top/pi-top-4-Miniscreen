@@ -27,6 +27,9 @@ class Menu:
         elif name == MenuHelper.Menus.PROJECTS:
             self.parent = MenuHelper.Menus.MAIN_MENU
             pages = MenuHelper.get_pages(MenuHelper.Menus.PROJECTS)
+        elif name == MenuHelper.Menus.SETTINGS:
+            self.parent = MenuHelper.Menus.SETTINGS
+            pages = MenuHelper.get_pages(MenuHelper.Menus.SETTINGS)
         else:
             raise Exception("Unrecognised menu name")
 

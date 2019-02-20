@@ -34,6 +34,7 @@ class MenuManager:
         self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
         self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
         self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
+        self.add_menu_to_list(MenuHelper.Menus.SETTINGS)
 
         self.change_menu(MenuHelper.Menus.SYS_INFO)
 
