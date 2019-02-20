@@ -1,6 +1,5 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
-from components.widgets.common import image
 from components.widgets.sys_info import (
     batt_level,
     uptime,
@@ -13,8 +12,14 @@ from components.widgets.sys_info import (
     network,
 )
 from components.widgets.main import template as main_menu
+from components.widgets.settings import template as settings_menu
 from components.widgets.projects import template as projects_menu
 from ptcommon.logger import PTLogger
+from ptcommon.sys_info import (
+    get_ssh_enabled_state,
+    get_vnc_enabled_state,
+    get_systemd_enabled_state,
+)
 
 from luma.core.virtual import viewport
 from enum import Enum
@@ -38,14 +43,29 @@ def change_menu(menu_id):
     return run
 
 
-def enable_ssh():
-    system("sudo systemctl enable ssh")
-    system("sudo systemctl start ssh")
+def enabled_systemd_service(service_to_enable):
+    system("sudo systemctl enable " + service_to_enable)
+    system("sudo systemctl start " + service_to_enable)
+
+def disable_systemd_service(service_to_disable):
+    system("sudo systemctl disable " + service_to_disable)
+    system("sudo systemctl stop " + service_to_disable)
 
 
-def disable_ssh():
-    system("sudo systemctl disable ssh")
-    system("sudo systemctl stop ssh")
+def change_service_enabled_state(service):
+    state = get_systemd_enabled_state(service)
+
+    if state == "Enabled":
+        disable_systemd_service(service)
+    elif state == "Disabled":
+        enabled_systemd_service(service)
+
+def change_vnc_enabled_state():
+    change_service_enabled_state("vncserver-x11-serviced.service")
+
+
+def change_ssh_enabled_state():
+    change_service_enabled_state("ssh")
 
 
 def start_stop_project(path_to_project):
@@ -199,15 +219,15 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(main_menu, title="VNC Connection"),
-            select_action_func=None,  # change_menu(Menus.VNC),
+            hotspot=get_hotspot(settings_menu, title="VNC Connection", interval=1.0, method=get_vnc_enabled_state),
+            select_action_func=change_vnc_enabled_state,
             cancel_action_func=None,
         )
         SSH_CONNECTION = MenuPage(
             name="SSH Connection",
-            hotspot=get_hotspot(main_menu, title="SSH Connection"),
-            select_action_func=enable_ssh,
-            cancel_action_func=disable_ssh, # TODO combine disable and enable into 1 function and put this back to None to have a way out of the page
+            hotspot=get_hotspot(settings_menu, title="SSH Connection", interval=1.0, method=get_ssh_enabled_state),
+            select_action_func=change_ssh_enabled_state,
+            cancel_action_func=None,
         )
 
     class ProjectSelectMenu:

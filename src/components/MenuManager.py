@@ -50,6 +50,7 @@ class MenuManager:
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:
             self.current_menu = self.menus[menu_to_go_to]
+            self.current_menu.viewport.refresh()
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
