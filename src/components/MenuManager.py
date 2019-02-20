@@ -50,6 +50,8 @@ class MenuManager:
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:
             self.current_menu = self.menus[menu_to_go_to]
+            # if menu_to_go_to == MenuHelper.Menus.PROJECTS:
+            #     self.current_menu.pages = MenuHelper.get_menu_enum_class_from_name(MenuHelper.Menus.PROJECTS).generate_pages()
             self.current_menu.viewport.refresh()
         else:
             self.stop()
