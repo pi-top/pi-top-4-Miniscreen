@@ -14,6 +14,7 @@ from components.widgets.sys_info import (
 from components.widgets.main import template as main_menu
 from components.widgets.settings import template as settings_menu
 from components.widgets.projects import template as projects_menu
+from components.widgets.error import template as error_menu
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
     get_ssh_enabled_state,
@@ -43,12 +44,12 @@ def change_menu(menu_id):
     return run
 
 
-def enabled_systemd_service(service_to_enable):
+def enable_and_start_systemd_service(service_to_enable):
     system("sudo systemctl enable " + service_to_enable)
     system("sudo systemctl start " + service_to_enable)
 
 
-def disable_systemd_service(service_to_disable):
+def disable_and_stop_systemd_service(service_to_disable):
     system("sudo systemctl disable " + service_to_disable)
     system("sudo systemctl stop " + service_to_disable)
 
@@ -57,9 +58,9 @@ def change_service_enabled_state(service):
     state = get_systemd_enabled_state(service)
 
     if state == "Enabled":
-        disable_systemd_service(service)
+        disable_and_stop_systemd_service(service)
     elif state == "Disabled":
-        enabled_systemd_service(service)
+        enable_and_start_systemd_service(service)
 
 
 def change_vnc_enabled_state():
@@ -283,11 +284,12 @@ class Pages:
                     )
                     project_pages.append(project_page)
             else:
-                title = "Project Directory\n    Not Found"
+                title = "Project Directory"
+                second_line = "Not Found"
 
                 project_page = MenuPage(
                     title,
-                    get_hotspot(main_menu, title=title, image_path=None),
+                    get_hotspot(error_menu, title=title, second_line=second_line, image_path=None),
                     None,
                     None,
                 )

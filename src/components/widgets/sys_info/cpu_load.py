@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
@@ -23,7 +22,7 @@ class Hotspot(BaseHotspot):
 
         top_margin = 3
         bottom_margin = 3
-        title_text(draw, top_margin, width, "CPU Load")
+        title_text(draw, top_margin, width, "CPU sdsdLoad")
 
         bar_height = height - 15 - top_margin - bottom_margin
         width_cpu = width / len(percentages)

@@ -6,7 +6,6 @@ if not is_pi():
 
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
-from components.System import device, got_pi_control
 
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
@@ -42,7 +41,7 @@ class MenuManager:
         self._request_client._continue = False
 
     def add_menu_to_list(self, menu_id):
-        self.menus[menu_id] = Menu(device, menu_id)
+        self.menus[menu_id] = Menu(menu_id)
 
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:

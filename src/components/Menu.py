@@ -11,7 +11,7 @@ pool = threadpool(4)
 class Menu:
     """A scrollable viewport of many menu widgets"""
 
-    def __init__(self, device, name):
+    def __init__(self, name):
         """Constructor for Menu"""
         self.pages = list()
         self.name = name
@@ -90,7 +90,7 @@ class Menu:
     def redraw_if_necessary(self):
         if self.should_redraw():
             im = self.viewport._backing_image.crop(box=self.viewport._crop_box())
-            self.viewport._device.display(im)
+            device.display(im)
             del im
 
     def get_viewport_height(self):

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sys
 import zmq
 from ptcommon.ptdm_message import Message
