@@ -18,7 +18,6 @@ class Menu:
         self.parent = None
         self.page_index = 0
         self.last_displayed_image = None
-        self.device = device
 
         if name == MenuHelper.Menus.SYS_INFO:
             pages = MenuHelper.get_sys_info_pages_from_config()
@@ -38,7 +37,7 @@ class Menu:
 
     def set_up_viewport(self, pages):
         self.pages = pages
-        self.viewport = MenuHelper.create_viewport(self.device, self.pages)
+        self.viewport = MenuHelper.create_viewport(device, self.pages)
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
