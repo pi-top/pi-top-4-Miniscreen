@@ -33,9 +33,9 @@ class Menu:
         else:
             raise Exception("Unrecognised menu name")
 
-        set_up_viewport(pages)
+        self.set_up_viewport(pages)
 
-    def set_up_viewport(pages):
+    def set_up_viewport(self, pages):
         self.pages = pages
         self.viewport = MenuHelper.create_viewport(device, self.pages)
 
