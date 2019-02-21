@@ -47,6 +47,7 @@ def enabled_systemd_service(service_to_enable):
     system("sudo systemctl enable " + service_to_enable)
     system("sudo systemctl start " + service_to_enable)
 
+
 def disable_systemd_service(service_to_disable):
     system("sudo systemctl disable " + service_to_disable)
     system("sudo systemctl stop " + service_to_disable)
@@ -59,6 +60,7 @@ def change_service_enabled_state(service):
         disable_systemd_service(service)
     elif state == "Disabled":
         enabled_systemd_service(service)
+
 
 def change_vnc_enabled_state():
     change_service_enabled_state("vncserver-x11-serviced.service")
@@ -219,13 +221,23 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(settings_menu, title="VNC Connection", interval=1.0, method=get_vnc_enabled_state),
+            hotspot=get_hotspot(
+                settings_menu,
+                title="VNC Connection",
+                interval=1.0,
+                method=get_vnc_enabled_state,
+            ),
             select_action_func=change_vnc_enabled_state,
             cancel_action_func=None,
         )
         SSH_CONNECTION = MenuPage(
             name="SSH Connection",
-            hotspot=get_hotspot(settings_menu, title="SSH Connection", interval=1.0, method=get_ssh_enabled_state),
+            hotspot=get_hotspot(
+                settings_menu,
+                title="SSH Connection",
+                interval=1.0,
+                method=get_ssh_enabled_state,
+            ),
             select_action_func=change_ssh_enabled_state,
             cancel_action_func=None,
         )

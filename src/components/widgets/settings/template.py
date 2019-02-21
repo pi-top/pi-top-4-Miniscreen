@@ -16,8 +16,5 @@ class Hotspot(BaseHotspot):
         margin = 3
         title_text(draw, margin, width, text=self.title)
         draw.text(
-            (width/3, 30),
-            text=str(self.method()),
-            font=tiny_font,
-            fill="white",
+            (width / 3, 30), text=str(self.method()), font=tiny_font, fill="white"
         )

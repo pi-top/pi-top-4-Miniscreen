@@ -6,10 +6,7 @@ if not is_pi():
 
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
-from components.System import (
-    device,
-    got_pi_control,
-)
+from components.System import device, got_pi_control
 
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
@@ -79,9 +76,15 @@ class MenuManager:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
                     on_first_page = self.current_menu.page_index == 0
-                    new_page = self.current_menu.last_page_no() if on_first_page else self.current_menu.page_index - 1
+                    new_page = (
+                        self.current_menu.last_page_no()
+                        if on_first_page
+                        else self.current_menu.page_index - 1
+                    )
                 else:
-                    on_last_page = self.current_menu.page_index == self.current_menu.last_page_no()
+                    on_last_page = (
+                        self.current_menu.page_index == self.current_menu.last_page_no()
+                    )
                     new_page = 0 if on_last_page else self.current_menu.page_index + 1
                 self.current_menu.move_instantly_to_page(new_page)
 
