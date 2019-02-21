@@ -272,8 +272,18 @@ class Pages:
                         None,
                     )
                     project_pages.append(project_page)
+                if not project_pages:
+                    title = "No Projects Found"
+
+                    project_page = MenuPage(
+                        title,
+                        get_hotspot(main_menu, title=title, image_path=None),
+                        None,
+                        None,
+                    )
+                    project_pages.append(project_page)
             else:
-                title = "No Projects Found"
+                title = "Project Directory\n    Not Found"
 
                 project_page = MenuPage(
                     title,
