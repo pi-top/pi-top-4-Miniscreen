@@ -11,10 +11,10 @@ from components.widgets.sys_info import (
     wifi,
     network,
 )
-from components.widgets.main import template as main_menu
-from components.widgets.settings import template as settings_menu
-from components.widgets.projects import template as projects_menu
-from components.widgets.error import template as error_menu
+from components.widgets.main import template as main_menu_page
+from components.widgets.settings import template as settings_menu_page
+from components.widgets.projects import template as projects_menu_page
+from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
     get_ssh_enabled_state,
@@ -191,14 +191,14 @@ class Pages:
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(main_menu, title="Other Projects"),
+            hotspot=get_hotspot(main_menu_page, title="Other Projects"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None,
         )
 
         SETTINGS_SELECT = MenuPage(
             name="Settings",
-            hotspot=get_hotspot(main_menu, title="Settings"),
+            hotspot=get_hotspot(main_menu_page, title="Settings"),
             select_action_func=change_menu(Menus.SETTINGS),
             cancel_action_func=None,
         )
@@ -223,7 +223,7 @@ class Pages:
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
             hotspot=get_hotspot(
-                settings_menu,
+                settings_menu_page,
                 title="VNC Connection",
                 interval=1.0,
                 method=get_vnc_enabled_state,
@@ -234,7 +234,7 @@ class Pages:
         SSH_CONNECTION = MenuPage(
             name="SSH Connection",
             hotspot=get_hotspot(
-                settings_menu,
+                settings_menu_page,
                 title="SSH Connection",
                 interval=1.0,
                 method=get_ssh_enabled_state,
@@ -267,7 +267,7 @@ class Pages:
                     project_page = MenuPage(
                         title,
                         get_hotspot(
-                            projects_menu, title=title, project_path=project_path
+                            projects_menu_page, title=title, project_path=project_path
                         ),
                         start_stop_project(project_path),
                         None,
@@ -278,7 +278,7 @@ class Pages:
 
                     project_page = MenuPage(
                         title,
-                        get_hotspot(main_menu, title=title, image_path=None),
+                        get_hotspot(main_menu_page, title=title, image_path=None),
                         None,
                         None,
                     )
@@ -289,7 +289,7 @@ class Pages:
 
                 project_page = MenuPage(
                     title,
-                    get_hotspot(error_menu, title=title, second_line=second_line, image_path=None),
+                    get_hotspot(error_page, title=title, second_line=second_line, image_path=None),
                     None,
                     None,
                 )
