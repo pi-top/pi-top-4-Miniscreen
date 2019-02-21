@@ -53,7 +53,7 @@ class MenuManager:
                         MenuHelper.Menus.PROJECTS
                     ).generate_pages()
                 )
-                self.current_menu.viewport.refresh()
+            self.current_menu.viewport.refresh()
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))

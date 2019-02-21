@@ -228,7 +228,7 @@ class Pages:
                 method=get_vnc_enabled_state,
             ),
             select_action_func=change_vnc_enabled_state,
-            cancel_action_func=None,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
         SSH_CONNECTION = MenuPage(
             name="SSH Connection",
@@ -239,7 +239,7 @@ class Pages:
                 method=get_ssh_enabled_state,
             ),
             select_action_func=change_ssh_enabled_state,
-            cancel_action_func=None,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
 
     class ProjectSelectMenu:
