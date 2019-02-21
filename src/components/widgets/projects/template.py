@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-18 Richard Hull and contributors
-# See LICENSE.rst for details.
-
 from PIL import Image
 from os.path import isfile
 from components.widgets.common_functions import title_text

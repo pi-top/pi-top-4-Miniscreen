@@ -11,7 +11,7 @@ pool = threadpool(4)
 class Menu:
     """A scrollable viewport of many menu widgets"""
 
-    def __init__(self, device, name):
+    def __init__(self, name):
         """Constructor for Menu"""
         self.pages = list()
         self.name = name
@@ -27,9 +27,15 @@ class Menu:
         elif name == MenuHelper.Menus.PROJECTS:
             self.parent = MenuHelper.Menus.MAIN_MENU
             pages = MenuHelper.get_pages(MenuHelper.Menus.PROJECTS)
+        elif name == MenuHelper.Menus.SETTINGS:
+            self.parent = MenuHelper.Menus.SETTINGS
+            pages = MenuHelper.get_pages(MenuHelper.Menus.SETTINGS)
         else:
             raise Exception("Unrecognised menu name")
 
+        self.set_up_viewport(pages)
+
+    def set_up_viewport(self, pages):
         self.pages = pages
         self.viewport = MenuHelper.create_viewport(device, self.pages)
 
@@ -52,7 +58,9 @@ class Menu:
     def should_redraw(self):
         should_wait = False
         for hotspot, xy in self.viewport._hotspots:
-            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
+            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(
+                hotspot, xy
+            ):
                 pool.add_task(hotspot.paste_into, self.viewport._backing_image, xy)
                 should_wait = True
 
@@ -72,7 +80,9 @@ class Menu:
             last_displayed_image_pixels = list(self.last_displayed_image.getdata())
 
             image_has_updated = image_to_display_pixels != last_displayed_image_pixels
-            self.last_displayed_image = image_to_display if image_has_updated else self.last_displayed_image
+            self.last_displayed_image = (
+                image_to_display if image_has_updated else self.last_displayed_image
+            )
             should_redraw = image_has_updated
 
         return should_redraw
@@ -80,7 +90,7 @@ class Menu:
     def redraw_if_necessary(self):
         if self.should_redraw():
             im = self.viewport._backing_image.crop(box=self.viewport._crop_box())
-            self.viewport._device.display(im)
+            device.display(im)
             del im
 
     def get_viewport_height(self):

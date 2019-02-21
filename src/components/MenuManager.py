@@ -6,10 +6,6 @@ if not is_pi():
 
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
-from components.System import (
-    device,
-    got_pi_control,
-)
 
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
@@ -34,6 +30,7 @@ class MenuManager:
         self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
         self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
         self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
+        self.add_menu_to_list(MenuHelper.Menus.SETTINGS)
 
         self.change_menu(MenuHelper.Menus.SYS_INFO)
 
@@ -44,17 +41,24 @@ class MenuManager:
         self._request_client._continue = False
 
     def add_menu_to_list(self, menu_id):
-        self.menus[menu_id] = Menu(device, menu_id)
+        self.menus[menu_id] = Menu(menu_id)
 
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.menus:
             self.current_menu = self.menus[menu_to_go_to]
+            if menu_to_go_to == MenuHelper.Menus.PROJECTS:
+                self.current_menu.set_up_viewport(
+                    MenuHelper.get_menu_enum_class_from_name(
+                        MenuHelper.Menus.PROJECTS
+                    ).generate_pages()
+                )
+            self.current_menu.viewport.refresh()
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def add_button_press_to_stack(self, button_press_event):
-        if button_press_event != ButtonPress.ButtonType.NONE:
+        if button_press_event.event_type != ButtonPress.ButtonType.NONE:
             PTLogger.info("Adding " + str(button_press_event.event_type) + " to stack")
             self.button_press_stack.append(button_press_event)
 
@@ -71,9 +75,15 @@ class MenuManager:
             if button_press.is_direction():
                 if button_press.event_type == ButtonPress.ButtonType.DOWN:
                     on_first_page = self.current_menu.page_index == 0
-                    new_page = self.current_menu.last_page_no() if on_first_page else self.current_menu.page_index - 1
+                    new_page = (
+                        self.current_menu.last_page_no()
+                        if on_first_page
+                        else self.current_menu.page_index - 1
+                    )
                 else:
-                    on_last_page = self.current_menu.page_index == self.current_menu.last_page_no()
+                    on_last_page = (
+                        self.current_menu.page_index == self.current_menu.last_page_no()
+                    )
                     new_page = 0 if on_last_page else self.current_menu.page_index + 1
                 self.current_menu.move_instantly_to_page(new_page)
 

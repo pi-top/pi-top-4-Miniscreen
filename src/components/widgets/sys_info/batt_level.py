@@ -1,27 +1,40 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-import subprocess
+from ptcommon.sys_info import get_battery
+from os import path
+from PIL import Image, ImageFont
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-
-
-def get_battery():
-    try:
-        battery_level = str(
-            subprocess.check_output(["pt-battery", "-c"]).decode("utf-8")
-        ).strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        battery_level = "TEST"
-
-    return str(battery_level + "%")
 
 
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
+        super(Hotspot, self).__init__(width, height, interval, self.render)
 
-    @staticmethod
-    def render(draw, width, height):
-        draw.text((width / 10, height / 10), text=get_battery(), fill="white")
+        self.font = ImageFont.truetype(
+            path.abspath(
+                path.join(
+                    path.dirname(__file__),
+                    "..",
+                    "..",
+                    "..",
+                    "fonts",
+                    "C&C Red Alert [INET].ttf",
+                )
+            ),
+            size=12,
+        )
+
+    # TODO: Fix images loading correctly
+    def render(self, draw, width, height):
+        draw.text(
+            xy=(0 * width / 4, 0 * height / 4),
+            text=get_battery(),
+            font=self.font,
+            fill="white",
+        )
+        img_path = path.abspath(
+            path.join(path.dirname(__file__), "assets", "battery.png")
+        )
+        img_bitmap = Image.open(img_path).convert("RGBA")
+        draw.bitmap(xy=(1 * width / 2, 0 * height / 2), bitmap=img_bitmap, fill="white")

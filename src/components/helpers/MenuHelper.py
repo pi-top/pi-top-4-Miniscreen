@@ -1,6 +1,5 @@
 from components.System import device, is_pi
 from components.Page import MenuPage
-from components.widgets.common import image
 from components.widgets.sys_info import (
     batt_level,
     uptime,
@@ -12,13 +11,20 @@ from components.widgets.sys_info import (
     wifi,
     network,
 )
-from components.widgets.main import template as main_menu
-from components.widgets.projects import template as projects_menu
+from components.widgets.main import template as main_menu_page
+from components.widgets.settings import template as settings_menu_page
+from components.widgets.projects import template as projects_menu_page
+from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
+from ptcommon.sys_info import (
+    get_ssh_enabled_state,
+    get_vnc_enabled_state,
+    get_systemd_enabled_state,
+)
 
 from luma.core.virtual import viewport
 from enum import Enum
-from os import path, listdir, kill
+from os import path, listdir, kill, system
 from pathlib import Path
 import signal
 from subprocess import check_output, Popen
@@ -36,6 +42,33 @@ def change_menu(menu_id):
         _app.change_menu(menu_id)
 
     return run
+
+
+def enable_and_start_systemd_service(service_to_enable):
+    system("sudo systemctl enable " + service_to_enable)
+    system("sudo systemctl start " + service_to_enable)
+
+
+def disable_and_stop_systemd_service(service_to_disable):
+    system("sudo systemctl disable " + service_to_disable)
+    system("sudo systemctl stop " + service_to_disable)
+
+
+def change_service_enabled_state(service):
+    state = get_systemd_enabled_state(service)
+
+    if state == "Enabled":
+        disable_and_stop_systemd_service(service)
+    elif state == "Disabled":
+        enable_and_start_systemd_service(service)
+
+
+def change_vnc_enabled_state():
+    change_service_enabled_state("vncserver-x11-serviced.service")
+
+
+def change_ssh_enabled_state():
+    change_service_enabled_state("ssh")
 
 
 def start_stop_project(path_to_project):
@@ -158,15 +191,15 @@ class Pages:
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
             name="Project Select",
-            hotspot=get_hotspot(main_menu, title="Other Projects"),
+            hotspot=get_hotspot(main_menu_page, title="Other Projects"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None,
         )
 
         SETTINGS_SELECT = MenuPage(
             name="Settings",
-            hotspot=get_hotspot(main_menu, title="Settings"),
-            select_action_func=None,  # change_menu(Menus.SETTINGS)
+            hotspot=get_hotspot(main_menu_page, title="Settings"),
+            select_action_func=change_menu(Menus.SETTINGS),
             cancel_action_func=None,
         )
 
@@ -189,9 +222,25 @@ class Pages:
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
             name="VNC Connection",
-            hotspot=get_hotspot(main_menu, title="VNC Connection"),
-            select_action_func=None,  # change_menu(Menus.VNC),
-            cancel_action_func=None,
+            hotspot=get_hotspot(
+                settings_menu_page,
+                title="VNC Connection",
+                interval=1.0,
+                method=get_vnc_enabled_state,
+            ),
+            select_action_func=change_vnc_enabled_state,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
+        )
+        SSH_CONNECTION = MenuPage(
+            name="SSH Connection",
+            hotspot=get_hotspot(
+                settings_menu_page,
+                title="SSH Connection",
+                interval=1.0,
+                method=get_ssh_enabled_state,
+            ),
+            select_action_func=change_ssh_enabled_state,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
 
     class ProjectSelectMenu:
@@ -218,18 +267,29 @@ class Pages:
                     project_page = MenuPage(
                         title,
                         get_hotspot(
-                            projects_menu, title=title, project_path=project_path
+                            projects_menu_page, title=title, project_path=project_path
                         ),
                         start_stop_project(project_path),
                         None,
                     )
                     project_pages.append(project_page)
+                if not project_pages:
+                    title = "No Projects Found"
+
+                    project_page = MenuPage(
+                        title,
+                        get_hotspot(main_menu_page, title=title, image_path=None),
+                        None,
+                        None,
+                    )
+                    project_pages.append(project_page)
             else:
-                title = "No Projects Found"
+                title = "Project Directory"
+                second_line = "Not Found"
 
                 project_page = MenuPage(
                     title,
-                    get_hotspot(main_menu, title=title, image_path=None),
+                    get_hotspot(error_page, title=title, second_line=second_line, image_path=None),
                     None,
                     None,
                 )
@@ -244,6 +304,8 @@ def get_menu_enum_class_from_name(menu_name):
         return Pages.MainMenu
     elif menu_name == Menus.PROJECTS:
         return Pages.ProjectSelectMenu
+    elif menu_name == Menus.SETTINGS:
+        return Pages.SettingsMenu
     else:
         _app.stop()
         raise Exception("Unrecognised menu name: " + menu_name.name)
