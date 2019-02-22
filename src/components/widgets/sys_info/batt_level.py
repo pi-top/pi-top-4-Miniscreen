@@ -26,13 +26,13 @@ class Hotspot(BaseHotspot):
         )
     def render(self, draw, width, height):
         draw.text(
-            xy=(0 * width / 4, 0 * height / 4),
-            text=get_battery(),
+            xy=(5, height/5),
+            text="Capacity: " + get_battery(),
             font=self.font,
             fill="white",
         )
         draw.text(
-            xy=(0 * width / 2, 0 * height / 2),
+            xy=(5, height / 2),
             text=get_battery_charging_state(),
             font=self.font,
             fill="white",
