@@ -21,7 +21,7 @@ class Hotspot(BaseHotspot):
 
         top_margin = 3
         bottom_margin = 3
-        title_text(draw, top_margin, width, "CPU sdsdLoad")
+        title_text(draw, top_margin, width, "CPU Load")
 
         bar_height = height - 15 - top_margin - bottom_margin
         width_cpu = width / len(percentages)
