@@ -24,9 +24,10 @@ class Hotspot(BaseHotspot):
             ),
             size=12,
         )
+
     def render(self, draw, width, height):
         draw.text(
-            xy=(5, height/5),
+            xy=(5, height / 5),
             text="Capacity: " + get_battery_capacity(),
             font=self.font,
             fill="white",
