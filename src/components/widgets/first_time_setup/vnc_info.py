@@ -1,6 +1,7 @@
 from ptcommon.sys_info import get_internal_ip
 from components.widgets.common_functions import right_text, title_text, tiny_font
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from getpass import getuser
 
 
 class Hotspot(BaseHotspot):
@@ -19,7 +20,7 @@ class Hotspot(BaseHotspot):
         )
         draw.text(
             (margin, 35),
-            text=str("Username: pi"),
+            text=str("Username: " + getuser()),
             font=tiny_font,
             fill="white",
         )

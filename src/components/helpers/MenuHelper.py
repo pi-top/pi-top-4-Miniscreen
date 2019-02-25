@@ -322,7 +322,7 @@ class Pages:
                 vnc_info_page,
                 interval=1.0,
             ),
-            select_action_func=change_menu(Menus.SYS_INFO),
+            select_action_func=None,
             cancel_action_func=None,
         )
 
@@ -424,3 +424,18 @@ def get_sys_info_pages_from_config():
         page_id_arr.append(page_id)
 
     return page_id_arr
+
+
+def is_first_time_setup():# TODO this system is flawed because all the user has to do is restart and they bypass it
+    return_value = False
+    fts_path = (
+        "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
+    )
+    fts_file = fts_path + "/first_time_setup_breadcrumb"
+
+    if not path.isfile(fts_file):
+        return_value = True
+        Path(fts_path).mkdir(parents=True, exist_ok=True)
+        open(fts_file, 'a').close()
+
+    return return_value

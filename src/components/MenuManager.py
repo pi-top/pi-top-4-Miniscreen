@@ -32,11 +32,11 @@ class MenuManager:
         self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
         self.add_menu_to_list(MenuHelper.Menus.SETTINGS)
 
-        # if "not first time" == True: #TODO
-        #     self.add_menu_to_list(MenuHelper.Menus.FIRST_TIME)
-        #     self.change_menu(MenuHelper.Menus.FIRST_TIME)
-        # else:
-        self.change_menu(MenuHelper.Menus.SYS_INFO)
+        if MenuHelper.is_first_time_setup() == True:
+            self.add_menu_to_list(MenuHelper.Menus.FIRST_TIME)
+            self.change_menu(MenuHelper.Menus.FIRST_TIME)
+        else:
+            self.change_menu(MenuHelper.Menus.SYS_INFO)
 
         MenuHelper.set_app(self)
 
