@@ -14,6 +14,10 @@ from components.widgets.sys_info import (
 from components.widgets.main import template as main_menu_page
 from components.widgets.settings import template as settings_menu_page
 from components.widgets.projects import template as projects_menu_page
+from components.widgets.first_time_setup import (
+    intro as intro_page,
+    vnc_info as vnc_info_page,
+)
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -129,6 +133,7 @@ class Menus(Enum):
     PROJECTS = 2
     SETTINGS = 3
     WIFI_SETUP = 4
+    FIRST_TIME = 5
 
 
 class Pages:
@@ -301,6 +306,26 @@ class Pages:
                 project_pages.append(project_page)
             return project_pages
 
+    class FirstTimeSetup(Enum):
+        INTRO = MenuPage(
+            name="INITIAL SETUP",
+            hotspot=get_hotspot(
+                intro_page,
+                interval=1.0,
+            ),
+            select_action_func=None,
+            cancel_action_func=None,
+        )
+        VNC_SETUP = MenuPage(
+            name="VNC SETUP",
+            hotspot=get_hotspot(
+                vnc_info_page,
+                interval=1.0,
+            ),
+            select_action_func=change_menu(Menus.SYS_INFO),
+            cancel_action_func=None,
+        )
+
 
 def get_menu_enum_class_from_name(menu_name):
     if menu_name == Menus.SYS_INFO:
@@ -311,6 +336,8 @@ def get_menu_enum_class_from_name(menu_name):
         return Pages.ProjectSelectMenu
     elif menu_name == Menus.SETTINGS:
         return Pages.SettingsMenu
+    elif menu_name == Menus.FIRST_TIME:
+        return Pages.FirstTimeSetup
     else:
         _app.stop()
         raise Exception("Unrecognised menu name: " + menu_name.name)
