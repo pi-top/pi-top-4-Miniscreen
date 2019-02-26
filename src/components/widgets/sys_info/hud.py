@@ -1,7 +1,7 @@
 from ptcommon.sys_info import (
-    cpu_percentage,
-    network_strength,
-    get_battery,
+    get_cpu_percentage,
+    get_network_strength,
+    get_battery_capacity,
     get_temperature,
 )
 from os import path
@@ -31,7 +31,7 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         draw.text(
             xy=(0 * width / 4, 0 * height / 4),
-            text=get_battery(),
+            text=get_battery_capacity(),
             font=self.font,
             fill="white",
         )
@@ -43,7 +43,7 @@ class Hotspot(BaseHotspot):
 
         draw.text(
             xy=(2 * width / 4, 0 * height / 4),
-            text=network_strength("wlan0"),
+            text=get_network_strength("wlan0"),
             font=self.font,
             fill="white",
         )
@@ -55,7 +55,7 @@ class Hotspot(BaseHotspot):
 
         draw.text(
             xy=(0 * width / 4, 2 * height / 4),
-            text=cpu_percentage(),
+            text=get_cpu_percentage(),
             font=self.font,
             fill="white",
         )

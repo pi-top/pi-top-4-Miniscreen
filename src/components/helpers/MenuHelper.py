@@ -289,7 +289,12 @@ class Pages:
 
                 project_page = MenuPage(
                     title,
-                    get_hotspot(error_page, title=title, second_line=second_line, image_path=None),
+                    get_hotspot(
+                        error_page,
+                        title=title,
+                        second_line=second_line,
+                        image_path=None,
+                    ),
                     None,
                     None,
                 )
