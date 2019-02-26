@@ -200,7 +200,7 @@ class Pages:
 
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
-            name="Project Select",
+            name="project_select",
             hotspot=get_hotspot(main_menu_page, title="Other Projects"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None,
@@ -231,7 +231,7 @@ class Pages:
 
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
-            name="VNC Connection",
+            name="vnc_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
                 title="VNC Connection",
@@ -242,7 +242,7 @@ class Pages:
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
         SSH_CONNECTION = MenuPage(
-            name="SSH Connection",
+            name="ssh_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
                 title="SSH Connection",
@@ -313,7 +313,7 @@ class Pages:
 
     class FirstTimeSetupMenu(Enum):
         INTRO = MenuPage(
-            name="initial setup",
+            name="initial_setup",
             hotspot=get_hotspot(intro_page, interval=1.0),
             select_action_func=None,
             cancel_action_func=None,
