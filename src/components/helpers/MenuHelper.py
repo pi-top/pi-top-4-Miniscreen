@@ -192,7 +192,7 @@ class Pages:
         )
 
         VNC_SETUP = MenuPage(
-            name="vnc info",
+            name="vnc",
             hotspot=get_hotspot(vnc_info, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
@@ -311,7 +311,7 @@ class Pages:
                 project_pages.append(project_page)
             return project_pages
 
-    class FirstTimeSetup(Enum):
+    class FirstTimeSetupMenu(Enum):
         INTRO = MenuPage(
             name="initial setup",
             hotspot=get_hotspot(intro_page, interval=1.0),
@@ -330,7 +330,7 @@ def get_menu_enum_class_from_name(menu_name):
     elif menu_name == Menus.SETTINGS:
         return Pages.SettingsMenu
     elif menu_name == Menus.FIRST_TIME:
-        return Pages.FirstTimeSetup
+        return Pages.FirstTimeSetupMenu
     else:
         _app.stop()
         raise Exception("Unrecognised menu name: " + menu_name.name)
@@ -401,7 +401,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ["wifi", "network", "cpu", "disk", "vnc info"]
+        page_name_arr = ["wifi", "network", "cpu", "disk", "vnc"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
