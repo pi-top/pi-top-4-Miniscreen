@@ -8,7 +8,7 @@ class Hotspot(BaseHotspot):
 
     @staticmethod
     def render(draw, width, height):
-        screen_text = "www.pi-top.com/gettingstarted"
+        screen_text = "https://pi-top.com/gettingstarted"
         title_text(draw, 3, width, text="GOTO")
         draw.text(
             (align_to_middle(draw, width, screen_text) + 27, height / 2),
