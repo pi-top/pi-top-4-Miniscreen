@@ -1,6 +1,3 @@
-# Copyright (c) 2014-18 Richard Hull and contributors
-# See LICENSE.rst for details.
-
 import datetime
 from components.widgets.common_functions import title_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
