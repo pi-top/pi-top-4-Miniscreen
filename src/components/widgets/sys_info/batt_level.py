@@ -1,6 +1,3 @@
-# Copyright (c) 2014-18 Richard Hull and contributors
-# See LICENSE.rst for details.
-
 from ptcommon.sys_info import get_battery_capacity, get_battery_charging_state
 from os import path
 from PIL import Image, ImageFont
