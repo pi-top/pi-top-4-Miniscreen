@@ -419,16 +419,14 @@ def get_sys_info_pages_from_config():
     return page_id_arr
 
 
-def is_first_time_setup():  # TODO this system is flawed because all the user has to do is restart and they bypass it
+def found_eula_breadcrumb():
     return_value = False
     fts_path = (
-        "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
+        "/etc/pi-top" if is_pi() else path.expanduser("~/.pi-top")
     )
-    fts_file = fts_path + "/first_time_setup_breadcrumb"
+    fts_file = fts_path + "/.licenceAgreed"
 
-    if not path.isfile(fts_file):
+    if path.isfile(fts_file):
         return_value = True
-        Path(fts_path).mkdir(parents=True, exist_ok=True)
-        open(fts_file, "a").close()
 
     return return_value
