@@ -25,8 +25,5 @@ class Hotspot(BaseHotspot):
             fill="white",
         )
         draw.text(
-            (margin, 50),
-            text=str("Password: pi-top"),
-            font=tiny_font,
-            fill="white",
+            (margin, 50), text=str("Password: pi-top"), font=tiny_font, fill="white"
         )

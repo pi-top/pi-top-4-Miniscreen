@@ -10,14 +10,12 @@ from components.widgets.sys_info import (
     hud,
     wifi,
     network,
+    vnc_info,
 )
 from components.widgets.main import template as main_menu_page
 from components.widgets.settings import template as settings_menu_page
 from components.widgets.projects import template as projects_menu_page
-from components.widgets.first_time_setup import (
-    intro as intro_page,
-    vnc_info as vnc_info_page,
-)
+from components.widgets.first_time_setup import intro as intro_page
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -193,6 +191,13 @@ class Pages:
             cancel_action_func=None,
         )
 
+        VNC_SETUP = MenuPage(
+            name="vnc info",
+            hotspot=get_hotspot(vnc_info, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None,
+        )
+
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
             name="Project Select",
@@ -308,20 +313,8 @@ class Pages:
 
     class FirstTimeSetup(Enum):
         INTRO = MenuPage(
-            name="INITIAL SETUP",
-            hotspot=get_hotspot(
-                intro_page,
-                interval=1.0,
-            ),
-            select_action_func=None,
-            cancel_action_func=None,
-        )
-        VNC_SETUP = MenuPage(
-            name="VNC SETUP",
-            hotspot=get_hotspot(
-                vnc_info_page,
-                interval=1.0,
-            ),
+            name="initial setup",
+            hotspot=get_hotspot(intro_page, interval=1.0),
             select_action_func=None,
             cancel_action_func=None,
         )
@@ -408,7 +401,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ["wifi", "network", "cpu", "disk"]
+        page_name_arr = ["wifi", "network", "cpu", "disk", "vnc info"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
@@ -426,7 +419,7 @@ def get_sys_info_pages_from_config():
     return page_id_arr
 
 
-def is_first_time_setup():# TODO this system is flawed because all the user has to do is restart and they bypass it
+def is_first_time_setup():  # TODO this system is flawed because all the user has to do is restart and they bypass it
     return_value = False
     fts_path = (
         "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
@@ -436,6 +429,6 @@ def is_first_time_setup():# TODO this system is flawed because all the user has 
     if not path.isfile(fts_file):
         return_value = True
         Path(fts_path).mkdir(parents=True, exist_ok=True)
-        open(fts_file, 'a').close()
+        open(fts_file, "a").close()
 
     return return_value

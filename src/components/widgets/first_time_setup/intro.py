@@ -1,4 +1,4 @@
-from components.widgets.common_functions import title_text, really_tiny_font, align_to_middle
+from components.widgets.common_functions import title_text, get_font, align_to_middle
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -8,27 +8,11 @@ class Hotspot(BaseHotspot):
 
     @staticmethod
     def render(draw, width, height):
-        intro_text = "Connect to a screen"
-        screen_text = "or press down and connect via"
-        vnc_text = "VNC"
-
-        title_text(draw, 3, width, text="Welcome")
-
+        screen_text = "www.pi-top.com/gettingstarted"
+        title_text(draw, 3, width, text="GOTO")
         draw.text(
-            (align_to_middle(draw, width, intro_text) + 15, 20),
-            text=intro_text,
-            font=really_tiny_font,
-            fill="white",
-        )
-        draw.text(
-            (align_to_middle(draw, width, screen_text) + 27, 35),
+            (align_to_middle(draw, width, screen_text) + 27, height / 2),
             text=screen_text,
-            font=really_tiny_font,
-            fill="white",
-        )
-        draw.text(
-            (align_to_middle(draw, width, vnc_text), 50),
-            text=vnc_text,
-            font=really_tiny_font,
+            font=get_font(8),
             fill="white",
         )
