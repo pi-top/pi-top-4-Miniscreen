@@ -32,8 +32,8 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         draw_text(
             draw,
-            x=0 * width / 4,
-            y=0 * height / 4,
+            xy=(0 * width / 4,
+            0 * height / 4),
             text=get_battery_capacity(),
             font=self.font,
         )
@@ -45,8 +45,8 @@ class Hotspot(BaseHotspot):
 
         draw_text(
             draw,
-            x=2 * width / 4,
-            y=0 * height / 4,
+            xy=(2 * width / 4,
+            0 * height / 4),
             text=get_network_strength("wlan0"),
             font=self.font,
         )
@@ -58,8 +58,8 @@ class Hotspot(BaseHotspot):
 
         draw_text(
             draw,
-            x=0 * width / 4,
-            y=2 * height / 4,
+            xy=(0 * width / 4,
+            2 * height / 4),
             text=get_cpu_percentage(),
             font=self.font,
         )
@@ -69,8 +69,8 @@ class Hotspot(BaseHotspot):
 
         draw_text(
             draw,
-            x=2 * width / 4,
-            y=2 * height / 4,
+            xy=(2 * width / 4,
+            2 * height / 4),
             text=get_temperature(),
             font=self.font,
         )

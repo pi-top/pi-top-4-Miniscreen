@@ -12,6 +12,6 @@ class Hotspot(BaseHotspot):
     def render(draw, width, height):
         margin = 3
         title_text(draw, margin, width, text="VNC Info")
-        draw_text(draw, x=margin, y=20, text=str("  IP: " + get_internal_ip()))
-        draw_text(draw, x=margin, y=35, text=str("Username: " + getuser()))
-        draw_text(draw, x=margin, y=50, text=str("Password: pi-top"))
+        draw_text(draw, xy=(margin, 20), text=str("  IP: " + get_internal_ip()))
+        draw_text(draw, xy=(margin, 35), text=str("Username: " + getuser()))
+        draw_text(draw, xy=(margin, 50), text=str("Password: pi-top"))

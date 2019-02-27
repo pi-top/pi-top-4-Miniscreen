@@ -20,11 +20,11 @@ class Hotspot(BaseHotspot):
             address = psutil.net_if_addrs()[self.interface][0].address
             counters = psutil.net_io_counters(pernic=True)[self.interface]
 
-            draw_text(draw, x=margin, y=20, text=address)
-            draw_text(draw, x=margin, y=35, text="Rx:")
-            draw_text(draw, x=margin, y=45, text="Tx:")
+            draw_text(draw, xy=(margin, 20), text=address)
+            draw_text(draw, xy=(margin, 35), text="Rx:")
+            draw_text(draw, xy=(margin, 45), text="Tx:")
 
             right_text(draw, 35, width, margin, text=bytes2human(counters.bytes_recv))
             right_text(draw, 45, width, margin, text=bytes2human(counters.bytes_sent))
         except:
-            draw_text(draw, x=margin, y=20, text="n/a")
+            draw_text(draw, xy=(margin, 20), text="n/a")

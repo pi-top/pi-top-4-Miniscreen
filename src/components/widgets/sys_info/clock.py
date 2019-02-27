@@ -22,7 +22,7 @@ def digital(draw, width, height):
     current_time = now.strftime("%H:%m:%S")
 
     title_text(draw, margin, width, today_date)
-    draw_text(draw, x=margin + 10, y=20, text=current_time)
+    draw_text(draw, xy=(margin + 10, 20), text=current_time)
 
 
 def analog(draw, width, height):

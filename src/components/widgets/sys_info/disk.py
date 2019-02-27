@@ -18,9 +18,9 @@ class Hotspot(BaseHotspot):
         margin = 3
 
         title_text(draw, margin, width, text="Disk")
-        draw_text(draw, x=margin, y=20, text="Used:")
-        draw_text(draw, x=margin, y=35, text="Free:")
-        draw_text(draw, x=margin, y=45, text="Total:")
+        draw_text(draw, xy=(margin, 20), text="Used:")
+        draw_text(draw, xy=(margin, 35), text="Free:")
+        draw_text(draw, xy=(margin, 45), text="Total:")
 
         right_text(draw, 20, width, margin, text="{0:0.1f}%".format(df.percent))
         right_text(draw, 35, width, margin, text=bytes2human(df.free, "{0:0.0f}"))
