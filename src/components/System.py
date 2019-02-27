@@ -1,11 +1,11 @@
+from os import uname
 from components.helpers import RequestServer
 from ptcommon.logger import PTLogger
-from os import uname
 
 
 _device = None
-
 _, _, _, _, machine = uname()
+
 
 def is_pi():
     return machine == "armv7l"
