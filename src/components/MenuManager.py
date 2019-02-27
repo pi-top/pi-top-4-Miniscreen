@@ -10,6 +10,7 @@ from components.ButtonPress import ButtonPress
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
 from ptcommon.logger import PTLogger
+from ptcommon.pt_os import eula_agreed
 
 
 class MenuManager:
@@ -28,7 +29,7 @@ class MenuManager:
 
         self.menus = dict()
 
-        if MenuHelper.found_eula_breadcrumb() == True:
+        if eula_agreed() == True:
             self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
             self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
             self.add_menu_to_list(MenuHelper.Menus.PROJECTS)

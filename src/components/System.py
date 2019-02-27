@@ -1,14 +1,9 @@
-from os import uname
 from components.helpers import RequestServer
 from ptcommon.logger import PTLogger
+from ptcommon.pt_os import is_pi
 
 
 _device = None
-_, _, _, _, machine = uname()
-
-
-def is_pi():
-    return machine == "armv7l"
 
 
 def take_control_of_oled():

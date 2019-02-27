@@ -417,14 +417,3 @@ def get_sys_info_pages_from_config():
         page_id_arr.append(page_id)
 
     return page_id_arr
-
-
-def found_eula_breadcrumb():
-    return_value = False
-    fts_path = "/etc/pi-top" if is_pi() else path.expanduser("~/.pi-top")
-    fts_file = fts_path + "/.licenceAgreed"
-
-    if path.isfile(fts_file):
-        return_value = True
-
-    return return_value
