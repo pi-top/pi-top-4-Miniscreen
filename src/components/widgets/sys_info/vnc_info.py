@@ -1,5 +1,5 @@
 from ptcommon.sys_info import get_internal_ip
-from components.widgets.common_functions import right_text, title_text, tiny_font
+from components.widgets.common_functions import right_text, title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from getpass import getuser
 
@@ -12,18 +12,6 @@ class Hotspot(BaseHotspot):
     def render(draw, width, height):
         margin = 3
         title_text(draw, margin, width, text="VNC Info")
-        draw.text(
-            (margin, 20),
-            text=str("  IP: " + get_internal_ip()),
-            font=tiny_font,
-            fill="white",
-        )
-        draw.text(
-            (margin, 35),
-            text=str("Username: " + getuser()),
-            font=tiny_font,
-            fill="white",
-        )
-        draw.text(
-            (margin, 50), text=str("Password: pi-top"), font=tiny_font, fill="white"
-        )
+        draw_text(draw, x=margin, y=20, text=str("  IP: " + get_internal_ip()))
+        draw_text(draw, x=margin, y=35, text=str("Username: " + getuser()))
+        draw_text(draw, x=margin, y=50, text=str("Password: pi-top"))

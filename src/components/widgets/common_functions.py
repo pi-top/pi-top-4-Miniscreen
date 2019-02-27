@@ -13,14 +13,20 @@ def get_font(size=10):
     )
 
 
+def draw_text(draw, x, y, text, font=None, font_size=10):
+    if font is None:
+        font = get_font(font_size)
+    draw.text((x, y), text=text, font=font, fill="white")
+
+
 def right_text(draw, y, width, margin, text):
     x = width - margin - draw.textsize(text, font=tiny_font)[0]
-    draw.text((x, y), text=text, font=tiny_font, fill="white")
+    draw_text(draw, x, y, text=text)
 
 
 def title_text(draw, y, width, text):
     x = (width - draw.textsize(text)[0]) / 2
-    draw.text((x, y), text=text, fill="yellow")
+    draw_text(draw, x, y, text=text)
 
 
 def align_to_middle(draw, width, text):

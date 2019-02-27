@@ -4,7 +4,7 @@
 import math
 import datetime
 
-from components.widgets.common_functions import title_text, tiny_font
+from components.widgets.common_functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -22,7 +22,7 @@ def digital(draw, width, height):
     current_time = now.strftime("%H:%m:%S")
 
     title_text(draw, margin, width, today_date)
-    draw.text((margin + 10, 20), text=current_time, fill="white", font=tiny_font)
+    draw_text(draw, x=margin + 10, y=20, text=current_time)
 
 
 def analog(draw, width, height):

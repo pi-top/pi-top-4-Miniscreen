@@ -38,7 +38,6 @@ class MenuManager:
             self.add_menu_to_list(MenuHelper.Menus.FIRST_TIME)
             self.change_menu(MenuHelper.Menus.FIRST_TIME)
 
-
         MenuHelper.set_app(self)
 
     def stop(self):

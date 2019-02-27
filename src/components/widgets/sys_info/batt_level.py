@@ -1,6 +1,7 @@
 from ptcommon.sys_info import get_battery_capacity, get_battery_charging_state
 from os import path
 from PIL import Image, ImageFont
+from components.widgets.common_functions import draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -23,15 +24,7 @@ class Hotspot(BaseHotspot):
         )
 
     def render(self, draw, width, height):
-        draw.text(
-            xy=(5, height / 5),
-            text="Capacity: " + get_battery_capacity(),
-            font=self.font,
-            fill="white",
-        )
-        draw.text(
-            xy=(5, height / 2),
-            text=get_battery_charging_state(),
-            font=self.font,
-            fill="white",
+        draw_text(draw, x=5, y=height / 5, text="Capacity: " + get_battery_capacity())
+        draw_text(
+            draw, x=5, y=height / 2, text=get_battery_charging_state(), font=self.font
         )

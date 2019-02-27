@@ -23,4 +23,4 @@ class Hotspot(BaseHotspot):
 
         title_text(draw, height / 10, width, date)
 
-        draw.text((width / 3, height / 3), text=time, fill="white")
+        draw_text(draw, x=width / 3, y=height / 3, text=time)

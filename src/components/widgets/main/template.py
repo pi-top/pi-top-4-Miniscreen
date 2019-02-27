@@ -1,4 +1,5 @@
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common_functions import draw_text
 
 
 class Hotspot(BaseHotspot):
@@ -9,8 +10,9 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         text_width, text_height = draw.textsize(self.title)
-        draw.text(
-            (width / 2 - text_width / 2, height / 2 - text_height / 2),
+        draw_text(
+            draw,
+            x=width / 2 - text_width / 2,
+            y=height / 2 - text_height / 2,
             text=self.title,
-            fill="white",
         )
