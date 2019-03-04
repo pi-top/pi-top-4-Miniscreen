@@ -1,6 +1,6 @@
 from PIL import Image
 from os.path import isfile
-from components.widgets.common_functions import title_text
+from components.widgets.common_functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from subprocess import check_output
 
@@ -95,10 +95,11 @@ class Hotspot(BaseHotspot):
         title_width, title_height = draw.textsize(message)
 
         if self._error:
-            draw.text(
-                (width / 2 - title_width / 2, height / 2 - title_height / 2),
+            draw_text(
+                draw,
+                xy=(width / 2 - title_width / 2,
+                height / 2 - title_height / 2),
                 text=message,
-                fill="white",
             )
         else:
             if self._image is not None:

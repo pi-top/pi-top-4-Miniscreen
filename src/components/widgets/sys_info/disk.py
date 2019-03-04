@@ -3,7 +3,7 @@
 
 from ptcommon.formatting import bytes2human
 import psutil
-from components.widgets.common_functions import right_text, title_text, tiny_font
+from components.widgets.common_functions import right_text, title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -18,9 +18,9 @@ class Hotspot(BaseHotspot):
         margin = 3
 
         title_text(draw, margin, width, text="Disk")
-        draw.text((margin, 20), text="Used:", font=tiny_font, fill="white")
-        draw.text((margin, 35), text="Free:", font=tiny_font, fill="white")
-        draw.text((margin, 45), text="Total:", font=tiny_font, fill="white")
+        draw_text(draw, xy=(margin, 20), text="Used:")
+        draw_text(draw, xy=(margin, 35), text="Free:")
+        draw_text(draw, xy=(margin, 45), text="Total:")
 
         right_text(draw, 20, width, margin, text="{0:0.1f}%".format(df.percent))
         right_text(draw, 35, width, margin, text=bytes2human(df.free, "{0:0.0f}"))

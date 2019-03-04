@@ -10,10 +10,12 @@ from components.widgets.sys_info import (
     hud,
     wifi,
     network,
+    vnc_info,
 )
 from components.widgets.main import template as main_menu_page
 from components.widgets.settings import template as settings_menu_page
 from components.widgets.projects import template as projects_menu_page
+from components.widgets.first_time_setup import intro as intro_page
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -129,6 +131,7 @@ class Menus(Enum):
     PROJECTS = 2
     SETTINGS = 3
     WIFI_SETUP = 4
+    FIRST_TIME = 5
 
 
 class Pages:
@@ -188,9 +191,16 @@ class Pages:
             cancel_action_func=None,
         )
 
+        VNC_SETUP = MenuPage(
+            name="vnc",
+            hotspot=get_hotspot(vnc_info, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None,
+        )
+
     class MainMenu(Enum):
         PROJECT_SELECT = MenuPage(
-            name="Project Select",
+            name="project_select",
             hotspot=get_hotspot(main_menu_page, title="Other Projects"),
             select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None,
@@ -221,7 +231,7 @@ class Pages:
 
     class SettingsMenu(Enum):
         VNC_CONNECTION = MenuPage(
-            name="VNC Connection",
+            name="vnc_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
                 title="VNC Connection",
@@ -232,7 +242,7 @@ class Pages:
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
         SSH_CONNECTION = MenuPage(
-            name="SSH Connection",
+            name="ssh_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
                 title="SSH Connection",
@@ -301,6 +311,14 @@ class Pages:
                 project_pages.append(project_page)
             return project_pages
 
+    class FirstTimeSetupMenu(Enum):
+        INTRO = MenuPage(
+            name="initial_setup",
+            hotspot=get_hotspot(intro_page, interval=1.0),
+            select_action_func=None,
+            cancel_action_func=None,
+        )
+
 
 def get_menu_enum_class_from_name(menu_name):
     if menu_name == Menus.SYS_INFO:
@@ -311,6 +329,8 @@ def get_menu_enum_class_from_name(menu_name):
         return Pages.ProjectSelectMenu
     elif menu_name == Menus.SETTINGS:
         return Pages.SettingsMenu
+    elif menu_name == Menus.FIRST_TIME:
+        return Pages.FirstTimeSetupMenu
     else:
         _app.stop()
         raise Exception("Unrecognised menu name: " + menu_name.name)
@@ -381,7 +401,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ["wifi", "network", "cpu", "disk"]
+        page_name_arr = ["wifi", "network", "cpu", "disk", "vnc"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 

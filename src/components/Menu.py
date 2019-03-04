@@ -30,6 +30,8 @@ class Menu:
         elif name == MenuHelper.Menus.SETTINGS:
             self.parent = MenuHelper.Menus.SETTINGS
             pages = MenuHelper.get_pages(MenuHelper.Menus.SETTINGS)
+        elif name == MenuHelper.Menus.FIRST_TIME:
+            pages = MenuHelper.get_pages(MenuHelper.Menus.FIRST_TIME)
         else:
             raise Exception("Unrecognised menu name")
 
