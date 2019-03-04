@@ -8,7 +8,6 @@ class Hotspot(BaseHotspot):
 
         self.title = data.get("title")
         self.method = data.get("method")
-        print(self.method)
 
     def render(self, draw, width, height):
         margin = 3

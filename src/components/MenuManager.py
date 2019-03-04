@@ -6,10 +6,11 @@ if not is_pi():
 
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
-
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
+from components.widgets.startup_animation.startup_animation import play_animation
 from ptcommon.logger import PTLogger
+from threading import Thread
 from ptcommon.pt_os import eula_agreed
 
 
@@ -27,6 +28,8 @@ class MenuManager:
             self.stop()
             raise Exception("Unable to start listening on request client")
 
+        self.play_startup_animation()
+
         self.menus = dict()
 
         if eula_agreed() == False and is_pi():
@@ -40,6 +43,11 @@ class MenuManager:
             self.change_menu(MenuHelper.Menus.SYS_INFO)
 
         MenuHelper.set_app(self)
+
+    def play_startup_animation(self):
+        animation_thread = Thread(target=play_animation())
+        animation_thread.start()
+        animation_thread.join()
 
     def stop(self):
         self._continue = False
