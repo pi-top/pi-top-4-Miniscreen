@@ -88,7 +88,8 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         if self._error:
             w, h = draw.textsize(self._error_text)
-            draw.text(
+            draw_text(
+                draw,
                 (width / 2 - w / 2, height / 2 - h / 2),
                 text=self._error_text,
                 fill="white",

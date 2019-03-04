@@ -1,8 +1,5 @@
-# Copyright (c) 2014-18 Richard Hull and contributors
-# See LICENSE.rst for details.
-
 import datetime
-from components.widgets.common_functions import title_text
+from components.widgets.common_functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -26,4 +23,4 @@ class Hotspot(BaseHotspot):
 
         title_text(draw, height / 10, width, date)
 
-        draw.text((width / 3, height / 3), text=time, fill="white")
+        draw_text(draw, xy=(width / 3, height / 3), text=time)

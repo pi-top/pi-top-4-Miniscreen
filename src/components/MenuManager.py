@@ -10,6 +10,7 @@ from components.ButtonPress import ButtonPress
 from components.helpers.RequestClient import RequestClient
 from components.helpers import MenuHelper
 from ptcommon.logger import PTLogger
+from ptcommon.pt_os import eula_agreed
 
 
 class MenuManager:
@@ -27,12 +28,16 @@ class MenuManager:
             raise Exception("Unable to start listening on request client")
 
         self.menus = dict()
-        self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
-        self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
-        self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
-        self.add_menu_to_list(MenuHelper.Menus.SETTINGS)
 
-        self.change_menu(MenuHelper.Menus.SYS_INFO)
+        if eula_agreed() == False and is_pi():
+            self.add_menu_to_list(MenuHelper.Menus.FIRST_TIME)
+            self.change_menu(MenuHelper.Menus.FIRST_TIME)
+        else:
+            self.add_menu_to_list(MenuHelper.Menus.SYS_INFO)
+            self.add_menu_to_list(MenuHelper.Menus.MAIN_MENU)
+            self.add_menu_to_list(MenuHelper.Menus.PROJECTS)
+            self.add_menu_to_list(MenuHelper.Menus.SETTINGS)
+            self.change_menu(MenuHelper.Menus.SYS_INFO)
 
         MenuHelper.set_app(self)
 
