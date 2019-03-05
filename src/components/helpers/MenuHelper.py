@@ -318,6 +318,12 @@ class Pages:
             select_action_func=None,
             cancel_action_func=None,
         )
+        VNC_SETUP = MenuPage(
+            name="vnc",
+            hotspot=get_hotspot(vnc_info, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None,
+        )
 
 
 def get_menu_enum_class_from_name(menu_name):
