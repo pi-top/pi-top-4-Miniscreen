@@ -16,12 +16,7 @@ class Hotspot(BaseHotspot):
 
     # TODO: Fix images loading correctly
     def render(self, draw, width, height):
-        draw_text(
-            draw,
-            xy=(0 * width / 4,
-            0 * height / 4),
-            text=get_battery_capacity()
-        )
+        draw_text(draw, xy=(0 * width / 4, 0 * height / 4), text=get_battery_capacity())
         img_path = path.abspath(
             path.join(path.dirname(__file__), "assets", "battery.png")
         )
@@ -29,10 +24,7 @@ class Hotspot(BaseHotspot):
         draw.bitmap(xy=(1 * width / 4, 0 * height / 4), bitmap=img_bitmap, fill="white")
 
         draw_text(
-            draw,
-            xy=(2 * width / 4,
-            0 * height / 4),
-            text=get_network_strength("wlan0")
+            draw, xy=(2 * width / 4, 0 * height / 4), text=get_network_strength("wlan0")
         )
         img_path = path.abspath(
             path.join(path.dirname(__file__), "assets", "wifi_icon.png")
@@ -40,22 +32,12 @@ class Hotspot(BaseHotspot):
         img_bitmap = Image.open(img_path).convert("RGBA")
         draw.bitmap(xy=(3 * width / 4, 0 * height / 4), bitmap=img_bitmap, fill="white")
 
-        draw_text(
-            draw,
-            xy=(0 * width / 4,
-            2 * height / 4),
-            text=get_cpu_percentage()
-        )
+        draw_text(draw, xy=(0 * width / 4, 2 * height / 4), text=get_cpu_percentage())
         img_path = path.abspath(path.join(path.dirname(__file__), "assets", "cpu.png"))
         img_bitmap = Image.open(img_path).convert("RGBA")
         draw.bitmap(xy=(1 * width / 4, 2 * height / 4), bitmap=img_bitmap, fill="white")
 
-        draw_text(
-            draw,
-            xy=(2 * width / 4,
-            2 * height / 4),
-            text=get_temperature()
-        )
+        draw_text(draw, xy=(2 * width / 4, 2 * height / 4), text=get_temperature())
         img_path = path.abspath(
             path.join(path.dirname(__file__), "assets", "thermometer.png")
         )

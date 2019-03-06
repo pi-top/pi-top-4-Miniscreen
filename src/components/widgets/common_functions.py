@@ -5,7 +5,9 @@ import os.path
 def get_font(size=12):
 
     if size >= 12:
-        font = ImageFont.truetype("/usr/share/fonts/opentype/FSMePro/FSMePro-Regular.otf", size)
+        font = ImageFont.truetype(
+            "/usr/share/fonts/opentype/FSMePro/FSMePro-Regular.otf", size
+        )
     else:
         font = ImageFont.truetype(
             os.path.abspath(
@@ -18,10 +20,30 @@ def get_font(size=12):
     return font
 
 
-def draw_text(draw, xy, text, fill=1, font=None, anchor=None, spacing=0, align="left", features=None, font_size=12):
+def draw_text(
+    draw,
+    xy,
+    text,
+    fill=1,
+    font=None,
+    anchor=None,
+    spacing=0,
+    align="left",
+    features=None,
+    font_size=12,
+):
     if font is None:
         font = get_font(font_size)
-    draw.text(xy=xy, text=text, fill=fill, font=font, anchor=anchor, spacing=spacing, align=align, features=features)
+    draw.text(
+        xy=xy,
+        text=text,
+        fill=fill,
+        font=font,
+        anchor=anchor,
+        spacing=spacing,
+        align=align,
+        features=features,
+    )
 
 
 def right_text(draw, y, width, margin, text):

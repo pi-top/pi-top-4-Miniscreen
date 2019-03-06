@@ -5,7 +5,9 @@ from components.System import device
 
 
 def play_animation():
-    img_path = path.abspath(path.join(path.dirname(__file__), "..", "..", "..", 'images', 'goku.gif'))
+    img_path = path.abspath(
+        path.join(path.dirname(__file__), "..", "..", "..", "images", "goku.gif")
+    )
     img = Image.open(img_path)
     size = [min(*device.size)] * 2
     posn = ((device.width - size[0]) // 2, device.height - size[1])

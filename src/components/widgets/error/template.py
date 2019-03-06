@@ -13,14 +13,18 @@ class Hotspot(BaseHotspot):
         text_width, text_height = draw.textsize(self.title)
         draw_text(
             draw,
-            xy=(align_to_middle(draw, width, text=self.title),
-            height / 4 - text_height / 4),
+            xy=(
+                align_to_middle(draw, width, text=self.title),
+                height / 4 - text_height / 4,
+            ),
             text=self.title,
         )
         text_width, text_height = draw.textsize(self.second_line)
         draw_text(
             draw,
-            xy=(align_to_middle(draw, width, text=self.title),
-            height / 1.5 - text_height / 2),
+            xy=(
+                align_to_middle(draw, width, text=self.title),
+                height / 1.5 - text_height / 2,
+            ),
             text=self.second_line,
         )
