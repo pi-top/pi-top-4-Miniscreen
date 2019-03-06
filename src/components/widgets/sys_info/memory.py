@@ -19,11 +19,11 @@ class Hotspot(BaseHotspot):
 
         margin = 3
 
-        title_text(draw, margin, width, text="Memory")
+        title_text(draw, y=margin, width=width, text="Memory")
         draw_text(draw, xy=(margin, 20), text="Used:")
         draw_text(draw, xy=(margin, 35), text="Phys:")
-        draw_text(draw, xy=(margin, 45), text="Swap:")
+        draw_text(draw, xy=(margin, 50), text="Swap:")
 
         right_text(draw, 20, width, margin, text="{0:0.1f}%".format(mem_used_pct))
         right_text(draw, 35, width, margin, text=bytes2human(mem.used))
-        right_text(draw, 45, width, margin, text=bytes2human(swap.used))
+        right_text(draw, 50, width, margin, text=bytes2human(swap.used))

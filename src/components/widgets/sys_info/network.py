@@ -22,9 +22,9 @@ class Hotspot(BaseHotspot):
 
             draw_text(draw, xy=(margin, 20), text=address)
             draw_text(draw, xy=(margin, 35), text="Rx:")
-            draw_text(draw, xy=(margin, 45), text="Tx:")
+            draw_text(draw, xy=(margin, 50), text="Tx:")
 
             right_text(draw, 35, width, margin, text=bytes2human(counters.bytes_recv))
-            right_text(draw, 45, width, margin, text=bytes2human(counters.bytes_sent))
+            right_text(draw, 50, width, margin, text=bytes2human(counters.bytes_sent))
         except:
             draw_text(draw, xy=(margin, 20), text="n/a")

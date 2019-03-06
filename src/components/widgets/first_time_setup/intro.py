@@ -17,8 +17,6 @@ class Hotspot(BaseHotspot):
         title_text(draw, 3, width, text="Visit")
         draw_text(
             draw,
-            xy=(align_to_middle(draw, width, screen_text) + width / 7,
-            height / 2),
-            text=screen_text,
-            font=get_font(size=8),
+            xy=(align_to_middle(draw, width, screen_text), height / 2),
+            text=screen_text
         )

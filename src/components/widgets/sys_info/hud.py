@@ -14,28 +14,13 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
 
-        self.font = ImageFont.truetype(
-            path.abspath(
-                path.join(
-                    path.dirname(__file__),
-                    "..",
-                    "..",
-                    "..",
-                    "fonts",
-                    "C&C Red Alert [INET].ttf",
-                )
-            ),
-            size=12,
-        )
-
     # TODO: Fix images loading correctly
     def render(self, draw, width, height):
         draw_text(
             draw,
             xy=(0 * width / 4,
             0 * height / 4),
-            text=get_battery_capacity(),
-            font=self.font,
+            text=get_battery_capacity()
         )
         img_path = path.abspath(
             path.join(path.dirname(__file__), "assets", "battery.png")
@@ -47,8 +32,7 @@ class Hotspot(BaseHotspot):
             draw,
             xy=(2 * width / 4,
             0 * height / 4),
-            text=get_network_strength("wlan0"),
-            font=self.font,
+            text=get_network_strength("wlan0")
         )
         img_path = path.abspath(
             path.join(path.dirname(__file__), "assets", "wifi_icon.png")
@@ -60,8 +44,7 @@ class Hotspot(BaseHotspot):
             draw,
             xy=(0 * width / 4,
             2 * height / 4),
-            text=get_cpu_percentage(),
-            font=self.font,
+            text=get_cpu_percentage()
         )
         img_path = path.abspath(path.join(path.dirname(__file__), "assets", "cpu.png"))
         img_bitmap = Image.open(img_path).convert("RGBA")
@@ -71,8 +54,7 @@ class Hotspot(BaseHotspot):
             draw,
             xy=(2 * width / 4,
             2 * height / 4),
-            text=get_temperature(),
-            font=self.font,
+            text=get_temperature()
         )
         img_path = path.abspath(
             path.join(path.dirname(__file__), "assets", "thermometer.png")

@@ -1,4 +1,4 @@
-from components.widgets.common_functions import title_text, tiny_font, draw_text
+from components.widgets.common_functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 

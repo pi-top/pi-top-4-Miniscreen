@@ -17,6 +17,5 @@ class Hotspot(BaseHotspot):
         elapsed = datetime.now() - boot_time
         margin = 3
         title_text(draw, margin, width, "Uptime")
-        right_text(
-            draw, 20, width, margin, text="{0} s".format(int(elapsed.total_seconds()))
-        )
+        time = "{0} s".format(int(elapsed.total_seconds()))
+        right_text(draw, y=height / 2, width=width, margin=margin, text=time)
