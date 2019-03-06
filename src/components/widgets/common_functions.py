@@ -53,7 +53,7 @@ def right_text(draw, y, width, margin, text):
 
 def title_text(draw, y, width, text):
     x = (width - draw.textsize(text)[0]) / 2
-    draw_text(draw, xy=(x, y), text=text, font=get_font())
+    draw_text(draw, xy=(x, y), text=text)
 
 
 def align_to_middle(draw, width, text):
