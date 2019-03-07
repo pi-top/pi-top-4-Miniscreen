@@ -2,6 +2,7 @@ from PIL import Image
 from os.path import isfile
 from components.widgets.common_functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from ptcommon.logger import PTLogger
 from subprocess import check_output
 
 
@@ -65,7 +66,7 @@ class Hotspot(BaseHotspot):
             self._error = True
 
         if self._error:
-            print(self._error_text)
+            PTLogger.error(self._error_text)
 
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:
