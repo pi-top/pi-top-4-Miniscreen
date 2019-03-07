@@ -17,7 +17,7 @@ class Hotspot(BaseHotspot):
         swap = psutil.swap_memory()
         mem_used_pct = (mem.total - mem.available) * 100.0 / mem.total
 
-        margin = 3
+        margin = 5
 
         title_text(draw, y=margin, width=width, text="Memory")
         draw_text(draw, xy=(margin, 20), text="Used:")

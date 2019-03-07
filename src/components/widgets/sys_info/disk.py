@@ -15,7 +15,7 @@ class Hotspot(BaseHotspot):
     def render(draw, width, height):
         df = psutil.disk_usage("/")
 
-        margin = 3
+        margin = 5
 
         title_text(draw, margin, width, text="Disk")
         draw_text(draw, xy=(margin, 20), text="Used:")

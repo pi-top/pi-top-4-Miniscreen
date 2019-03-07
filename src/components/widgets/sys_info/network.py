@@ -14,7 +14,7 @@ class Hotspot(BaseHotspot):
         self.interface = data.get("interface")
 
     def render(self, draw, width, height):
-        margin = 3
+        margin = 5
         title_text(draw, margin, width, text="Net:{0}".format(self.interface))
         try:
             address = psutil.net_if_addrs()[self.interface][0].address
