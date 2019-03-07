@@ -2,6 +2,7 @@ from PIL import ImageFont
 import os.path
 from components.widgets.common_values import right_margin
 
+
 def get_font(size=12):
 
     if size >= 12:

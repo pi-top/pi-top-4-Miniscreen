@@ -19,9 +19,15 @@ class Hotspot(BaseHotspot):
         username = "pi" if getuser() == "root" else getuser()
         title_text(draw, top_margin, width, text="VNC Info")
         draw_text(
-            draw, xy=(default_margin, (height * 1 / 4)), text=str("IP: " + get_internal_ip())
+            draw,
+            xy=(default_margin, (height * 1 / 4)),
+            text=str("IP: " + get_internal_ip()),
         )
         draw_text(
-            draw, xy=(default_margin, (height * 2 / 4)), text=str("Username: " + username)
+            draw,
+            xy=(default_margin, (height * 2 / 4)),
+            text=str("Username: " + username),
         )
-        draw_text(draw, xy=(default_margin, (height * 3 / 4)), text=str("Password: pi-top"))
+        draw_text(
+            draw, xy=(default_margin, (height * 3 / 4)), text=str("Password: pi-top")
+        )

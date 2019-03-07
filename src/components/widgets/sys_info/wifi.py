@@ -13,4 +13,6 @@ class Hotspot(BaseHotspot):
         title_text(draw, default_margin, width, text="Wi-Fi Info")
         draw_text(draw, xy=(default_margin, 20), text=str("SSID: " + get_network_id()))
         draw_text(draw, xy=(default_margin, 35), text=str("IP: " + get_internal_ip()))
-        draw_text(draw, xy=(default_margin, 50), text=str("SSH: " + get_ssh_enabled_state()))
+        draw_text(
+            draw, xy=(default_margin, 50), text=str("SSH: " + get_ssh_enabled_state())
+        )
