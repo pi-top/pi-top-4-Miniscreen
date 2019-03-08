@@ -127,4 +127,5 @@ class MenuManager:
                 self.update_state()
                 sleep(0.1)
         except SystemExit:
+            PTLogger.info("Program exited")
             pass

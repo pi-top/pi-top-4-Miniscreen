@@ -13,6 +13,7 @@ from logging import (
     ERROR
 )
 from ptcommon.logger import PTLogger
+from argparse import ArgumentParser
 
 
 def configure_logging():
@@ -33,9 +34,27 @@ def configure_interrupt_signals():
     signal(SIGTERM, signal_handler)
 
 
+def setup_pt_logging():
+    parser = ArgumentParser(description="pi-top OLED sys menu")
+    parser.add_argument(
+        "--no-journal", help="output to stdout not the journal", action="store_true"
+    )
+    parser.add_argument(
+        "--log-level",
+        type=int,
+        help="set the logging level from 10 (more verbose) to 50 (less verbose)",
+        default=20,
+    )
+    args = parser.parse_args()
+
+    PTLogger.setup_logging("pt-sys-menu", args.log_level, args.no_journal is False)
+
+
+
 def setup():
     configure_logging()
     configure_interrupt_signals()
+    setup_pt_logging()
 
 
 if __name__ == "__main__":
