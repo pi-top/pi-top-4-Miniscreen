@@ -22,6 +22,6 @@ class Hotspot(BaseHotspot):
             + str(date_time.second)
         )
 
-        title_text(draw, height / common_first_line_y, width, date)
+        title_text(draw, common_first_line_y, width, date)
 
-        draw_text(draw, xy=(align_to_middle(draw, width, time), height / common_second_line_y), text=time)
+        draw_text(draw, xy=(align_to_middle(draw, width, time), common_second_line_y), text=time)

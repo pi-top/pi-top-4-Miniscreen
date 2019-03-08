@@ -17,8 +17,8 @@ class Hotspot(BaseHotspot):
     @staticmethod
     def render(draw, width, height):
         title_text(draw, default_margin_y, width, text="Wi-Fi Info")
-        draw_text(draw, xy=(default_margin_x, height / common_first_line_y), text=str("SSID: " + get_network_id()))
-        draw_text(draw, xy=(default_margin_x, height / common_second_line_y), text=str("IP: " + get_internal_ip()))
+        draw_text(draw, xy=(default_margin_x, common_first_line_y), text=str("SSID: " + get_network_id()))
+        draw_text(draw, xy=(default_margin_x, common_second_line_y), text=str("IP: " + get_internal_ip()))
         draw_text(
-            draw, xy=(default_margin_x, height / common_third_line_y), text=str("SSH: " + get_ssh_enabled_state())
+            draw, xy=(default_margin_x, common_third_line_y), text=str("SSH: " + get_ssh_enabled_state())
         )

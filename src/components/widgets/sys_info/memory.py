@@ -24,10 +24,10 @@ class Hotspot(BaseHotspot):
         mem_used_pct = (mem.total - mem.available) * 100.0 / mem.total
 
         title_text(draw, y=default_margin_x, width=width, text="Memory")
-        draw_text(draw, xy=(default_margin_x, height / common_first_line_y), text="Used:")
-        draw_text(draw, xy=(default_margin_x, height / common_second_line_y), text="Phys:")
-        draw_text(draw, xy=(default_margin_x, height / common_third_line_y), text="Swap:")
+        draw_text(draw, xy=(default_margin_x, common_first_line_y), text="Used:")
+        draw_text(draw, xy=(default_margin_x, common_second_line_y), text="Phys:")
+        draw_text(draw, xy=(default_margin_x, common_third_line_y), text="Swap:")
 
-        right_text(draw, height / common_first_line_y, width, text="{0:0.1f}%".format(mem_used_pct))
-        right_text(draw, height / common_second_line_y, width, text=bytes2human(mem.used))
-        right_text(draw, height / common_third_line_y, width, text=bytes2human(swap.used))
+        right_text(draw, common_first_line_y, width, text="{0:0.1f}%".format(mem_used_pct))
+        right_text(draw, common_second_line_y, width, text=bytes2human(mem.used))
+        right_text(draw, common_third_line_y, width, text=bytes2human(swap.used))

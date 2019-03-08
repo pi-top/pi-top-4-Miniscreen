@@ -26,14 +26,14 @@ class Hotspot(BaseHotspot):
         title_text(draw, default_margin_y, width, text="VNC Info")
         draw_text(
             draw,
-            xy=(default_margin_x, height / common_first_line_y),
+            xy=(default_margin_x, common_first_line_y),
             text=str("IP: " + get_internal_ip()),
         )
         draw_text(
             draw,
-            xy=(default_margin_x, height / common_second_line_y),
+            xy=(default_margin_x, common_second_line_y),
             text=str("Username: " + username),
         )
         draw_text(
-            draw, xy=(default_margin_x, height / common_third_line_y), text=str("Password: pi-top")
+            draw, xy=(default_margin_x, common_third_line_y), text=str("Password: pi-top")
         )

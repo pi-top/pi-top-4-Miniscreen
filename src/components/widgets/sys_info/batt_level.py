@@ -9,5 +9,5 @@ class Hotspot(BaseHotspot):
         super(Hotspot, self).__init__(width, height, interval, self.render)
 
     def render(self, draw, width, height):
-        draw_text(draw, xy=(default_margin_x, height / common_first_line_y), text="Capacity: " + get_battery_capacity())
-        draw_text(draw, xy=(default_margin_x, height / common_second_line_y), text=get_battery_charging_state())
+        draw_text(draw, xy=(default_margin_x, common_first_line_y), text="Capacity: " + get_battery_capacity())
+        draw_text(draw, xy=(default_margin_x, common_second_line_y), text=get_battery_charging_state())
