@@ -1,6 +1,6 @@
 from PIL import ImageFont
 import os.path
-from components.widgets.common_values import right_margin
+from components.widgets.common_values import default_margin_x, right_text_default_margin
 
 
 def get_font(size=12):
@@ -47,7 +47,7 @@ def draw_text(
     )
 
 
-def right_text(draw, y, width, text, margin=right_margin):
+def right_text(draw, y, width, text, margin=right_text_default_margin):
     x = width - margin - draw.textsize(text)[0]
     draw_text(draw, xy=(x, y), text=text)
 

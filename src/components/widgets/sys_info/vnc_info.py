@@ -6,7 +6,7 @@ from components.widgets.common_functions import (
     align_to_middle,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_values import top_margin, default_margin
+from components.widgets.common_values import default_margin_y, default_margin_x
 from getpass import getuser
 
 
@@ -17,17 +17,17 @@ class Hotspot(BaseHotspot):
     @staticmethod
     def render(draw, width, height):
         username = "pi" if getuser() == "root" else getuser()
-        title_text(draw, top_margin, width, text="VNC Info")
+        title_text(draw, default_margin_y, width, text="VNC Info")
         draw_text(
             draw,
-            xy=(default_margin, (height * 1 / 4)),
+            xy=(default_margin_x, height / common_first_line_y),
             text=str("IP: " + get_internal_ip()),
         )
         draw_text(
             draw,
-            xy=(default_margin, (height * 2 / 4)),
+            xy=(default_margin_x, height / common_second_line_y),
             text=str("Username: " + username),
         )
         draw_text(
-            draw, xy=(default_margin, (height * 3 / 4)), text=str("Password: pi-top")
+            draw, xy=(default_margin_x, height / common_third_line_y), text=str("Password: pi-top")
         )

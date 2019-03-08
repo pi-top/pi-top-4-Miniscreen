@@ -1,5 +1,6 @@
 from ptcommon.sys_info import get_battery_capacity, get_battery_charging_state
 from components.widgets.common_functions import draw_text
+from components.widgets.common_values import default_margin_x
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -8,5 +9,5 @@ class Hotspot(BaseHotspot):
         super(Hotspot, self).__init__(width, height, interval, self.render)
 
     def render(self, draw, width, height):
-        draw_text(draw, xy=(3, height / 5), text="Capacity: " + get_battery_capacity())
-        draw_text(draw, xy=(3, height / 2), text=get_battery_charging_state())
+        draw_text(draw, xy=(default_margin_x, height / common_first_line_y), text="Capacity: " + get_battery_capacity())
+        draw_text(draw, xy=(default_margin_x, height / common_second_line_y), text=get_battery_charging_state())
