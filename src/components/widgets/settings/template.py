@@ -1,4 +1,5 @@
-from components.widgets.common_functions import title_text, tiny_font, draw_text
+from components.widgets.common_functions import title_text, draw_text
+from components.widgets.common_values import default_margin_y
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -10,6 +11,5 @@ class Hotspot(BaseHotspot):
         self.method = data.get("method")
 
     def render(self, draw, width, height):
-        margin = 3
-        title_text(draw, margin, width, text=self.title)
-        draw_text(draw, xy=(width / 3, 30), text=str(self.method()))
+        title_text(draw, default_margin_y, width, text=self.title)
+        draw_text(draw, xy=(width / 3, height / 2), text=str(self.method()))

@@ -98,8 +98,7 @@ class Hotspot(BaseHotspot):
         if self._error:
             draw_text(
                 draw,
-                xy=(width / 2 - title_width / 2,
-                height / 2 - title_height / 2),
+                xy=(width / 2 - title_width / 2, height / 2 - title_height / 2),
                 text=message,
             )
         else:

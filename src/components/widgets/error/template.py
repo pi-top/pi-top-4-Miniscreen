@@ -1,5 +1,5 @@
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_functions import draw_text
+from components.widgets.common_functions import draw_text, align_to_middle
 
 
 class Hotspot(BaseHotspot):
@@ -13,14 +13,18 @@ class Hotspot(BaseHotspot):
         text_width, text_height = draw.textsize(self.title)
         draw_text(
             draw,
-            xy=(width / 2 - text_width / 2,
-            height / 4 - text_height / 4),
+            xy=(
+                align_to_middle(draw, width, text=self.title),
+                height / 4 - text_height / 4,
+            ),
             text=self.title,
         )
         text_width, text_height = draw.textsize(self.second_line)
         draw_text(
             draw,
-            xy=(width / 2 - text_width / 2,
-            height / 2 - text_height / 2),
+            xy=(
+                align_to_middle(draw, width, text=self.title),
+                height / 1.5 - text_height / 2,
+            ),
             text=self.second_line,
         )

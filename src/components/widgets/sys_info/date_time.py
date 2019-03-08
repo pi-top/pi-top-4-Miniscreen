@@ -1,5 +1,6 @@
 import datetime
-from components.widgets.common_functions import title_text, draw_text
+from components.widgets.common_functions import title_text, draw_text, align_to_middle
+from components.widgets.common_values import common_first_line_y, common_second_line_y
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -21,6 +22,6 @@ class Hotspot(BaseHotspot):
             + str(date_time.second)
         )
 
-        title_text(draw, height / 10, width, date)
+        title_text(draw, common_first_line_y, width, date)
 
-        draw_text(draw, xy=(width / 3, height / 3), text=time)
+        draw_text(draw, xy=(align_to_middle(draw, width, time), common_second_line_y), text=time)

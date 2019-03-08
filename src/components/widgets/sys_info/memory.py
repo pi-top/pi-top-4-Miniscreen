@@ -4,6 +4,12 @@
 import psutil
 from ptcommon.formatting import bytes2human
 from components.widgets.common_functions import right_text, title_text, draw_text
+from components.widgets.common_values import (
+    default_margin_x,
+    common_second_line_y,
+    common_first_line_y,
+    common_third_line_y,
+)
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
@@ -17,13 +23,11 @@ class Hotspot(BaseHotspot):
         swap = psutil.swap_memory()
         mem_used_pct = (mem.total - mem.available) * 100.0 / mem.total
 
-        margin = 3
+        title_text(draw, y=default_margin_x, width=width, text="Memory")
+        draw_text(draw, xy=(default_margin_x, common_first_line_y), text="Used:")
+        draw_text(draw, xy=(default_margin_x, common_second_line_y), text="Phys:")
+        draw_text(draw, xy=(default_margin_x, common_third_line_y), text="Swap:")
 
-        title_text(draw, margin, width, text="Memory")
-        draw_text(draw, xy=(margin, 20), text="Used:")
-        draw_text(draw, xy=(margin, 35), text="Phys:")
-        draw_text(draw, xy=(margin, 45), text="Swap:")
-
-        right_text(draw, 20, width, margin, text="{0:0.1f}%".format(mem_used_pct))
-        right_text(draw, 35, width, margin, text=bytes2human(mem.used))
-        right_text(draw, 45, width, margin, text=bytes2human(swap.used))
+        right_text(draw, common_first_line_y, width, text="{0:0.1f}%".format(mem_used_pct))
+        right_text(draw, common_second_line_y, width, text=bytes2human(mem.used))
+        right_text(draw, common_third_line_y, width, text=bytes2human(swap.used))
