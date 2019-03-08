@@ -6,7 +6,13 @@ from components.widgets.common_functions import (
     align_to_middle,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_values import default_margin_y, default_margin_x
+from components.widgets.common_values import (
+    default_margin_y,
+    default_margin_x,
+    common_second_line_y,
+    common_first_line_y,
+    common_third_line_y,
+)
 from getpass import getuser
 
 

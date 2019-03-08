@@ -12,4 +12,4 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         title_text(draw, default_margin_y, width, text=self.title)
-        draw_text(draw, xy=(width / 3, height / common_second_line_y), text=str(self.method()))
+        draw_text(draw, xy=(width / 3, height / 2), text=str(self.method()))
