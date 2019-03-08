@@ -19,5 +19,4 @@ class Hotspot(BaseHotspot):
             draw,
             xy=(align_to_middle(draw, width, screen_text), height / 2),
             text=screen_text,
-            font=get_font(size=8),
         )
