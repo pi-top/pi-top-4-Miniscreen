@@ -12,7 +12,8 @@ def play_animation():
         )
     )
     img = Image.open(img_path)
-    play_startup_sound()
+    if path.isfile("/etc/pi-top/.silent_boot") == False:
+        play_startup_sound()
     sleep(1.2)
     for frame in ImageSequence.Iterator(img):
         # inverted_frame = ImageOps.invert(frame.convert("RGB"))
