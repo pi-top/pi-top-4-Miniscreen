@@ -9,8 +9,6 @@ pool = threadpool(4)
 
 
 class Menu:
-    """A scrollable viewport of many menu widgets"""
-
     def __init__(self, name):
         """Constructor for Menu"""
         self.pages = list()

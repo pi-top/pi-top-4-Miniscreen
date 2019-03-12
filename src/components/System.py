@@ -1,5 +1,4 @@
 from os import uname
-from components.helpers import RequestServer
 from ptcommon.logger import PTLogger
 
 
@@ -11,14 +10,7 @@ def is_pi():
     return machine == "armv7l"
 
 
-def take_control_of_oled():
-    global got_pi_control
-    got_pi_control = RequestServer.take_control_of_oled()
-    PTLogger.info("Pi has control of OLED? " + str(got_pi_control))
-
-
 def setup_pi_and_get_device():
-    take_control_of_oled()
     import RPi.GPIO as GPIO
 
     # Suppress warning in Luma serial class
