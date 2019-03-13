@@ -7,7 +7,7 @@ def get_font(size=12):
 
     if size >= 12:
         font = ImageFont.truetype(
-            "/usr/share/fonts/opentype/FSMePro/FSMePro-Regular.otf", size
+            "/usr/share/fonts/opentype/FSMePro/FSMePro-Light.otf", size
         )
     else:
         font = ImageFont.truetype(
