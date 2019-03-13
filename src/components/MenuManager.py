@@ -1,8 +1,5 @@
 from time import sleep
-from components.System import is_pi
-
-if not is_pi():
-    from components.helpers.ButtonPressHelper import ButtonPressHelper
+from ptcommon.sys_info import is_pi
 
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
@@ -12,13 +9,17 @@ from ptcommon.logger import PTLogger
 from threading import Thread
 from ptcommon.pt_os import eula_agreed
 
+if not is_pi():
+    from components.helpers.ButtonPressHelper import ButtonPressHelper
+    PTLogger.debug("Is not Pi - running as emulator")
+    PTLogger.info("Emulator: Setting up ButtonPressHelper")
+    ButtonPressHelper.init()
+
 
 class MenuManager:
     """Owner class for all Menus. Handles input events and controls menu behaviour."""
 
     def __init__(self):
-        """Constructor for MenuManager"""
-
         self.button_press_stack = []
         self._continue = True
         self._request_client = RequestClient()

@@ -1,7 +1,7 @@
 from luma.core.threadpool import threadpool
 
 from components.helpers import MenuHelper
-from components.System import device
+from ptoled import device
 from ptcommon.logger import PTLogger
 
 
@@ -10,7 +10,6 @@ pool = threadpool(4)
 
 class Menu:
     def __init__(self, name):
-        """Constructor for Menu"""
         self.pages = list()
         self.name = name
         self.parent = None

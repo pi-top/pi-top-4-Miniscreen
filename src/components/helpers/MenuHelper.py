@@ -1,4 +1,5 @@
-from components.System import device, is_pi
+from ptcommon.sys_info import is_pi
+from ptoled import device
 from components.Page import MenuPage
 from components.widgets.sys_info import (
     batt_level,

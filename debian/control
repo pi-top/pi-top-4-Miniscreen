@@ -8,7 +8,9 @@ Homepage: https://pi-top.com/
 
 Package: pt-sys-menu
 Architecture: armhf
-Depends: pt-hub, pt-ui-mods, python3-monotonic, python3-psutil, python3-pt-common, python3-pt-oled
+Depends: pt-hub, pt-ui-mods, python3-luma-oled, python3-luma-core,
+ python3-monotonic, python3-psutil, python3-pt-common,
+ python3-pt-oled
 Recommends: pt-remote-rpi
 Description: pi-top OLED system menu application
  The intended behaviour of this application is to manage
