@@ -1,11 +1,11 @@
 [Unit]
 Description=pi-top OLED system menu
-After=pt-device-manager.service
+After=pt-oled-startup-anim.service
 
 [Service]
 Type=simple
 Restart=always
-ExecStart=/bin/sleep 3
+#ExecStart=/bin/sleep 3
 ExecStart=/usr/lib/pt-sys-menu/pt-sys-menu
 
 [Install]
