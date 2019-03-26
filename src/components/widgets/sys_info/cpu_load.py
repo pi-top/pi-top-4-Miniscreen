@@ -2,8 +2,9 @@
 # See LICENSE.rst for details.
 
 import psutil
-from components.widgets.common_functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common_functions import get_file
+from components.widgets.common.image_component import ImageComponent
 
 
 def vertical_bar(draw, x1, y1, x2, y2, yh):
@@ -13,20 +14,22 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
 
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
+        super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.image = ImageComponent(
+            image_path=get_file("cpu_page.gif"), loop=False
+        )
 
-    @staticmethod
-    def render(draw, width, height):
+    def render(self, draw, width, height):
+        self.image.render(draw)
         percentages = psutil.cpu_percent(interval=None, percpu=True)
 
-        top_margin = 3
-        bottom_margin = 3
-        title_text(draw, top_margin, width, "CPU Load")
+        top_margin = 10
+        bottom_margin = 10
 
-        bar_height = height - 15 - top_margin - bottom_margin
-        width_cpu = width / len(percentages)
-        bar_width = 0.5 * width_cpu
-        bar_margin = (width_cpu - bar_width) / 2
+        bar_height = height - top_margin - bottom_margin
+        width_cpu = (width / 2) / len(percentages)
+        bar_width = 10
+        bar_margin = 10
 
         x = bar_margin
 
@@ -34,7 +37,7 @@ class Hotspot(BaseHotspot):
             cpu_height = bar_height * (cpu / 100.0)
             y2 = height - bottom_margin
             vertical_bar(
-                draw, x, y2 - bar_height - 1, x + bar_width, y2, y2 - cpu_height
+                draw, width - x, y2 - bar_height - 1, width - x - bar_width, y2, y2 - cpu_height
             )
 
             x += width_cpu
