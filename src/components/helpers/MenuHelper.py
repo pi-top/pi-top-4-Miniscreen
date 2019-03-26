@@ -15,7 +15,10 @@ from components.widgets.sys_info import (
     date_time,
 )
 from components.widgets.main import template as main_menu_page
-from components.widgets.settings import template as settings_menu_page
+from components.widgets.settings import (
+    template as settings_menu_page,
+    settings as setting_title,
+)
 from components.widgets.projects import template as projects_menu_page
 from components.widgets.common import image as image_page
 from components.widgets.error import template as error_page
@@ -207,16 +210,9 @@ class Pages:
         )
 
     class MainMenu(Enum):
-        PROJECT_SELECT = MenuPage(
-            name="project_select",
-            hotspot=get_hotspot(main_menu_page, title="Other Projects"),
-            select_action_func=change_menu(Menus.PROJECTS),
-            cancel_action_func=None,
-        )
-
         SETTINGS_SELECT = MenuPage(
             name="Settings",
-            hotspot=get_hotspot(main_menu_page, title="Settings"),
+            hotspot=get_hotspot(setting_title, title="Settings", interval=1.0),
             select_action_func=change_menu(Menus.SETTINGS),
             cancel_action_func=None,
         )

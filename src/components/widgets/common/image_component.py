@@ -78,4 +78,4 @@ class ImageComponent:
         if self._image is not None:
             self._seek_next_frame_in_image()
             img_bitmap = _create_bitmap_to_render(self._image, self.width, self.height)
-            draw.bitmap(xy=(0, 0), bitmap=img_bitmap.convert(device.mode), fill="white")
+            draw.bitmap(xy=self.xy, bitmap=img_bitmap.convert(device.mode), fill="white")
