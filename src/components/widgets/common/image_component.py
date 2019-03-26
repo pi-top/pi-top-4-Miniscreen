@@ -74,7 +74,7 @@ class ImageComponent:
             embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
             self.interval = float(embedded_frame_speed_s / self.playback_speed)
 
-    def show_image(self, draw):
+    def render(self, draw):
         if self._image is not None:
             self._seek_next_frame_in_image()
             img_bitmap = _create_bitmap_to_render(self._image, self.width, self.height)

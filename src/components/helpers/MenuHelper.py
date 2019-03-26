@@ -25,6 +25,7 @@ from ptcommon.sys_info import (
     get_vnc_enabled_state,
     get_systemd_enabled_state,
 )
+from components.widgets.common_functions import get_file
 
 from luma.core.virtual import viewport
 from enum import Enum
@@ -46,13 +47,6 @@ def change_menu(menu_id):
         _app.change_menu(menu_id)
 
     return run
-
-def get_file(relative_file_name):
-    return path.abspath(
-        path.join(
-            path.dirname(__file__), "..", "..", "images", relative_file_name
-        )
-    )
 
 def enable_and_start_systemd_service(service_to_enable):
     system("sudo systemctl enable " + service_to_enable)
