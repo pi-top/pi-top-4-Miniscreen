@@ -25,17 +25,16 @@ class Hotspot(BaseHotspot):
         self.gif.render(draw)
         if self.gif.finished is True:
             username = "pi" if getuser() == "root" else getuser()
-            title_text(draw, default_margin_y, width, text="VNC Info")
             draw_text(
                 draw,
                 xy=(default_margin_x, common_first_line_y),
-                text=str("IP: " + get_internal_ip()),
+                text=str(get_internal_ip()),
             )
             draw_text(
                 draw,
                 xy=(default_margin_x, common_second_line_y),
-                text=str("Username: " + username),
+                text=str(username),
             )
             draw_text(
-                draw, xy=(default_margin_x, common_third_line_y), text=str("Password: pi-top")
+                draw, xy=(default_margin_x, common_third_line_y), text=str("pi-top")
             )
