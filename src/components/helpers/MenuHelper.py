@@ -17,7 +17,7 @@ from components.widgets.sys_info import (
 from components.widgets.main import template as main_menu_page
 from components.widgets.settings import template as settings_menu_page
 from components.widgets.projects import template as projects_menu_page
-from components.widgets.first_time_setup import intro as intro_page
+from components.widgets.common import image as image_page
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -47,6 +47,12 @@ def change_menu(menu_id):
 
     return run
 
+def get_file(relative_file_name):
+    return path.abspath(
+        path.join(
+            path.dirname(__file__), "..", "..", "images", relative_file_name
+        )
+    )
 
 def enable_and_start_systemd_service(service_to_enable):
     system("sudo systemctl enable " + service_to_enable)
@@ -195,7 +201,7 @@ class Pages:
 
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc_info, interval=1.0),
+            hotspot=get_hotspot(vnc_info, interval=0.1),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
@@ -322,13 +328,13 @@ class Pages:
     class FirstTimeSetupMenu(Enum):
         INTRO = MenuPage(
             name="initial_setup",
-            hotspot=get_hotspot(intro_page, interval=1.0),
+            hotspot=get_hotspot(image_page, image_path=get_file("first-time-connect.gif"), interval=0.5),
             select_action_func=None,
             cancel_action_func=None,
         )
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc_info, interval=1.0),
+            hotspot=get_hotspot(vnc_info, interval=0.1),
             select_action_func=None,
             cancel_action_func=None,
         )
