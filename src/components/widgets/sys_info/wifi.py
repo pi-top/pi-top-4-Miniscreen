@@ -1,5 +1,5 @@
 from ptcommon.sys_info import get_network_id, get_internal_ip, get_ssh_enabled_state
-from components.widgets.common_functions import title_text, draw_text
+from components.widgets.common_functions import draw_text, get_file
 from components.widgets.common_values import (
     default_margin_x,
     default_margin_y,
@@ -8,17 +8,52 @@ from components.widgets.common_values import (
     common_third_line_y,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.image_component import ImageComponent
+import os
+
+
+def get_wifi_strength():
+    try:
+        response = os.popen('iwconfig wlan0 | grep "Link Quality="').read()
+        wifi_strngeth_as_string = response.split("=")[1].split(" ")[0]
+        strength, max = wifi_strngeth_as_string.split("/")
+        return int(strength) / int(max)
+    except:
+        return 0
+
+
+def wifi_strength_rating():
+    wifi_strength = get_wifi_strength()
+    if wifi_strength <= 0.4:
+        wifi_rating = "BAD"
+    elif 0.4 < wifi_strength <= 0.6:
+        wifi_rating = "OKAY"
+    else:
+        wifi_rating = "EXCELLENT"
+    return wifi_rating
 
 
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
-        super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
+        super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.gif = ImageComponent(image_path=get_file("wifi_page.gif"), loop=False)
 
-    @staticmethod
-    def render(draw, width, height):
-        title_text(draw, default_margin_y, width, text="Wi-Fi Info")
-        draw_text(draw, xy=(default_margin_x, common_first_line_y), text=str("SSID: " + get_network_id()))
-        draw_text(draw, xy=(default_margin_x, common_second_line_y), text=str("IP: " + get_internal_ip()))
-        draw_text(
-            draw, xy=(default_margin_x, common_third_line_y), text=str("SSH: " + get_ssh_enabled_state())
-        )
+    def render(self, draw, width, height):
+        self.gif.render(draw)
+        if self.gif.finished is True:
+
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_first_line_y),
+                text=str(wifi_strength_rating()),
+            )
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_second_line_y),
+                text=str(get_network_id()),
+            )
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_third_line_y),
+                text=str(get_internal_ip()),
+            )
