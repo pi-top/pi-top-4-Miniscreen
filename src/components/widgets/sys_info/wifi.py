@@ -40,6 +40,7 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         self.gif.render(draw)
+        wifi_id = get_network_id() if get_network_id() is not "TEST" else "NO WIFI"
         if self.gif.finished is True:
 
             draw_text(
@@ -50,7 +51,7 @@ class Hotspot(BaseHotspot):
             draw_text(
                 draw,
                 xy=(default_margin_x, common_second_line_y),
-                text=str(get_network_id()),
+                text=str(wifi_id),
             )
             draw_text(
                 draw,
