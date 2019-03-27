@@ -6,11 +6,11 @@ from components.widgets.common.image_component import ImageComponent
 
 
 def draw_battery_percentage(draw, width, height):
-    percentage = int(get_battery_capacity()[:1])
+    percentage = int(get_battery_capacity()[:-1])
     top_margin = 25
     bottom_margin = 38
     left_margin = 14
-    bar_width = left_margin + int(50 * (percentage / 100))
+    bar_width = left_margin + ((50 - left_margin) * (percentage/100))
     draw.rectangle(
         (left_margin, top_margin) + (bar_width, bottom_margin), "white", "white"
     )
