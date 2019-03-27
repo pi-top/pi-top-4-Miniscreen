@@ -1,4 +1,4 @@
-from ptcommon.sys_info import get_network_id, get_internal_ip, get_ssh_enabled_state
+from ptcommon.sys_info import get_network_id, get_internal_ip, get_network_strength
 from components.widgets.common_functions import draw_text, get_file
 from components.widgets.common_values import (
     default_margin_x,
@@ -9,28 +9,22 @@ from components.widgets.common_values import (
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
-import os
 
 
-def get_wifi_strength():
-    try:
-        response = os.popen('iwconfig wlan0 | grep "Link Quality="').read()
-        wifi_strngeth_as_string = response.split("=")[1].split(" ")[0]
-        strength, max = wifi_strngeth_as_string.split("/")
-        return int(strength) / int(max)
-    except:
-        return 0
-
-
-def wifi_strength_rating():
-    wifi_strength = get_wifi_strength()
-    if wifi_strength <= 0.4:
-        wifi_rating = "BAD"
+def wifi_strength_image():
+    wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
+    wifi_rating = "wifi_strength_bars/"
+    if wifi_strength == 0:
+        wifi_rating += "wifi_no_signal.gif"
+    elif 0 < wifi_strength <= 0.5:
+        wifi_rating += "wifi_weak_signal.gif"
     elif 0.4 < wifi_strength <= 0.6:
-        wifi_rating = "OKAY"
+        wifi_rating += "wifi_okay_signal.gif"
+    elif 0.6 < wifi_strength <= 0.7:
+        wifi_rating += "wifi_good_signal.gif"
     else:
-        wifi_rating = "EXCELLENT"
-    return wifi_rating
+        wifi_rating += "wifi_excellent_signal.gif"
+    return get_file(wifi_rating)
 
 
 class Hotspot(BaseHotspot):
@@ -43,15 +37,12 @@ class Hotspot(BaseHotspot):
         wifi_id = get_network_id() if get_network_id() is not "TEST" else "NO WIFI"
         if self.gif.finished is True:
 
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_first_line_y),
-                text=str(wifi_strength_rating()),
+            self.wifi_bars = ImageComponent(
+                xy=(5, 0), image_path=wifi_strength_image(), loop=True
             )
+            self.wifi_bars.render(draw)
             draw_text(
-                draw,
-                xy=(default_margin_x, common_second_line_y),
-                text=str(wifi_id),
+                draw, xy=(default_margin_x, common_second_line_y), text=str(wifi_id)
             )
             draw_text(
                 draw,
