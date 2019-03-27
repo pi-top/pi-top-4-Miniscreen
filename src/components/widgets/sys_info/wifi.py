@@ -14,7 +14,7 @@ from components.widgets.common.image_component import ImageComponent
 def wifi_strength_image():
     wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
     wifi_rating = "wifi_strength_bars/"
-    if wifi_strength == 0:
+    if wifi_strength <= 0:
         wifi_rating += "wifi_no_signal.gif"
     elif 0 < wifi_strength <= 0.5:
         wifi_rating += "wifi_weak_signal.gif"
@@ -36,7 +36,6 @@ class Hotspot(BaseHotspot):
         self.gif.render(draw)
         wifi_id = get_network_id() if get_network_id() is not "TEST" else "NO WIFI"
         if self.gif.finished is True:
-
             self.wifi_bars = ImageComponent(
                 xy=(5, 0), image_path=wifi_strength_image(), loop=True
             )
@@ -47,5 +46,5 @@ class Hotspot(BaseHotspot):
             draw_text(
                 draw,
                 xy=(default_margin_x, common_third_line_y),
-                text=str(get_internal_ip()),
+                text=str(get_internal_ip(iface="wlan0")),
             )
