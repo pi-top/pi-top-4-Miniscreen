@@ -1,10 +1,5 @@
 from ptcommon.sys_info import get_battery_capacity, get_battery_charging_state
 from components.widgets.common_functions import draw_text
-from components.widgets.common_values import (
-    default_margin_x,
-    common_first_line_y,
-    common_second_line_y,
-)
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common_functions import get_file
 from components.widgets.common.image_component import ImageComponent
@@ -31,11 +26,11 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         x_margin = 69
         y_margin = 21
-        if get_battery_charging_state() == "discharging":
+        if get_battery_charging_state() == "charging":
+            battery_state = get_file("battery_shell_charging.gif")
+        else:
             battery_state = get_file("battery_shell_empty.gif")
             draw_battery_percentage(draw, width, height)
-        else:
-            battery_state = get_file("battery_shell_charging.gif")
         self.gif = ImageComponent(image_path=battery_state, loop=False)
         self.gif.render(draw)
         draw_text(
