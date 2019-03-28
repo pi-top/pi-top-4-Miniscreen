@@ -5,22 +5,25 @@ from components.widgets.common_functions import get_file
 from components.widgets.common.image_component import ImageComponent
 
 
-def draw_battery_percentage(draw, width, height):
-    percentage = int(get_battery_capacity()[:-1])
-    top_margin = 25
-    bottom_margin = 38
-    left_margin = 14
-    bar_width = left_margin + ((50 - left_margin) * (percentage/100))
-    draw.rectangle(
-        (left_margin, top_margin) + (bar_width, bottom_margin), "white", "white"
-    )
-
-
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
             image_path=get_file("battery_shell_empty.gif"), loop=False
+        )
+        self.battery_percentage = get_battery_capacity()
+
+    def draw_battery_percentage(self, draw, width, height):
+        try:
+            percentage = int(self.battery_percentage[:-1])
+        except ValueError:
+            percentage = 0
+        top_margin = 25
+        bottom_margin = 38
+        left_margin = 14
+        bar_width = left_margin + ((50 - left_margin) * (percentage / 100))
+        draw.rectangle(
+            (left_margin, top_margin) + (bar_width, bottom_margin), "white", "white"
         )
 
     def render(self, draw, width, height):
@@ -30,7 +33,7 @@ class Hotspot(BaseHotspot):
             battery_state = get_file("battery_shell_charging.gif")
         else:
             battery_state = get_file("battery_shell_empty.gif")
-            draw_battery_percentage(draw, width, height)
+            self.draw_battery_percentage(draw, width, height)
         self.gif = ImageComponent(image_path=battery_state, loop=False)
         self.gif.render(draw)
         draw_text(
