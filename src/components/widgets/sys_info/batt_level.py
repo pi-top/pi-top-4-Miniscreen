@@ -14,6 +14,8 @@ class Hotspot(BaseHotspot):
         self.battery_percentage = get_battery_capacity()
 
     def draw_battery_percentage(self, draw, width, height):
+        # magic numbers are used because the images assets are same as the page
+        # so can't be used to get relative values
         try:
             percentage = int(self.battery_percentage[:-1])
         except ValueError:
