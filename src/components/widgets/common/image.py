@@ -2,6 +2,8 @@ from ptcommon.logger import PTLogger
 from PIL import Image
 from os.path import isfile
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common_functions import draw_text
+from ptoled import device
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -16,11 +18,8 @@ def _create_bitmap_to_render(image, width, height):
     # Full screen
     size = [width, height]
     position = (0, 0)
-
-    # Create new image with same size as display
-    img_bitmap = Image.new("RGBA", size_tuple)
-    # Resize frame and paste onto canvas image
-    img_bitmap.paste(image.resize(size, resample=Image.LANCZOS), position)
+    img_bitmap = Image.new("RGB", size)
+    img_bitmap.paste(image.resize(size), position)
     img_bitmap.resize((width, height))
 
     return img_bitmap
@@ -29,7 +28,6 @@ def _create_bitmap_to_render(image, width, height):
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-
         self._frame_no = 0
         self._image = None
         self._error = True  # Until image is set
@@ -99,4 +97,4 @@ class Hotspot(BaseHotspot):
             if self._image is not None:
                 self._seek_next_frame_in_image()
                 img_bitmap = _create_bitmap_to_render(self._image, width, height)
-                draw.bitmap(xy=(0, 0), bitmap=img_bitmap, fill="white")
+                draw.bitmap(xy=(0, 0), bitmap=img_bitmap.convert(device.mode), fill="white")

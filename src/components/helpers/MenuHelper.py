@@ -15,9 +15,12 @@ from components.widgets.sys_info import (
     date_time,
 )
 from components.widgets.main import template as main_menu_page
-from components.widgets.settings import template as settings_menu_page
+from components.widgets.settings import (
+    template as settings_menu_page,
+    settings as setting_title,
+)
 from components.widgets.projects import template as projects_menu_page
-from components.widgets.first_time_setup import intro as intro_page
+from components.widgets.common import image as image_page
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -25,6 +28,7 @@ from ptcommon.sys_info import (
     get_vnc_enabled_state,
     get_systemd_enabled_state,
 )
+from components.widgets.common_functions import get_file
 
 from luma.core.virtual import viewport
 from enum import Enum
@@ -46,7 +50,6 @@ def change_menu(menu_id):
         _app.change_menu(menu_id)
 
     return run
-
 
 def enable_and_start_systemd_service(service_to_enable):
     system("sudo systemctl enable " + service_to_enable)
@@ -182,7 +185,7 @@ class Pages:
         )
         WIFI = MenuPage(
             name="wifi",
-            hotspot=get_hotspot(wifi, interval=1.0),
+            hotspot=get_hotspot(wifi, interval=0.1),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
@@ -195,7 +198,7 @@ class Pages:
 
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc_info, interval=1.0),
+            hotspot=get_hotspot(vnc_info, interval=0.1),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
@@ -207,16 +210,9 @@ class Pages:
         )
 
     class MainMenu(Enum):
-        PROJECT_SELECT = MenuPage(
-            name="project_select",
-            hotspot=get_hotspot(main_menu_page, title="Other Projects"),
-            select_action_func=change_menu(Menus.PROJECTS),
-            cancel_action_func=None,
-        )
-
         SETTINGS_SELECT = MenuPage(
             name="Settings",
-            hotspot=get_hotspot(main_menu_page, title="Settings"),
+            hotspot=get_hotspot(setting_title, title="Settings", interval=1.0),
             select_action_func=change_menu(Menus.SETTINGS),
             cancel_action_func=None,
         )
@@ -242,7 +238,7 @@ class Pages:
             name="vnc_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
-                title="VNC Connection",
+                type="vnc",
                 interval=1.0,
                 method=get_vnc_enabled_state,
             ),
@@ -253,7 +249,7 @@ class Pages:
             name="ssh_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
-                title="SSH Connection",
+                type="ssh",
                 interval=1.0,
                 method=get_ssh_enabled_state,
             ),
@@ -322,13 +318,13 @@ class Pages:
     class FirstTimeSetupMenu(Enum):
         INTRO = MenuPage(
             name="initial_setup",
-            hotspot=get_hotspot(intro_page, interval=1.0),
+            hotspot=get_hotspot(image_page, image_path=get_file("first-time-connect.gif"), interval=0.5),
             select_action_func=None,
             cancel_action_func=None,
         )
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc_info, interval=1.0),
+            hotspot=get_hotspot(vnc_info, interval=0.1),
             select_action_func=None,
             cancel_action_func=None,
         )
@@ -415,7 +411,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ["wifi", "network", "cpu", "disk", "vnc"]
+        page_name_arr = ["cpu", "battery", "wifi", "vnc"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 
