@@ -238,7 +238,7 @@ class Pages:
             name="vnc_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
-                title="VNC Connection",
+                type="vnc",
                 interval=1.0,
                 method=get_vnc_enabled_state,
             ),
@@ -249,7 +249,7 @@ class Pages:
             name="ssh_connection",
             hotspot=get_hotspot(
                 settings_menu_page,
-                title="SSH Connection",
+                type="ssh",
                 interval=1.0,
                 method=get_ssh_enabled_state,
             ),
