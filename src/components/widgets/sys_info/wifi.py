@@ -31,20 +31,38 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(image_path=get_file("wifi_page.gif"), loop=False)
+        self.counter = 0
+        self.wifi_id = ""
+        self.wifi_ip = ""
+        self.wifi_bars_image = ""
+
+    def set_wifi_data_members(self):
+        self.wifi_id = (
+            get_network_id() if get_network_id() is not "TEST" else "NO WIFI"
+        )
+        self.wifi_ip = get_internal_ip(iface="wlan0")
+        self.wifi_bars_image = wifi_strength_image()
 
     def render(self, draw, width, height):
         self.gif.render(draw)
-        wifi_id = get_network_id() if get_network_id() is not "TEST" else "NO WIFI"
+
+        if self.counter == 10:
+            self.set_wifi_data_members()
+            self.counter = 0
+        self.counter += 1
+
         if self.gif.finished is True:
-            self.wifi_bars = ImageComponent(
-                xy=(5, 0), image_path=wifi_strength_image(), loop=True
+            wifi_bars = ImageComponent(
+                xy=(5, 0), image_path=self.wifi_bars_image, loop=True
             )
-            self.wifi_bars.render(draw)
-            draw_text(
-                draw, xy=(default_margin_x, common_second_line_y), text=str(wifi_id)
-            )
+            wifi_bars.render(draw)
+
             draw_text(
                 draw,
-                xy=(default_margin_x, common_third_line_y),
-                text=str(get_internal_ip(iface="wlan0")),
+                xy=(default_margin_x, common_second_line_y),
+                text=str(self.wifi_id),
+            )
+
+            draw_text(
+                draw, xy=(default_margin_x, common_third_line_y), text=str(self.wifi_ip)
             )
