@@ -395,7 +395,7 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 def get_sys_info_pages_from_config():
     cfg_path = (
-        "/etc/pi-top/pt-sys-menu" if is_pi() else path.expanduser("~/.pt-sys-menu")
+        "/etc/pi-top/pt-sys-oled" if is_pi() else path.expanduser("~/.pt-sys-oled")
     )
     cfg_file = cfg_path + "/prefs.cfg"
     page_name_arr = list()

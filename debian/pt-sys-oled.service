@@ -5,7 +5,7 @@ After=pt-oled-startup-anim.service
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 -B /usr/lib/pt-sys-menu/pt-sys-menu
+ExecStart=/usr/bin/python3 -B /usr/lib/pt-sys-oled/pt-sys-oled
 
 [Install]
 WantedBy=local-fs.target

@@ -4,10 +4,10 @@
 
 
 override_dh_systemd_enable:
-	dh_systemd_enable --name=pt-sys-menu
+	dh_systemd_enable --name=pt-sys-oled
 
 override_dh_installinit:
 	dh_installinit --noscripts
 
 override_dh_systemd_start:
-	dh_systemd_start pt-sys-menu
+	dh_systemd_start pt-sys-oled

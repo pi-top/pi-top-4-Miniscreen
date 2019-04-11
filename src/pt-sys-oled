@@ -48,7 +48,7 @@ def setup_pt_logging():
     )
     args = parser.parse_args()
 
-    PTLogger.setup_logging("pt-sys-menu", args.log_level, args.no_journal is False)
+    PTLogger.setup_logging("pt-sys-oled", args.log_level, args.no_journal is False)
 
 
 
