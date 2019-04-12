@@ -56,7 +56,7 @@ def setup():
     configure_logging()
     configure_interrupt_signals()
     setup_pt_logging()
-    ptoled = PTOLEDDisplay
+    ptoled = PTOLEDDisplay()
     ptoled.reset()
 
 
