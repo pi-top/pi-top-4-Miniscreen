@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import ptoled
+from ptoled import PTOLEDDisplay
 from components.MenuManager import MenuManager
 from signal import (
     signal,
@@ -56,7 +56,8 @@ def setup():
     configure_logging()
     configure_interrupt_signals()
     setup_pt_logging()
-    ptoled.init()
+    ptoled = PTOLEDDisplay
+    ptoled.reset()
 
 
 if __name__ == "__main__":
