@@ -53,11 +53,11 @@ class Hotspot(BaseHotspot):
         self.gif.render(draw)
 
         if self.gif.finished is True:
-            if self.counter == 10:
+            if self.counter == 0:
                 self.set_wifi_data_members()
-                self.counter = 0
-            self.counter += 1
-            
+                self.counter = 10
+            self.counter -= 1
+
             wifi_bars = ImageComponent(
                 xy=(5, 0), image_path=self.wifi_bars_image, loop=True
             )
