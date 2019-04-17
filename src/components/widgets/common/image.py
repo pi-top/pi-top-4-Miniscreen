@@ -3,7 +3,7 @@ from PIL import Image
 from os.path import isfile
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common_functions import draw_text
-from ptoled import device
+from ptoled import get_device_instance
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -98,5 +98,5 @@ class Hotspot(BaseHotspot):
                 self._seek_next_frame_in_image()
                 img_bitmap = _create_bitmap_to_render(self._image, width, height)
                 draw.bitmap(
-                    xy=(0, 0), bitmap=img_bitmap.convert(device.mode), fill="white"
+                    xy=(0, 0), bitmap=img_bitmap.convert(get_device_instance().mode), fill="white"
                 )

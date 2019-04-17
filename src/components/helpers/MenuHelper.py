@@ -1,5 +1,5 @@
 from ptcommon.sys_info import is_pi
-from ptoled import device
+from ptoled import get_device_instance
 from components.Page import MenuPage
 from components.widgets.sys_info import (
     batt_level,
@@ -37,6 +37,13 @@ import signal
 from subprocess import check_output, Popen
 
 _app = None
+
+# By getting the device at this early stage, we make sure the instance we get 
+# for the sys-oled is non-exclusive. That is, we don't want to block other
+# OLED applications from using the device. When another application does lock 
+# the device, then the sys-oled should detect that and stop rendering.
+
+_device = get_device_instance(exclusive=False)
 
 
 def set_app(top_level_app_obj):
@@ -124,7 +131,7 @@ def start_stop_project(path_to_project):
 
 def get_hotspot(widget, interval=0.0, **extra_data):
     data = {
-        **{"width": device.width, "height": device.height, "interval": interval},
+        **{"width": _device.width, "height": _device.height, "interval": interval},
         **extra_data,
     }
     return widget.Hotspot(**data)

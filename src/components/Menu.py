@@ -1,7 +1,7 @@
 from luma.core.threadpool import threadpool
 
 from components.helpers import MenuHelper
-from ptoled import device
+from ptoled import get_device_instance
 from ptcommon.logger import PTLogger
 
 
@@ -37,12 +37,12 @@ class Menu:
 
     def set_up_viewport(self, pages):
         self.pages = pages
-        self.viewport = MenuHelper.create_viewport(device, self.pages)
+        self.viewport = MenuHelper.create_viewport(get_device_instance(), self.pages)
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
             page_index = self.page_index
-        return page_index * device.height
+        return page_index * get_device_instance().height
 
     def move_instantly_to_page(self, page_index, debug_print=True):
         previous_page = self.page_index
@@ -109,7 +109,7 @@ class Menu:
     def redraw_if_necessary(self):
         if self.should_redraw():
             im = self.viewport._backing_image.crop(box=self.viewport._crop_box())
-            device.display(im)
+            get_device_instance().display(im)
             del im
 
     def get_viewport_height(self):

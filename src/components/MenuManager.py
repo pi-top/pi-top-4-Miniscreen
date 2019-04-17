@@ -1,9 +1,8 @@
 from time import sleep
-from os import path
-from fcntl import flock, LOCK_EX, LOCK_NB, LOCK_UN
 from ptcommon.sys_info import is_pi
 from subprocess import call
 
+from ptoled import device_reserved
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.helpers.RequestClient import RequestClient
@@ -115,20 +114,6 @@ class MenuManager:
 
         self.current_menu.redraw_if_necessary()
 
-    def _check_if_oled_in_use(self):
-        try:
-            oled_lock_file = None
-            if (path.exists("/tmp/pt-oled.lock")):
-                oled_lock_file = open("/tmp/pt-oled.lock", "a+")
-                flock(oled_lock_file.fileno(), LOCK_EX | LOCK_NB)
-                flock(oled_lock_file, LOCK_UN)
-                return False
-        except IOError:
-            return True
-        finally:
-            if oled_lock_file is not None:
-                oled_lock_file.close()
-
     def main_loop(self):
         try:
             while self._continue:
@@ -140,7 +125,7 @@ class MenuManager:
                 oled_control_lost_since_last_cycle = False
 
                 while True:
-                    if self._check_if_oled_in_use():
+                    if device_reserved():
                         if oled_control_lost_since_last_cycle is False:
                             PTLogger.info("User has taken control of the OLED")
                             oled_control_lost_since_last_cycle = True
