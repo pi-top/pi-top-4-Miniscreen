@@ -5,7 +5,7 @@ from components.widgets.common_values import default_margin_x, right_text_defaul
 
 def get_image_file(relative_file_name):
     return path.abspath(
-        path.join("/usr", "share", "pt-sys-oled", relative_file_name)
+        path.join("/usr", "share", "pt-sys-oled", "images", relative_file_name)
     )
 
 
