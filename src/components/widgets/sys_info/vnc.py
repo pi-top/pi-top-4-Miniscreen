@@ -26,7 +26,6 @@ class Hotspot(BaseHotspot):
 
     def set_vnc_data_members(self):
         self.username = "pi" if getuser() == "root" else getuser()
-        network_ssid = get_network_id()
         try:
             self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
         except ValueError:
