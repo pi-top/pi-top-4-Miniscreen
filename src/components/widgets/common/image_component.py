@@ -29,27 +29,25 @@ class ImageComponent:
         self.height = height
         self._frame_no = 0
         self._image = None
-        self.image_path = image_path
         self.loop = loop
         self.playback_speed = playback_speed
         self.finished = False
-        self._load_image_from_path(self.image_path)
+        self._load_image_from_path(image_path)
 
     def _load_image_from_path(self, image_path):
         self._error = False
-        self.image_path = image_path
-        if not isfile(self.image_path):
-            self._error_text = "Invalid path for image file: " + str(self.image_path)
+        if not isfile(image_path):
+            self._error_text = "Invalid path for image file: " + str(image_path)
             self._error = True
             return
 
         try:
-            self._image = Image.open(self.image_path)
+            self._image = Image.open(image_path)
             self._image.verify()
 
             # Need to close and re-open after verifying...
             self._image.close()
-            self._image = Image.open(self.image_path)
+            self._image = Image.open(image_path)
 
             self._error = False
         except Exception as e:
