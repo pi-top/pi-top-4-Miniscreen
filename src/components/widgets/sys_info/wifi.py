@@ -43,12 +43,14 @@ class Hotspot(BaseHotspot):
 
     def set_wifi_data_members(self):
         network_ssid = get_network_id()
+        self.wifi_id = network_ssid if network_ssid is not "Error" else "No WiFi"
+
         network_ip = get_internal_ip(iface="wlan0")
         try:
             self.wlan0_ip = ip_address(network_ip)
         except ValueError:
             self.wlan0_ip = ""
-        self.wifi_id = network_ssid if network_ssid is not "Error" else "No WiFi"
+
         self.wifi_bars_image = wifi_strength_image()
 
     def render(self, draw, width, height):
