@@ -41,7 +41,7 @@ class Hotspot(BaseHotspot):
 
     def set_wifi_data_members(self):
         self.wifi_id = (
-            get_network_id() if get_network_id() is not "TEST" else "NO WIFI"
+            get_network_id() if get_network_id() is not "Error" else "No WiFi"
         )
         self.wifi_ip = get_internal_ip(iface="wlan0")
         self.wifi_bars_image = wifi_strength_image()
