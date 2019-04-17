@@ -8,7 +8,8 @@ Homepage: https://pi-top.com/
 
 Package: pt-sys-oled
 Architecture: armhf
-Depends: pt-hub, pt-ui-mods, python3-luma-oled, python3-luma-core,
+Depends: ${misc:Depends}, ${python3:Depends}, pt-hub,
+ pt-ui-mods, python3-luma-oled, python3-luma-core,
  python3-monotonic, python3-psutil, python3-pt-common,
  python3-pt-oled
 Recommends: pt-remote-rpi
