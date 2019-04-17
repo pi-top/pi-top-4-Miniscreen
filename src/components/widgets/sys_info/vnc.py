@@ -1,5 +1,4 @@
 from ptcommon.sys_info import get_internal_ip
-from ipaddress import ip_address
 from components.widgets.common_functions import title_text, draw_text, get_file
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
@@ -11,6 +10,7 @@ from components.widgets.common_values import (
     common_third_line_y,
 )
 from getpass import getuser
+from ipaddress import ip_address
 
 
 class Hotspot(BaseHotspot):

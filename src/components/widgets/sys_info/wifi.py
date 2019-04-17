@@ -9,7 +9,7 @@ from components.widgets.common_values import (
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
-
+from ipaddress import ip_address
 
 def wifi_strength_image():
     wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
