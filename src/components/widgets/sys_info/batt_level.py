@@ -17,8 +17,9 @@ class Hotspot(BaseHotspot):
     def update_battery_state(self):
         self.battery_percentage = get_battery_capacity()
         self.previous_charging = self.charging
-        self.charging = get_battery_charging_state() == "charging"
-
+        charging = get_battery_charging_state() == "charging"
+        fully_charged = get_battery_charging_state() == "full_battery"
+        self.charging = charging or fully_charged
 
     def draw_battery_percentage(self, draw, width, height):
         try:
