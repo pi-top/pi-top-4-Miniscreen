@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from ptoled import PTOLEDDisplay
 from components.MenuManager import MenuManager
+
+from ptcommon.sys_info import is_pi
+from ptcommon.logger import PTLogger
+
 from signal import (
     signal,
     SIGINT,
@@ -13,7 +16,6 @@ from logging import (
     DEBUG,
     ERROR
 )
-from ptcommon.logger import PTLogger
 from argparse import ArgumentParser
 
 
@@ -56,8 +58,10 @@ def setup():
     configure_logging()
     configure_interrupt_signals()
     setup_pt_logging()
-    ptoled = PTOLEDDisplay()
-    ptoled.reset()
+    if is_pi():
+        from ptoled import PTOLEDDisplay
+        ptoled = PTOLEDDisplay()
+        ptoled.reset()
 
 
 if __name__ == "__main__":

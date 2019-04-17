@@ -11,7 +11,7 @@ from components.widgets.sys_info import (
     hud,
     wifi,
     network,
-    vnc_info,
+    vnc,
     date_time,
 )
 from components.widgets.main import template as main_menu_page
@@ -198,7 +198,7 @@ class Pages:
 
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc_info, interval=0.1),
+            hotspot=get_hotspot(vnc, interval=0.1),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
@@ -324,7 +324,7 @@ class Pages:
         )
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc_info, interval=0.1),
+            hotspot=get_hotspot(vnc, interval=0.1),
             select_action_func=None,
             cancel_action_func=None,
         )

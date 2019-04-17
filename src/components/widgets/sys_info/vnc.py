@@ -19,6 +19,9 @@ from getpass import getuser
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.reset()
+
+    def reset(self):
         self.gif = ImageComponent(image_path=get_file("vnc_page.gif"), loop=False)
         self.counter = 0
         self.username = ""

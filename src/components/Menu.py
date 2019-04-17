@@ -44,12 +44,22 @@ class Menu:
         return page_index * device.height
 
     def move_instantly_to_page(self, page_index, debug_print=True):
+        previous_page = self.page_index
+
         self.page_index = page_index
         if debug_print:
             PTLogger.info("Moving instantly to " + str(self.get_current_page().name))
 
+        self.reset_page(previous_page)
+
+    def reset_page(self, page_index):
+        self.get_page(page_index).hotspot.reset()
+
+    def get_page(self, page_index):
+        return self.pages[page_index]
+
     def get_current_page(self):
-        return self.pages[self.page_index]
+        return self.get_page(self.page_index)
 
     def last_page_no(self):
         return len(self.pages) - 1

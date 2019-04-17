@@ -13,10 +13,12 @@ class BaseHotspot(snapshot):
     """
 
     def __init__(self, width, height, interval=0.0, draw_fn=None, **kwargs):
-        # Get from data?
         super(BaseHotspot, self).__init__(
             width, height, draw_fn=draw_fn, interval=interval
         )
+
+    def reset(self):
+        pass
 
     def should_redraw(self):
         """
