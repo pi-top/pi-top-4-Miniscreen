@@ -42,7 +42,6 @@ class Hotspot(BaseHotspot):
     def set_wifi_data_members(self):
         network_ssid = get_network_id()
         network_ip = get_internal_ip(iface="wlan0")
-        network_ip = get_internal_ip(iface="eth0")
         try:
             self.wlan0_ip = ip_address(network_ip)
         except ValueError:
