@@ -11,12 +11,10 @@ class Hotspot(BaseHotspot):
         self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
         self.battery_percentage = ""
         self.charging = False
-        self.previous_charging = False
-        self.has_rendered = False
 
     def update_battery_state(self):
         self.battery_percentage = get_battery_capacity()
-        self.previous_charging = self.charging
+
         charging = get_battery_charging_state() == "charging"
         fully_charged = get_battery_charging_state() == "full_battery"
         self.charging = charging or fully_charged
@@ -44,17 +42,12 @@ class Hotspot(BaseHotspot):
 
         self.draw_battery_percentage(draw, width, height)
 
-        update_battery_icon = False
-        if self.charging and not self.previous_charging:
-            update_battery_icon = True
+        if self.charging:
             self.gif = ImageComponent(image_path=get_image_file("battery_shell_charging.gif"), loop=False)
-        elif not self.charging and self.previous_charging:
-            update_battery_icon = True
+        else:
             self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
 
-        if update_battery_icon or not self.has_rendered:
-            self.has_rendered = True
-            self.gif.render(draw)
+        self.gif.render(draw)
 
         x_margin = 69
         y_margin = 21
