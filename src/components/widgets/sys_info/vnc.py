@@ -1,4 +1,5 @@
 from ptcommon.sys_info import get_internal_ip
+from ipaddress import ip_address
 from components.widgets.common_functions import title_text, draw_text, get_file
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
@@ -21,11 +22,15 @@ class Hotspot(BaseHotspot):
         self.gif = ImageComponent(image_path=get_file("vnc_page.gif"), loop=False)
         self.counter = 0
         self.username = ""
-        self.ip = ""
+        self.eth0_ip = ""
 
     def set_vnc_data_members(self):
         self.username = "pi" if getuser() == "root" else getuser()
-        self.ip = get_internal_ip(iface="eth0")
+        network_ssid = get_network_id()
+        try:
+            self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
+        except ValueError:
+            self.eth0_ip = ""
 
     def render(self, draw, width, height):
         self.gif.render(draw)
@@ -37,7 +42,7 @@ class Hotspot(BaseHotspot):
 
         if self.gif.finished is True:
             draw_text(
-                draw, xy=(default_margin_x, common_first_line_y), text=str(self.ip)
+                draw, xy=(default_margin_x, common_first_line_y), text=str(self.eth0_ip)
             )
             draw_text(
                 draw,

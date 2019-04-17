@@ -36,14 +36,18 @@ class Hotspot(BaseHotspot):
         self.gif = ImageComponent(image_path=get_file("wifi_page.gif"), loop=False)
         self.counter = 0
         self.wifi_id = ""
-        self.wifi_ip = ""
+        self.wlan0_ip = ""
         self.wifi_bars_image = ""
 
     def set_wifi_data_members(self):
         network_ssid = get_network_id()
         network_ip = get_internal_ip(iface="wlan0")
+        network_ip = get_internal_ip(iface="eth0")
+        try:
+            self.wlan0_ip = ip_address(network_ip)
+        except ValueError:
+            self.wlan0_ip = ""
         self.wifi_id = network_ssid if network_ssid is not "Error" else "No WiFi"
-        self.wifi_ip = network_ip if network_ssid is not "Error" else ""
         self.wifi_bars_image = wifi_strength_image()
 
     def render(self, draw, width, height):
@@ -67,5 +71,5 @@ class Hotspot(BaseHotspot):
             )
 
             draw_text(
-                draw, xy=(default_margin_x, common_third_line_y), text=str(self.wifi_ip)
+                draw, xy=(default_margin_x, common_third_line_y), text=str(self.wlan0_ip)
             )
