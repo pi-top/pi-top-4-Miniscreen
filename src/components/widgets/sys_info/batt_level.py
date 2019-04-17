@@ -8,14 +8,14 @@ from components.widgets.common.image_component import ImageComponent
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.gif = ImageComponent(
-            image_path=get_image_file("battery_shell_empty.gif"), loop=False
-        )
+        self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
         self.battery_percentage = ""
         self.charging = False
+        self.previous_charging = False
 
     def update_battery_state(self):
         self.battery_percentage = get_battery_capacity()
+        self.previous_charging = self.charging
         self.charging = get_battery_charging_state() == "charging"
 
 
@@ -42,14 +42,16 @@ class Hotspot(BaseHotspot):
 
         self.draw_battery_percentage(draw, width, height)
 
-        if self.charging:
-            if self.gif.image_path != "/usr/share/pt-sys-oled/images/battery_shell_charging.gif":
-                self.gif = ImageComponent(image_path=get_image_file("battery_shell_charging.gif"), loop=False)
-                self.gif.render(draw)
-        else:
-            if self.gif.image_path != "/usr/share/pt-sys-oled/images/battery_shell_empty.gif":
-                self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
-                self.gif.render(draw)
+        update_battery_icon = False
+        if self.charging and not self.previous_charging:
+            update_battery_icon = True
+            self.gif = ImageComponent(image_path=get_image_file("battery_shell_charging.gif"), loop=False)
+        elif not self.charging and self.previous_charging:
+            update_battery_icon = True
+            self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
+
+        if update_battery_icon:
+            self.gif.render(draw)
 
         x_margin = 69
         y_margin = 21
