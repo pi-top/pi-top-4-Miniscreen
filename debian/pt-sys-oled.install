@@ -1,4 +1,3 @@
 src/pt-sys-oled                     /usr/lib/pt-sys-oled/
-src/fonts                           /usr/lib/pt-sys-oled/
 src/components                      /usr/lib/pt-sys-oled/
 src/images                          /usr/lib/pt-sys-oled/
