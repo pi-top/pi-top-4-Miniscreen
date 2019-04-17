@@ -15,6 +15,7 @@ class Menu:
         self.parent = None
         self.page_index = 0
         self.last_displayed_image = None
+        self.force_redraw_called = False
 
         if name == MenuHelper.Menus.SYS_INFO:
             pages = MenuHelper.get_sys_info_pages_from_config()
@@ -65,6 +66,12 @@ class Menu:
         return len(self.pages) - 1
 
     def should_redraw(self):
+
+        if self.force_redraw_called:
+            PTLogger.info("Forcing a redraw")
+            self.force_redraw_called = False
+            return True
+
         should_wait = False
         for hotspot, xy in self.viewport._hotspots:
             if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(
@@ -95,6 +102,9 @@ class Menu:
             should_redraw = image_has_updated
 
         return should_redraw
+
+    def force_redraw(self):
+        self.force_redraw_called = True
 
     def redraw_if_necessary(self):
         if self.should_redraw():

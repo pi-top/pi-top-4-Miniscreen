@@ -1,5 +1,8 @@
 from time import sleep
+from os import path
+from fcntl import flock, LOCK_EX, LOCK_NB, LOCK_UN
 from ptcommon.sys_info import is_pi
+from subprocess import call
 
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
@@ -11,7 +14,6 @@ from ptcommon.pt_os import eula_agreed
 
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
-
     PTLogger.debug("Is not Pi - running as emulator")
     PTLogger.info("Emulator: Setting up ButtonPressHelper")
     ButtonPressHelper.init()
@@ -113,6 +115,20 @@ class MenuManager:
 
         self.current_menu.redraw_if_necessary()
 
+    def _check_if_oled_in_use(self):
+        try:
+            oled_lock_file = None
+            if (path.exists("/tmp/pt-oled.lock")):
+                oled_lock_file = open("/tmp/pt-oled.lock", "a+")
+                flock(oled_lock_file.fileno(), LOCK_EX | LOCK_NB)
+                flock(oled_lock_file, LOCK_UN)
+                return False
+        except IOError:
+            return True
+        finally:
+            if oled_lock_file is not None:
+                oled_lock_file.close()
+
     def main_loop(self):
         try:
             while self._continue:
@@ -120,6 +136,21 @@ class MenuManager:
                     self.add_button_press_to_stack(ButtonPressHelper.get())
                 self.update_state()
                 sleep(0.1)
+
+                oled_control_lost_since_last_cycle = False
+
+                while True:
+                    if self._check_if_oled_in_use():
+                        if oled_control_lost_since_last_cycle is False:
+                            PTLogger.info("User has taken control of the OLED")
+                            oled_control_lost_since_last_cycle = True
+                        sleep(1)
+                    else:
+                        if oled_control_lost_since_last_cycle:
+                            PTLogger.info("OLED control restored")
+                            call(["/bin/systemctl", "restart", "pt-sys-oled"])
+                        break
+
         except SystemExit:
             PTLogger.info("Program exited")
             pass
