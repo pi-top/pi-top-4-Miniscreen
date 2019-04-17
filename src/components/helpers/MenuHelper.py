@@ -51,6 +51,7 @@ def change_menu(menu_id):
 
     return run
 
+
 def enable_and_start_systemd_service(service_to_enable):
     system("sudo systemctl enable " + service_to_enable)
     system("sudo systemctl start " + service_to_enable)
@@ -318,7 +319,9 @@ class Pages:
     class FirstTimeSetupMenu(Enum):
         INTRO = MenuPage(
             name="initial_setup",
-            hotspot=get_hotspot(image_page, image_path=get_file("first-time-connect.gif"), interval=0.5),
+            hotspot=get_hotspot(
+                image_page, image_path=get_file("first-time-connect.gif"), interval=0.5
+            ),
             select_action_func=None,
             cancel_action_func=None,
         )

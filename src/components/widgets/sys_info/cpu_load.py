@@ -15,9 +15,7 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.image = ImageComponent(
-            image_path=get_file("cpu_page.gif"), loop=False
-        )
+        self.image = ImageComponent(image_path=get_file("cpu_page.gif"), loop=False)
 
     def render(self, draw, width, height):
         self.image.render(draw)
@@ -37,7 +35,12 @@ class Hotspot(BaseHotspot):
             cpu_height = bar_height * (cpu / 100.0)
             y2 = height - bottom_margin
             vertical_bar(
-                draw, width - x, y2 - bar_height - 1, width - x - bar_width, y2, y2 - cpu_height
+                draw,
+                width - x,
+                y2 - bar_height - 1,
+                width - x - bar_width,
+                y2,
+                y2 - cpu_height,
             )
 
             x += width_cpu

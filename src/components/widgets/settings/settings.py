@@ -14,9 +14,4 @@ class Hotspot(BaseHotspot):
         self.gif.render(draw)
         x_margin = 45
         y_margin = 19
-        draw_text(
-            draw,
-            xy=(x_margin, y_margin),
-            text=self.title,
-            font_size=18
-        )
+        draw_text(draw, xy=(x_margin, y_margin), text=self.title, font_size=18)

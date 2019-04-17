@@ -27,6 +27,12 @@ class Hotspot(BaseHotspot):
         draw_text(draw, xy=(default_margin_x, common_second_line_y), text="Free:")
         draw_text(draw, xy=(default_margin_x, common_third_line_y), text="Total:")
 
-        right_text(draw, common_first_line_y, width, text="{0:0.1f}%".format(df.percent))
-        right_text(draw, common_second_line_y, width, text=bytes2human(df.free, "{0:0.0f}"))
-        right_text(draw, common_third_line_y, width, text=bytes2human(df.total, "{0:0.0f}"))
+        right_text(
+            draw, common_first_line_y, width, text="{0:0.1f}%".format(df.percent)
+        )
+        right_text(
+            draw, common_second_line_y, width, text=bytes2human(df.free, "{0:0.0f}")
+        )
+        right_text(
+            draw, common_third_line_y, width, text=bytes2human(df.total, "{0:0.0f}")
+        )

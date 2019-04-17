@@ -5,9 +5,7 @@ from components.widgets.common_values import default_margin_x, right_text_defaul
 
 def get_file(relative_file_name):
     return path.abspath(
-        path.join(
-            path.dirname(__file__), "..", "..", "images", relative_file_name
-        )
+        path.join(path.dirname(__file__), "..", "..", "images", relative_file_name)
     )
 
 
@@ -20,9 +18,7 @@ def get_font(size=12):
     else:
         font = ImageFont.truetype(
             path.abspath(
-                path.join(
-                    path.dirname(__file__), "..", "..", "fonts", "FreePixel.ttf"
-                )
+                path.join(path.dirname(__file__), "..", "..", "fonts", "FreePixel.ttf")
             ),
             size,
         )

@@ -30,7 +30,11 @@ class Hotspot(BaseHotspot):
             draw_text(draw, xy=(default_margin_x, common_second_line_y), text="Rx:")
             draw_text(draw, xy=(default_margin_x, common_third_line_y), text="Tx:")
 
-            right_text(draw, common_second_line_y, width, text=bytes2human(counters.bytes_recv))
-            right_text(draw, common_third_line_y, width, text=bytes2human(counters.bytes_sent))
+            right_text(
+                draw, common_second_line_y, width, text=bytes2human(counters.bytes_recv)
+            )
+            right_text(
+                draw, common_third_line_y, width, text=bytes2human(counters.bytes_sent)
+            )
         except:
             draw_text(draw, xy=(default_margin_x, common_first_line_y), text="n/a")

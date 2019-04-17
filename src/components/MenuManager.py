@@ -11,6 +11,7 @@ from ptcommon.pt_os import eula_agreed
 
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
+
     PTLogger.debug("Is not Pi - running as emulator")
     PTLogger.info("Emulator: Setting up ButtonPressHelper")
     ButtonPressHelper.init()

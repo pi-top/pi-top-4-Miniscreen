@@ -28,6 +28,8 @@ class Hotspot(BaseHotspot):
         draw_text(draw, xy=(default_margin_x, common_second_line_y), text="Phys:")
         draw_text(draw, xy=(default_margin_x, common_third_line_y), text="Swap:")
 
-        right_text(draw, common_first_line_y, width, text="{0:0.1f}%".format(mem_used_pct))
+        right_text(
+            draw, common_first_line_y, width, text="{0:0.1f}%".format(mem_used_pct)
+        )
         right_text(draw, common_second_line_y, width, text=bytes2human(mem.used))
         right_text(draw, common_third_line_y, width, text=bytes2human(swap.used))
