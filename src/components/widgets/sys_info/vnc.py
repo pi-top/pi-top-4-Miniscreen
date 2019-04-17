@@ -34,12 +34,12 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         self.gif.render(draw)
 
-        if self.counter == 10:
-            self.set_vnc_data_members()
-            self.counter = 0
-        self.counter += 1
-
         if self.gif.finished is True:
+            if self.counter == 10:
+                self.set_vnc_data_members()
+                self.counter = 0
+            self.counter += 1
+            
             draw_text(
                 draw, xy=(default_margin_x, common_first_line_y), text=str(self.eth0_ip)
             )

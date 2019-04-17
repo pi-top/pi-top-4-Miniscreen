@@ -52,12 +52,12 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         self.gif.render(draw)
 
-        if self.counter == 10:
-            self.set_wifi_data_members()
-            self.counter = 0
-        self.counter += 1
-
         if self.gif.finished is True:
+            if self.counter == 10:
+                self.set_wifi_data_members()
+                self.counter = 0
+            self.counter += 1
+            
             wifi_bars = ImageComponent(
                 xy=(5, 0), image_path=self.wifi_bars_image, loop=True
             )
