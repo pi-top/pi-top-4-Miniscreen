@@ -25,7 +25,7 @@ class Hotspot(BaseHotspot):
 
     def set_vnc_data_members(self):
         self.username = "pi" if getuser() == "root" else getuser()
-        self.ip = get_internal_ip()
+        self.ip = get_internal_ip(iface="eth0")
 
     def render(self, draw, width, height):
         self.gif.render(draw)
