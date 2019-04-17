@@ -8,7 +8,6 @@ from components.widgets.sys_info import (
     disk,
     cpu_load,
     clock,
-    hud,
     wifi,
     network,
     vnc,
@@ -175,12 +174,6 @@ class Pages:
         CLOCK = MenuPage(
             name="clock",
             hotspot=get_hotspot(clock, interval=1.0),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None,
-        )
-        HUD = MenuPage(
-            name="hud",
-            hotspot=get_hotspot(hud, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
