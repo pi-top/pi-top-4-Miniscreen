@@ -1,4 +1,4 @@
-from ptcommon.sys_info import get_network_id, get_internal_ip, get_network_strength
+from ptcommon.sys_info import get_wifi_network_ssid, get_internal_ip, get_network_strength
 from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_x,
@@ -42,7 +42,7 @@ class Hotspot(BaseHotspot):
         self.counter = 0
 
     def set_wifi_data_members(self):
-        network_ssid = get_network_id()
+        network_ssid = get_wifi_network_ssid()
         self.wifi_id = network_ssid if network_ssid is not "Error" else "No WiFi"
 
         network_ip = get_internal_ip(iface="wlan0")
