@@ -1,7 +1,7 @@
 from luma.core.threadpool import threadpool
 
 from components.helpers import MenuHelper
-from ptoled import get_device_instance
+from ptoled import get_device_instance, reset_device_instance
 from ptcommon.logger import PTLogger
 
 
@@ -15,7 +15,7 @@ class Menu:
         self.parent = None
         self.page_index = 0
         self.last_displayed_image = None
-        self.force_redraw_called = False
+        self.force_redraw = False
 
         if name == MenuHelper.Menus.SYS_INFO:
             pages = MenuHelper.get_sys_info_pages_from_config()
@@ -67,9 +67,9 @@ class Menu:
 
     def should_redraw(self):
 
-        if self.force_redraw_called:
+        if self.force_redraw:
             PTLogger.info("Forcing a redraw")
-            self.force_redraw_called = False
+            self.force_redraw = False
             return True
 
         should_wait = False
@@ -103,8 +103,10 @@ class Menu:
 
         return should_redraw
 
-    def force_redraw(self):
-        self.force_redraw_called = True
+    def reset_device(self):
+        self.force_redraw = True
+        PTLogger.info("Resetting device instance...")
+        reset_device_instance(exclusive=False)
 
     def redraw_if_necessary(self):
         if self.should_redraw():

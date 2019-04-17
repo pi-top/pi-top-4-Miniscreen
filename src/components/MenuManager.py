@@ -133,7 +133,9 @@ class MenuManager:
                     else:
                         if oled_control_lost_since_last_cycle:
                             PTLogger.info("OLED control restored")
-                            call(["/bin/systemctl", "restart", "pt-sys-oled"])
+                            # Alternative solution - nuke it
+                            # call(["/bin/systemctl", "restart", "pt-sys-oled"])
+                            self.current_menu.reset_device()
                         break
 
         except SystemExit:
