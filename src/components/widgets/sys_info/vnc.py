@@ -16,16 +16,18 @@ from ipaddress import ip_address
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.reset()
+        self.gif = ImageComponent(image_path=get_image_file("vnc_page.gif"), loop=False)
+        self.counter = 0
+
+        self.eth0_ip = ""
+        self.username = "pi" if getuser() == "root" else getuser()
+        self.password = "pi-top"
 
     def reset(self):
         self.gif = ImageComponent(image_path=get_image_file("vnc_page.gif"), loop=False)
         self.counter = 0
-        self.username = ""
-        self.eth0_ip = ""
 
     def set_vnc_data_members(self):
-        self.username = "pi" if getuser() == "root" else getuser()
         try:
             self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
         except ValueError:
@@ -49,5 +51,5 @@ class Hotspot(BaseHotspot):
                 text=str(self.username),
             )
             draw_text(
-                draw, xy=(default_margin_x, common_third_line_y), text=str("pi-top")
+                draw, xy=(default_margin_x, common_third_line_y), text=str(self.password)
             )

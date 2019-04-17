@@ -30,14 +30,16 @@ def wifi_strength_image():
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.reset()
+        self.gif = ImageComponent(image_path=get_image_file("wifi_page.gif"), loop=False)
+        self.counter = 0
+
+        self.wifi_id = ""
+        self.wlan0_ip = ""
+        self.wifi_bars_image = ""
 
     def reset(self):
         self.gif = ImageComponent(image_path=get_image_file("wifi_page.gif"), loop=False)
         self.counter = 0
-        self.wifi_id = ""
-        self.wlan0_ip = ""
-        self.wifi_bars_image = ""
 
     def set_wifi_data_members(self):
         network_ssid = get_network_id()
