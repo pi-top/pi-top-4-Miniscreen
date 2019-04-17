@@ -1,7 +1,7 @@
 from ptcommon.sys_info import get_battery_capacity, get_battery_charging_state
 from components.widgets.common_functions import draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_functions import get_file
+from components.widgets.common_functions import get_image_file
 from components.widgets.common.image_component import ImageComponent
 
 
@@ -9,7 +9,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_file("battery_shell_empty.gif"), loop=False
+            image_path=get_image_file("battery_shell_empty.gif"), loop=False
         )
         self.battery_percentage = get_battery_capacity()
 
@@ -32,9 +32,9 @@ class Hotspot(BaseHotspot):
         x_margin = 69
         y_margin = 21
         if get_battery_charging_state() == "charging":
-            battery_state = get_file("battery_shell_charging.gif")
+            battery_state = get_image_file("battery_shell_charging.gif")
         else:
-            battery_state = get_file("battery_shell_empty.gif")
+            battery_state = get_image_file("battery_shell_empty.gif")
             self.draw_battery_percentage(draw, width, height)
         self.gif = ImageComponent(image_path=battery_state, loop=False)
         self.gif.render(draw)

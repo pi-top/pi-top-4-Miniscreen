@@ -3,9 +3,9 @@ from os import path
 from components.widgets.common_values import default_margin_x, right_text_default_margin
 
 
-def get_file(relative_file_name):
+def get_image_file(relative_file_name):
     return path.abspath(
-        path.join(path.dirname(__file__), "..", "..", "images", relative_file_name)
+        path.join("usr", "share", "pt-sys-oled", relative_file_name)
     )
 
 

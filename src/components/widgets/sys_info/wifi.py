@@ -1,5 +1,5 @@
 from ptcommon.sys_info import get_network_id, get_internal_ip, get_network_strength
-from components.widgets.common_functions import draw_text, get_file
+from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_x,
     default_margin_y,
@@ -24,7 +24,7 @@ def wifi_strength_image():
         wifi_rating += "wifi_good_signal.gif"
     else:
         wifi_rating += "wifi_excellent_signal.gif"
-    return get_file(wifi_rating)
+    return get_image_file(wifi_rating)
 
 
 class Hotspot(BaseHotspot):
@@ -33,7 +33,7 @@ class Hotspot(BaseHotspot):
         self.reset()
 
     def reset(self):
-        self.gif = ImageComponent(image_path=get_file("wifi_page.gif"), loop=False)
+        self.gif = ImageComponent(image_path=get_image_file("wifi_page.gif"), loop=False)
         self.counter = 0
         self.wifi_id = ""
         self.wlan0_ip = ""

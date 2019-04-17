@@ -3,7 +3,7 @@
 
 import psutil
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_functions import get_file
+from components.widgets.common_functions import get_image_file
 from components.widgets.common.image_component import ImageComponent
 
 
@@ -15,7 +15,7 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.image = ImageComponent(image_path=get_file("cpu_page.gif"), loop=False)
+        self.image = ImageComponent(image_path=get_image_file("cpu_page.gif"), loop=False)
 
     def render(self, draw, width, height):
         self.image.render(draw)

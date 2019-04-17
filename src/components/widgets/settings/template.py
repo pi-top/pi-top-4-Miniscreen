@@ -1,4 +1,4 @@
-from components.widgets.common_functions import get_file
+from components.widgets.common_functions import get_image_file
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
 
@@ -13,9 +13,9 @@ class Hotspot(BaseHotspot):
     def get_image(self):
         state = self.method()
         if state == "Enabled":
-            return get_file("settings_pages/" + self.type + "_on.gif")
+            return get_image_file("settings_pages/" + self.type + "_on.gif")
         else:
-            return get_file("settings_pages/" + self.type + "_off.gif")
+            return get_image_file("settings_pages/" + self.type + "_off.gif")
 
     def render(self, draw, width, height):
         self.gif = ImageComponent(image_path=self.get_image(), loop=False)

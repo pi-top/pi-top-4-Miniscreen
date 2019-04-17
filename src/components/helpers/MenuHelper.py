@@ -28,7 +28,7 @@ from ptcommon.sys_info import (
     get_vnc_enabled_state,
     get_systemd_enabled_state,
 )
-from components.widgets.common_functions import get_file
+from components.widgets.common_functions import get_image_file
 
 from luma.core.virtual import viewport
 from enum import Enum
@@ -320,7 +320,7 @@ class Pages:
         INTRO = MenuPage(
             name="initial_setup",
             hotspot=get_hotspot(
-                image_page, image_path=get_file("first-time-connect.gif"), interval=0.5
+                image_page, image_path=get_image_file("first-time-connect.gif"), interval=0.5
             ),
             select_action_func=None,
             cancel_action_func=None,

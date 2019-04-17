@@ -1,5 +1,5 @@
 from ptcommon.sys_info import get_internal_ip
-from components.widgets.common_functions import title_text, draw_text, get_file
+from components.widgets.common_functions import title_text, draw_text, get_image_file
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
 from components.widgets.common_values import (
@@ -19,7 +19,7 @@ class Hotspot(BaseHotspot):
         self.reset()
 
     def reset(self):
-        self.gif = ImageComponent(image_path=get_file("vnc_page.gif"), loop=False)
+        self.gif = ImageComponent(image_path=get_image_file("vnc_page.gif"), loop=False)
         self.counter = 0
         self.username = ""
         self.eth0_ip = ""
