@@ -1,9 +1,13 @@
-from luma.core.threadpool import threadpool
-
 from components.helpers import MenuHelper
+
 from ptoled import get_device_instance, reset_device_instance
+if is_pi():
+    from ptoled import PTOLEDDisplay
+
+from ptcommon.sys_info import is_pi
 from ptcommon.logger import PTLogger
 
+from luma.core.threadpool import threadpool
 
 pool = threadpool(4)
 
@@ -107,6 +111,8 @@ class Menu:
         self.force_redraw = True
         PTLogger.info("Resetting device instance...")
         reset_device_instance(exclusive=False)
+        if is_pi():
+            PTOLEDDisplay().reset()
 
     def redraw_if_necessary(self):
         if self.should_redraw():
