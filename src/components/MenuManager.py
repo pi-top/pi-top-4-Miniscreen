@@ -1,6 +1,8 @@
 from time import sleep
 from ptcommon.sys_info import is_pi
+from subprocess import call
 
+from ptoled import device_reserved
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.helpers.RequestClient import RequestClient
@@ -11,7 +13,6 @@ from ptcommon.pt_os import eula_agreed
 
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
-
     PTLogger.debug("Is not Pi - running as emulator")
     PTLogger.info("Emulator: Setting up ButtonPressHelper")
     ButtonPressHelper.init()
@@ -120,6 +121,23 @@ class MenuManager:
                     self.add_button_press_to_stack(ButtonPressHelper.get())
                 self.update_state()
                 sleep(0.1)
+
+                oled_control_lost_since_last_cycle = False
+
+                while True:
+                    if device_reserved():
+                        if oled_control_lost_since_last_cycle is False:
+                            PTLogger.info("User has taken control of the OLED")
+                            oled_control_lost_since_last_cycle = True
+                        sleep(1)
+                    else:
+                        if oled_control_lost_since_last_cycle:
+                            PTLogger.info("OLED control restored")
+                            # Alternative solution - nuke it
+                            # call(["/bin/systemctl", "restart", "pt-sys-oled"])
+                            self.current_menu.reset_device()
+                        break
+
         except SystemExit:
             PTLogger.info("Program exited")
             pass
