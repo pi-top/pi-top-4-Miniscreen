@@ -117,9 +117,11 @@ class MenuManager:
     def main_loop(self):
         try:
             while self._continue:
-                if not is_pi():
-                    self.add_button_press_to_stack(ButtonPressHelper.get())
-                self.update_state()
+                # Only attempt to update state if OLED is owned by pt-sys-oled
+                if not device_reserved():
+                    if not is_pi():
+                        self.add_button_press_to_stack(ButtonPressHelper.get())
+                    self.update_state()
                 sleep(0.1)
 
                 oled_control_lost_since_last_cycle = False
@@ -133,8 +135,6 @@ class MenuManager:
                     else:
                         if oled_control_lost_since_last_cycle:
                             PTLogger.info("OLED control restored")
-                            # Alternative solution - nuke it
-                            # call(["/bin/systemctl", "restart", "pt-sys-oled"])
                             self.current_menu.reset_device()
                         break
 
