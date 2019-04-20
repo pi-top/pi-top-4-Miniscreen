@@ -17,8 +17,7 @@ def get_font(size=12):
         )
     else:
         font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/freefont/FreeMono.ttf",
-            size,
+            "/usr/share/fonts/truetype/freefont/FreeMono.ttf", size
         )
     return font
 

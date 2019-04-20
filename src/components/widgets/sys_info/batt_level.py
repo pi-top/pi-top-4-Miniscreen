@@ -8,7 +8,9 @@ from components.widgets.common.image_component import ImageComponent
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
+        self.gif = ImageComponent(
+            image_path=get_image_file("battery_shell_empty.gif"), loop=False
+        )
         self.battery_percentage = ""
         self.charging = False
 
@@ -43,9 +45,13 @@ class Hotspot(BaseHotspot):
         self.draw_battery_percentage(draw, width, height)
 
         if self.charging:
-            self.gif = ImageComponent(image_path=get_image_file("battery_shell_charging.gif"), loop=False)
+            self.gif = ImageComponent(
+                image_path=get_image_file("battery_shell_charging.gif"), loop=False
+            )
         else:
-            self.gif = ImageComponent(image_path=get_image_file("battery_shell_empty.gif"), loop=False)
+            self.gif = ImageComponent(
+                image_path=get_image_file("battery_shell_empty.gif"), loop=False
+            )
 
         self.gif.render(draw)
 

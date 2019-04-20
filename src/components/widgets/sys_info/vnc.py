@@ -51,5 +51,7 @@ class Hotspot(BaseHotspot):
                 text=str(self.username),
             )
             draw_text(
-                draw, xy=(default_margin_x, common_third_line_y), text=str(self.password)
+                draw,
+                xy=(default_margin_x, common_third_line_y),
+                text=str(self.password),
             )

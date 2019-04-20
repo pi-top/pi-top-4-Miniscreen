@@ -38,9 +38,9 @@ from subprocess import check_output, Popen
 
 _app = None
 
-# By getting the device at this early stage, we make sure the instance we get 
+# By getting the device at this early stage, we make sure the instance we get
 # for the sys-oled is non-exclusive. That is, we don't want to block other
-# OLED applications from using the device. When another application does lock 
+# OLED applications from using the device. When another application does lock
 # the device, then the sys-oled should detect that and stop rendering.
 
 _device = get_device_instance(exclusive=False)
@@ -320,7 +320,9 @@ class Pages:
         INTRO = MenuPage(
             name="initial_setup",
             hotspot=get_hotspot(
-                image_page, image_path=get_image_file("first-time-connect.gif"), interval=0.5
+                image_page,
+                image_path=get_image_file("first-time-connect.gif"),
+                interval=0.5,
             ),
             select_action_func=None,
             cancel_action_func=None,

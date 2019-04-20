@@ -1,4 +1,8 @@
-from ptcommon.sys_info import get_wifi_network_ssid, get_internal_ip, get_network_strength
+from ptcommon.sys_info import (
+    get_wifi_network_ssid,
+    get_internal_ip,
+    get_network_strength,
+)
 from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_x,
@@ -10,6 +14,7 @@ from components.widgets.common_values import (
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
 from ipaddress import ip_address
+
 
 def wifi_strength_image():
     wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
@@ -30,7 +35,9 @@ def wifi_strength_image():
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.gif = ImageComponent(image_path=get_image_file("wifi_page.gif"), loop=False)
+        self.gif = ImageComponent(
+            image_path=get_image_file("wifi_page.gif"), loop=False
+        )
         self.counter = 0
 
         self.wifi_id = ""
@@ -38,7 +45,9 @@ class Hotspot(BaseHotspot):
         self.wifi_bars_image = ""
 
     def reset(self):
-        self.gif = ImageComponent(image_path=get_image_file("wifi_page.gif"), loop=False)
+        self.gif = ImageComponent(
+            image_path=get_image_file("wifi_page.gif"), loop=False
+        )
         self.counter = 0
 
     def set_wifi_data_members(self):
@@ -74,5 +83,7 @@ class Hotspot(BaseHotspot):
             )
 
             draw_text(
-                draw, xy=(default_margin_x, common_third_line_y), text=str(self.wlan0_ip)
+                draw,
+                xy=(default_margin_x, common_third_line_y),
+                text=str(self.wlan0_ip),
             )

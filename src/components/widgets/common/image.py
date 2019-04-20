@@ -98,5 +98,7 @@ class Hotspot(BaseHotspot):
                 self._seek_next_frame_in_image()
                 img_bitmap = _create_bitmap_to_render(self._image, width, height)
                 draw.bitmap(
-                    xy=(0, 0), bitmap=img_bitmap.convert(get_device_instance().mode), fill="white"
+                    xy=(0, 0),
+                    bitmap=img_bitmap.convert(get_device_instance().mode),
+                    fill="white",
                 )

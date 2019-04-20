@@ -4,6 +4,7 @@ from ptcommon.sys_info import is_pi
 from ptcommon.logger import PTLogger
 
 from ptoled import get_device_instance, reset_device_instance
+
 if is_pi():
     from ptoled import PTOLEDDisplay
 
