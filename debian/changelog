@@ -1,3 +1,9 @@
+pt-sys-oled (1.0.1-1) stretch; urgency=low
+
+  * Block buttons if lock files are present
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 29 Apr 2019 22:06:07 +0800
+
 pt-sys-oled (1.0.0-1) stretch; urgency=low
 
   * Initial release.
