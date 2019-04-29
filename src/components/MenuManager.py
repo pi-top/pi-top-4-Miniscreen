@@ -1,7 +1,7 @@
 from time import sleep
 from ptcommon.sys_info import is_pi
 from subprocess import call
-import os
+from os import path, listdir
 
 from ptoled import device_reserved
 from components.Menu import Menu
@@ -68,9 +68,9 @@ class MenuManager:
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def add_button_press_to_stack(self, button_press_event):
-        no_button_locks = (
-            not os.path.isdir('/tmp/button-locks')
-            or not os.listdir('/tmp/button-locks'))
+        no_button_locks = not path.isdir("/tmp/button-locks") or not listdir(
+            "/tmp/button-locks"
+        )
         if (
             not device_reserved()
             and no_button_locks
