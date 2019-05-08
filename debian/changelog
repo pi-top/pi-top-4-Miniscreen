@@ -1,3 +1,9 @@
+pt-sys-oled (1.0.2-1) stretch; urgency=low
+
+  * Replace CPU with battery as the default screen
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 08 May 2019 09:56:42 +0100
+
 pt-sys-oled (1.0.1-1) stretch; urgency=low
 
   * Block buttons if lock files are present
