@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from components.MenuManager import MenuManager
-
 from ptcommon.sys_info import is_pi
 from ptcommon.logger import PTLogger
+from subprocess import getstatusoutput
 
 from signal import (
     signal,
@@ -53,22 +53,40 @@ def setup_pt_logging():
     PTLogger.setup_logging("pt-sys-oled", args.log_level, args.no_journal is False)
 
 
+def check_whether_to_run():
+
+    if is_pi():
+        status, command_output = getstatusoutput("pt-host")
+        if status != 0:
+            PTLogger.info("Could not determine host device type from pt-device-manager. Exiting...")
+        elif "pi-top[4]" in command_output:
+            return True
+        else:
+            PTLogger.info("Not running on a pi-top[4]. Exiting...")
+    else:
+        PTLogger.info("Not running on a pi. Exiting...")
+
+    return False
+
 
 def setup():
     configure_logging()
     configure_interrupt_signals()
     setup_pt_logging()
-    if is_pi():
-        from ptoled import PTOLEDDisplay
-        ptoled = PTOLEDDisplay()
-        ptoled.reset()
 
 
 if __name__ == "__main__":
     try:
         setup()
-        app = MenuManager()
-        app.main_loop()
-        app.stop()
+
+        if check_whether_to_run():
+
+            from ptoled import PTOLEDDisplay
+            ptoled = PTOLEDDisplay()
+            ptoled.reset()
+            app = MenuManager()
+            app.main_loop()
+            app.stop()
+
     except KeyboardInterrupt:
         pass
