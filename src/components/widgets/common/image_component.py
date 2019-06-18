@@ -42,7 +42,8 @@ class ImageComponent:
     def _load_image_from_path(self, image_path):
         self._error = False
         if not isfile(image_path):
-            self._error_text = "Invalid path for image file: " + str(image_path)
+            self._error_text = "Invalid path for image file: " + \
+                str(image_path)
             self._error = True
             return
 
@@ -80,7 +81,8 @@ class ImageComponent:
     def render(self, draw):
         if self._image is not None:
             self._seek_next_frame_in_image()
-            img_bitmap = _create_bitmap_to_render(self._image, self.width, self.height)
+            img_bitmap = _create_bitmap_to_render(
+                self._image, self.width, self.height)
             draw.bitmap(
                 xy=self.xy,
                 bitmap=img_bitmap.convert(get_device_instance().mode),

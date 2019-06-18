@@ -12,7 +12,8 @@ class Hotspot(BaseHotspot):
     def render(draw, width, height):
         date_time = datetime.datetime.now()
         date = (
-            str(date_time.day) + "/" + str(date_time.month) + "/" + str(date_time.year)
+            str(date_time.day) + "/" + str(date_time.month) +
+            "/" + str(date_time.year)
         )
         time = (
             str(date_time.hour)

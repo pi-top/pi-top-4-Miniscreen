@@ -48,7 +48,8 @@ class Hotspot(BaseHotspot):
         self._error = False
         self.image_path = self.project_path + "/animation.gif"
         if not isfile(self.image_path):
-            self._error_text = "Invalid path for image file: " + str(self.image_path)
+            self._error_text = "Invalid path for image file: " + \
+                str(self.image_path)
             self._error = True
             return
 
@@ -104,5 +105,6 @@ class Hotspot(BaseHotspot):
         else:
             if self._image is not None:
                 self._seek_next_frame_in_image()
-                img_bitmap = _create_bitmap_to_render(self._image, width, height)
+                img_bitmap = _create_bitmap_to_render(
+                    self._image, width, height)
                 draw.bitmap(xy=(0, 0), bitmap=img_bitmap, fill="white")

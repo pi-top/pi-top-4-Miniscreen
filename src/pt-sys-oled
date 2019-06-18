@@ -49,7 +49,8 @@ def setup_pt_logging():
     )
     args = parser.parse_args()
 
-    PTLogger.setup_logging("pt-sys-oled", args.log_level, args.no_journal is False)
+    PTLogger.setup_logging("pt-sys-oled", args.log_level,
+                           args.no_journal is False)
 
 
 def check_whether_to_run():
@@ -57,7 +58,8 @@ def check_whether_to_run():
     if is_pi():
         status, command_output = getstatusoutput("pt-host")
         if status != 0:
-            PTLogger.info("Could not determine host device type from pt-device-manager. Exiting...")
+            PTLogger.info(
+                "Could not determine host device type from pt-device-manager. Exiting...")
         elif "pi-top[4]" in command_output:
             return True
         else:
@@ -82,7 +84,7 @@ if __name__ == "__main__":
 
             from ptoled import PTOLEDDisplay
             from components.MenuManager import MenuManager
-            
+
             ptoled = PTOLEDDisplay()
             ptoled.reset()
             app = MenuManager()

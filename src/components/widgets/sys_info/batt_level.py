@@ -36,7 +36,8 @@ class Hotspot(BaseHotspot):
         bar_width = left_margin + ((50 - left_margin) * (percentage / 100))
 
         draw.rectangle(
-            (left_margin, top_margin) + (bar_width, bottom_margin), "white", "white"
+            (left_margin, top_margin) +
+            (bar_width, bottom_margin), "white", "white"
         )
 
     def render(self, draw, width, height):
@@ -58,5 +59,6 @@ class Hotspot(BaseHotspot):
         x_margin = 69
         y_margin = 21
         draw_text(
-            draw, xy=(x_margin, y_margin), text=self.battery_percentage, font_size=18
+            draw, xy=(
+                x_margin, y_margin), text=self.battery_percentage, font_size=18
         )

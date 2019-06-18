@@ -16,7 +16,8 @@ from ipaddress import ip_address
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.gif = ImageComponent(image_path=get_image_file("vnc_page.gif"), loop=False)
+        self.gif = ImageComponent(
+            image_path=get_image_file("vnc_page.gif"), loop=False)
         self.counter = 0
 
         self.eth0_ip = ""
@@ -24,7 +25,8 @@ class Hotspot(BaseHotspot):
         self.password = "pi-top"
 
     def reset(self):
-        self.gif = ImageComponent(image_path=get_image_file("vnc_page.gif"), loop=False)
+        self.gif = ImageComponent(
+            image_path=get_image_file("vnc_page.gif"), loop=False)
         self.counter = 0
 
     def set_vnc_data_members(self):
@@ -43,7 +45,8 @@ class Hotspot(BaseHotspot):
             self.counter -= 1
 
             draw_text(
-                draw, xy=(default_margin_x, common_first_line_y), text=str(self.eth0_ip)
+                draw, xy=(default_margin_x, common_first_line_y), text=str(
+                    self.eth0_ip)
             )
             draw_text(
                 draw,

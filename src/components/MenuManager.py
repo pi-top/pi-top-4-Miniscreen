@@ -76,7 +76,8 @@ class MenuManager:
             and no_button_locks
             and button_press_event.event_type != ButtonPress.ButtonType.NONE
         ):
-            PTLogger.info("Adding " + str(button_press_event.event_type) + " to stack")
+            PTLogger.info(
+                "Adding " + str(button_press_event.event_type) + " to stack")
             self.button_press_stack.append(button_press_event)
 
     def get_next_button_press_from_stack(self):

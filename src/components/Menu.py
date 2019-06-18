@@ -1,3 +1,4 @@
+from luma.core.threadpool import threadpool
 from components.helpers import MenuHelper
 
 from ptcommon.sys_info import is_pi
@@ -8,7 +9,6 @@ from ptoled import get_device_instance, reset_device_instance
 if is_pi():
     from ptoled import PTOLEDDisplay
 
-from luma.core.threadpool import threadpool
 
 pool = threadpool(4)
 
@@ -42,7 +42,8 @@ class Menu:
 
     def set_up_viewport(self, pages):
         self.pages = pages
-        self.viewport = MenuHelper.create_viewport(get_device_instance(), self.pages)
+        self.viewport = MenuHelper.create_viewport(
+            get_device_instance(), self.pages)
 
     def get_page_y_pos(self, page_index=None):
         if page_index is None:
@@ -54,7 +55,8 @@ class Menu:
 
         self.page_index = page_index
         if debug_print:
-            PTLogger.info("Moving instantly to " + str(self.get_current_page().name))
+            PTLogger.info("Moving instantly to " +
+                          str(self.get_current_page().name))
 
         self.reset_page(previous_page)
 
@@ -82,7 +84,8 @@ class Menu:
             if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(
                 hotspot, xy
             ):
-                pool.add_task(hotspot.paste_into, self.viewport._backing_image, xy)
+                pool.add_task(hotspot.paste_into,
+                              self.viewport._backing_image, xy)
                 should_wait = True
 
         if should_wait:
@@ -98,7 +101,8 @@ class Menu:
             should_redraw = True
         else:
             image_to_display_pixels = list(image_to_display.getdata())
-            last_displayed_image_pixels = list(self.last_displayed_image.getdata())
+            last_displayed_image_pixels = list(
+                self.last_displayed_image.getdata())
 
             image_has_updated = image_to_display_pixels != last_displayed_image_pixels
             self.last_displayed_image = (
@@ -117,7 +121,8 @@ class Menu:
 
     def redraw_if_necessary(self):
         if self.should_redraw():
-            im = self.viewport._backing_image.crop(box=self.viewport._crop_box())
+            im = self.viewport._backing_image.crop(
+                box=self.viewport._crop_box())
             get_device_instance().display(im)
             del im
 
