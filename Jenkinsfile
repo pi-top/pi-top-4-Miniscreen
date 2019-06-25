@@ -4,7 +4,11 @@ node ('master') {
     }
 
     stage ('Pre-commit Checks') {
-        preCommit()
+        REPO_NAME = env.JOB_NAME.split('/')[1]
+        PKG_NAME  = REPO_NAME.substring(0, REPO_NAME.length() - 4)
+        dir(PKG_NAME) {
+            preCommit()
+        }
     }
 
     stage ('Build') {
