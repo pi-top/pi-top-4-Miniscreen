@@ -3,6 +3,10 @@ node ('master') {
         checkoutSubmodule()
     }
 
+    stage ('Pre-commit Checks') {
+        preCommit()
+    }
+
     stage ('Build') {
         buildGenericPkg()
     }
