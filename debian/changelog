@@ -1,4 +1,4 @@
-pt-sys-oled-deb (1.0.2-2) buster; urgency=medium
+pt-sys-oled (1.0.2-2) buster; urgency=medium
 
   * Move to Buster
 
