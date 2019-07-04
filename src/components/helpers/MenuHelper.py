@@ -235,17 +235,6 @@ class Pages:
         # )
 
     class SettingsMenu(Enum):
-        VNC_CONNECTION = MenuPage(
-            name="vnc_connection",
-            hotspot=get_hotspot(
-                settings_menu_page,
-                type="vnc",
-                interval=1.0,
-                method=get_vnc_enabled_state,
-            ),
-            select_action_func=change_vnc_enabled_state,
-            cancel_action_func=change_menu(Menus.MAIN_MENU),
-        )
         SSH_CONNECTION = MenuPage(
             name="ssh_connection",
             hotspot=get_hotspot(
@@ -255,6 +244,17 @@ class Pages:
                 method=get_ssh_enabled_state,
             ),
             select_action_func=change_ssh_enabled_state,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
+        )
+        VNC_CONNECTION = MenuPage(
+            name="vnc_connection",
+            hotspot=get_hotspot(
+                settings_menu_page,
+                type="vnc",
+                interval=1.0,
+                method=get_vnc_enabled_state,
+            ),
+            select_action_func=change_vnc_enabled_state,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
 
@@ -293,8 +293,7 @@ class Pages:
 
                     project_page = MenuPage(
                         title,
-                        get_hotspot(main_menu_page, title=title,
-                                    image_path=None),
+                        get_hotspot(main_menu_page, title=title, image_path=None),
                         None,
                         None,
                     )
@@ -394,8 +393,7 @@ def create_viewport(device, pages):
 def remove_invalid_sys_info_widget_names(widget_name_list):
     for widget_name in widget_name_list:
         if widget_name not in (page.name for page in get_pages(Menus.SYS_INFO)):
-            PTLogger.debug(
-                "Removing invalid sys info widget: " + str(widget_name))
+            PTLogger.debug("Removing invalid sys info widget: " + str(widget_name))
             widget_name_list.remove(widget_name)
     return widget_name_list
 
@@ -408,8 +406,7 @@ def get_sys_info_pages_from_config():
     page_name_arr = list()
     try:
         with open(cfg_file, "r") as f:
-            page_name_arr = remove_invalid_sys_info_widget_names(
-                f.read().splitlines())
+            page_name_arr = remove_invalid_sys_info_widget_names(f.read().splitlines())
             # Do something if this ends up empty - show a "none selected" screen?
     except FileExistsError:
         # Can be triggered by cfg_path existing as file - fix edge case
