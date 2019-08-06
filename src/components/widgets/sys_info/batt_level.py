@@ -62,5 +62,5 @@ class Hotspot(BaseHotspot):
         y_margin = 21
         draw_text(
             draw, xy=(
-                x_margin, y_margin), text=self.battery_percentage, font_size=17
+                x_margin, y_margin), text=self.battery_percentage, font_size=18
         )
