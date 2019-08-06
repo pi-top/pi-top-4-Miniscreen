@@ -13,19 +13,21 @@ class Hotspot(BaseHotspot):
         self.battery_percentage = ""
         self.charging = False
         self.method = data.get("method")
+        self.state = None
+        self.capacity = None
 
     def update_battery_state(self):
-        state, capacity = self.method()
+        self.state, self.capacity = self.method()
 
-        self.battery_percentage = int(capacity)
+        self.battery_percentage = str(self.capacity) + "%"
 
-        charging = True if int(state) == 1 else False
-        fully_charged = True if int(state) == 2 else False
+        charging = True if int(self.state) == 1 else False
+        fully_charged = True if int(self.state) == 2 else False
         self.charging = charging or fully_charged
 
     def draw_battery_percentage(self, draw, width, height):
         try:
-            percentage = self.battery_percentage
+            percentage = int(self.capacity)
         except ValueError:
             percentage = 0
 
@@ -60,5 +62,5 @@ class Hotspot(BaseHotspot):
         y_margin = 21
         draw_text(
             draw, xy=(
-                x_margin, y_margin), text=str(self.battery_percentage) + "%", font_size=18
+                x_margin, y_margin), text=self.battery_percentage, font_size=17
         )
