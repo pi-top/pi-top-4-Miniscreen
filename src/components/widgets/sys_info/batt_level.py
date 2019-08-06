@@ -1,4 +1,3 @@
-from ptcommon.sys_info import get_battery_capacity, get_battery_charging_state
 from components.widgets.common_functions import draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common_functions import get_image_file
@@ -13,18 +12,20 @@ class Hotspot(BaseHotspot):
         )
         self.battery_percentage = ""
         self.charging = False
+        self.method = data.get("method")
 
     def update_battery_state(self):
-        self.battery_percentage = get_battery_capacity()
+        state, capacity = self.method()
 
-        charging = get_battery_charging_state() == "charging"
-        fully_charged = get_battery_charging_state() == "full_battery"
+        self.battery_percentage = int(capacity)
+
+        charging = True if int(state) == 1 else False
+        fully_charged = True if int(state) == 2 else False
         self.charging = charging or fully_charged
 
     def draw_battery_percentage(self, draw, width, height):
         try:
-            # Remove '%' for evaluating bar width
-            percentage = int(self.battery_percentage[:-1])
+            percentage = self.battery_percentage
         except ValueError:
             percentage = 0
 
@@ -43,8 +44,6 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         self.update_battery_state()
 
-        self.draw_battery_percentage(draw, width, height)
-
         if self.charging:
             self.gif = ImageComponent(
                 image_path=get_image_file("battery_shell_charging.gif"), loop=False
@@ -53,6 +52,7 @@ class Hotspot(BaseHotspot):
             self.gif = ImageComponent(
                 image_path=get_image_file("battery_shell_empty.gif"), loop=False
             )
+            self.draw_battery_percentage(draw, width, height)
 
         self.gif.render(draw)
 
@@ -60,5 +60,5 @@ class Hotspot(BaseHotspot):
         y_margin = 21
         draw_text(
             draw, xy=(
-                x_margin, y_margin), text=self.battery_percentage, font_size=18
+                x_margin, y_margin), text=str(self.battery_percentage) + "%", font_size=18
         )

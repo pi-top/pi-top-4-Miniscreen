@@ -6,7 +6,7 @@ from os import path, listdir
 from ptoled import device_reserved
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
-from components.helpers.SubcriberClient import SubcriberClient
+from components.helpers.SubscriberClient import SubscriberClient
 from components.helpers import MenuHelper
 from ptcommon.logger import PTLogger
 from threading import Thread
@@ -26,7 +26,7 @@ class MenuManager:
     def __init__(self):
         self.button_press_stack = []
         self._continue = True
-        self._request_client = SubcriberClient()
+        self._request_client = SubscriberClient()
         self._request_client.initialise(self)
         if self._request_client.start_listening() is False:
             self.stop()
@@ -123,6 +123,9 @@ class MenuManager:
                         self.change_menu(self.current_menu.parent)
 
         self.current_menu.redraw_if_necessary()
+
+    def update_battery_state(self, charging_state, capacity):
+        MenuHelper.battery_info = charging_state, capacity
 
     def main_loop(self):
         try:
