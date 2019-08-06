@@ -1,4 +1,3 @@
-
 pt-sys-oled (1.0.4-1) buster; urgency=medium
 
   * Refactor battery page to lower cpu usage
