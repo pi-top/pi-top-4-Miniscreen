@@ -9,7 +9,7 @@ import zmq
 
 # Creates a client for publish messages from device manager
 # Listens for button presses
-class RequestClient:
+class SubscriberClient:
     _thread = Thread()
 
     def __init__(self):
@@ -63,12 +63,17 @@ class RequestClient:
             poller.register(self._zmq_socket, zmq.POLLIN)
 
             events = poller.poll(500)
-
             for i in range(len(events)):
                 message_string = self._zmq_socket.recv_string()
                 message = Message.from_string(message_string)
 
-                if message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
+                if message.message_id() == Message.PUB_BATTERY_STATE_CHANGED:
+                    message.validate_parameters([int, int, int, int])
+                    charging_state, capacity, time_remaining, wattage = message.parameters()
+                    self._callback_client.update_battery_state(
+                        charging_state, capacity)
+
+                elif message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
                     message.validate_parameters([])
                     self._callback_client.add_button_press_to_stack(
                         ButtonPress(ButtonPress.ButtonType.UP)
