@@ -9,7 +9,7 @@ import zmq
 
 # Creates a client for publish messages from device manager
 # Listens for button presses
-class RequestClient:
+class SubcriberClient:
     _thread = Thread()
 
     def __init__(self):
