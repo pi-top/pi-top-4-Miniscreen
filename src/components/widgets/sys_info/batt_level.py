@@ -17,7 +17,7 @@ class Hotspot(BaseHotspot):
         self.capacity = None
 
     def update_battery_state(self):
-        self.state, self.capacity = self.self.get_battery_info_method()
+        self.state, self.capacity = self.get_battery_info_method()
 
         self.battery_percentage = str(self.capacity) + "%"
 
