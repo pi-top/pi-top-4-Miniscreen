@@ -72,45 +72,36 @@ class Menu:
     def last_page_no(self):
         return len(self.pages) - 1
 
-    def should_redraw(self):
-
-        if self.force_redraw:
-            PTLogger.info("Forcing a redraw")
-            self.force_redraw = False
-            return True
-
+    def wait_for_any_remaining_viewport_operations(self):
         should_wait = False
         for hotspot, xy in self.viewport._hotspots:
-            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(
-                hotspot, xy
-            ):
-                pool.add_task(hotspot.paste_into,
-                              self.viewport._backing_image, xy)
+            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
+                pool.add_task(hotspot.paste_into, self.viewport._backing_image, xy)
                 should_wait = True
 
         if should_wait:
             pool.wait_completion()
 
+    def should_redraw(self):
+        if self.force_redraw:
+            PTLogger.info("Forcing a redraw")
+            self.force_redraw = False
+            return True
+
         self.viewport._position = (0, self.get_page_y_pos())
-        image_to_display = self.viewport._backing_image.crop(
-            box=self.viewport._crop_box()
-        )
+        image_to_display = self.viewport._backing_image.crop(box=self.viewport._crop_box())
 
-        if self.last_displayed_image == None:
+        if self.last_displayed_image is None:
             self.last_displayed_image = image_to_display
-            should_redraw = True
-        else:
-            image_to_display_pixels = list(image_to_display.getdata())
-            last_displayed_image_pixels = list(
-                self.last_displayed_image.getdata())
+            return True
+        elif self.new_image_is_different_from_current_image(image_to_display):
+            self.last_displayed_image = image_to_display
+            return True
 
-            image_has_updated = image_to_display_pixels != last_displayed_image_pixels
-            self.last_displayed_image = (
-                image_to_display if image_has_updated else self.last_displayed_image
-            )
-            should_redraw = image_has_updated
+        return False
 
-        return should_redraw
+    def new_image_is_different_from_current_image(self, image_to_display):
+        return (image_to_display != self.last_displayed_image)
 
     def reset_device(self):
         self.force_redraw = True
@@ -120,6 +111,8 @@ class Menu:
             PTOLEDDisplay().reset()
 
     def redraw_if_necessary(self):
+        self.wait_for_any_remaining_viewport_operations()
+
         if self.should_redraw():
             im = self.viewport._backing_image.crop(
                 box=self.viewport._crop_box())
