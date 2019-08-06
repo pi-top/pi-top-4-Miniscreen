@@ -46,7 +46,7 @@ _app = None
 _device = get_device_instance(exclusive=False)
 
 # used by SubscriberClient to pass the battery info to the battery page
-battery_info = [0, 0]
+battery_info = [2, 100]
 
 def get_battery_info():
     return battery_info
