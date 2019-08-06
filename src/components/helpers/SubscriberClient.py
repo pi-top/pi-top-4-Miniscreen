@@ -70,7 +70,8 @@ class SubscriberClient:
                 if message.message_id() == Message.PUB_BATTERY_STATE_CHANGED:
                     message.validate_parameters([int, int, int, int])
                     charging_state, capacity, time_remaining, wattage = message.parameters()
-                    self._callback_client.update_battery_state(charging_state, capacity)
+                    self._callback_client.update_battery_state(
+                        charging_state, capacity)
 
                 elif message.message_id() == Message.PUB_V3_BUTTON_UP_PRESSED:
                     message.validate_parameters([])
