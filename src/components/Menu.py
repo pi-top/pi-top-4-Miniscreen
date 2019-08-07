@@ -76,7 +76,8 @@ class Menu:
         should_wait = False
         for hotspot, xy in self.viewport._hotspots:
             if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
-                pool.add_task(hotspot.paste_into, self.viewport._backing_image, xy)
+                pool.add_task(hotspot.paste_into,
+                              self.viewport._backing_image, xy)
                 should_wait = True
 
         if should_wait:
@@ -89,7 +90,8 @@ class Menu:
             return True
 
         self.viewport._position = (0, self.get_page_y_pos())
-        image_to_display = self.viewport._backing_image.crop(box=self.viewport._crop_box())
+        image_to_display = self.viewport._backing_image.crop(
+            box=self.viewport._crop_box())
 
         if self.last_displayed_image is None:
             self.last_displayed_image = image_to_display
