@@ -1,3 +1,9 @@
+pt-sys-oled (1.0.5-1) buster; urgency=medium
+
+  * Further performance improvements - replace image comparison logic
+
+ -- Ben Pring <ben@pi-top.com>  Wed, 07 Aug 2019 10:14:04 +0100
+
 pt-sys-oled (1.0.4-1) buster; urgency=medium
 
   * Refactor battery page to lower cpu usage
