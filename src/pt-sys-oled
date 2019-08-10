@@ -60,10 +60,10 @@ def check_whether_to_run():
         if status != 0:
             PTLogger.info(
                 "Could not determine host device type from pt-device-manager. Exiting...")
-        elif "pi-top[4]" in command_output:
+        elif "pi-top [4]" in command_output:
             return True
         else:
-            PTLogger.info("Not running on a pi-top[4]. Exiting...")
+            PTLogger.info("Not running on a pi-top [4]. Exiting...")
     else:
         PTLogger.info("Not running on a pi. Exiting...")
 
