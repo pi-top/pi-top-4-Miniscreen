@@ -13,11 +13,11 @@ Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
- # Required to take control of the OLED
+# Required to take control of the OLED
  pt-hub,
- # Why is this required?
+# Why is this required?
  pt-ui-mods,
- # Python libs required for common functions
+# Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,
  python3-psutil,
