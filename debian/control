@@ -13,16 +13,18 @@ Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
+ # Required to take control of the OLED
  pt-hub,
+ # Why is this required?
  pt-ui-mods,
+ # Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,
  python3-psutil,
  python3-pt-common,
  python3-pt-oled
-Description: pi-top OLED system menu application
- The intended behaviour of this application is to manage
- user projects and display important system information
- onto the onboard OLED screen. Navigation is managed
- by the onboard buttons, which is handled by the
+Description: pi-top [4] OLED system menu application
+ Display and control important system settings/information
+ on the pi-top [4]'s onboard OLED screen. Navigation is
+ managed by the onboard buttons, which is handled by the
  centralised pi-top device manager.
