@@ -1,3 +1,10 @@
+pt-sys-oled (1.1.0-1) buster; urgency=medium
+
+  * Update package description
+  * Fix for pt-host output
+
+ -- Mike Roberts <mike@pi-top.com>  Sun, 11 Aug 2019 12:30:34 +0100
+
 pt-sys-oled (1.0.5-1) buster; urgency=medium
 
   * Further performance improvements - replace image comparison logic
