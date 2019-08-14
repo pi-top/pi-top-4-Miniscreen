@@ -1,3 +1,9 @@
+pt-sys-oled (1.2.0-1) buster; urgency=medium
+
+  * Make battery code less brittle
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 14 Aug 2019 15:46:05 +0100
+
 pt-sys-oled (1.1.0-1) buster; urgency=medium
 
   * Update package description
