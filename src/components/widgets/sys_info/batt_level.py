@@ -10,20 +10,22 @@ class Hotspot(BaseHotspot):
         self.gif = ImageComponent(
             image_path=get_image_file("battery_shell_empty.gif"), loop=False
         )
-        self.battery_percentage = ""
-        self.charging = False
-        self.get_battery_info_method = data.get("method")
-        self.state = None
+
+        self.charging_state = None
         self.capacity = None
 
+        self.get_battery_charging_state = data.get(
+            "get_battery_charging_state")
+        self.get_battery_capacity = data.get("get_battery_capacity")
+
+    def is_charging(self):
+        charging = (int(self.charging_state) == 1)
+        fully_charged = (int(self.charging_state) == 2)
+        return charging or fully_charged
+
     def update_battery_state(self):
-        self.state, self.capacity = self.get_battery_info_method()
-
-        self.battery_percentage = str(self.capacity) + "%"
-
-        charging = True if int(self.state) == 1 else False
-        fully_charged = True if int(self.state) == 2 else False
-        self.charging = charging or fully_charged
+        self.charging_state = self.get_battery_charging_state()
+        self.capacity = self.get_battery_capacity()
 
     def draw_battery_percentage(self, draw, width, height):
         try:
@@ -46,7 +48,7 @@ class Hotspot(BaseHotspot):
     def render(self, draw, width, height):
         self.update_battery_state()
 
-        if self.charging:
+        if self.is_charging():
             self.gif = ImageComponent(
                 image_path=get_image_file("battery_shell_charging.gif"), loop=False
             )
@@ -60,7 +62,11 @@ class Hotspot(BaseHotspot):
 
         x_margin = 69
         y_margin = 21
+        if self.capacity is None:
+            battery_capacity_text = "Unknown"
+        else:
+            battery_capacity_text = str(self.capacity) + "%"
         draw_text(
             draw, xy=(
-                x_margin, y_margin), text=self.battery_percentage, font_size=18
+                x_margin, y_margin), text=battery_capacity_text, font_size=18
         )

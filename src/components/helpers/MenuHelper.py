@@ -1,4 +1,3 @@
-from ptcommon.sys_info import is_pi
 from ptoled import get_device_instance
 from components.Page import MenuPage
 from components.widgets.sys_info import (
@@ -26,6 +25,9 @@ from ptcommon.sys_info import (
     get_ssh_enabled_state,
     get_vnc_enabled_state,
     get_systemd_enabled_state,
+    is_pi,
+    get_battery_capacity,
+    get_battery_charging_state
 )
 from components.widgets.common_functions import get_image_file
 
@@ -45,12 +47,25 @@ _app = None
 
 _device = get_device_instance(exclusive=False)
 
-# used by SubscriberClient to pass the battery info to the battery page
-battery_info = [2, 100]
+
+# Used by SubscriberClient to pass the battery info to the battery page
+try:
+    battery_charging_state = get_battery_charging_state()
+except:
+    battery_charging_state = None
+
+try:
+    battery_capacity = int(get_battery_capacity()[:-1])
+except:
+    battery_capacity = None
 
 
-def get_battery_info():
-    return battery_info
+def get_battery_charging_state():
+    return battery_charging_state
+
+
+def get_battery_capacity():
+    return battery_capacity
 
 
 def set_app(top_level_app_obj):
@@ -158,6 +173,8 @@ class Pages:
         BATTERY = MenuPage(
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0,
+                                battery_charging_state=get_battery_charging_state,
+                                battery_capacity=get_battery_capacity,
                                 method=get_battery_info),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,

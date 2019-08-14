@@ -24,14 +24,14 @@ class SubscriberClient:
         self._callback_client = callback_client
 
     def start_listening(self):
-        PTLogger.debug("Opening request socket...")
+        PTLogger.debug("Opening subscriber socket...")
 
         try:
             self._zmq_socket.connect("tcp://127.0.0.1:3781")
-            PTLogger.info("Request client ready.")
+            PTLogger.info("Subscriber client ready.")
 
         except zmq.error.ZMQError as e:
-            PTLogger.error("Error starting the request client: " + str(e))
+            PTLogger.error("Error starting the subscriber client: " + str(e))
             PTLogger.info(traceback.format_exc())
 
             return False
@@ -56,7 +56,7 @@ class SubscriberClient:
         PTLogger.debug("Closed responder socket.")
 
     def _thread_method(self):
-        PTLogger.info("Listening for requests...")
+        PTLogger.info("Listening for events...")
 
         while self._continue:
             poller = zmq.Poller()

@@ -26,11 +26,11 @@ class MenuManager:
     def __init__(self):
         self.button_press_stack = []
         self._continue = True
-        self._request_client = SubscriberClient()
-        self._request_client.initialise(self)
-        if self._request_client.start_listening() is False:
+        self._subscriber_client = SubscriberClient()
+        self._subscriber_client.initialise(self)
+        if self._subscriber_client.start_listening() is False:
             self.stop()
-            raise Exception("Unable to start listening on request client")
+            raise Exception("Unable to start listening on subscriber client")
 
         self.menus = dict()
 
@@ -48,7 +48,7 @@ class MenuManager:
 
     def stop(self):
         self._continue = False
-        self._request_client._continue = False
+        self._subscriber_client._continue = False
 
     def add_menu_to_list(self, menu_id):
         self.menus[menu_id] = Menu(menu_id)
@@ -125,7 +125,8 @@ class MenuManager:
         self.current_menu.redraw_if_necessary()
 
     def update_battery_state(self, charging_state, capacity):
-        MenuHelper.battery_info = charging_state, capacity
+        MenuHelper.battery_charging_state = charging_state
+        MenuHelper.battery_capacity = capacity
 
     def main_loop(self):
         try:
