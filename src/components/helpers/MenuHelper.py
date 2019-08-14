@@ -174,8 +174,7 @@ class Pages:
             name="battery",
             hotspot=get_hotspot(batt_level, interval=1.0,
                                 battery_charging_state=get_battery_charging_state,
-                                battery_capacity=get_battery_capacity,
-                                method=get_battery_info),
+                                battery_capacity=get_battery_capacity),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
