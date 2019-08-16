@@ -55,7 +55,7 @@ except:
     battery_charging_state = None
 
 try:
-    battery_capacity = int(get_battery_capacity()[:-1])
+    battery_capacity = get_battery_capacity()
 except:
     battery_capacity = None
 
