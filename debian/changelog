@@ -1,3 +1,9 @@
+pt-sys-oled (1.2.1-1) buster; urgency=medium
+
+  * Fix battery capacity reading
+
+-- Ben Pring <ben@pi-top.com>  Mon, 19 Aug 2019 13:33:38 +0100
+
 pt-sys-oled (1.2.0-1) buster; urgency=medium
 
   * Make battery code less brittle
