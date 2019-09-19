@@ -37,6 +37,7 @@ class ImageComponent:
         self.loop = loop
         self.playback_speed = playback_speed
         self.finished = False
+        self.interval = -1
         self._load_image_from_path(image_path)
 
     def _load_image_from_path(self, image_path):
@@ -65,7 +66,10 @@ class ImageComponent:
 
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:
-            if self._frame_no + 1 < self._image.n_frames:
+            if self.interval == -1:
+                # First frame not yet retrieved - stay here
+                pass
+            elif self._frame_no + 1 < self._image.n_frames:
                 self._frame_no += 1
             elif self.loop:
                 self._frame_no = 0
