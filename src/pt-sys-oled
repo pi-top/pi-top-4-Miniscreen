@@ -64,10 +64,11 @@ def should_run():
             return True
         else:
             PTLogger.info("Not running on a pi-top [4]. Exiting...")
-    else:
-        PTLogger.info("Not running on a pi. Exiting...")
+        return False
 
-    return False
+    else:
+        PTLogger.info("Not running on a pi. Running in debug mode...")
+        return True
 
 
 def setup():
