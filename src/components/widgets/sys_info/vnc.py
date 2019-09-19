@@ -24,6 +24,8 @@ class Hotspot(BaseHotspot):
         self.username = "pi" if getuser() == "root" else getuser()
         self.password = "pi-top"
 
+        self.default_interval = self.interval
+
     def reset(self):
         self.gif = ImageComponent(
             image_path=get_image_file("vnc_page.gif"), loop=False)
@@ -37,6 +39,12 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         self.gif.render(draw)
+
+        # If GIF is still playing, update refresh time based on GIF's current frame length
+        # Otherwise, set to originally defined interval for refreshing data members
+        self.interval = (
+            self.default_interval if self.gif.finished else self.gif.interval
+        )
 
         if self.gif.finished is True:
             if self.counter == 0:
