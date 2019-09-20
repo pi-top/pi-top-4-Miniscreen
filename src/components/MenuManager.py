@@ -136,7 +136,8 @@ class MenuManager:
                     if not is_pi():
                         self.add_button_press_to_stack(ButtonPressHelper.get())
                     self.update_state()
-                sleep(0.1)
+                current_hotspot_interval = self.current_menu.get_current_page().hotspot.interval
+                sleep(current_hotspot_interval)
 
                 oled_control_lost_since_last_cycle = False
 
