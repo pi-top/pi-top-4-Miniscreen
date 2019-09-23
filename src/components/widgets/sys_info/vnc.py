@@ -20,7 +20,7 @@ class Hotspot(BaseHotspot):
             image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
-        self.eth0_ip = ""
+        self.ptusb0_ip = ""
         self.username = "pi" if getuser() == "root" else getuser()
         self.password = "pi-top"
 
@@ -33,9 +33,9 @@ class Hotspot(BaseHotspot):
 
     def set_vnc_data_members(self):
         try:
-            self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
+            self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
         except ValueError:
-            self.eth0_ip = ""
+            self.ptusb0_ip = ""
 
     def render(self, draw, width, height):
         self.gif.render(draw)
@@ -43,7 +43,7 @@ class Hotspot(BaseHotspot):
         # If GIF is still playing, update refresh time based on GIF's current frame length
         # Otherwise, set to originally defined interval for refreshing data members
         self.interval = (
-            self.default_interval if self.gif.finished else self.gif.interval
+            self.default_interval if self.gif.finished else self.gif.frame_duration
         )
 
         if self.gif.finished is True:
@@ -54,7 +54,7 @@ class Hotspot(BaseHotspot):
 
             draw_text(
                 draw, xy=(default_margin_x, common_first_line_y), text=str(
-                    self.eth0_ip)
+                    self.ptusb0_ip)
             )
             draw_text(
                 draw,

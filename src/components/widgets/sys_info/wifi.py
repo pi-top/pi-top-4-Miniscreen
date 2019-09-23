@@ -74,7 +74,7 @@ class Hotspot(BaseHotspot):
         # If GIF is still playing, update refresh time based on GIF's current frame length
         # Otherwise, set to originally defined interval for refreshing data members
         self.interval = (
-            self.default_interval if self.gif.finished else self.gif.interval
+            self.default_interval if self.gif.finished else self.gif.frame_duration
         )
 
         if self.gif.finished is True:
