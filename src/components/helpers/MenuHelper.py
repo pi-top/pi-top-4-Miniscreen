@@ -27,7 +27,7 @@ from ptcommon.sys_info import (
     get_systemd_enabled_state,
     is_pi,
     get_battery_capacity,
-    get_battery_charging_state
+    get_battery_charging_state,
 )
 from components.widgets.common_functions import get_image_file
 
@@ -172,9 +172,12 @@ class Pages:
     class SysInfoMenu(Enum):
         BATTERY = MenuPage(
             name="battery",
-            hotspot=get_hotspot(batt_level, interval=1.0,
-                                battery_charging_state=get_battery_charging_state,
-                                battery_capacity=get_battery_capacity),
+            hotspot=get_hotspot(
+                batt_level,
+                interval=1.0,
+                battery_charging_state=get_battery_charging_state,
+                battery_capacity=get_battery_capacity,
+            ),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )

@@ -14,14 +14,13 @@ class Hotspot(BaseHotspot):
         self.charging_state = None
         self.capacity = None
 
-        self.get_battery_charging_state = data.get(
-            "battery_charging_state")
+        self.get_battery_charging_state = data.get("battery_charging_state")
         self.get_battery_capacity = data.get("battery_capacity")
 
     def is_charging(self):
         try:
-            charging = (int(self.charging_state) == 1)
-            fully_charged = (int(self.charging_state) == 2)
+            charging = int(self.charging_state) == 1
+            fully_charged = int(self.charging_state) == 2
             return charging or fully_charged
         except ValueError:
             return False

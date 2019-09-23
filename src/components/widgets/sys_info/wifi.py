@@ -36,7 +36,9 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("wifi_page.gif"), loop=False
+            image_path=get_image_file("wifi_page.gif"),
+            loop=False,
+            playback_speed=2.0,
         )
         self.counter = 0
 
@@ -44,9 +46,13 @@ class Hotspot(BaseHotspot):
         self.wlan0_ip = ""
         self.wifi_bars_image = ""
 
+        self.default_interval = self.interval
+
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("wifi_page.gif"), loop=False
+            image_path=get_image_file("wifi_page.gif"),
+            loop=False,
+            playback_speed=2.0,
         )
         self.counter = 0
 
@@ -64,6 +70,12 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         self.gif.render(draw)
+
+        # If GIF is still playing, update refresh time based on GIF's current frame length
+        # Otherwise, set to originally defined interval for refreshing data members
+        self.interval = (
+            self.default_interval if self.gif.finished else self.gif.interval
+        )
 
         if self.gif.finished is True:
             if self.counter == 0:
