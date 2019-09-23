@@ -37,7 +37,7 @@ class ImageComponent:
         self.loop = loop
         self.playback_speed = playback_speed
         self.finished = False
-        self.interval = -1
+        self.frame_duration = None
         self._load_image_from_path(image_path)
 
     def _load_image_from_path(self, image_path):
@@ -66,7 +66,7 @@ class ImageComponent:
 
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:
-            if self.interval == -1:
+            if self.frame_duration is None:
                 # First frame not yet retrieved - stay here
                 pass
             elif self._frame_no + 1 < self._image.n_frames:
@@ -80,7 +80,8 @@ class ImageComponent:
 
         if self._image.is_animated:
             embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
-            self.interval = float(embedded_frame_speed_s / self.playback_speed)
+            self.frame_duration = float(
+                embedded_frame_speed_s / self.playback_speed)
 
     def render(self, draw):
         if self._image is not None:
