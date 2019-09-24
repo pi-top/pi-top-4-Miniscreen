@@ -1,3 +1,10 @@
+pt-sys-oled (1.2.2-1) buster; urgency=medium
+
+  * Rename network interface for VNC page
+  * Update page refresh time based on GIF's current frame length
+
+-- Ben Pring <ben@pi-top.com>  Tue, 24 Sep 2019 13:14:09 +0100
+
 pt-sys-oled (1.2.1-1) buster; urgency=medium
 
   * Fix battery capacity reading
