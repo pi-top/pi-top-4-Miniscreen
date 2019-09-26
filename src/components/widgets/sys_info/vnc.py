@@ -20,7 +20,7 @@ class Hotspot(BaseHotspot):
             image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
-        self.ptusb0_ip = ""
+        self.ptusb0_ip = "Disconnected"
         self.username = "pi" if getuser() == "root" else getuser()
         self.password = "pi-top"
 
@@ -35,7 +35,7 @@ class Hotspot(BaseHotspot):
         try:
             self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
         except ValueError:
-            self.ptusb0_ip = ""
+            self.ptusb0_ip = "Disconnected"
 
     def render(self, draw, width, height):
         self.gif.render(draw)
