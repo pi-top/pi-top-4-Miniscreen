@@ -26,7 +26,7 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("lan_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
     def set_eth0_data_members(self):
