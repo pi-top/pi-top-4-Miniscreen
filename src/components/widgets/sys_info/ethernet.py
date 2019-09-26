@@ -17,7 +17,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("lan_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
         self.eth0_ip = "Disconnected"
