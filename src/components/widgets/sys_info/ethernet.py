@@ -52,4 +52,4 @@ class Hotspot(BaseHotspot):
 
             draw_text(
                 draw, xy=(default_margin_x, common_second_line_y), text=str(
-                    self.eth0_ip)
+                    self.eth0_ip))
