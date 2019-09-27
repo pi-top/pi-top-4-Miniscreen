@@ -11,6 +11,7 @@ from components.widgets.sys_info import (
     network,
     vnc,
     date_time,
+    ethernet
 )
 from components.widgets.main import template as main_menu_page
 from components.widgets.settings import (
@@ -230,6 +231,12 @@ class Pages:
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
+        ETHERNET_PAGE = MenuPage(
+            name="ethernet",
+            hotspot=get_hotspot(ethernet, interval=0.1),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None,
+        )
         DATE_TIME = MenuPage(
             name="date_time",
             hotspot=get_hotspot(date_time, interval=1.0),
@@ -446,7 +453,7 @@ def get_sys_info_pages_from_config():
         PTLogger.info("No config file - falling back to default")
 
     if len(page_name_arr) < 1:
-        page_name_arr = ["battery", "wifi", "vnc", "cpu"]
+        page_name_arr = ["battery", "wifi", "vnc", "ethernet", "cpu"]
 
     PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
 

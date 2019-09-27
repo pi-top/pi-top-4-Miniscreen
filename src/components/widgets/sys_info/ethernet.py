@@ -17,25 +17,23 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("lan_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
-        self.ptusb0_ip = "Disconnected"
-        self.username = "pi" if getuser() == "root" else getuser()
-        self.password = "pi-top"
+        self.eth0_ip = "Disconnected"
 
         self.default_interval = self.interval
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("lan_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
-    def set_vnc_data_members(self):
+    def set_eth0_data_members(self):
         try:
-            self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
+            self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
         except ValueError:
-            self.ptusb0_ip = "Disconnected"
+            self.eth0_ip = "Disconnected"
 
     def render(self, draw, width, height):
         self.gif.render(draw)
@@ -48,21 +46,10 @@ class Hotspot(BaseHotspot):
 
         if self.gif.finished is True:
             if self.counter == 0:
-                self.set_vnc_data_members()
+                self.set_eth0_data_members()
                 self.counter = 10
             self.counter -= 1
 
             draw_text(
-                draw, xy=(default_margin_x, common_first_line_y), text=str(
-                    self.ptusb0_ip)
-            )
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_second_line_y),
-                text=str(self.username),
-            )
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_third_line_y),
-                text=str(self.password),
-            )
+                draw, xy=(default_margin_x, common_second_line_y), text=str(
+                    self.eth0_ip))
