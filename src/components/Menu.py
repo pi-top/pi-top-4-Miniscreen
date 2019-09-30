@@ -23,7 +23,7 @@ class Menu:
         self.force_redraw = False
 
         if name == MenuHelper.Menus.SYS_INFO:
-            pages = MenuHelper.get_sys_info_pages_from_config()
+            pages = MenuHelper.get_sys_info_pages()
         elif name == MenuHelper.Menus.MAIN_MENU:
             self.parent = MenuHelper.Menus.SYS_INFO
             pages = MenuHelper.get_pages(MenuHelper.Menus.MAIN_MENU)

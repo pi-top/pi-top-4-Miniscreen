@@ -434,34 +434,8 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
     return widget_name_list
 
 
-def get_sys_info_pages_from_config():
-    cfg_path = (
-        "/etc/pi-top/pt-sys-oled" if is_pi() else path.expanduser("~/.pt-sys-oled")
-    )
-    cfg_file = cfg_path + "/prefs.cfg"
-    page_name_arr = list()
-    try:
-        with open(cfg_file, "r") as f:
-            page_name_arr = remove_invalid_sys_info_widget_names(
-                f.read().splitlines())
-            # Do something if this ends up empty - show a "none selected" screen?
-    except FileExistsError:
-        # Can be triggered by cfg_path existing as file - fix edge case
-        pass
-    except (FileNotFoundError, NotADirectoryError):
-        # Default
-        PTLogger.info("No config file - falling back to default")
-
-    if len(page_name_arr) < 1:
-        page_name_arr = ["battery", "wifi", "vnc", "ethernet", "cpu"]
-
-    PTLogger.info("Sys Info pages: " + str(", ".join(page_name_arr)))
-
-    # Write corrected list back to file
-    Path(cfg_path).mkdir(parents=True, exist_ok=True)
-    with open(cfg_file, "w") as f:
-        for page_name in page_name_arr:
-            f.write("%s\n" % page_name)
+def get_sys_info_pages():
+    page_name_arr = ["battery", "wifi", "vnc", "ethernet", "cpu"]
 
     page_id_arr = list()
     for page_name in page_name_arr:
