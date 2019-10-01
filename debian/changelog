@@ -1,3 +1,9 @@
+pt-sys-oled (1.3.2-1) buster; urgency=medium
+
+  * Add new images for USB-C connection
+
+-- Ben Pring <ben@pi-top.com>  Tue, 01 Oct 2019 15:50:10 +0100
+
 pt-sys-oled (1.3.1-1) buster; urgency=medium
 
   * Remove sys-info page configuration. For now just use the defaults.
