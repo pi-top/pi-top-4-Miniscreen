@@ -12,6 +12,8 @@ Package: pt-sys-oled
 Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
+# Required for display reset in settings
+ autorandr,
  fonts-freefont-ttf,
 # Required to take control of the OLED
  pt-hub,
