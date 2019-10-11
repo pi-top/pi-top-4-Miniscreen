@@ -22,18 +22,18 @@ class Menu:
         self.last_displayed_image = None
         self.force_redraw = False
 
-        if name == MenuHelper.Menus.SYS_INFO:
+        if self.name == MenuHelper.Menus.SYS_INFO:
             pages = MenuHelper.get_sys_info_pages()
-        elif name == MenuHelper.Menus.MAIN_MENU:
+        elif self.name == MenuHelper.Menus.MAIN_MENU:
             self.parent = MenuHelper.Menus.SYS_INFO
             pages = MenuHelper.get_pages(MenuHelper.Menus.MAIN_MENU)
-        elif name == MenuHelper.Menus.PROJECTS:
+        elif self.name == MenuHelper.Menus.PROJECTS:
             self.parent = MenuHelper.Menus.MAIN_MENU
             pages = MenuHelper.get_pages(MenuHelper.Menus.PROJECTS)
-        elif name == MenuHelper.Menus.SETTINGS:
+        elif self.name == MenuHelper.Menus.SETTINGS:
             self.parent = MenuHelper.Menus.SETTINGS
             pages = MenuHelper.get_pages(MenuHelper.Menus.SETTINGS)
-        elif name == MenuHelper.Menus.FIRST_TIME:
+        elif self.name == MenuHelper.Menus.FIRST_TIME:
             pages = MenuHelper.get_pages(MenuHelper.Menus.FIRST_TIME)
         else:
             raise Exception("Unrecognised menu name")

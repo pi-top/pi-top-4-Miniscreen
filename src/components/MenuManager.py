@@ -91,7 +91,7 @@ class MenuManager:
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             if button_press.is_direction():
-                if button_press.event_type == ButtonPress.ButtonType.DOWN:
+                if button_press.event_type == ButtonPress.ButtonType.UP:
                     on_first_page = self.current_menu.page_index == 0
                     new_page = (
                         self.current_menu.last_page_no()

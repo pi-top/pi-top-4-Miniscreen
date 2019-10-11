@@ -435,7 +435,7 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages():
-    page_name_arr = ["battery", "wifi", "vnc", "ethernet", "cpu"]
+    page_name_arr = ["battery", "cpu", "wifi", "ethernet", "vnc"]
 
     page_id_arr = list()
     for page_name in page_name_arr:
