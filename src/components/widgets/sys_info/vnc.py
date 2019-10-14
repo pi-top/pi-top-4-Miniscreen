@@ -53,16 +53,17 @@ class Hotspot(BaseHotspot):
             self.counter -= 1
 
             draw_text(
-                draw, xy=(default_margin_x, common_first_line_y), text=str(
-                    self.ptusb0_ip)
-            )
-            draw_text(
                 draw,
-                xy=(default_margin_x, common_second_line_y),
+                xy=(default_margin_x, common_first_line_y),
                 text=str(self.username),
             )
             draw_text(
                 draw,
-                xy=(default_margin_x, common_third_line_y),
+                xy=(default_margin_x, common_second_line_y),
                 text=str(self.password),
+            )
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_third_line_y),
+                text=str(self.ptusb0_ip)
             )
