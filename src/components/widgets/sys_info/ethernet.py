@@ -48,16 +48,16 @@ class Hotspot(BaseHotspot):
         self.set_eth0_data_members()
 
         # Set GIF direction based on connection state
-        self.gif.play_forwards = self.is_connected()
+        self.gif.hold_first_frame = not self.is_connected()
 
         # Render GIF frame
         self.gif.render(draw)
 
         # If GIF is animating, update refresh time based on GIF's current frame length
         # Otherwise, set to originally defined interval for refreshing data members
-        # self.interval = (
-        # self.default_interval if self.gif.finished else self.gif.frame_duration
-        # )
+        self.interval = (
+            self.default_interval if self.gif.finished else self.gif.frame_duration
+        )
 
         # If finished animating, show disconnected state or connection information
         if self.gif.finished is True:
@@ -70,3 +70,4 @@ class Hotspot(BaseHotspot):
                 draw_text(
                     draw, xy=(default_margin_x, common_second_line_y), text=str(
                         self.eth0_ip))
+                self.reset()

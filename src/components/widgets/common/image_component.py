@@ -29,7 +29,7 @@ class ImageComponent:
         if height == -1:
             height = get_device_instance().height
 
-        self.play_forwards = True
+        self.hold_first_frame = False
         self.xy = xy
         self.width = width
         self.height = height
@@ -87,28 +87,14 @@ class ImageComponent:
         self._image.seek(self._frame_no)
         self._set_frame_duration()
 
-    def _seek_previous_frame_in_image(self):
-        if self._image.is_animated:
-            if self.frame_duration is None:
-                # Frame not yet retrieved - stay here
-                pass
-            elif self._frame_no - 1 >= 0:
-                self.finished = False
-                self._frame_no -= 1
-            elif self.loop:
-                self._frame_no = (self._image.n_frames - 1)
-            else:
-                self.finished = True
-
-        self._image.seek(self._frame_no)
-        self._set_frame_duration()
-
     def render(self, draw):
         if self._image is not None:
-            if self.play_forwards:
-                self._seek_next_frame_in_image()
+            if self.hold_first_frame:
+                self._frame_no
+                self._image.seek(0)
+                self.finished = True
             else:
-                self._seek_previous_frame_in_image()
+                self._seek_next_frame_in_image()
 
             img_bitmap = _create_bitmap_to_render(
                 self._image, self.width, self.height)
