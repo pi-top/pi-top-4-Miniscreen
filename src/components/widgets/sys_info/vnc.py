@@ -11,6 +11,26 @@ from components.widgets.common_values import (
 )
 from getpass import getuser
 from ipaddress import ip_address
+import subprocess
+from isc_dhcp_leases import Lease, IscDhcpLeases
+
+
+def get_leases():
+    leases = IscDhcpLeases('/var/lib/dhcp/dhcpd.leases')
+    return leases.get_current()
+
+
+def get_valid_vnc_ip_from_list(leases_dict):
+    for lease in leases_dict.values():
+        address = str(lease.ip)
+        res = subprocess.call(['ping', '-c', '3', address])
+        if res == 0:
+            print("ping to", address, "OK")
+            return address
+        elif res == 2:
+            print("no response from", address)
+        else:
+            print("ping to", address, "failed!")
 
 
 class Hotspot(BaseHotspot):
@@ -37,7 +57,18 @@ class Hotspot(BaseHotspot):
         except ValueError:
             self.ptusb0_ip = "Disconnected"
 
+    def is_connected(self):
+        # TODO implement checking if VNC is active here
+        return False
+
     def render(self, draw, width, height):
+        if self.counter == 0:
+            self.set_vnc_data_members()
+            self.counter = 10
+        self.counter -= 1
+
+        self.gif.hold_first_frame = not self.is_connected()
+
         self.gif.render(draw)
 
         # If GIF is still playing, update refresh time based on GIF's current frame length
@@ -47,23 +78,25 @@ class Hotspot(BaseHotspot):
         )
 
         if self.gif.finished is True:
-            if self.counter == 0:
-                self.set_vnc_data_members()
-                self.counter = 10
-            self.counter -= 1
-
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_first_line_y),
-                text=str(self.username),
-            )
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_second_line_y),
-                text=str(self.password),
-            )
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_third_line_y),
-                text=str(self.ptusb0_ip)
-            )
+            if self.is_connected():
+                draw_text(
+                    draw,
+                    xy=(default_margin_x, common_first_line_y),
+                    text=str(self.username),
+                )
+                draw_text(
+                    draw,
+                    xy=(default_margin_x, common_second_line_y),
+                    text=str(self.password),
+                )
+                draw_text(
+                    draw,
+                    xy=(default_margin_x, common_third_line_y),
+                    text=str(self.ptusb0_ip)
+                )
+            else:
+                # TODO: draw line across logo in centre
+                draw_text(
+                    draw, xy=(default_margin_x, common_second_line_y), text=str(
+                        self.eth0_ip))
+                self.reset()
