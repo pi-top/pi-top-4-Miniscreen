@@ -41,13 +41,12 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         # Check if connected every 10 hotspot refreshes
-        # if self.counter == 0:
-        #     self.set_eth0_data_members()
-        #     self.counter = 10
-        # self.counter -= 1
-        self.set_eth0_data_members()
+        if self.counter == 0:
+            self.set_eth0_data_members()
+            self.counter = 10
+        self.counter -= 1
 
-        # Set GIF direction based on connection state
+        # Stop animation if not connected
         self.gif.hold_first_frame = not self.is_connected()
 
         # Render GIF frame
