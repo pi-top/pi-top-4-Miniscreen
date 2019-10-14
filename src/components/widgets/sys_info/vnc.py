@@ -15,14 +15,14 @@ import subprocess
 from isc_dhcp_leases import Lease, IscDhcpLeases
 
 
-def get_leases():
+def get_dhcp_leases():
     leases = IscDhcpLeases('/var/lib/dhcp/dhcpd.leases')
     return leases.get_current()
 
 
 def get_valid_vnc_ip_from_list(leases_dict):
     for lease in leases_dict.values():
-        address = str(lease.ip)
+        address = lease.ip
         res = subprocess.call(['ping', '-c', '3', address])
         if res == 0:
             print("ping to", address, "OK")
@@ -31,6 +31,7 @@ def get_valid_vnc_ip_from_list(leases_dict):
             print("no response from", address)
         else:
             print("ping to", address, "failed!")
+    return ""
 
 
 class Hotspot(BaseHotspot):
