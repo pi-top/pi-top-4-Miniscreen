@@ -20,15 +20,15 @@ def get_dhcp_leases():
     return leases.get_current()
 
 
-def ping(address, count):
-    return subprocess.call(['ping', '-c', str(count), str(address)])
+def ping(address, count=3, interval=0.5):
+    return subprocess.call(['ping', '-c', str(count), '-i', interval, str(address)])
 
 
 def get_active_dhcp_lease_ip():
     current_leases_dict = get_dhcp_leases()
     for lease in current_leases_dict.values():
         address = lease.ip
-        response = ping(address, 3)
+        response = ping(address)
         if response == 0:
             return address
     return ""
@@ -61,7 +61,7 @@ class Hotspot(BaseHotspot):
 
     def is_connected(self):
         if self.current_lease_ip != "":
-            if ping(self.current_lease_ip, 3) == 0:
+            if ping(self.current_lease_ip) == 0:
                 return True
         self.current_lease_ip = get_active_dhcp_lease_ip()
         if self.current_lease_ip != "":
