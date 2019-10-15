@@ -20,18 +20,13 @@ def get_dhcp_leases():
     return leases.get_current()
 
 
-def get_valid_vnc_ip_from_list(leases_dict):
+def is_dhcp_lease_active(leases_dict):
     for lease in leases_dict.values():
         address = lease.ip
-        res = subprocess.call(['ping', '-c', '3', address])
-        if res == 0:
-            print("ping to", address, "OK")
-            return address
-        elif res == 2:
-            print("no response from", address)
-        else:
-            print("ping to", address, "failed!")
-    return ""
+        response = subprocess.call(['ping', '-c', '3', address])
+        if response == 0:
+            return True
+    return False
 
 
 class Hotspot(BaseHotspot):
@@ -59,7 +54,8 @@ class Hotspot(BaseHotspot):
             self.ptusb0_ip = "Disconnected"
 
     def is_connected(self):
-        # TODO implement checking if VNC is active here
+        if is_dhcp_lease_active(get_dhcp_leases()) is True:
+            return True
         return False
 
     def render(self, draw, width, height):
@@ -99,5 +95,5 @@ class Hotspot(BaseHotspot):
                 # TODO: draw line across logo in centre
                 draw_text(
                     draw, xy=(default_margin_x, common_second_line_y), text=str(
-                        self.eth0_ip))
+                        "disconnected"))
                 self.reset()
