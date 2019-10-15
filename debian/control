@@ -24,7 +24,8 @@ Depends: ${misc:Depends},
  python3-monotonic,
  python3-psutil,
  python3-pt-common,
- python3-pt-oled
+ python3-pt-oled,
+ python3-isc-dhcp-leases
 Description: pi-top [4] OLED system menu application
  Display and control important system settings/information
  on the pi-top [4]'s onboard OLED screen. Navigation is

@@ -109,8 +109,5 @@ class Hotspot(BaseHotspot):
                     text=str(self.wlan0_ip),
                 )
             else:
-                # TODO: draw line across logo in centre
-                draw_text(
-                    draw, xy=(default_margin_x, common_second_line_y), text=str(
-                        "disconnected"))
+                draw.line((30, 10) + (98, 54), "white", 2)
                 self.reset()

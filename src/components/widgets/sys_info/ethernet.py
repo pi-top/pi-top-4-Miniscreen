@@ -65,8 +65,5 @@ class Hotspot(BaseHotspot):
                     draw, xy=(default_margin_x, common_second_line_y), text=str(
                         self.eth0_ip))
             else:
-                # TODO: draw line across logo in centre
-                draw_text(
-                    draw, xy=(default_margin_x, common_second_line_y), text=str(
-                        self.eth0_ip))
+                draw.line((30, 10) + (98, 54), "white", 2)
                 self.reset()
