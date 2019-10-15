@@ -100,12 +100,26 @@ def change_service_enabled_state(service):
         enable_and_start_systemd_service(service)
 
 
+def change_ssh_enabled_state():
+    change_service_enabled_state("ssh")
+
+
 def change_vnc_enabled_state():
     change_service_enabled_state("vncserver-x11-serviced.service")
 
 
-def change_ssh_enabled_state():
-    change_service_enabled_state("ssh")
+def reset_hdmi_configuration():
+    # Close 'Screen Layout Editor'
+    system("DISPLAY=:0 wmctrl -c \"Screen Layout Editor\"")
+
+    # Reset all HDMI outputs to lowest common resolution
+    system("DISPLAY=:0 autorandr -c common")
+
+    # Show 'Screen Layout Editor'
+    # system("DISPLAY=:0 arandr &")
+
+    # Reset DPMS - show display if they were blanked
+    system("xset dpms force on")
 
 
 def start_stop_project(path_to_project):
@@ -275,7 +289,7 @@ class Pages:
                 settings_menu_page,
                 type="ssh",
                 interval=1.0,
-                method=get_ssh_enabled_state,
+                get_state_method=get_ssh_enabled_state,
             ),
             select_action_func=change_ssh_enabled_state,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
@@ -286,9 +300,20 @@ class Pages:
                 settings_menu_page,
                 type="vnc",
                 interval=1.0,
-                method=get_vnc_enabled_state,
+                get_state_method=get_vnc_enabled_state,
             ),
             select_action_func=change_vnc_enabled_state,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
+        )
+        DISPLAY_RESET = MenuPage(
+            name="hdmi_reset",
+            hotspot=get_hotspot(
+                settings_menu_page,
+                type="hdmi_reset",
+                interval=0.0,
+                get_state_method=None,
+            ),
+            select_action_func=reset_hdmi_configuration,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
 

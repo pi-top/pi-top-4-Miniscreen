@@ -68,7 +68,20 @@ class Hotspot(BaseHotspot):
 
         self.wifi_bars_image = wifi_strength_image()
 
+    def is_connected(self):
+        return self.wlan0_ip != ""
+
     def render(self, draw, width, height):
+        # Check if connected every 10 hotspot refreshes
+        if self.counter == 0:
+            self.set_wifi_data_members()
+            self.counter = 10
+        self.counter -= 1
+
+        # Stop animation if not connected
+        self.gif.hold_first_frame = not self.is_connected()
+
+        # Render GIF frame
         self.gif.render(draw)
 
         # If GIF is still playing, update refresh time based on GIF's current frame length
@@ -78,24 +91,23 @@ class Hotspot(BaseHotspot):
         )
 
         if self.gif.finished is True:
-            if self.counter == 0:
-                self.set_wifi_data_members()
-                self.counter = 10
-            self.counter -= 1
+            if self.is_connected():
+                wifi_bars = ImageComponent(
+                    xy=(5, 0), image_path=self.wifi_bars_image, loop=True
+                )
+                wifi_bars.render(draw)
 
-            wifi_bars = ImageComponent(
-                xy=(5, 0), image_path=self.wifi_bars_image, loop=True
-            )
-            wifi_bars.render(draw)
+                draw_text(
+                    draw,
+                    xy=(default_margin_x, common_second_line_y),
+                    text=str(self.wifi_id),
+                )
 
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_second_line_y),
-                text=str(self.wifi_id),
-            )
-
-            draw_text(
-                draw,
-                xy=(default_margin_x, common_third_line_y),
-                text=str(self.wlan0_ip),
-            )
+                draw_text(
+                    draw,
+                    xy=(default_margin_x, common_third_line_y),
+                    text=str(self.wlan0_ip),
+                )
+            else:
+                draw.line((30, 10) + (98, 54), "white", 2)
+                self.reset()

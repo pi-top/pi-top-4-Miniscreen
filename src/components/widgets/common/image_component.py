@@ -29,6 +29,7 @@ class ImageComponent:
         if height == -1:
             height = get_device_instance().height
 
+        self.hold_first_frame = False
         self.xy = xy
         self.width = width
         self.height = height
@@ -64,12 +65,19 @@ class ImageComponent:
         if self._error:
             PTLogger.error(self._error_text)
 
+    def _set_frame_duration(self):
+        if self._image.is_animated:
+            embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
+            self.frame_duration = float(
+                embedded_frame_speed_s / self.playback_speed)
+
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:
             if self.frame_duration is None:
-                # First frame not yet retrieved - stay here
+                # Frame not yet retrieved - stay here
                 pass
             elif self._frame_no + 1 < self._image.n_frames:
+                self.finished = False
                 self._frame_no += 1
             elif self.loop:
                 self._frame_no = 0
@@ -77,17 +85,20 @@ class ImageComponent:
                 self.finished = True
 
         self._image.seek(self._frame_no)
-
-        if self._image.is_animated:
-            embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
-            self.frame_duration = float(
-                embedded_frame_speed_s / self.playback_speed)
+        self._set_frame_duration()
 
     def render(self, draw):
         if self._image is not None:
-            self._seek_next_frame_in_image()
+            if self.hold_first_frame:
+                self._frame_no
+                self._image.seek(0)
+                self.finished = True
+            else:
+                self._seek_next_frame_in_image()
+
             img_bitmap = _create_bitmap_to_render(
                 self._image, self.width, self.height)
+
             draw.bitmap(
                 xy=self.xy,
                 bitmap=img_bitmap.convert(get_device_instance().mode),
