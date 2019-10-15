@@ -21,7 +21,7 @@ def get_dhcp_leases():
 
 
 def ping(address):
-    return subprocess.call(['ping', '-c', '1', str(address)], stdout=subprocess.DEVNULL)
+    return subprocess.call(['fping', '-c1', '-t100', str(address)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def get_active_dhcp_lease_ip():
@@ -55,14 +55,14 @@ class Hotspot(BaseHotspot):
             image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
         self.counter = 0
 
+        self.ptusb0_ip = "Disconnected"
+        self.current_lease_ip = ""
+        self.is_connected = False
+        self.initialised = False
+
     def set_vnc_data_members(self):
         def _is_connected():
-            if self.current_lease_ip != "":
-                if ping(self.current_lease_ip) == 0:
-                    return True
-            if self.current_lease_ip != "":
-                return True
-            return False
+            return self.current_lease_ip != "" and ping(self.current_lease_ip) == 0
 
         try:
             self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
@@ -76,7 +76,7 @@ class Hotspot(BaseHotspot):
 
     def render(self, draw, width, height):
         if self.initialised:
-            if self.gif.finished:
+            if self.gif.finished or self.gif.hold_first_frame:
                 if self.counter == 0:
                     self.set_vnc_data_members()
                     self.counter = 10
@@ -112,6 +112,6 @@ class Hotspot(BaseHotspot):
                     text=str(self.ptusb0_ip)
                 )
             else:
-                if not self.initialised:
+                if self.initialised:
                     draw.line((30, 10) + (98, 54), "white", 2)
                 self.reset()

@@ -14,6 +14,8 @@ Depends: ${misc:Depends},
  ${python3:Depends},
 # Required for display reset in settings
  autorandr,
+# Required for fast pings
+ fping,
  fonts-freefont-ttf,
 # Required to take control of the OLED
  pt-hub,
