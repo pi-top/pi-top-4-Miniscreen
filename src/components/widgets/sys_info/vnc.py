@@ -20,13 +20,18 @@ def get_dhcp_leases():
     return leases.get_current()
 
 
-def is_dhcp_lease_active(leases_dict):
-    for lease in leases_dict.values():
+def ping(address, count):
+    return subprocess.call(['ping', '-c', str(count), str(address)])
+
+
+def get_active_dhcp_lease_ip():
+    current_leases_dict = get_dhcp_leases()
+    for lease in current_leases_dict.values():
         address = lease.ip
-        response = subprocess.call(['ping', '-c', '3', address])
+        response = ping(address, 3)
         if response == 0:
-            return True
-    return False
+            return address
+    return ""
 
 
 class Hotspot(BaseHotspot):
@@ -39,6 +44,7 @@ class Hotspot(BaseHotspot):
         self.ptusb0_ip = "Disconnected"
         self.username = "pi" if getuser() == "root" else getuser()
         self.password = "pi-top"
+        self.current_lease_ip = ""
 
         self.default_interval = self.interval
 
@@ -54,7 +60,11 @@ class Hotspot(BaseHotspot):
             self.ptusb0_ip = "Disconnected"
 
     def is_connected(self):
-        if is_dhcp_lease_active(get_dhcp_leases()) is True:
+        if self.current_lease_ip != "":
+            if ping(self.current_lease_ip, 3) == 0:
+                return True
+        self.current_lease_ip = get_active_dhcp_lease_ip()
+        if self.current_lease_ip != "":
             return True
         return False
 
