@@ -60,10 +60,12 @@ class Hotspot(BaseHotspot):
         self.wifi_bars_image = ""
         self.initialised = False
 
+        self.interval = self.default_interval
+
     def is_connected(self):
         return self.wlan0_ip != ""
 
-    def set_wifi_data_members(self):
+    def set_data_members(self):
         network_ssid = get_wifi_network_ssid()
         if network_ssid is not "Error":
             self.wifi_id = network_ssid
@@ -75,7 +77,6 @@ class Hotspot(BaseHotspot):
             self.wlan0_ip = ""
 
         self.wifi_bars_image = wifi_strength_image()
-        self.initialised = True
 
         if not self.is_connected():
             self.gif = ImageComponent(
@@ -85,23 +86,29 @@ class Hotspot(BaseHotspot):
             )
 
         self.gif.hold_first_frame = not self.is_connected()
+        self.initialised = True
 
     def render(self, draw, width, height):
+        first_frame = not self.initialised
+
         # Determine initial connection state
-        if not self.initialised:
-            self.set_wifi_data_members()
+        if first_frame:
+            self.set_data_members()
 
         # Determine connection state
         if not self.gif.is_animating():
-            self.set_wifi_data_members()
+            self.set_data_members()
 
         # Determine animation speed
-        if self.gif.is_animating():
-            # TODO: fix frame speed in GIF
-            # self.interval = self.gif.frame_duration
-            self.interval = 0.025
+        # TODO: fix frame speed in GIF
+        # self.interval = self.gif.frame_duration
+        if first_frame:
+            self.interval = 0.5
         else:
-            self.interval = self.default_interval
+            if self.gif.is_animating():
+                self.interval = 0.025
+            else:
+                self.interval = self.default_interval
 
         # Draw to OLED
         self.gif.render(draw)

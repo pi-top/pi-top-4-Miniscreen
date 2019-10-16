@@ -1,7 +1,5 @@
 from ptcommon.sys_info import get_internal_ip
-from components.widgets.common_functions import title_text, draw_text, get_image_file
-from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common.image_component import ImageComponent
+from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_y,
     default_margin_x,
@@ -9,6 +7,8 @@ from components.widgets.common_values import (
     common_first_line_y,
     common_third_line_y,
 )
+from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.image_component import ImageComponent
 from getpass import getuser
 from ipaddress import ip_address
 
@@ -18,52 +18,73 @@ class Hotspot(BaseHotspot):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
             image_path=get_image_file("lan_page.gif"), loop=False, playback_speed=2.0)
-        self.counter = 0
 
-        self.eth0_ip = "Disconnected"
+        self.eth0_ip = ""
+        self.initialised = False
 
         self.default_interval = self.interval
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("lan_page.gif"), loop=False, playback_speed=2.0)
-        self.counter = 0
+            image_path=get_image_file("lan_page.gif"),
+            loop=False,
+            playback_speed=2.0,
+        )
+
+        self.eth0_ip = ""
+        self.initialised = False
+
         self.interval = self.default_interval
 
     def is_connected(self):
-        return self.eth0_ip != "Disconnected"
+        return self.eth0_ip != ""
 
-    def set_eth0_data_members(self):
+    def set_data_members(self):
         try:
             self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
         except ValueError:
-            self.eth0_ip = "Disconnected"
+            self.eth0_ip = ""
+
+        if not self.is_connected():
+            self.gif = ImageComponent(
+                image_path=get_image_file("lan_page.gif"),
+                loop=False,
+                playback_speed=2.0,
+            )
+
+        self.gif.hold_first_frame = not self.is_connected()
+        self.initialised = True
 
     def render(self, draw, width, height):
-        # Check if connected every 10 hotspot refreshes
-        if self.counter == 0:
-            self.set_eth0_data_members()
-            self.counter = 10
-        self.counter -= 1
+        first_frame = not self.initialised
 
-        # Stop animation if not connected
-        self.gif.hold_first_frame = not self.is_connected()
+        # Determine initial connection state
+        if first_frame:
+            self.set_data_members()
 
-        # Render GIF frame
+        # Determine connection state
+        if not self.gif.is_animating():
+            self.set_data_members()
+
+        # Determine animation speed
+        # TODO: fix frame speed in GIF
+        # self.interval = self.gif.frame_duration
+        if first_frame:
+            self.interval = 0.5
+        else:
+            if self.gif.is_animating():
+                self.interval = 0.025
+            else:
+                self.interval = self.default_interval
+
+        # Draw to OLED
         self.gif.render(draw)
 
-        # If GIF is animating, update refresh time based on GIF's current frame length
-        # Otherwise, set to originally defined interval for refreshing data members
-        self.interval = (
-            self.default_interval if self.gif.finished else self.gif.frame_duration
-        )
-
-        # If finished animating, show disconnected state or connection information
-        if self.gif.finished is True:
-            if self.is_connected():
+        if self.initialised and not self.gif.is_animating():
+            if self.is_connected() and self.gif.finished:
                 draw_text(
                     draw, xy=(default_margin_x, common_second_line_y), text=str(
-                        self.eth0_ip))
-            else:
+                        self.eth0_ip)
+                )
+            elif not self.is_connected() and self.gif.hold_first_frame:
                 draw.line((30, 10) + (98, 54), "white", 2)
-                self.reset()
