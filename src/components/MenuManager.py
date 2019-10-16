@@ -3,7 +3,7 @@ from ptcommon.sys_info import is_pi
 from subprocess import call
 from os import path, listdir
 
-from ptoled import device_reserved
+from ptoled import get_device_instance, device_reserved
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.helpers.SubscriberClient import SubscriberClient
@@ -26,6 +26,10 @@ class MenuManager:
     def __init__(self):
         self.button_press_stack = []
         self._continue = True
+        self._sleeping = False
+        self.current_sleep_time = 0
+        self.current_page_frame_counter = 0
+        self.current_page_frame_counter_limit = 300
         self._subscriber_client = SubscriberClient()
         self._subscriber_client.initialise(self)
         if self._subscriber_client.start_listening() is False:
@@ -49,6 +53,16 @@ class MenuManager:
     def stop(self):
         self._continue = False
         self._subscriber_client._continue = False
+
+    def sleep_oled(self):
+        get_device_instance().contrast(0)
+        # get_device_instance().hide()
+        self._sleeping = True
+
+    def wake_oled(self):
+        get_device_instance().contrast(255)
+        # get_device_instance().show()
+        self._sleeping = False
 
     def add_menu_to_list(self, menu_id):
         self.menus[menu_id] = Menu(menu_id)
@@ -80,53 +94,80 @@ class MenuManager:
                 "Adding " + str(button_press_event.event_type) + " to stack")
             self.button_press_stack.append(button_press_event)
 
-    def get_next_button_press_from_stack(self):
-        button_press = ButtonPress(ButtonPress.ButtonType.NONE)
-        if len(self.button_press_stack):
-            button_press = self.button_press_stack.pop(0)
-        return button_press
-
     def update_state(self):
-        button_press = self.get_next_button_press_from_stack()
+        def _get_next_button_press_from_stack():
+            button_press = ButtonPress(ButtonPress.ButtonType.NONE)
+            if len(self.button_press_stack):
+                button_press = self.button_press_stack.pop(0)
+            return button_press
+
+        def _get_page_no_to_move_to(forwards):
+            if forwards:
+                on_first_page = self.current_menu.page_index == 0
+                return (
+                    self.current_menu.last_page_no()
+                    if on_first_page
+                    else self.current_menu.page_index - 1
+                )
+            else:
+                on_last_page = (
+                    self.current_menu.page_index == self.current_menu.last_page_no()
+                )
+                return 0 if on_last_page else self.current_menu.page_index + 1
+
+        def _call_func_if_callable(func):
+            if func is not None:
+                func()
+            return func is not None
+
+        button_press = _get_next_button_press_from_stack()
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
-            if button_press.is_direction():
-                if button_press.event_type == ButtonPress.ButtonType.UP:
-                    on_first_page = self.current_menu.page_index == 0
-                    new_page = (
-                        self.current_menu.last_page_no()
-                        if on_first_page
-                        else self.current_menu.page_index - 1
-                    )
-                else:
-                    on_last_page = (
-                        self.current_menu.page_index == self.current_menu.last_page_no()
-                    )
-                    new_page = 0 if on_last_page else self.current_menu.page_index + 1
-                self.current_menu.move_instantly_to_page(new_page)
+            if self._sleeping:
+                self.wake_oled()
+                self.current_page_frame_counter = 0
+            else:
+                if button_press.is_direction():
+                    forwards = button_press.event_type == ButtonPress.ButtonType.UP
+                    new_page = _get_page_no_to_move_to(forwards)
+                    self.current_menu.move_instantly_to_page(new_page)
+                    self.current_page_frame_counter = 0
 
-            elif button_press.is_action():
-                if button_press.event_type == ButtonPress.ButtonType.SELECT:
-                    # Do action according to page's function
-                    if (
-                        self.current_menu.get_current_page().select_action_func
-                        is not None
-                    ):
-                        self.current_menu.get_current_page().select_action_func()
-                else:
-                    if (
-                        self.current_menu.get_current_page().cancel_action_func
-                        is not None
-                    ):
-                        self.current_menu.get_current_page().cancel_action_func()
-                    elif self.current_menu.parent is not None:
-                        self.change_menu(self.current_menu.parent)
+                elif button_press.is_action():
+                    current_page = self.current_menu.get_current_page()
+                    if button_press.event_type == ButtonPress.ButtonType.SELECT:
+                        _call_func_if_callable(current_page.select_action_func)
+                    else:
+                        if not _call_func_if_callable(current_page.cancel_action_func):
+                            if self.current_menu.parent is not None:
+                                self.change_menu(self.current_menu.parent)
 
-        self.current_menu.redraw_if_necessary()
+        self.current_sleep_time = self.current_menu.get_current_page().hotspot.interval
+        if not self._sleeping:
+            go_to_sleep = self.current_page_frame_counter > self.current_page_frame_counter_limit
+            if go_to_sleep:
+                self.sleep_oled()
+            else:
+                self.current_menu.redraw_if_necessary()
+                self.current_page_frame_counter += self.current_sleep_time
 
     def update_battery_state(self, charging_state, capacity):
         MenuHelper.battery_charging_state = charging_state
         MenuHelper.battery_capacity = capacity
+
+    def wait_for_oled_control(self):
+        oled_control_lost_since_last_cycle = False
+        while True:
+            if device_reserved():
+                if oled_control_lost_since_last_cycle is False:
+                    PTLogger.info("User has taken control of the OLED")
+                    oled_control_lost_since_last_cycle = True
+                sleep(1)
+            else:
+                if oled_control_lost_since_last_cycle:
+                    PTLogger.info("OLED control restored")
+                    self.current_menu.reset_device()
+                break
 
     def main_loop(self):
         try:
@@ -136,22 +177,12 @@ class MenuManager:
                     if not is_pi():
                         self.add_button_press_to_stack(ButtonPressHelper.get())
                     self.update_state()
-                current_hotspot_interval = self.current_menu.get_current_page().hotspot.interval
-                sleep(current_hotspot_interval)
+                    print(str(self.current_page_frame_counter), "/",
+                          str(self.current_page_frame_counter_limit))
 
-                oled_control_lost_since_last_cycle = False
+                sleep(self.current_sleep_time)
 
-                while True:
-                    if device_reserved():
-                        if oled_control_lost_since_last_cycle is False:
-                            PTLogger.info("User has taken control of the OLED")
-                            oled_control_lost_since_last_cycle = True
-                        sleep(1)
-                    else:
-                        if oled_control_lost_since_last_cycle:
-                            PTLogger.info("OLED control restored")
-                            self.current_menu.reset_device()
-                        break
+                self.wait_for_oled_control()
 
         except SystemExit:
             PTLogger.info("Program exited")
