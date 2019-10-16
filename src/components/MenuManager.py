@@ -27,7 +27,8 @@ class MenuManager:
         self.button_press_stack = []
         self._continue = True
         self._sleeping = False
-        self.current_sleep_time = 0
+        self.default_frame_sleep_time = 0.1
+        self.frame_sleep_time = self.default_frame_sleep_time
         self.current_page_frame_counter = 0
         self.current_page_frame_counter_limit = 300
         self._subscriber_client = SubscriberClient()
@@ -95,6 +96,8 @@ class MenuManager:
             self.button_press_stack.append(button_press_event)
 
     def update_state(self):
+        # TODO: move into separate class
+
         def _get_next_button_press_from_stack():
             button_press = ButtonPress(ButtonPress.ButtonType.NONE)
             if len(self.button_press_stack):
@@ -142,14 +145,21 @@ class MenuManager:
                             if self.current_menu.parent is not None:
                                 self.change_menu(self.current_menu.parent)
 
-        self.current_sleep_time = self.current_menu.get_current_page().hotspot.interval
+        max_current_hotspot_interval = self.current_menu.get_current_page().hotspot.interval
+        self.frame_sleep_time = (
+            max_current_hotspot_interval
+            if max_current_hotspot_interval < self.default_frame_sleep_time
+            else self.default_frame_sleep_time
+        )
+
         if not self._sleeping:
             go_to_sleep = self.current_page_frame_counter > self.current_page_frame_counter_limit
             if go_to_sleep:
                 self.sleep_oled()
             else:
-                self.current_menu.redraw_if_necessary()
-                self.current_page_frame_counter += self.current_sleep_time
+                self.current_menu.update_hotspots_in_view()
+                self.current_menu.update_oled_if_necessary()
+                self.current_page_frame_counter += self.frame_sleep_time
 
     def update_battery_state(self, charging_state, capacity):
         MenuHelper.battery_charging_state = charging_state
@@ -177,10 +187,11 @@ class MenuManager:
                     if not is_pi():
                         self.add_button_press_to_stack(ButtonPressHelper.get())
                     self.update_state()
-                    print(str(self.current_page_frame_counter), "/",
-                          str(self.current_page_frame_counter_limit))
+                    PTLogger.debug(
+                        f"Sleep timer: {self.current_page_frame_counter:.2f} / {self.current_page_frame_counter_limit}")
 
-                sleep(self.current_sleep_time)
+                PTLogger.debug("Sleeping for " + str(self.frame_sleep_time))
+                sleep(self.frame_sleep_time)
 
                 self.wait_for_oled_control()
 

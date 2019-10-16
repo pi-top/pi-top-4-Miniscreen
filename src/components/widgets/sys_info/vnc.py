@@ -53,7 +53,6 @@ class Hotspot(BaseHotspot):
     def reset(self):
         self.gif = ImageComponent(
             image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
-        self.counter = 0
 
         self.ptusb0_ip = "Disconnected"
         self.current_lease_ip = ""
@@ -75,13 +74,7 @@ class Hotspot(BaseHotspot):
         self.initialised = True
 
     def render(self, draw, width, height):
-        if self.initialised:
-            if self.gif.finished or self.gif.hold_first_frame:
-                if self.counter == 0:
-                    self.set_vnc_data_members()
-                    self.counter = 10
-                self.counter -= 1
-        else:
+        if self.gif.frame_duration is None or not self.is_animating():
             self.set_vnc_data_members()
 
         self.gif.hold_first_frame = not self.is_connected

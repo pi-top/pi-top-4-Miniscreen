@@ -1,4 +1,3 @@
-from luma.core.threadpool import threadpool
 from components.helpers import MenuHelper
 
 from ptcommon.sys_info import is_pi
@@ -8,9 +7,6 @@ from ptoled import get_device_instance, reset_device_instance
 
 if is_pi():
     from ptoled import PTOLEDDisplay
-
-
-pool = threadpool(4)
 
 
 class Menu:
@@ -72,18 +68,13 @@ class Menu:
     def last_page_no(self):
         return len(self.pages) - 1
 
-    def wait_for_any_remaining_viewport_operations(self):
-        should_wait = False
+    def update_hotspots_in_view(self):
+        okay = False
         for hotspot, xy in self.viewport._hotspots:
-            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(
-                hotspot, xy
-            ):
-                pool.add_task(hotspot.paste_into,
-                              self.viewport._backing_image, xy)
-                should_wait = True
 
-        if should_wait:
-            pool.wait_completion()
+            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
+                # Calls each hotspot's render function
+                hotspot.paste_into(self.viewport._backing_image, xy)
 
     def should_redraw(self):
         if self.force_redraw:
@@ -115,10 +106,9 @@ class Menu:
         if is_pi():
             PTOLEDDisplay().reset()
 
-    def redraw_if_necessary(self):
-        self.wait_for_any_remaining_viewport_operations()
-
+    def update_oled_if_necessary(self):
         if self.should_redraw():
+            PTLogger.debug("Updating image on OLED display")
             im = self.viewport._backing_image.crop(
                 box=self.viewport._crop_box())
             get_device_instance().display(im)

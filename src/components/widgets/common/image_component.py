@@ -33,7 +33,7 @@ class ImageComponent:
         self.xy = xy
         self.width = width
         self.height = height
-        self._frame_no = 0
+        self.frame_no = 0
         self._image = None
         self.loop = loop
         self.playback_speed = playback_speed
@@ -62,6 +62,9 @@ class ImageComponent:
             self._error_text = str(e)
             self._error = True
 
+        self._image.seek(self.frame_no)
+        self._set_frame_duration()
+
         if self._error:
             PTLogger.error(self._error_text)
 
@@ -73,26 +76,25 @@ class ImageComponent:
 
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:
-            if self.frame_duration is None:
-                # Frame not yet retrieved - stay here
-                pass
-            elif self._frame_no + 1 < self._image.n_frames:
+            if self.frame_no + 1 < self._image.n_frames:
                 self.finished = False
-                self._frame_no += 1
+                self.frame_no += 1
             elif self.loop:
-                self._frame_no = 0
-            else:
+                self.frame_no = 0
+
+            if self.frame_no + 1 == self._image.n_frames:
                 self.finished = True
 
-        self._image.seek(self._frame_no)
+        self._image.seek(self.frame_no)
         self._set_frame_duration()
+
+    def is_animating(self):
+        return not self.finished and not self.hold_first_frame
 
     def render(self, draw):
         if self._image is not None:
             if self.hold_first_frame:
-                self._frame_no
                 self._image.seek(0)
-                self.finished = True
             else:
                 self._seek_next_frame_in_image()
 

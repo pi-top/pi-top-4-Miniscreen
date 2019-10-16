@@ -196,58 +196,58 @@ class Pages:
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
-        UPTIME = MenuPage(
-            name="uptime",
-            hotspot=get_hotspot(uptime, interval=1.0),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None,
-        )
-        MEMORY = MenuPage(
-            name="memory",
-            hotspot=get_hotspot(memory, interval=2.0),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None,
-        )
-        DISK = MenuPage(
-            name="disk",
-            hotspot=get_hotspot(disk, interval=2.0),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None,
-        )
+        # UPTIME = MenuPage(
+        #     name="uptime",
+        #     hotspot=get_hotspot(uptime, interval=1.0),
+        #     select_action_func=change_menu(Menus.MAIN_MENU),
+        #     cancel_action_func=None,
+        # )
+        # MEMORY = MenuPage(
+        #     name="memory",
+        #     hotspot=get_hotspot(memory, interval=2.0),
+        #     select_action_func=change_menu(Menus.MAIN_MENU),
+        #     cancel_action_func=None,
+        # )
+        # DISK = MenuPage(
+        #     name="disk",
+        #     hotspot=get_hotspot(disk, interval=2.0),
+        #     select_action_func=change_menu(Menus.MAIN_MENU),
+        #     cancel_action_func=None,
+        # )
         CPU = MenuPage(
             name="cpu",
             hotspot=get_hotspot(cpu_load, interval=0.5),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
-        CLOCK = MenuPage(
-            name="clock",
-            hotspot=get_hotspot(clock, interval=1.0),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None,
-        )
+        # CLOCK = MenuPage(
+        #     name="clock",
+        #     hotspot=get_hotspot(clock, interval=1.0),
+        #     select_action_func=change_menu(Menus.MAIN_MENU),
+        #     cancel_action_func=None,
+        # )
         WIFI = MenuPage(
             name="wifi",
-            hotspot=get_hotspot(wifi, interval=0.1),
+            hotspot=get_hotspot(wifi, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
-        NETWORK = MenuPage(
-            name="network",
-            hotspot=get_hotspot(network, interval=1.0, interface="wlan0"),
-            select_action_func=change_menu(Menus.MAIN_MENU),
-            cancel_action_func=None,
-        )
+        # NETWORK = MenuPage(
+        #     name="network",
+        #     hotspot=get_hotspot(network, interval=1.0, interface="wlan0"),
+        #     select_action_func=change_menu(Menus.MAIN_MENU),
+        #     cancel_action_func=None,
+        # )
 
         VNC_SETUP = MenuPage(
             name="vnc",
-            hotspot=get_hotspot(vnc, interval=0.1),
+            hotspot=get_hotspot(vnc, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
         ETHERNET_PAGE = MenuPage(
             name="ethernet",
-            hotspot=get_hotspot(ethernet, interval=0.1),
+            hotspot=get_hotspot(ethernet, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
