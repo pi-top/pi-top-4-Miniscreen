@@ -119,7 +119,7 @@ def reset_hdmi_configuration():
     # system("DISPLAY=:0 arandr &")
 
     # Reset DPMS - show display if they were blanked
-    system("xset dpms force on")
+    system("DISPLAY=:0 xset dpms force on")
 
 
 def start_stop_project(path_to_project):
