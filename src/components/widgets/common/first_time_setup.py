@@ -13,7 +13,6 @@ from getpass import getuser
 from ipaddress import ip_address
 import subprocess
 from isc_dhcp_leases import IscDhcpLeases
-import pprint
 
 
 def get_connected_device_ip():
@@ -32,7 +31,6 @@ def get_connected_device_ip():
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        print("Init")
         self.gif = ImageComponent(
             image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
 
@@ -51,7 +49,6 @@ class Hotspot(BaseHotspot):
         self.default_interval = self.interval
 
     def reset(self):
-        print("Resetting")
         self.gif = ImageComponent(
             image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
 

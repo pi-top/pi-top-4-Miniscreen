@@ -50,20 +50,11 @@ class Menu:
         PTLogger.info("Moving instantly to " +
                       str(self.get_current_page().name))
 
-        self.reset_page(self.page_index)
-        self.refresh(force=False)
+        self.get_current_hotspot().reset()
+        self.refresh()
 
-    def reset_all_pages(self):
-        for i in range(len(self.pages)):
-            self.reset_page(i)
-
-    def reset_page(self, page_index):
-        hotspot = self.get_hotspot_for_page(page_index)
-        hotspot.reset()
-        self.update_hotspot(hotspot)
-
-    def get_hotspot_for_page(self, page_index):
-        return self.get_page(page_index).hotspot
+    def get_current_hotspot(self):
+        return self.get_page(self.page_index).hotspot
 
     def get_page(self, page_index):
         return self.pages[page_index]
@@ -76,20 +67,18 @@ class Menu:
 
     def refresh(self, force=False):
         if force:
-            self.reset_all_pages()
-        self.update_hotspots_in_view()
+            self.get_current_hotspot().reset()
+        self.render_current_hotspot_to_viewport(force)
         self.update_oled(force=force)
 
-    def update_hotspot(self, hotspot_to_update):
-        for hotspot, xy in self.viewport._hotspots:
-            if hotspot == hotspot_to_update:
-                hotspot.paste_into(self.viewport._backing_image, xy)
+    def render_current_hotspot_to_viewport(self, force=False):
+        self.render_hotspot_to_viewport(self.page_index, force)
 
-    def update_hotspots_in_view(self):
-        for hotspot, xy in self.viewport._hotspots:
-            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
-                # Calls each hotspot's render function
-                hotspot.paste_into(self.viewport._backing_image, xy)
+    def render_hotspot_to_viewport(self, page_index, force=False):
+        hotspot, xy = self.viewport._hotspots[page_index]
+        if force or hotspot.should_redraw():
+            # Calls each hotspot's render() function
+            hotspot.paste_into(self.viewport._backing_image, xy)
 
     def should_redraw(self):
         self.viewport._position = (0, self.get_page_y_pos())
