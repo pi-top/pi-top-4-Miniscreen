@@ -77,8 +77,7 @@ class MenuManager:
                         MenuHelper.Menus.PROJECTS
                     ).generate_pages()
                 )
-            self.current_menu.reset_all_pages()
-            self.current_menu.update_hotspots(visible_only=False)
+            self.current_menu.refresh(force=True)
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))

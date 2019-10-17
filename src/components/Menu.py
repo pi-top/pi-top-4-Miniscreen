@@ -16,7 +16,6 @@ class Menu:
         self.parent = None
         self.page_index = 0
         self.last_displayed_image = None
-        self.force_redraw = False
 
         if self.name == MenuHelper.Menus.SYS_INFO:
             pages = MenuHelper.get_sys_info_pages()
@@ -52,8 +51,7 @@ class Menu:
             PTLogger.info("Moving instantly to " +
                           str(self.get_current_page().name))
 
-        self.reset_all_pages()
-        self.update_hotspots(visible_only=False)
+        self.refresh(force=False)
 
     def reset_all_pages(self):
         for i in range(len(self.pages)):
@@ -71,9 +69,10 @@ class Menu:
     def last_page_no(self):
         return len(self.pages) - 1
 
-    def refresh(self):
-        self.update_hotspots()
-        self.update_oled_if_necessary()
+    def refresh(self, force=False):
+        self.reset_all_pages()
+        self.update_hotspots(visible_only=not force)
+        self.update_oled(force=force)
 
     def update_hotspots(self, visible_only=True):
         for hotspot, xy in self.viewport._hotspots:
@@ -83,11 +82,6 @@ class Menu:
                 hotspot.paste_into(self.viewport._backing_image, xy)
 
     def should_redraw(self):
-        if self.force_redraw:
-            PTLogger.info("Forcing a redraw")
-            self.force_redraw = False
-            return True
-
         self.viewport._position = (0, self.get_page_y_pos())
         image_to_display = self.viewport._backing_image.crop(
             box=self.viewport._crop_box()
@@ -106,14 +100,17 @@ class Menu:
         return image_to_display != self.last_displayed_image
 
     def reset_device(self):
-        self.force_redraw = True
+        self.refresh(force=True)
         PTLogger.info("Resetting device instance...")
         reset_device_instance(exclusive=False)
         if is_pi():
             PTOLEDDisplay().reset()
 
-    def update_oled_if_necessary(self):
-        if self.should_redraw():
+    def update_oled(self, force=False):
+        if force:
+            PTLogger.info("Forcing redraw")
+
+        if force or self.should_redraw():
             PTLogger.debug("Updating image on OLED display")
             im = self.viewport._backing_image.crop(
                 box=self.viewport._crop_box())
