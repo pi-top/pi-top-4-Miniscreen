@@ -19,7 +19,7 @@ from components.widgets.settings import (
     settings as setting_title,
 )
 from components.widgets.projects import template as projects_menu_page
-from components.widgets.common import image as image_page
+from components.widgets.common import first_time_setup
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -379,17 +379,7 @@ class Pages:
     class FirstTimeSetupMenu(Enum):
         INTRO = MenuPage(
             name="initial_setup",
-            hotspot=get_hotspot(
-                image_page,
-                image_path=get_image_file("first-time-connect.gif"),
-                interval=0.5,
-            ),
-            select_action_func=None,
-            cancel_action_func=None,
-        )
-        VNC_SETUP = MenuPage(
-            name="vnc",
-            hotspot=get_hotspot(vnc, interval=0.1),
+            hotspot=get_hotspot(first_time_setup, interval=1),
             select_action_func=None,
             cancel_action_func=None,
         )

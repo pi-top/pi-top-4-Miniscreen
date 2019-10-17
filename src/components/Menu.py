@@ -45,17 +45,16 @@ class Menu:
             page_index = self.page_index
         return page_index * get_device_instance().height
 
-    def move_instantly_to_page(self, page_index, debug_print=True):
+    def move_instantly_to_page(self, page_index):
         self.page_index = page_index
-        if debug_print:
-            PTLogger.info("Moving instantly to " +
-                          str(self.get_current_page().name))
+        PTLogger.info("Moving instantly to " +
+                      str(self.get_current_page().name))
 
-        self.refresh(force=False)
+        self.refresh(force=True)
 
     def reset_all_pages(self):
         for i in range(len(self.pages)):
-            self.get_page(i).hotspot.reset()
+            self.reset_page(i)
 
     def reset_page(self, page_index):
         self.get_page(page_index).hotspot.reset()
@@ -70,7 +69,8 @@ class Menu:
         return len(self.pages) - 1
 
     def refresh(self, force=False):
-        self.reset_all_pages()
+        if force:
+            self.reset_all_pages()
         self.update_hotspots(visible_only=not force)
         self.update_oled(force=force)
 
@@ -108,7 +108,7 @@ class Menu:
 
     def update_oled(self, force=False):
         if force:
-            PTLogger.info("Forcing redraw")
+            PTLogger.debug("Forcing redraw")
 
         if force or self.should_redraw():
             PTLogger.debug("Updating image on OLED display")

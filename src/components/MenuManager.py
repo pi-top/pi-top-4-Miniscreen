@@ -39,7 +39,7 @@ class MenuManager:
 
         self.menus = dict()
 
-        if eula_agreed() == False and is_pi():
+        if eula_agreed() == True and is_pi():
             self.add_menu_to_list(MenuHelper.Menus.FIRST_TIME)
             self.change_menu(MenuHelper.Menus.FIRST_TIME)
         else:
