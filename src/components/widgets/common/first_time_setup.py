@@ -32,7 +32,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
 
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
@@ -41,11 +41,16 @@ class Hotspot(BaseHotspot):
         self.username = "pi" if getuser() == "root" else getuser()
         self.password = "pi-top"
 
+        self.is_moving_to_show_data = True
+        self.finished = False
+
+        self.x = 0
+
         self.default_interval = self.interval
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
 
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
@@ -64,57 +69,56 @@ class Hotspot(BaseHotspot):
 
         self.connected_device_ip = get_connected_device_ip()
 
-        if not self.is_connected():
-            self.gif = ImageComponent(
-                image_path=get_image_file("vnc_page.gif"),
-                loop=False,
-                playback_speed=2.0,
-            )
-
-        self.gif.hold_first_frame = not self.is_connected()
+        self.is_moving_to_show_data = self.is_connected() and not self.x <= -128
         self.initialised = True
 
+    def gif_is_off_screen(self):
+        return self.x <= -128
+
     def render(self, draw, width, height):
-        first_frame = not self.initialised
-
-        # Determine initial connection state
-        if first_frame:
-            self.set_data_members()
-
         # Determine connection state
-        if not self.gif.is_animating():
+        if not self.is_moving_to_show_data:
             self.set_data_members()
 
-        # Determine animation speed
-        # TODO: fix frame speed in GIF
-        # self.interval = self.gif.frame_duration
-        if first_frame:
-            self.interval = 0.5
+        self.gif.hold_first_frame = self.is_connected()
+
+        if self.is_moving_to_show_data:
+            self.interval = 0.025
+
+            # Move GIF to the left
+            self.x -= 5
+
+            # Stop moving GIF to the left if off screen
+            if self.gif_is_off_screen:
+                self.is_moving_to_show_data = False
         else:
-            if self.gif.is_animating():
-                self.interval = 0.025
-            else:
-                self.interval = self.default_interval
+            if not self.is_connected():
+                # Reset GIF position
+                self.x = 0
+            self.interval = self.default_interval
 
         # Draw to OLED
+        self.gif.xy = (self.x, 0)
         self.gif.render(draw)
 
-        if self.initialised and not self.gif.is_animating():
-            if self.is_connected() and self.gif.finished:
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_first_line_y),
-                    text=str(self.username),
-                )
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_second_line_y),
-                    text=str(self.password),
-                )
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_third_line_y),
-                    text=str(self.ptusb0_ip)
-                )
-            elif not self.is_connected() and self.gif.hold_first_frame:
-                draw.line((30, 10) + (98, 54), "white", 2)
+        show_data = \
+            self.is_connected() and \
+            not self.is_moving_to_show_data and \
+            self.gif_is_off_screen()
+
+        if show_data:
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_first_line_y),
+                text=str(self.username),
+            )
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_second_line_y),
+                text=str(self.password),
+            )
+            draw_text(
+                draw,
+                xy=(default_margin_x, common_third_line_y),
+                text=str(self.ptusb0_ip)
+            )

@@ -40,13 +40,13 @@ class Hotspot(BaseHotspot):
             loop=False,
             playback_speed=2.0,
         )
-        self.counter = 0
 
         self.wifi_id = ""
         self.wlan0_ip = ""
         self.wifi_bars_image = ""
+        self.initialised = False
 
-        self.default_interval = self.interval
+        self.default_interval = interval
 
     def reset(self):
         self.gif = ImageComponent(
@@ -54,11 +54,21 @@ class Hotspot(BaseHotspot):
             loop=False,
             playback_speed=2.0,
         )
-        self.counter = 0
 
-    def set_wifi_data_members(self):
+        self.wifi_id = ""
+        self.wlan0_ip = ""
+        self.wifi_bars_image = ""
+        self.initialised = False
+
+        self.interval = self.default_interval
+
+    def is_connected(self):
+        return self.wlan0_ip != ""
+
+    def set_data_members(self):
         network_ssid = get_wifi_network_ssid()
-        self.wifi_id = network_ssid if network_ssid is not "Error" else "No WiFi"
+        if network_ssid is not "Error":
+            self.wifi_id = network_ssid
 
         network_ip = get_internal_ip(iface="wlan0")
         try:
@@ -68,30 +78,43 @@ class Hotspot(BaseHotspot):
 
         self.wifi_bars_image = wifi_strength_image()
 
-    def is_connected(self):
-        return self.wlan0_ip != ""
+        if not self.is_connected():
+            self.gif = ImageComponent(
+                image_path=get_image_file("wifi_page.gif"),
+                loop=False,
+                playback_speed=2.0,
+            )
+
+        self.gif.hold_first_frame = not self.is_connected()
+        self.initialised = True
 
     def render(self, draw, width, height):
-        # Check if connected every 10 hotspot refreshes
-        if self.counter == 0:
-            self.set_wifi_data_members()
-            self.counter = 10
-        self.counter -= 1
+        first_frame = not self.initialised
 
-        # Stop animation if not connected
-        self.gif.hold_first_frame = not self.is_connected()
+        # Determine initial connection state
+        if first_frame:
+            self.set_data_members()
 
-        # Render GIF frame
+        # Determine connection state
+        if not self.gif.is_animating():
+            self.set_data_members()
+
+        # Determine animation speed
+        # TODO: fix frame speed in GIF
+        # self.interval = self.gif.frame_duration
+        if first_frame:
+            self.interval = 0.5
+        else:
+            if self.gif.is_animating():
+                self.interval = 0.025
+            else:
+                self.interval = self.default_interval
+
+        # Draw to OLED
         self.gif.render(draw)
 
-        # If GIF is still playing, update refresh time based on GIF's current frame length
-        # Otherwise, set to originally defined interval for refreshing data members
-        self.interval = (
-            self.default_interval if self.gif.finished else self.gif.frame_duration
-        )
-
-        if self.gif.finished is True:
-            if self.is_connected():
+        if self.initialised and not self.gif.is_animating():
+            if self.is_connected() and self.gif.finished:
                 wifi_bars = ImageComponent(
                     xy=(5, 0), image_path=self.wifi_bars_image, loop=True
                 )
@@ -108,6 +131,5 @@ class Hotspot(BaseHotspot):
                     xy=(default_margin_x, common_third_line_y),
                     text=str(self.wlan0_ip),
                 )
-            else:
+            elif not self.is_connected() and self.gif.hold_first_frame:
                 draw.line((30, 10) + (98, 54), "white", 2)
-                self.reset()

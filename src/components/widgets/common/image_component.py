@@ -18,28 +18,30 @@ class ImageComponent:
     def __init__(
         self,
         xy=(0, 0),
-        width=-1,
-        height=-1,
+        width=None,
+        height=None,
         image_path=None,
         loop=True,
         playback_speed=1.0,
     ):
-        if width == -1:
+        if width == None:
             width = get_device_instance().width
-        if height == -1:
+        if height == None:
             height = get_device_instance().height
 
         self.hold_first_frame = False
         self.xy = xy
         self.width = width
         self.height = height
-        self._frame_no = 0
+        self.frame_no = 0
         self._image = None
         self.loop = loop
         self.playback_speed = playback_speed
         self.finished = False
-        self.frame_duration = None
+        self.frame_duration = 0.5
         self._load_image_from_path(image_path)
+
+        self.initialised = False
 
     def _load_image_from_path(self, image_path):
         self._error = False
@@ -71,30 +73,33 @@ class ImageComponent:
             self.frame_duration = float(
                 embedded_frame_speed_s / self.playback_speed)
 
-    def _seek_next_frame_in_image(self):
-        if self._image.is_animated:
-            if self.frame_duration is None:
-                # Frame not yet retrieved - stay here
-                pass
-            elif self._frame_no + 1 < self._image.n_frames:
+    def _get_current_frame(self):
+        self._image.seek(self.frame_no)
+        self._set_frame_duration()
+
+        self.initialised = True
+
+    def _update_frame(self):
+        if self.hold_first_frame or not self.initialised:
+            self.frame_no = 0
+        elif self._image.is_animated:
+            if self.frame_no + 1 < self._image.n_frames:
                 self.finished = False
-                self._frame_no += 1
+                self.frame_no += 1
             elif self.loop:
-                self._frame_no = 0
+                self.finished = False
+                self.frame_no = 0
             else:
                 self.finished = True
 
-        self._image.seek(self._frame_no)
-        self._set_frame_duration()
+        self._get_current_frame()
+
+    def is_animating(self):
+        return not self.finished and not self.hold_first_frame
 
     def render(self, draw):
         if self._image is not None:
-            if self.hold_first_frame:
-                self._frame_no
-                self._image.seek(0)
-                self.finished = True
-            else:
-                self._seek_next_frame_in_image()
+            self._update_frame()
 
             img_bitmap = _create_bitmap_to_render(
                 self._image, self.width, self.height)

@@ -1,4 +1,3 @@
-from luma.core.threadpool import threadpool
 from components.helpers import MenuHelper
 
 from ptcommon.sys_info import is_pi
@@ -10,9 +9,6 @@ if is_pi():
     from ptoled import PTOLEDDisplay
 
 
-pool = threadpool(4)
-
-
 class Menu:
     def __init__(self, name):
         self.pages = list()
@@ -20,7 +16,6 @@ class Menu:
         self.parent = None
         self.page_index = 0
         self.last_displayed_image = None
-        self.force_redraw = False
 
         if self.name == MenuHelper.Menus.SYS_INFO:
             pages = MenuHelper.get_sys_info_pages()
@@ -50,18 +45,16 @@ class Menu:
             page_index = self.page_index
         return page_index * get_device_instance().height
 
-    def move_instantly_to_page(self, page_index, debug_print=True):
-        previous_page = self.page_index
-
+    def move_instantly_to_page(self, page_index):
         self.page_index = page_index
-        if debug_print:
-            PTLogger.info("Moving instantly to " +
-                          str(self.get_current_page().name))
+        PTLogger.info("Moving instantly to " +
+                      str(self.get_current_page().name))
 
-        self.reset_page(previous_page)
+        self.get_current_hotspot().reset()
+        self.refresh()
 
-    def reset_page(self, page_index):
-        self.get_page(page_index).hotspot.reset()
+    def get_current_hotspot(self):
+        return self.get_page(self.page_index).hotspot
 
     def get_page(self, page_index):
         return self.pages[page_index]
@@ -72,25 +65,22 @@ class Menu:
     def last_page_no(self):
         return len(self.pages) - 1
 
-    def wait_for_any_remaining_viewport_operations(self):
-        should_wait = False
-        for hotspot, xy in self.viewport._hotspots:
-            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(
-                hotspot, xy
-            ):
-                pool.add_task(hotspot.paste_into,
-                              self.viewport._backing_image, xy)
-                should_wait = True
+    def refresh(self, force=False):
+        if force:
+            self.get_current_hotspot().reset()
+        self.render_current_hotspot_to_viewport(force)
+        self.update_oled(force=force)
 
-        if should_wait:
-            pool.wait_completion()
+    def render_current_hotspot_to_viewport(self, force=False):
+        self.render_hotspot_to_viewport(self.page_index, force)
+
+    def render_hotspot_to_viewport(self, page_index, force=False):
+        hotspot, xy = self.viewport._hotspots[page_index]
+        if force or hotspot.should_redraw():
+            # Calls each hotspot's render() function
+            hotspot.paste_into(self.viewport._backing_image, xy)
 
     def should_redraw(self):
-        if self.force_redraw:
-            PTLogger.info("Forcing a redraw")
-            self.force_redraw = False
-            return True
-
         self.viewport._position = (0, self.get_page_y_pos())
         image_to_display = self.viewport._backing_image.crop(
             box=self.viewport._crop_box()
@@ -109,16 +99,18 @@ class Menu:
         return image_to_display != self.last_displayed_image
 
     def reset_device(self):
-        self.force_redraw = True
+        self.refresh(force=True)
         PTLogger.info("Resetting device instance...")
         reset_device_instance(exclusive=False)
         if is_pi():
             PTOLEDDisplay().reset()
 
-    def redraw_if_necessary(self):
-        self.wait_for_any_remaining_viewport_operations()
+    def update_oled(self, force=False):
+        if force:
+            PTLogger.debug("Forcing redraw")
 
-        if self.should_redraw():
+        if force or self.should_redraw():
+            PTLogger.debug("Updating image on OLED display")
             im = self.viewport._backing_image.crop(
                 box=self.viewport._crop_box())
             get_device_instance().display(im)
