@@ -1,3 +1,10 @@
+pt-sys-oled (1.4.1-1) buster; urgency=medium
+
+  * Refactor first time setup page
+  * Remove autorandr dependency because installed through pt-os-mods
+
+-- Choudhry Amjad <choudhry@pi-top.com>  Thu, 17 Oct 2019 16:49:25 +0100
+
 pt-sys-oled (1.4.0-1) buster; urgency=medium
 
   * Add hdmi setting to reset all HDMI outputs to lowest common resolution
