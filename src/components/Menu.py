@@ -52,7 +52,12 @@ class Menu:
             PTLogger.info("Moving instantly to " +
                           str(self.get_current_page().name))
 
-        self.reset_page(self.page_index)
+        self.reset_all_pages()
+        self.update_hotspots(visible_only=False)
+
+    def reset_all_pages(self):
+        for i in range(len(self.pages)):
+            self.get_page(i).hotspot.reset()
 
     def reset_page(self, page_index):
         self.get_page(page_index).hotspot.reset()
@@ -66,10 +71,14 @@ class Menu:
     def last_page_no(self):
         return len(self.pages) - 1
 
-    def update_hotspots_in_view(self):
+    def refresh(self):
+        self.update_hotspots()
+        self.update_oled_if_necessary()
+
+    def update_hotspots(self, visible_only=True):
         for hotspot, xy in self.viewport._hotspots:
 
-            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
+            if not visible_only or (hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy)):
                 # Calls each hotspot's render function
                 hotspot.paste_into(self.viewport._backing_image, xy)
 

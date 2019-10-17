@@ -77,7 +77,8 @@ class MenuManager:
                         MenuHelper.Menus.PROJECTS
                     ).generate_pages()
                 )
-            self.current_menu.viewport.refresh()
+            self.current_menu.reset_all_pages()
+            self.current_menu.update_hotspots(visible_only=False)
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
@@ -157,8 +158,7 @@ class MenuManager:
             if go_to_sleep:
                 self.sleep_oled()
             else:
-                self.current_menu.update_hotspots_in_view()
-                self.current_menu.update_oled_if_necessary()
+                self.current_menu.refresh()
                 self.current_page_frame_counter += self.frame_sleep_time
 
     def update_battery_state(self, charging_state, capacity):
