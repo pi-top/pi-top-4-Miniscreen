@@ -50,14 +50,20 @@ class Menu:
         PTLogger.info("Moving instantly to " +
                       str(self.get_current_page().name))
 
-        self.refresh(force=True)
+        self.reset_page(self.page_index)
+        self.refresh(force=False)
 
     def reset_all_pages(self):
         for i in range(len(self.pages)):
             self.reset_page(i)
 
     def reset_page(self, page_index):
-        self.get_page(page_index).hotspot.reset()
+        hotspot = self.get_hotspot_for_page(page_index)
+        hotspot.reset()
+        self.update_hotspot(hotspot)
+
+    def get_hotspot_for_page(self, page_index):
+        return self.get_page(page_index).hotspot
 
     def get_page(self, page_index):
         return self.pages[page_index]
@@ -71,13 +77,17 @@ class Menu:
     def refresh(self, force=False):
         if force:
             self.reset_all_pages()
-        self.update_hotspots(visible_only=not force)
+        self.update_hotspots_in_view()
         self.update_oled(force=force)
 
-    def update_hotspots(self, visible_only=True):
+    def update_hotspot(self, hotspot_to_update):
         for hotspot, xy in self.viewport._hotspots:
+            if hotspot == hotspot_to_update:
+                hotspot.paste_into(self.viewport._backing_image, xy)
 
-            if not visible_only or (hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy)):
+    def update_hotspots_in_view(self):
+        for hotspot, xy in self.viewport._hotspots:
+            if hotspot.should_redraw() and self.viewport.is_overlapping_viewport(hotspot, xy):
                 # Calls each hotspot's render function
                 hotspot.paste_into(self.viewport._backing_image, xy)
 

@@ -72,13 +72,6 @@ class Hotspot(BaseHotspot):
 
         self.connected_device_ip = get_connected_device_ip()
 
-        # if not self.is_connected():
-        #     self.gif = ImageComponent(
-        #         image_path=get_image_file("first_time_connect.gif"),
-        #         loop=True,
-        #         playback_speed=1.0,
-        #     )
-
         self.is_moving_to_show_data = self.is_connected() and not self.x <= -128
         self.initialised = True
 
