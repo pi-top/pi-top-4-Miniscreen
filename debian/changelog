@@ -1,3 +1,9 @@
+pt-sys-oled (1.4.1-4) buster; urgency=medium
+
+  * Make current menu refresh even when sleeping
+
+ -- Choudhry Amjad <choudhry@pi-top.com>  Fri, 18 Oct 2019 15:06:48 +0100
+
 pt-sys-oled (1.4.1-3) buster; urgency=medium
 
   * Add dependency on autorandr; provided by pt-ui-mods
