@@ -152,12 +152,13 @@ class MenuManager:
             else self.default_frame_sleep_time
         )
 
+        self.current_menu.refresh()
+
         if not self._sleeping:
             go_to_sleep = self.current_page_frame_counter > self.current_page_frame_counter_limit
             if go_to_sleep:
                 self.sleep_oled()
             else:
-                self.current_menu.refresh()
                 self.current_page_frame_counter += self.frame_sleep_time
 
     def update_battery_state(self, charging_state, capacity):
