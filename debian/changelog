@@ -3,7 +3,7 @@ pt-sys-oled (1.4.1-2) buster; urgency=medium
   * Add dependency on pt-ui-mods; migrated from pt-os-mods
   * Fix changelog formatting
 
-  -- Mike Roberts <mike@pi-top.com>
+  -- Mike Roberts <mike@pi-top.com>  Fri, 18 Oct 2019 12:07:48 +0800
 
 pt-sys-oled (1.4.1-1) buster; urgency=medium
 
