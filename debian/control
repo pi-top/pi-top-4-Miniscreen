@@ -12,12 +12,11 @@ Package: pt-sys-oled
 Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
-# Required for fast pings
  fping,
  fonts-freefont-ttf,
 # Required to take control of the OLED
  pt-hub,
-# Why is this required?
+# Required for display-specific things
  pt-ui-mods,
 # Python libs required for common functions
  python3-luma-oled,
