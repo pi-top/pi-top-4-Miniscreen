@@ -12,7 +12,7 @@ Package: pt-sys-oled
 Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
- # Currently provided by pt-ui-mods
+# Currently provided by pt-ui-mods
  autorandr,
  fping,
  fonts-freefont-ttf,
