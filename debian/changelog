@@ -1,3 +1,9 @@
+pt-sys-oled (1.4.2-1) buster; urgency=medium
+
+  * Update first time setup gif
+
+ -- Choudhry Amjad <choudhry@pi-top.com>  Mon, 21 Oct 2019 11:39:00 +0100
+
 pt-sys-oled (1.4.1-4) buster; urgency=medium
 
   * Make current menu refresh even when sleeping
