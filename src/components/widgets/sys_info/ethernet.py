@@ -87,4 +87,7 @@ class Hotspot(BaseHotspot):
                         self.eth0_ip)
                 )
             elif not self.is_connected() and self.gif.hold_first_frame:
-                draw.line((30, 10) + (98, 54), "white", 2)
+                draw.ellipse((69, 21) + (83, 35), 0, 0)
+                draw.ellipse((70, 22) + (82, 34), 1, 0)
+                draw.line((73, 25) + (78, 30), "black", 2)
+                draw.line((74, 30) + (79, 25), "black", 2)

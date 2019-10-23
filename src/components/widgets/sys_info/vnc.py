@@ -117,4 +117,7 @@ class Hotspot(BaseHotspot):
                     text=str(self.ptusb0_ip)
                 )
             elif not self.is_connected() and self.gif.hold_first_frame:
-                draw.line((30, 10) + (98, 54), "white", 2)
+                draw.ellipse((70, 23) + (84, 37), 0, 0)
+                draw.ellipse((71, 24) + (83, 36), 1, 0)
+                draw.line((74, 27) + (79, 32), "black", 2)
+                draw.line((75, 32) + (80, 27), "black", 2)

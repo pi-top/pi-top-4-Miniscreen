@@ -1,3 +1,9 @@
+pt-sys-oled (1.4.3-1) buster; urgency=medium
+
+  * Improve "disconnected" icons
+
+ -- Ben Pring <ben@pi-top.com>  Wed, 23 Oct 2019 16:56:35 +0100
+
 pt-sys-oled (1.4.2-1) buster; urgency=medium
 
   * Update first time setup gif
