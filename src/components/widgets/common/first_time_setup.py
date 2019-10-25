@@ -9,23 +9,9 @@ from components.widgets.common_values import (
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
+from components.widgets.network_helpers import get_address_for_ptusb_connected_device
 from getpass import getuser
 from ipaddress import ip_address
-import subprocess
-from isc_dhcp_leases import IscDhcpLeases
-
-
-def get_connected_device_ip():
-    current_leases_dict = IscDhcpLeases(
-        '/var/lib/dhcp/dhcpd.leases').get_current()
-    for lease in current_leases_dict.values():
-        address = lease.ip
-        response = subprocess.call(['fping', '-c1', '-t100', str(address)],
-                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-        if response == 0:
-            return address
-    return ""
 
 
 class Hotspot(BaseHotspot):
@@ -64,7 +50,7 @@ class Hotspot(BaseHotspot):
         except ValueError:
             self.ptusb0_ip = ""
 
-        self.connected_device_ip = get_connected_device_ip()
+        self.connected_device_ip = get_address_for_ptusb_connected_device()
 
         if not self.is_connected():
             self.vnc_gif = ImageComponent(
