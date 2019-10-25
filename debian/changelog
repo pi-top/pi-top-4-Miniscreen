@@ -1,3 +1,10 @@
+pt-sys-oled (1.4.4-1) buster; urgency=medium
+
+  * Check whether OTG cable is connected by looking at the interface
+    state, rather than by pinging
+
+ -- Ben Pring <ben@pi-top.com>  Fri, 25 Oct 2019 12:43:33 +0100
+
 pt-sys-oled (1.4.3-1) buster; urgency=medium
 
   * Improve "disconnected" icons
