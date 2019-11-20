@@ -1,3 +1,9 @@
+pt-sys-oled (1.4.5-1) buster; urgency=medium
+
+  * Add further link functionality
+
+ -- Choudhry Amjad <choudhry@pi-top.com>  Wed, 20 Nov 2019 14:24:57 +0000
+
 pt-sys-oled (1.4.4-1) buster; urgency=medium
 
   * Check whether OTG cable is connected by looking at the interface
