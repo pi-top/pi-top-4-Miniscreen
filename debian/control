@@ -12,6 +12,7 @@ Package: pt-sys-oled
 Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
+ pt-further-link,
 # Currently provided by pt-ui-mods
  autorandr,
  fping,
