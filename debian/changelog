@@ -1,3 +1,9 @@
+pt-sys-oled (1.4.6-1) buster; urgency=medium
+
+  * Add new further link assets
+
+ -- Choudhry Amjad <choudhry@pi-top.com>  Thu, 21 Nov 2019 14:08:36 +0000
+
 pt-sys-oled (1.4.5-1) buster; urgency=medium
 
   * Add further link functionality
