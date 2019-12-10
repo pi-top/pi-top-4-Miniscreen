@@ -104,6 +104,7 @@ class Menu:
         reset_device_instance(exclusive=False)
         if is_pi():
             PTOLEDDisplay().reset()
+        self.update_oled(force=True)
 
     def update_oled(self, force=False):
         if force:
