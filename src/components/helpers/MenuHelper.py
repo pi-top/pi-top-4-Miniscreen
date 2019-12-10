@@ -26,6 +26,7 @@ from ptcommon.sys_info import (
     get_ssh_enabled_state,
     get_vnc_enabled_state,
     get_systemd_enabled_state,
+    get_pt_further_link_enabled_state,
     is_pi,
     get_battery_capacity,
     get_battery_charging_state,
@@ -106,6 +107,10 @@ def change_ssh_enabled_state():
 
 def change_vnc_enabled_state():
     change_service_enabled_state("vncserver-x11-serviced.service")
+
+
+def change_pt_further_link_enabled_state():
+    change_service_enabled_state("pt-further-link.service")
 
 
 def reset_hdmi_configuration():
@@ -314,6 +319,17 @@ class Pages:
                 get_state_method=None,
             ),
             select_action_func=reset_hdmi_configuration,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
+        )
+        PT_FURTHER_LINK_CONNECTION = MenuPage(
+            name="pt_further_link",
+            hotspot=get_hotspot(
+                settings_menu_page,
+                type="pt_further_link",
+                interval=1.0,
+                get_state_method=get_pt_further_link_enabled_state,
+            ),
+            select_action_func=change_pt_further_link_enabled_state,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
 
