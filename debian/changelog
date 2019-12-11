@@ -1,3 +1,9 @@
+pt-sys-oled (1.4.8-1) buster; urgency=medium
+
+  * Force redraw on device reset
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 10 Dec 2019 14:29:32 +0000
+
 pt-sys-oled (1.4.7-1) buster; urgency=medium
 
   * Add new further link as dependency
