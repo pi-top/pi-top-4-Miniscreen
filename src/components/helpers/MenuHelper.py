@@ -39,6 +39,8 @@ from os import path, listdir, kill, system
 from pathlib import Path
 import signal
 from subprocess import check_output, Popen
+import random
+import string
 
 _app = None
 
@@ -111,6 +113,41 @@ def change_vnc_enabled_state():
 
 def change_pt_further_link_enabled_state():
     change_service_enabled_state("pt-further-link.service")
+
+
+def get_random_ssid_and_password():
+    seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@"
+    sa = []
+    for i in range(4):
+      sa.append(random.choice(seed))
+    ssid = ''.join(sa)
+    sa = []
+    for i in range(8):
+      sa.append(random.choice(seed))
+    password = ''.join(sa)
+    return ssid,password
+
+
+def get_ap_enabled_state():
+    with open('/etc/rc.local', 'r', encoding="UTF-8") as f:
+          findap = "Disabled"
+          for line in f.readlines():
+            if line.find('setAp.sh') != -1:
+              findap = "Enabled"
+              break
+    f.close()
+    return findap
+
+
+def change_ap_enabled_state():
+    if get_ap_enabled_state() == "Enabled":
+        system("/home/pi/delAp.sh")
+        system("sudo sed -i '/^\/home\/pi\/setAp.sh/d'  /etc/rc.local")
+    else:
+        (ssid,password) = get_random_ssid_and_password()
+        system("/home/pi/setAp.sh " + ssid + " " + password)
+        system("sudo sed -i 's/^exit 0/\/home\/pi\/setAp.sh/' /etc/rc.local")
+        system("sudo sh -c \'echo \"exit 0\" >> /etc/rc.local\'")
 
 
 def reset_hdmi_configuration():
@@ -330,6 +367,17 @@ class Pages:
                 get_state_method=get_pt_further_link_enabled_state,
             ),
             select_action_func=change_pt_further_link_enabled_state,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
+        )
+        AP_MODE = MenuPage(
+            name="ap_mode",
+            hotspot=get_hotspot(
+                settings_menu_page,
+                type="ap",
+                interval=1.0,
+                get_state_method=get_ap_enabled_state,
+            ),
+            select_action_func=change_ap_enabled_state,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
 
