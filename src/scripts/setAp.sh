@@ -18,8 +18,7 @@ sudo sed -i 's/^INTERFACESv4=.*/INTERFACESv4="ptusb0 wlan0"/'  /etc/default/isc-
 sudo /usr/bin/pt-dhcp-server  stop
 sudo /usr/bin/pt-dhcp-server  start
 
-sudo ifconfig wlan0 192.168.64.1
-sudo ifconfig ptusb0 0.0.0.0
+sudo ifconfig wlan0 192.168.63.1
 
 sudo sed -i 's/^#net.ipv4.ip_forward=.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
