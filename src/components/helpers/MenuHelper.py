@@ -11,7 +11,8 @@ from components.widgets.sys_info import (
     network,
     vnc,
     date_time,
-    ethernet
+    ethernet,
+    ap
 )
 from components.widgets.main import template as main_menu_page
 from components.widgets.settings import (
@@ -41,6 +42,7 @@ import signal
 from subprocess import check_output, Popen
 import random
 import string
+import subprocess
 
 _app = None
 
@@ -116,38 +118,33 @@ def change_pt_further_link_enabled_state():
 
 
 def get_random_ssid_and_password():
-    seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@"
+    seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     sa = []
-    for i in range(4):
+    for i in range(3):
       sa.append(random.choice(seed))
-    ssid = ''.join(sa)
+    ssid = "pt-" + ''.join(sa)
     sa = []
     for i in range(8):
       sa.append(random.choice(seed))
     password = ''.join(sa)
     return ssid,password
 
-
 def get_ap_enabled_state():
-    with open('/etc/rc.local', 'r', encoding="UTF-8") as f:
-          findap = "Disabled"
-          for line in f.readlines():
-            if line.find('setAp.sh') != -1:
-              findap = "Enabled"
-              break
-    f.close()
+    output = subprocess.getoutput('ps -A | grep hostapd')
+    if output:
+        findap = "Enabled"
+    else:
+        findap = "Disabled"
+
     return findap
 
 
 def change_ap_enabled_state():
     if get_ap_enabled_state() == "Enabled":
-        system("/home/pi/delAp.sh")
-        system("sudo sed -i '/^\/home\/pi\/setAp.sh/d'  /etc/rc.local")
+        system("/home/pi/pt-stop-access-point.sh")
     else:
         (ssid,password) = get_random_ssid_and_password()
-        system("/home/pi/setAp.sh " + ssid + " " + password)
-        system("sudo sed -i 's/^exit 0/\/home\/pi\/setAp.sh/' /etc/rc.local")
-        system("sudo sh -c \'echo \"exit 0\" >> /etc/rc.local\'")
+        system("/home/pi/pt-start-access-point.sh " + ssid + " " + password)
 
 
 def reset_hdmi_configuration():
@@ -271,6 +268,13 @@ class Pages:
         WIFI = MenuPage(
             name="wifi",
             hotspot=get_hotspot(wifi, interval=1.0),
+            select_action_func=change_menu(Menus.MAIN_MENU),
+            cancel_action_func=None,
+        )
+
+        AP = MenuPage(
+            name="ap",
+            hotspot=get_hotspot(ap, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
@@ -514,7 +518,7 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages():
-    page_name_arr = ["battery", "cpu", "wifi", "ethernet", "vnc"]
+    page_name_arr = ["battery", "cpu", "wifi", "ethernet", "vnc", "ap"]
 
     page_id_arr = list()
     for page_name in page_name_arr:
