@@ -12,17 +12,17 @@
 
 
 
-hostapd.conf and pt-start-access-point.sh, pt-stop-access-point.sh 
+ 
 
-### Should be placed under /home/pi/
+### These threee files should be placed under /home/pi/
+    hostapd.conf and pt-start-access-point.sh, pt-stop-access-point.sh
  
  
  
- 
-/etc/dhcpcd.conf and /etc/dhcp/dhcpd.conf
 
-### Should be replaced by the corresponding files in this directory 
 
- 
+### These two files should be replaced by the corresponding files in this directory 
+
+    /etc/dhcpcd.conf and /etc/dhcp/dhcpd.conf
 
 
