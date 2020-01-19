@@ -9,10 +9,13 @@
     sudo mv /etc/systemd/system/multi-user.target.wants/hostapd.service  /etc/systemd/system/
     
     
-     
+
+
+
 hostapd.conf and pt-start-access-point.sh, pt-stop-access-point.sh 
 
 ### need be placed under /home/pi/
+ 
  
  
  
