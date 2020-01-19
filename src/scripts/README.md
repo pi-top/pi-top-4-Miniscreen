@@ -10,9 +10,9 @@
     
     
      
-
+### hostapd.conf and pt-start-access-point.sh, pt-stop-access-point.sh need be placed under /home/pi/
  
-
+### /etc/dhcpcd.conf and /etc/dhcp/dhcpd.conf need be replaced by the corresponding files in this directory 
 
  
 
