@@ -27,7 +27,7 @@ class Hotspot(BaseHotspot):
         self.initialised = False
 
         self.username = "pi" if getuser() == "root" else getuser()
-        self.password = "pi-top"
+        self.password = self.get_password()
 
         self.default_interval = self.interval
 
@@ -40,6 +40,16 @@ class Hotspot(BaseHotspot):
         self.initialised = False
 
         self.interval = self.default_interval
+
+    def get_password(self):
+        # Show the default password if not yet changed, otherwise show "********"
+        if getuser() == "root":
+            with open("/etc/shadow") as shadow_file:
+                for line in shadow_file:
+                    if "pi:" in line and "c4XjD2pO7T6KeaTJXLMFZ/" in line:
+                        return "pi-top"
+
+        return "********"
 
     def is_connected(self):
         return self.connected_device_ip != ""

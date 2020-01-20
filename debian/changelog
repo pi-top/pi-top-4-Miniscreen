@@ -1,3 +1,9 @@
+pt-sys-oled (1.5.1-1) buster; urgency=medium
+
+  * Only show default password until it has been changed, then show asterisks.
+
+ -- Ben Pring <ben@pi-top.com>  Mon, 20 Jan 2020 10:25:56 +0000
+
 pt-sys-oled (1.5.0-1) buster; urgency=medium
 
   * Add initial Further link functionality
