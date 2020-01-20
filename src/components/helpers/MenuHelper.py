@@ -9,7 +9,7 @@ from components.widgets.sys_info import (
     clock,
     wifi,
     network,
-    vnc,
+    usb,
     date_time,
     ethernet
 )
@@ -244,9 +244,9 @@ class Pages:
         #     cancel_action_func=None,
         # )
 
-        VNC_SETUP = MenuPage(
-            name="vnc",
-            hotspot=get_hotspot(vnc, interval=1.0),
+        USB_SETUP = MenuPage(
+            name="usb",
+            hotspot=get_hotspot(usb, interval=1.0),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
@@ -466,7 +466,7 @@ def remove_invalid_sys_info_widget_names(widget_name_list):
 
 
 def get_sys_info_pages():
-    page_name_arr = ["battery", "cpu", "wifi", "ethernet", "vnc"]
+    page_name_arr = ["battery", "cpu", "wifi", "ethernet", "usb"]
 
     page_id_arr = list()
     for page_name in page_name_arr:
