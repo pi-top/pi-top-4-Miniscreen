@@ -9,7 +9,6 @@ from components.widgets.common_values import (
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
-from getpass import getuser
 from ipaddress import ip_address
 
 

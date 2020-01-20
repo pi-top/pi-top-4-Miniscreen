@@ -1,4 +1,5 @@
 from ptcommon.sys_info import get_internal_ip
+from ptcommon.pt_os import is_pi_using_default_password
 from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_y,
@@ -25,7 +26,7 @@ class Hotspot(BaseHotspot):
         self.initialised = False
 
         self.username = "pi" if getuser() == "root" else getuser()
-        self.password = self.get_password()
+        self.password = "pi-top" if is_pi_using_default_password() is True else "********"
 
         self.default_interval = self.interval
 
@@ -38,16 +39,6 @@ class Hotspot(BaseHotspot):
         self.initialised = False
 
         self.interval = self.default_interval
-
-    def get_password(self):
-        # Show the default password if not yet changed, otherwise show "********"
-        if getuser() == "root":
-            with open("/etc/shadow") as shadow_file:
-                for line in shadow_file:
-                    if "pi:" in line and "c4XjD2pO7T6KeaTJXLMFZ/" in line:
-                        return "pi-top"
-
-        return "********"
 
     def is_connected(self):
         return self.connected_device_ip != ""
