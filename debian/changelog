@@ -1,3 +1,9 @@
+pt-sys-oled (1.5.2-1) buster; urgency=medium
+
+  * Replace "VNC" with "USB" in USB connection animation.
+
+ -- Ben Pring <ben@pi-top.com>  Mon, 20 Jan 2020 10:58:41 +0000
+
 pt-sys-oled (1.5.0-1) buster; urgency=medium
 
   * Add initial Further link functionality
