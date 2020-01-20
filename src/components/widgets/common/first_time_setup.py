@@ -17,8 +17,8 @@ from ipaddress import ip_address
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.vnc_gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+        self.usb_gif = ImageComponent(
+            image_path=get_image_file("usb_page.gif"), loop=False, playback_speed=2.0)
         self.connect_gif = ImageComponent(
             image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
 
@@ -32,8 +32,8 @@ class Hotspot(BaseHotspot):
         self.default_interval = self.interval
 
     def reset(self):
-        self.vnc_gif = ImageComponent(
-            image_path=get_image_file("vnc_page.gif"), loop=False, playback_speed=2.0)
+        self.usb_gif = ImageComponent(
+            image_path=get_image_file("usb_page.gif"), loop=False, playback_speed=2.0)
 
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
@@ -53,13 +53,13 @@ class Hotspot(BaseHotspot):
         self.connected_device_ip = get_address_for_ptusb_connected_device()
 
         if not self.is_connected():
-            self.vnc_gif = ImageComponent(
-                image_path=get_image_file("vnc_page.gif"),
+            self.usb_gif = ImageComponent(
+                image_path=get_image_file("usb_page.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
 
-        self.vnc_gif.hold_first_frame = not self.is_connected()
+        self.usb_gif.hold_first_frame = not self.is_connected()
         self.initialised = True
 
     def render(self, draw, width, height):
@@ -70,16 +70,16 @@ class Hotspot(BaseHotspot):
             self.set_data_members()
 
         # Determine connection state
-        if not self.vnc_gif.is_animating():
+        if not self.usb_gif.is_animating():
             self.set_data_members()
 
         # Determine animation speed
         # TODO: fix frame speed in GIF
-        # self.interval = self.vnc_gif.frame_duration
+        # self.interval = self.usb_gif.frame_duration
         if not self.is_connected():
             self.interval = 0.5
         else:
-            if self.vnc_gif.is_animating():
+            if self.usb_gif.is_animating():
                 self.interval = 0.025
             else:
                 self.interval = self.default_interval
@@ -88,10 +88,10 @@ class Hotspot(BaseHotspot):
         if not self.is_connected():
             self.connect_gif.render(draw)
         else:
-            self.vnc_gif.render(draw)
+            self.usb_gif.render(draw)
 
-        if self.initialised and not self.vnc_gif.is_animating():
-            if self.is_connected() and self.vnc_gif.finished:
+        if self.initialised and not self.usb_gif.is_animating():
+            if self.is_connected() and self.usb_gif.finished:
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_first_line_y),
