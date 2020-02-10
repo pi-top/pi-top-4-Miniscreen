@@ -18,6 +18,7 @@ import subprocess
 from os import path, listdir, system
 import string
 
+
 def wifi_strength_image():
     wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
     wifi_rating = "wifi_strength_bars/"
@@ -33,8 +34,10 @@ def wifi_strength_image():
         wifi_rating += "wifi_excellent_signal.gif"
     return get_image_file(wifi_rating)
 
+
 def get_ap_and_password12():
-    return "dfafd","adfadf"
+    return "dfafd", "adfadf"
+
 
 def get_ap_and_password():
     with open('/etc/hostapd/hostapd.conf', 'r', encoding="UTF-8") as f:
@@ -48,7 +51,8 @@ def get_ap_and_password():
                 password_str = line[len("wpa_passphrase="):-1]
                 password = password_str.rstrip()
     f.close()
-    return (ssid,password)
+    return (ssid, password)
+
 
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
@@ -89,7 +93,7 @@ class Hotspot(BaseHotspot):
             self.wifi_id = network_ssid
         output = subprocess.getoutput('ps -A | grep hostapd')
         if output:
-            (ssid,password) = get_ap_and_password()
+            (ssid, password) = get_ap_and_password()
             self.wifi_id = ssid + ":" + password
         network_ip = get_internal_ip(iface="wlan0")
         try:

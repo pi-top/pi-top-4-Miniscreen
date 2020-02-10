@@ -121,13 +121,14 @@ def get_random_ssid_and_password():
     seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     sa = []
     for i in range(3):
-      sa.append(random.choice(seed))
+        sa.append(random.choice(seed))
     ssid = "pt-" + ''.join(sa)
     sa = []
     for i in range(8):
-      sa.append(random.choice(seed))
+        sa.append(random.choice(seed))
     password = ''.join(sa)
-    return ssid,password
+    return ssid, password
+
 
 def get_ap_enabled_state():
     output = subprocess.getoutput('ps -A | grep hostapd')
@@ -143,7 +144,7 @@ def change_ap_enabled_state():
     if get_ap_enabled_state() == "Enabled":
         system("/home/pi/pt-stop-access-point.sh")
     else:
-        (ssid,password) = get_random_ssid_and_password()
+        (ssid, password) = get_random_ssid_and_password()
         system("/home/pi/pt-start-access-point.sh " + ssid + " " + password)
 
 
