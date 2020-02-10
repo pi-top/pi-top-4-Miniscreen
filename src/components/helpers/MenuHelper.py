@@ -142,10 +142,10 @@ def get_ap_enabled_state():
 
 def change_ap_enabled_state():
     if get_ap_enabled_state() == "Enabled":
-        system("/home/pi/pt-stop-access-point.sh")
+        system("/usr/share/pt-sys-oled/pt-stop-access-point.sh")
     else:
         (ssid, password) = get_random_ssid_and_password()
-        system("/home/pi/pt-start-access-point.sh " + ssid + " " + password)
+        system("/usr/share/pt-sys-oled/pt-start-access-point.sh " + ssid + " " + password)
 
 
 def reset_hdmi_configuration():

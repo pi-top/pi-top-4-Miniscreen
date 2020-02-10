@@ -1,3 +1,9 @@
 src/pt-sys-oled                     /usr/lib/pt-sys-oled/
 src/components                      /usr/lib/pt-sys-oled/
 src/images                          /usr/share/pt-sys-oled/
+src/scripts/pt-start-access-point.sh        /usr/share/pt-sys-oled/
+src/scripts/pt-stop-access-point.sh         /usr/share/pt-sys-oled/
+src/scripts/hostapd.conf                    /usr/share/pt-sys-oled/
+src/scripts/dhcpcd.conf              /etc/
+src/scripts/dhcpd.conf               /etc/dhcp/
+src/scripts/hostapd.service          /etc/systemd/system/multi-user.target.wants/
