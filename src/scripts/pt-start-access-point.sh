@@ -4,8 +4,8 @@ if [ -n "$1" ] && [ -n "$2" ]; then
   sed -i 's/^wpa_passphrase=.*/wpa_passphrase='"$2"'/' /usr/share/pt-sys-oled/hostapd.conf
 fi
 cp /usr/share/pt-sys-oled/hostapd.conf /etc/hostapd/hostapd.conf
-sed -i 's/^#DAEMON_CONF=.*/DAEMON_CONF="\/usr\/share\/pt-sys-oled\/hostapd.conf"/' /etc/default/hostapd
-sed -i 's/^DAEMON_CONF=.*/DAEMON_CONF="\/usr\/share\/pt-sys-oled\/hostapd.conf"/' /etc/default/hostapd
+sed -i 's/^#DAEMON_CONF=.*/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' /etc/default/hostapd
+sed -i 's/^DAEMON_CONF=.*/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/' /etc/default/hostapd
 
 sed -i 's/^#nohook wpa_supplicant/nohook wpa_supplicant/' /etc/dhcpcd.conf
 sed -i 's/^#static ip_address=192.168.63.1\/24/static ip_address=192.168.63.1\/24/' /etc/dhcpcd.conf
