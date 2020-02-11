@@ -1,0 +1,4 @@
+#!/bin/bash -e
+
+systemctl stop hostapd
+systemctl disable hostapd
