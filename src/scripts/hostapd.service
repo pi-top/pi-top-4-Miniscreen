@@ -13,4 +13,3 @@ ExecStart=/usr/sbin/hostapd -B -P /run/hostapd.pid -B $DAEMON_OPTS ${DAEMON_CON$
 
 [Install]
 WantedBy=multi-user.target
-
