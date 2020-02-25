@@ -1,26 +1,14 @@
-pt-sys-oled (1.4.8-1) buster; urgency=medium
+pt-sys-oled (1.5.0-1) buster; urgency=medium
+
+  * Add initial Further link functionality
+
+ -- Choudhry Amjad <choudhry@pi-top.com>  Fri, 10 Jan 2020 10:24:29 +0000
+
+pt-sys-oled (1.4.4-2) buster; urgency=medium
 
   * Force redraw on device reset
 
  -- Mike Roberts <mike@pi-top.com>  Tue, 10 Dec 2019 14:29:32 +0000
-
-pt-sys-oled (1.4.7-1) buster; urgency=medium
-
-  * Add new further link as dependency
-
- -- Choudhry Amjad <choudhry@pi-top.com>  Thu, 21 Nov 2019 17:14:28 +0000
-
-pt-sys-oled (1.4.6-1) buster; urgency=medium
-
-  * Add new further link assets
-
- -- Choudhry Amjad <choudhry@pi-top.com>  Thu, 21 Nov 2019 14:08:36 +0000
-
-pt-sys-oled (1.4.5-1) buster; urgency=medium
-
-  * Add further link functionality
-
- -- Choudhry Amjad <choudhry@pi-top.com>  Wed, 20 Nov 2019 14:24:57 +0000
 
 pt-sys-oled (1.4.4-1) buster; urgency=medium
 
