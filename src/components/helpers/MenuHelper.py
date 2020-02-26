@@ -40,9 +40,6 @@ from os import path, listdir, kill, system
 from pathlib import Path
 import signal
 from subprocess import check_output, Popen
-import random
-import string
-import subprocess
 
 _app = None
 
@@ -117,35 +114,16 @@ def change_pt_further_link_enabled_state():
     change_service_enabled_state("pt-further-link.service")
 
 
-def get_random_ssid_and_password():
-    seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    sa = []
-    for i in range(3):
-        sa.append(random.choice(seed))
-    ssid = "pt-" + ''.join(sa)
-    sa = []
-    for i in range(8):
-        sa.append(random.choice(seed))
-    password = ''.join(sa)
-    return ssid, password
-
-
 def get_ap_enabled_state():
-    output = subprocess.getoutput('ps -A | grep hostapd')
-    if output:
-        findap = "Enabled"
-    else:
-        findap = "Disabled"
-
-    return findap
+    output = check_output("pt-access-point").decode("ascii", "ignore")
+    return "Enabled" in output
 
 
 def change_ap_enabled_state():
-    if get_ap_enabled_state() == "Enabled":
-        system("/usr/share/pt-sys-oled/pt-stop-access-point.sh")
+    if get_ap_enabled_state():
+        system("pt-access-point stop")
     else:
-        (ssid, password) = get_random_ssid_and_password()
-        system("/usr/share/pt-sys-oled/pt-start-access-point.sh " + ssid + " " + password)
+        system("pt-access-point start")
 
 
 def reset_hdmi_configuration():
@@ -275,7 +253,11 @@ class Pages:
 
         AP = MenuPage(
             name="ap",
-            hotspot=get_hotspot(ap, interval=1.0),
+            hotspot=get_hotspot(
+                ap,
+                interval=1.0,
+                ap_enabled_state=get_ap_enabled_state
+            ),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )

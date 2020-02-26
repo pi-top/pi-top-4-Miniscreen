@@ -6,17 +6,12 @@ from ptcommon.sys_info import (
 from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_x,
-    default_margin_y,
     common_second_line_y,
-    common_first_line_y,
     common_third_line_y,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
 from ipaddress import ip_address
-import subprocess
-from os import path, listdir, system
-import string
 
 
 def wifi_strength_image():
@@ -35,12 +30,8 @@ def wifi_strength_image():
     return get_image_file(wifi_rating)
 
 
-def get_ap_and_password12():
-    return "dfafd", "adfadf"
-
-
 def get_ap_and_password():
-    with open('/etc/hostapd/hostapd.conf', 'r', encoding="UTF-8") as f:
+    with open('/etc/hostapd/pt-hostapd.conf', 'r', encoding="UTF-8") as f:
         for line in f.readlines():
             if line.find('ssid=') != -1:
                 if line.find('broadcast_ssid=') != -1:
@@ -67,6 +58,7 @@ class Hotspot(BaseHotspot):
         self.wlan0_ip = ""
         self.wifi_bars_image = ""
         self.initialised = False
+        self.get_ap_enabled_state = data.get("ap_enabled_state")
 
         self.default_interval = interval
 
@@ -91,8 +83,7 @@ class Hotspot(BaseHotspot):
         network_ssid = get_wifi_network_ssid()
         if network_ssid is not "Error":
             self.wifi_id = network_ssid
-        output = subprocess.getoutput('ps -A | grep hostapd')
-        if output:
+        if self.get_ap_enabled_state():
             (ssid, password) = get_ap_and_password()
             self.wifi_id = ssid + ":" + password
         network_ip = get_internal_ip(iface="wlan0")

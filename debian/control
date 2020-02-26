@@ -13,7 +13,6 @@ Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
  pt-further-link,
- hostapd,
 # Currently provided by pt-ui-mods
  autorandr,
  fping,
