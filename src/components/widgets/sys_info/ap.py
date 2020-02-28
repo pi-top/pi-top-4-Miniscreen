@@ -56,7 +56,7 @@ class Hotspot(BaseHotspot):
 
         self.wifi_id = ""
         self.wlan0_ip = ""
-        self.wlan0_ip = ""
+        self.wlan_pw = ""
         self.wifi_bars_image = ""
         self.initialised = False
         self.get_ap_enabled_state = data.get("ap_enabled_state")
@@ -72,6 +72,7 @@ class Hotspot(BaseHotspot):
 
         self.wifi_id = ""
         self.wifi_pw = ""
+        self.wifi0_ip = ""
         self.wifi_bars_image = ""
         self.initialised = False
 
