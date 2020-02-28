@@ -56,6 +56,7 @@ class Hotspot(BaseHotspot):
 
         self.wifi_id = ""
         self.wlan0_ip = ""
+        self.wlan0_ip = ""
         self.wifi_bars_image = ""
         self.initialised = False
         self.get_ap_enabled_state = data.get("ap_enabled_state")
@@ -70,7 +71,7 @@ class Hotspot(BaseHotspot):
         )
 
         self.wifi_id = ""
-        self.wlan0_ip = ""
+        self.wifi_pw = ""
         self.wifi_bars_image = ""
         self.initialised = False
 
@@ -85,7 +86,8 @@ class Hotspot(BaseHotspot):
             self.wifi_id = network_ssid
         if self.get_ap_enabled_state():
             (ssid, password) = get_ap_and_password()
-            self.wifi_id = ssid + ":" + password
+            self.wifi_id = ssid
+            self.wifi_pw = password
         network_ip = get_internal_ip(iface="wlan0")
         try:
             self.wlan0_ip = ip_address(network_ip)
@@ -145,7 +147,7 @@ class Hotspot(BaseHotspot):
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_third_line_y),
-                    text=str(self.wlan0_ip),
+                    text=str(self.wifi_pw),
                 )
             elif not self.is_connected() and self.gif.hold_first_frame:
                 draw.ellipse((69, 21) + (83, 35), 0, 0)

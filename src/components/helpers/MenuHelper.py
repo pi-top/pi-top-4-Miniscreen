@@ -116,11 +116,14 @@ def change_pt_further_link_enabled_state():
 
 def get_ap_enabled_state():
     output = check_output("pt-access-point").decode("ascii", "ignore")
-    return "Enabled" in output
+    rtv = "Disabled"
+    if "Enabled" in output:
+      rtv = "Enabled"
+    return rtv
 
 
 def change_ap_enabled_state():
-    if get_ap_enabled_state():
+    if get_ap_enabled_state() == "Enabled":
         system("pt-access-point stop")
     else:
         system("pt-access-point start")
