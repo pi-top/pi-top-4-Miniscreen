@@ -36,9 +36,6 @@ def configure_interrupt_signals():
     signal(SIGTERM, signal_handler)
 
 
-def setup_pt_logging():
-
-
 def should_run():
 
     if is_pi():
