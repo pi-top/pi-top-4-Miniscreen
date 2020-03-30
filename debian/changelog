@@ -1,3 +1,9 @@
+pt-sys-oled (1.6.0-1) buster; urgency=medium
+
+  * Add '--emulator' flag
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 30 Mar 2020 13:03:04 +0100
+
 pt-sys-oled (1.5.2-1) buster; urgency=medium
 
   * Replace "VNC" with "USB" in USB connection animation
