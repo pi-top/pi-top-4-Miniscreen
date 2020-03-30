@@ -42,14 +42,6 @@ from subprocess import check_output, Popen
 
 _app = None
 
-# By getting the device at this early stage, we make sure the instance we get
-# for the sys-oled is non-exclusive. That is, we don't want to block other
-# OLED applications from using the device. When another application does lock
-# the device, then the sys-oled should detect that and stop rendering.
-
-_device = get_device_instance(exclusive=False)
-
-
 # Used by SubscriberClient to pass the battery info to the battery page
 try:
     battery_charging_state = get_battery_charging_state()
@@ -173,7 +165,7 @@ def start_stop_project(path_to_project):
 
 def get_hotspot(widget, interval=0.0, **extra_data):
     data = {
-        **{"width": _device.width, "height": _device.height, "interval": interval},
+        **{"width": get_device_instance().width, "height": get_device_instance().height, "interval": interval},
         **extra_data,
     }
     return widget.Hotspot(**data)

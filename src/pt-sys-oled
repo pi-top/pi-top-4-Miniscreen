@@ -3,6 +3,7 @@
 from ptcommon.sys_info import is_pi
 from ptcommon.logger import PTLogger
 from subprocess import getstatusoutput
+from ptoled import get_device_instance
 
 from signal import (
     signal,
@@ -36,23 +37,6 @@ def configure_interrupt_signals():
     signal(SIGTERM, signal_handler)
 
 
-def setup_pt_logging():
-    parser = ArgumentParser(description="pi-top OLED sys menu")
-    parser.add_argument(
-        "--no-journal", help="output to stdout not the journal", action="store_true"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=int,
-        help="set the logging level from 10 (more verbose) to 50 (less verbose)",
-        default=20,
-    )
-    args = parser.parse_args()
-
-    PTLogger.setup_logging("pt-sys-oled", args.log_level,
-                           args.no_journal is False)
-
-
 def should_run():
 
     if is_pi():
@@ -74,14 +58,36 @@ def should_run():
 def setup():
     configure_logging()
     configure_interrupt_signals()
-    setup_pt_logging()
 
 
 if __name__ == "__main__":
     try:
         setup()
+        parser = ArgumentParser(description="pi-top OLED sys menu")
+        parser.add_argument(
+            "--emulator", help="run in on-screen emulator, not to OLED", action="store_true"
+        )
+        parser.add_argument(
+            "--no-journal", help="output to stdout not the journal", action="store_true"
+        )
+        parser.add_argument(
+            "--log-level",
+            type=int,
+            help="set the logging level from 10 (more verbose) to 50 (less verbose)",
+            default=20,
+        )
+        args = parser.parse_args()
+
+        PTLogger.setup_logging("pt-sys-oled", args.log_level,
+                               args.no_journal is False)
 
         if should_run():
+            # By getting the device at this early stage, we make sure the instance we get
+            # for the sys-oled is non-exclusive. That is, we don't want to block other
+            # OLED applications from using the device. When another application does lock
+            # the device, then the sys-oled should detect that and stop rendering.
+            _device = get_device_instance(
+                emulator=args.emulator, exclusive=False)
 
             from ptoled import PTOLEDDisplay
             from components.MenuManager import MenuManager
