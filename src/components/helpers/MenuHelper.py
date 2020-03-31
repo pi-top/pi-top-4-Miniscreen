@@ -31,7 +31,7 @@ from ptcommon.sys_info import (
     get_battery_capacity,
     get_battery_charging_state,
 )
-from components.widgets.common.common_functions import get_image_file
+from components.widgets.common.functions import get_image_file
 
 from luma.core.virtual import viewport
 from enum import Enum

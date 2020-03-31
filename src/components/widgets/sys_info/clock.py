@@ -4,7 +4,7 @@
 import math
 import datetime
 
-from components.widgets.common.common_functions import title_text, draw_text
+from components.widgets.common.functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 

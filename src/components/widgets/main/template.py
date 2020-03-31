@@ -1,5 +1,5 @@
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common.common_functions import draw_text
+from components.widgets.common.functions import draw_text
 
 
 class Hotspot(BaseHotspot):
