@@ -1,3 +1,10 @@
+pt-sys-oled (1.6.1-1) buster; urgency=medium
+
+  * Immediately detect USB-OTG disconnection
+  * Move network functions to common lib
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 31 Mar 2020 16:11:20 +0100
+
 pt-sys-oled (1.6.0-1) buster; urgency=medium
 
   * Add '--emulator' flag
