@@ -1,10 +1,12 @@
 from getpass import getuser
 from ipaddress import ip_address
 
-from ptcommon.sys_info import get_internal_ip
+from ptcommon.sys_info import (
+    get_internal_ip,
+    get_address_for_ptusb_connected_device
+)
 from ptcommon.logger import PTLogger
 from ptcommon.pt_os import is_pi_using_default_password
-from ptcommon.network_helpers import get_address_for_ptusb_connected_device
 from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_y,
