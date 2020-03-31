@@ -3,8 +3,8 @@
 
 from ptcommon.formatting import bytes2human
 import psutil
-from components.widgets.common_functions import right_text, title_text, draw_text
-from components.widgets.common_values import (
+from components.widgets.common.functions import right_text, title_text, draw_text
+from components.widgets.common.values import (
     default_margin_y,
     default_margin_x,
     common_second_line_y,

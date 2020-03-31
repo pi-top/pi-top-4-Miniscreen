@@ -1,6 +1,6 @@
 from PIL import Image
 from os.path import isfile
-from components.widgets.common_functions import title_text, draw_text
+from components.widgets.common.functions import title_text, draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from ptcommon.logger import PTLogger
 from subprocess import check_output

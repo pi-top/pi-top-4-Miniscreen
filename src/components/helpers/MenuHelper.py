@@ -19,7 +19,7 @@ from components.widgets.settings import (
     settings as setting_title,
 )
 from components.widgets.projects import template as projects_menu_page
-from components.widgets.common import first_time_setup
+from components.widgets.first_time_setup import first_time_setup
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
 from ptcommon.sys_info import (
@@ -31,7 +31,7 @@ from ptcommon.sys_info import (
     get_battery_capacity,
     get_battery_charging_state,
 )
-from components.widgets.common_functions import get_image_file
+from components.widgets.common.functions import get_image_file
 
 from luma.core.virtual import viewport
 from enum import Enum

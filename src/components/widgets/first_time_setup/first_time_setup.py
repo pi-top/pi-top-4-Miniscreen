@@ -6,8 +6,8 @@ from ptcommon.sys_info import (
     get_address_for_ptusb_connected_device
 )
 from ptcommon.pt_os import is_pi_using_default_password
-from components.widgets.common_functions import draw_text, get_image_file
-from components.widgets.common_values import (
+from components.widgets.common.functions import draw_text, get_image_file
+from components.widgets.common.values import (
     default_margin_y,
     default_margin_x,
     common_second_line_y,
