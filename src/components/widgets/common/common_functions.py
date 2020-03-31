@@ -1,6 +1,6 @@
 from PIL import ImageFont
 from os import path
-from components.widgets.common_values import default_margin_x, right_text_default_margin
+from components.widgets.common.common_values import default_margin_x, right_text_default_margin
 
 
 def get_image_file(relative_file_name):

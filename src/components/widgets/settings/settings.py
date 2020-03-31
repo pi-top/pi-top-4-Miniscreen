@@ -1,6 +1,6 @@
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common_functions import draw_text
-from components.widgets.common_functions import get_image_file
+from components.widgets.common.common_functions import draw_text
+from components.widgets.common.common_functions import get_image_file
 from components.widgets.common.image_component import ImageComponent
 
 
