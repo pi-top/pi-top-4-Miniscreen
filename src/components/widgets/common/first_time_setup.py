@@ -1,5 +1,9 @@
+from getpass import getuser
+from ipaddress import ip_address
+
 from ptcommon.sys_info import get_internal_ip
 from ptcommon.pt_os import is_pi_using_default_password
+from ptcommon.network_helpers import get_address_for_ptusb_connected_device
 from components.widgets.common_functions import draw_text, get_image_file
 from components.widgets.common_values import (
     default_margin_y,
@@ -10,9 +14,6 @@ from components.widgets.common_values import (
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
-from components.widgets.network_helpers import get_address_for_ptusb_connected_device
-from getpass import getuser
-from ipaddress import ip_address
 
 
 class Hotspot(BaseHotspot):
