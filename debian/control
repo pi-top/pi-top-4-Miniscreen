@@ -15,7 +15,6 @@ Depends: ${misc:Depends},
  pt-further-link,
 # Currently provided by pt-ui-mods
  autorandr,
- fping,
  fonts-freefont-ttf,
 # Required to take control of the OLED
  pt-hub,
