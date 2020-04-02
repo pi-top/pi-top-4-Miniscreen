@@ -13,8 +13,7 @@ Architecture: armhf
 Depends: ${misc:Depends},
  ${python3:Depends},
  pt-further-link,
-# Currently provided by pt-ui-mods
- autorandr,
+ autorandr (>= 1.9),
  fonts-freefont-ttf,
 # Required to take control of the OLED
  pt-hub,
