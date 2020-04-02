@@ -1,3 +1,9 @@
+pt-sys-oled (1.6.1-2) buster; urgency=medium
+
+  * Remove 'python3-isc-dhcp-leases' dependency
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 02 Apr 2020 16:17:28 +0100
+
 pt-sys-oled (1.6.1-1) buster; urgency=medium
 
   * Immediately detect USB-OTG disconnection
