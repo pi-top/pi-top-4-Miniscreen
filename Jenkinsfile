@@ -1,31 +1,9 @@
-node ('master') {
-    stage ('Checkout') {
-        checkoutSubmodule()
-    }
+@Library("devops-jenkins-shared-library@master") _
 
-    stage ('Pre-commit Checks') {
-        REPO_NAME = env.JOB_NAME.split('/')[1]
-        PKG_NAME  = REPO_NAME.substring(0, REPO_NAME.length() - 4)
-        dir(PKG_NAME) {
-            preCommit()
-        }
-    }
+def src_dir = "src"
+def test_dir = "src/tests"
 
-    stage ('Build') {
-        buildGenericPkg()
-    }
-
-    stage ('Test') {
-        checkSymLinks()
-        shellcheck()
-        try {
-            lintian()
-        } catch (e) {
-            currentBuild.result = 'UNSTABLE'
-        }
-    }
-
-    stage ('Publish') {
-        publishSirius()
-    }
-}
+osBuildPythonPackagePipeline(
+  SRC_DIR_RELATIVE_PATH: src_dir,
+  TEST_DIR_RELATIVE_PATH: test_dir
+)
