@@ -60,6 +60,9 @@ class Hotspot(BaseHotspot):
     def usb_is_connected(self):
         return self.connected_device_ip != ""
 
+    def is_animating(self):
+        return self.usb_gif.is_animating() or self.ethernet_gif.is_animating()
+
     def set_data_members(self):
         try:
             self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
@@ -99,7 +102,7 @@ class Hotspot(BaseHotspot):
             self.set_data_members()
 
         # Determine connection state
-        if not self.usb_gif.is_animating() and not self.ethernet_gif.is_animating():
+        if not self.is_animating():
             self.set_data_members()
 
         # Determine animation speed
@@ -108,7 +111,7 @@ class Hotspot(BaseHotspot):
         if not self.is_connected():
             self.interval = 0.5
         else:
-            if self.usb_gif.is_animating() or self.ethernet_gif.is_animating():
+            if self.is_animating():
                 self.interval = 0.025
             else:
                 self.interval = self.default_interval
@@ -121,7 +124,7 @@ class Hotspot(BaseHotspot):
         else:
             self.connect_gif.render(draw)
 
-        if self.initialised and not self.usb_gif.is_animating() and not self.ethernet_gif.is_animating():
+        if self.initialised and not self.is_animating():
             if self.usb_is_connected() and self.usb_gif.finished:
                 draw_text(
                     draw,
