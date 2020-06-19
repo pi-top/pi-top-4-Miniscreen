@@ -63,6 +63,12 @@ class Hotspot(BaseHotspot):
     def is_animating(self):
         return self.usb_gif.is_animating() or self.ethernet_gif.is_animating()
 
+    def ethernet_finished_animating(self):
+        return self.ethernet_is_connected() and self.ethernet_gif.finished
+
+    def usb_finished_animating(self):
+        return self.usb_is_connected() and self.usb_gif.finished
+
     def set_data_members(self):
         try:
             self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
@@ -125,7 +131,7 @@ class Hotspot(BaseHotspot):
             self.connect_gif.render(draw)
 
         if self.initialised and not self.is_animating():
-            if self.usb_is_connected() and self.usb_gif.finished:
+            if self.ethernet_finished_animating() or self.usb_finished_animating():
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_first_line_y),
@@ -139,21 +145,6 @@ class Hotspot(BaseHotspot):
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_third_line_y),
-                    text=str(self.ptusb0_ip)
-                )
-            elif self.ethernet_is_connected() and self.ethernet_gif.finished:
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_first_line_y),
-                    text=str(self.username),
-                )
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_second_line_y),
-                    text=str(self.password),
-                )
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_third_line_y),
-                    text=str(self.eth0_ip)
+                    text=str(
+                        self.ptusb0_ip if self.usb_finished_animating() else self.eth0_ip)
                 )
