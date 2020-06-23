@@ -70,12 +70,14 @@ class Hotspot(BaseHotspot):
         return self.usb_is_connected() and self.usb_gif.finished
 
     def set_data_members(self):
-        try:
-            self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
-        except ValueError:
-            self.ptusb0_ip = ""
+        if not self.ethernet_is_connected():
+            try:
+                self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
+            except ValueError:
+                self.ptusb0_ip = ""
 
-        self.connected_device_ip = get_address_for_ptusb_connected_device()
+            self.connected_device_ip = get_address_for_ptusb_connected_device(
+                quiet=True)
 
         if not self.usb_is_connected():
             self.usb_gif = ImageComponent(
@@ -85,10 +87,11 @@ class Hotspot(BaseHotspot):
             )
         self.usb_gif.hold_first_frame = not self.usb_is_connected()
 
-        try:
-            self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
-        except ValueError:
-            self.eth0_ip = ""
+        if not self.usb_is_connected():
+            try:
+                self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
+            except ValueError:
+                self.eth0_ip = ""
 
         if not self.ethernet_is_connected():
             self.ethernet_gif = ImageComponent(
