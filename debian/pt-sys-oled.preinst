@@ -4,11 +4,11 @@ OLD_CONFIG_DIR="/etc/pi-top/pt-sys-oled"
 OLD_CONFIG_FILE="${OLD_CONFIG_DIR}/prefs.cfg"
 
 if [ -f "${OLD_CONFIG_FILE}" ]; then
-  rm "${OLD_CONFIG_FILE}"
+	rm "${OLD_CONFIG_FILE}"
 fi
 
 if find "${OLD_CONFIG_DIR}" -mindepth 1 -print -quit 2>/dev/null | grep -q .; then
-  echo "Config directory not empty"
+	echo "Config directory not empty"
 else
-  rm -rf "${OLD_CONFIG_DIR}"
+	rm -rf "${OLD_CONFIG_DIR}"
 fi
