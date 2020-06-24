@@ -12,3 +12,5 @@ if find "${OLD_CONFIG_DIR}" -mindepth 1 -print -quit 2>/dev/null | grep -q .; th
 else
 	rm -rf "${OLD_CONFIG_DIR}"
 fi
+
+#DEBHELPER#
