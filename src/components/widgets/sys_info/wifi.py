@@ -12,6 +12,7 @@ from components.widgets.common.values import (
     common_third_line_y,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.text_component import TextComponent
 from components.widgets.common.image_component import ImageComponent
 from ipaddress import ip_address
 
@@ -41,9 +42,14 @@ class Hotspot(BaseHotspot):
             playback_speed=2.0,
         )
 
-        self.wifi_id = ""
+        self.wifi_id = TextComponent(
+            xy=(default_margin_x, common_second_line_y),
+            text=""
+        )
         self.wlan0_ip = ""
-        self.wifi_bars_image = ""
+        self.wifi_bars = ImageComponent(
+            xy=(5, 0), image_path="", loop=True
+        )
         self.initialised = False
 
         self.default_interval = interval
@@ -55,9 +61,14 @@ class Hotspot(BaseHotspot):
             playback_speed=2.0,
         )
 
-        self.wifi_id = ""
+        self.wifi_id = TextComponent(
+            xy=(default_margin_x, common_second_line_y),
+            text=""
+        )
         self.wlan0_ip = ""
-        self.wifi_bars_image = ""
+        self.wifi_bars = ImageComponent(
+            xy=(5, 0), image_path="", loop=True
+        )
         self.initialised = False
 
         self.interval = self.default_interval
@@ -68,7 +79,7 @@ class Hotspot(BaseHotspot):
     def set_data_members(self):
         network_ssid = get_wifi_network_ssid()
         if network_ssid is not "Error":
-            self.wifi_id = network_ssid
+            self.wifi_id.set_text(network_ssid)
 
         network_ip = get_internal_ip(iface="wlan0")
         try:
@@ -76,7 +87,7 @@ class Hotspot(BaseHotspot):
         except ValueError:
             self.wlan0_ip = ""
 
-        self.wifi_bars_image = wifi_strength_image()
+        self.wifi_bars.set_image(wifi_strength_image())
 
         if not self.is_connected():
             self.gif = ImageComponent(
@@ -115,16 +126,8 @@ class Hotspot(BaseHotspot):
 
         if self.initialised and not self.gif.is_animating():
             if self.is_connected() and self.gif.finished:
-                wifi_bars = ImageComponent(
-                    xy=(5, 0), image_path=self.wifi_bars_image, loop=True
-                )
-                wifi_bars.render(draw)
-
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_second_line_y),
-                    text=str(self.wifi_id),
-                )
+                self.wifi_bars.render(draw)
+                self.wifi_id.render(draw)
 
                 draw_text(
                     draw,

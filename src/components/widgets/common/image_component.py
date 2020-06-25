@@ -39,11 +39,11 @@ class ImageComponent:
         self.playback_speed = playback_speed
         self.finished = False
         self.frame_duration = 0.5
-        self._load_image_from_path(image_path)
+        self.set_image(image_path)
 
         self.initialised = False
 
-    def _load_image_from_path(self, image_path):
+    def set_image(self, image_path):
         self._error = False
         if not isfile(image_path):
             self._error_text = "Invalid path for image file: " + \

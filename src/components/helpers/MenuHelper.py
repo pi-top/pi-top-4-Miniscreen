@@ -225,7 +225,7 @@ class Pages:
         # )
         WIFI = MenuPage(
             name="wifi",
-            hotspot=get_hotspot(wifi, interval=1.0),
+            hotspot=get_hotspot(wifi, interval=0.01),
             select_action_func=change_menu(Menus.MAIN_MENU),
             cancel_action_func=None,
         )
