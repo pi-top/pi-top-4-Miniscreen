@@ -4,24 +4,24 @@ case "$1" in
 configure) ;;
 
 \
-       try-restart)
-       $0 status >/dev/null 2>&1 && $0 restart
-       ;;
+	try-restart)
+	$0 status >/dev/null 2>&1 && $0 restart
+	;;
 
 \
-       triggered)
-       # Try to restart pt-sys-oled
-       invoke-rc.d pt-sys-oled try-restart || true
-       exit 0
-       ;;
+	triggered)
+	# Try to restart pt-sys-oled
+	invoke-rc.d pt-sys-oled try-restart || true
+	exit 0
+	;;
 
 abort-upgrade | abort-remove | abort-deconfigure) ;;
 
 \
-       *)
-       echo "postinst called with unknown argument \`$1'" >&2
-       exit 1
-       ;;
+	*)
+	echo "postinst called with unknown argument \`$1'" >&2
+	exit 1
+	;;
 esac
 
 #DEBHELPER#
