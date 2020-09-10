@@ -1,3 +1,9 @@
+pt-sys-oled (1.7.1-1) buster; urgency=medium
+
+  * Update call to pt-host
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 10 Sep 2020 10:36:20 -0300
+
 pt-sys-oled (1.7.0-1) buster; urgency=medium
 
   * Add dpkg trigger
