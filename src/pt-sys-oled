@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from ptcommon.sys_info import is_pi
-from ptcommon.logger import PTLogger
-from subprocess import getstatusoutput
-from ptoled import get_device_instance
-
 from signal import (
     signal,
     SIGINT,
@@ -17,6 +12,12 @@ from logging import (
     ERROR
 )
 from argparse import ArgumentParser
+
+from ptcommon.sys_info import is_pi
+from ptcommon.logger import PTLogger
+from ptcommon.command_runner import run_command
+from ptcommon.common_names import DeviceName
+from ptoled import get_device_instance
 
 
 def configure_logging():
@@ -40,16 +41,18 @@ def configure_interrupt_signals():
 def should_run():
 
     if is_pi():
-        status, command_output = getstatusoutput("pt-host")
-        if status != 0:
+        try:
+            host_device = run_command("pt-host", timeout=5).strip()
+        except Exception as e:
             PTLogger.info(
                 "Could not determine host device type from pt-device-manager. Exiting...")
-        elif "pi-top [4]" in command_output:
-            return True
-        else:
-            PTLogger.info("Not running on a pi-top [4]. Exiting...")
-        return False
+            return False
 
+        if host_device == DeviceName.pi_top_4.value:
+            return True
+
+        PTLogger.info("Not running on a pi-top [4]. Exiting...")
+        return False
     else:
         PTLogger.info("Not running on a pi. Running in debug mode...")
         return True
