@@ -1,0 +1,5 @@
+# Refresh when pi-top Python common library dependency is updated
+interest-noawait updated-pt-common-lib
+
+# Refresh when device manager has updated
+interest-noawait updated-pt-device-manager

@@ -302,17 +302,6 @@ class Pages:
             select_action_func=change_vnc_enabled_state,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
-        DISPLAY_RESET = MenuPage(
-            name="hdmi_reset",
-            hotspot=get_hotspot(
-                settings_menu_page,
-                type="hdmi_reset",
-                interval=0.0,
-                get_state_method=None,
-            ),
-            select_action_func=reset_hdmi_configuration,
-            cancel_action_func=change_menu(Menus.MAIN_MENU),
-        )
         PT_FURTHER_LINK_CONNECTION = MenuPage(
             name="pt_further_link",
             hotspot=get_hotspot(
@@ -324,15 +313,22 @@ class Pages:
             select_action_func=change_pt_further_link_enabled_state,
             cancel_action_func=change_menu(Menus.MAIN_MENU),
         )
+        DISPLAY_RESET = MenuPage(
+            name="hdmi_reset",
+            hotspot=get_hotspot(
+                settings_menu_page,
+                type="hdmi_reset",
+                interval=0.0,
+                get_state_method=None,
+            ),
+            select_action_func=reset_hdmi_configuration,
+            cancel_action_func=change_menu(Menus.MAIN_MENU),
+        )
 
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = (
-                "/home/pi/Desktop/Hero-Projects"
-                if is_pi()
-                else path.expanduser("~/Desktop/Hero-Projects")
-            )
+            project_dir = path.expanduser("~/Desktop/My Projects")
             project_pages = list()
             if path.exists(project_dir):
                 # For each directory in project path

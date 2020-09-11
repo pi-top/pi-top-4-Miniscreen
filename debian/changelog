@@ -1,3 +1,15 @@
+pt-sys-oled (1.7.1-1) buster; urgency=medium
+
+  * Update call to pt-host
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 10 Sep 2020 10:36:20 -0300
+
+pt-sys-oled (1.7.0-1) buster; urgency=medium
+
+  * Add dpkg trigger
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 05 Aug 2020 17:55:59 +0100
+
 pt-sys-oled (1.6.1-2) buster; urgency=medium
 
   * Remove 'python3-isc-dhcp-leases' dependency
