@@ -21,11 +21,14 @@ from components.widgets.common.image_component import ImageComponent
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.ethernet_gif = ImageComponent(
+            image_path=get_image_file("lan_vnc_page.gif"), loop=False, playback_speed=2.0)
         self.usb_gif = ImageComponent(
             image_path=get_image_file("usb_page.gif"), loop=False, playback_speed=2.0)
         self.connect_gif = ImageComponent(
             image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
 
+        self.eth0_ip = ""
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
         self.initialised = False
@@ -36,9 +39,12 @@ class Hotspot(BaseHotspot):
         self.default_interval = self.interval
 
     def reset(self):
+        self.ethernet_gif = ImageComponent(
+            image_path=get_image_file("lan_vnc_page.gif"), loop=False, playback_speed=2.0)
         self.usb_gif = ImageComponent(
             image_path=get_image_file("usb_page.gif"), loop=False, playback_speed=2.0)
 
+        self.eth0_ip = ""
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
         self.initialised = False
@@ -46,24 +52,53 @@ class Hotspot(BaseHotspot):
         self.interval = self.default_interval
 
     def is_connected(self):
+        return self.ethernet_is_connected() or self.usb_is_connected()
+
+    def ethernet_is_connected(self):
+        return self.eth0_ip != ""
+
+    def usb_is_connected(self):
         return self.connected_device_ip != ""
 
+    def is_animating(self):
+        return self.usb_gif.is_animating() or self.ethernet_gif.is_animating()
+
+    def ethernet_finished_animating(self):
+        return self.ethernet_is_connected() and self.ethernet_gif.finished
+
+    def usb_finished_animating(self):
+        return self.usb_is_connected() and self.usb_gif.finished
+
     def set_data_members(self):
-        try:
-            self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
-        except ValueError:
-            self.ptusb0_ip = ""
+        if not self.ethernet_is_connected():
+            try:
+                self.ptusb0_ip = ip_address(get_internal_ip(iface="ptusb0"))
+            except ValueError:
+                self.ptusb0_ip = ""
 
-        self.connected_device_ip = get_address_for_ptusb_connected_device()
+            self.connected_device_ip = get_address_for_ptusb_connected_device()
 
-        if not self.is_connected():
+        if not self.usb_is_connected():
             self.usb_gif = ImageComponent(
                 image_path=get_image_file("usb_page.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
+            try:
+                self.eth0_ip = ip_address(get_internal_ip(iface="eth0"))
+            except ValueError:
+                self.eth0_ip = ""
 
-        self.usb_gif.hold_first_frame = not self.is_connected()
+        self.usb_gif.hold_first_frame = not self.usb_is_connected()
+
+        if not self.ethernet_is_connected():
+            self.ethernet_gif = ImageComponent(
+                image_path=get_image_file("lan_vnc_page.gif"),
+                loop=False,
+                playback_speed=2.0,
+            )
+        self.ethernet_gif.hold_first_frame = not self.ethernet_is_connected()
+
         self.initialised = True
 
     def render(self, draw, width, height):
@@ -74,7 +109,7 @@ class Hotspot(BaseHotspot):
             self.set_data_members()
 
         # Determine connection state
-        if not self.usb_gif.is_animating():
+        if not self.is_animating():
             self.set_data_members()
 
         # Determine animation speed
@@ -83,19 +118,21 @@ class Hotspot(BaseHotspot):
         if not self.is_connected():
             self.interval = 0.5
         else:
-            if self.usb_gif.is_animating():
+            if self.is_animating():
                 self.interval = 0.025
             else:
                 self.interval = self.default_interval
 
         # Draw to OLED
-        if not self.is_connected():
-            self.connect_gif.render(draw)
-        else:
+        if self.usb_is_connected():
             self.usb_gif.render(draw)
+        elif self.ethernet_is_connected():
+            self.ethernet_gif.render(draw)
+        else:
+            self.connect_gif.render(draw)
 
-        if self.initialised and not self.usb_gif.is_animating():
-            if self.is_connected() and self.usb_gif.finished:
+        if self.initialised and not self.is_animating():
+            if self.ethernet_finished_animating() or self.usb_finished_animating():
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_first_line_y),
@@ -109,5 +146,6 @@ class Hotspot(BaseHotspot):
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_third_line_y),
-                    text=str(self.ptusb0_ip)
+                    text=str(
+                        self.ptusb0_ip if self.usb_finished_animating() else self.eth0_ip)
                 )

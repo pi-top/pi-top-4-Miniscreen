@@ -5,7 +5,6 @@ from ptcommon.sys_info import (
     get_internal_ip,
     get_address_for_ptusb_connected_device
 )
-from ptcommon.logger import PTLogger
 from ptcommon.pt_os import is_pi_using_default_password
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
