@@ -76,8 +76,7 @@ class Hotspot(BaseHotspot):
             except ValueError:
                 self.ptusb0_ip = ""
 
-            self.connected_device_ip = get_address_for_ptusb_connected_device(
-                quiet=True)
+            self.connected_device_ip = get_address_for_ptusb_connected_device()
 
         if not self.usb_is_connected():
             self.usb_gif = ImageComponent(
