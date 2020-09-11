@@ -1,3 +1,9 @@
+pt-sys-oled (1.7.2-1) buster; urgency=medium
+
+  * Show Ethernet IP during onboarding
+
+ -- Jorge Capona <jorge@pi-top.com>  Fri, 11 Sep 2020 18:29:18 -0300
+
 pt-sys-oled (1.7.1-1) buster; urgency=medium
 
   * Update call to pt-host
