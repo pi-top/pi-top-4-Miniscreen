@@ -4,7 +4,7 @@ After=pt-oled-startup-anim.service
 
 [Service]
 Type=simple
-Restart=always
+Restart=on-failure
 ExecStart=/usr/bin/python3 -B /usr/lib/pt-sys-oled/pt-sys-oled
 
 [Install]

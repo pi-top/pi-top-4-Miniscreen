@@ -1,3 +1,9 @@
+pt-sys-oled (1.7.3-1) buster; urgency=medium
+
+  * Restart only on failure
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Sep 2020 16:21:22 +0100
+
 pt-sys-oled (1.7.2-1) buster; urgency=medium
 
   * Show Ethernet IP during onboarding
