@@ -13,19 +13,18 @@ Package: pt-sys-oled
 Architecture: all
 Depends: ${misc:Depends},
  ${python3:Depends},
- pt-further-link,
- autorandr (>= 1.9),
  fonts-freefont-ttf,
 # Required to take control of the OLED
- pt-hub,
-# Required for display-specific things
- pt-ui-mods,
+ pt-device-manager,
+ python3-pt-hub-v3,
 # Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,
  python3-psutil,
  python3-pt-common,
  python3-pt-oled
+Recommends: autorandr (>= 1.9),
+ pt-further-link
 Description: pi-top [4] OLED system menu application
  Display and control important system settings/information
  on the pi-top [4]'s onboard OLED screen. Navigation is
