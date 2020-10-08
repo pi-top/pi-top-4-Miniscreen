@@ -13,12 +13,14 @@ from components.widgets.sys_info import (
     date_time,
     ethernet
 )
-from components.widgets.main import template as main_menu_page
 from components.widgets.settings import (
     template as settings_menu_page,
-    settings as setting_title,
+    title as settings_title,
 )
-from components.widgets.projects import template as projects_menu_page
+from components.widgets.projects import (
+    template as projects_menu_page,
+    title as projects_title,
+)
 from components.widgets.first_time_setup import first_time_setup
 from components.widgets.error import template as error_page
 from ptcommon.logger import PTLogger
@@ -258,8 +260,17 @@ class Pages:
     class MainMenu(Enum):
         SETTINGS_SELECT = MenuPage(
             name="Settings",
-            hotspot=get_hotspot(setting_title, title="Settings", interval=1.0),
+            hotspot=get_hotspot(
+                settings_title, title="Settings", interval=1.0),
             select_action_func=change_menu(Menus.SETTINGS),
+            cancel_action_func=None,
+        )
+
+        PROJECTS_SELECT = MenuPage(
+            name="Projects",
+            hotspot=get_hotspot(
+                projects_title, title="Projects", interval=1.0),
+            select_action_func=change_menu(Menus.PROJECTS),
             cancel_action_func=None,
         )
 
@@ -356,7 +367,7 @@ class Pages:
 
                     project_page = MenuPage(
                         title,
-                        get_hotspot(main_menu_page, title=title,
+                        get_hotspot(projects_menu_page, title=title,
                                     image_path=None),
                         None,
                         None,
