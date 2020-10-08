@@ -1,3 +1,10 @@
+pt-sys-oled (1.8.0-1) buster; urgency=medium
+
+  * Check for pi-topOS for first time setup page
+  * Add FS Me Pro dependency
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 01 Oct 2020 12:19:41 -0300
+
 pt-sys-oled (1.7.3-1) buster; urgency=medium
 
   * Restart only on failure
