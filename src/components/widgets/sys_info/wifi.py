@@ -18,7 +18,7 @@ from ipaddress import ip_address
 
 def wifi_strength_image():
     wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
-    wifi_rating = "wifi_strength_bars/"
+    wifi_rating = "sys_info/wifi_strength_bars/"
     if wifi_strength <= 0:
         wifi_rating += "wifi_no_signal.gif"
     elif 0 < wifi_strength <= 0.5:
@@ -36,7 +36,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("wifi_page.gif"),
+            image_path=get_image_file("sys_info/wifi_page.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -50,7 +50,7 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("wifi_page.gif"),
+            image_path=get_image_file("sys_info/wifi_page.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -80,7 +80,7 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
-                image_path=get_image_file("wifi_page.gif"),
+                image_path=get_image_file("sys_info/wifi_page.gif"),
                 loop=False,
                 playback_speed=2.0,
             )

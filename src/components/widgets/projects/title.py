@@ -7,7 +7,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         # self.gif = ImageComponent(
-        #     image_path=get_image_file("projects_page.gif"), loop=True
+        #     image_path=get_image_file("menu/projects.gif"), loop=True
         # )
         self.title = data.get("title")
 

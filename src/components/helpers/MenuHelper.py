@@ -258,19 +258,19 @@ class Pages:
         )
 
     class MainMenu(Enum):
-        SETTINGS_SELECT = MenuPage(
-            name="Settings",
-            hotspot=get_hotspot(
-                settings_title, title="Settings", interval=1.0),
-            select_action_func=change_menu(Menus.SETTINGS),
-            cancel_action_func=None,
-        )
-
         PROJECTS_SELECT = MenuPage(
             name="Projects",
             hotspot=get_hotspot(
                 projects_title, title="Projects", interval=1.0),
             select_action_func=change_menu(Menus.PROJECTS),
+            cancel_action_func=None,
+        )
+
+        SETTINGS_SELECT = MenuPage(
+            name="Settings",
+            hotspot=get_hotspot(
+                settings_title, title="Settings", interval=1.0),
+            select_action_func=change_menu(Menus.SETTINGS),
             cancel_action_func=None,
         )
 
@@ -339,7 +339,7 @@ class Pages:
     class ProjectSelectMenu:
         @staticmethod
         def generate_pages():
-            project_dir = path.expanduser("~/Desktop/My Projects")
+            project_dir = path.expanduser("/home/pi/Desktop/My Projects")
             project_pages = list()
             if path.exists(project_dir):
                 # For each directory in project path
@@ -358,8 +358,8 @@ class Pages:
                         get_hotspot(
                             projects_menu_page, title=title, project_path=project_path
                         ),
-                        start_stop_project(project_path),
-                        None,
+                        select_action_func=start_stop_project(project_path),
+                        cancel_action_func=change_menu(Menus.MAIN_MENU),
                     )
                     project_pages.append(project_page)
                 if not project_pages:
@@ -369,8 +369,8 @@ class Pages:
                         title,
                         get_hotspot(projects_menu_page, title=title,
                                     image_path=None),
-                        None,
-                        None,
+                        select_action_func=None,
+                        cancel_action_func=change_menu(Menus.MAIN_MENU),
                     )
                     project_pages.append(project_page)
             else:
