@@ -12,6 +12,7 @@ from logging import (
     ERROR
 )
 from argparse import ArgumentParser
+from luma.core.error import DeviceNotFoundError
 
 from ptcommon.sys_info import is_pi
 from ptcommon.logger import PTLogger
@@ -89,17 +90,23 @@ if __name__ == "__main__":
             # for the sys-oled is non-exclusive. That is, we don't want to block other
             # OLED applications from using the device. When another application does lock
             # the device, then the sys-oled should detect that and stop rendering.
-            _device = get_device_instance(
-                emulator=args.emulator, exclusive=False)
+            device_found = True
+            try:
+                _device = get_device_instance(
+                    emulator=args.emulator, exclusive=False)
+            except DeviceNotFoundError as e:
+                device_found = False
+                PTLogger.error(f"Error getting device: {str(e)}")
 
-            from ptoled import PTOLEDDisplay
-            from components.MenuManager import MenuManager
+            if device_found:
+                from ptoled import PTOLEDDisplay
+                from components.MenuManager import MenuManager
 
-            ptoled = PTOLEDDisplay()
-            ptoled.reset()
-            app = MenuManager()
-            app.main_loop()
-            app.stop()
+                ptoled = PTOLEDDisplay()
+                ptoled.reset()
+                app = MenuManager()
+                app.main_loop()
+                app.stop()
 
     except KeyboardInterrupt:
         pass
