@@ -13,8 +13,7 @@ Depends: ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
-# Provides 'dtoverlay' command for initialising SPI bus in
-# systemd service
+# 'dtoverlay' command
  libraspberrypi-bin,
 # 'pt-host' command
  pt-device-cli-utils,
