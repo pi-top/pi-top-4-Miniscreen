@@ -98,6 +98,7 @@ if __name__ == "__main__":
                 device_found = False
                 PTLogger.error(f"Error getting device: {str(e)}")
 
+            # If device is not found, exit normally to avoid restarting the service repeatedly
             if device_found:
                 from ptoled import PTOLEDDisplay
                 from components.MenuManager import MenuManager
