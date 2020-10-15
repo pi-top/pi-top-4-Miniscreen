@@ -1,11 +1,14 @@
 [Unit]
 Description=pi-top OLED system menu
+Documentation=https://knowledgebase.pi-top.com/knowledge
 After=pt-oled-startup-anim.service
 
 [Service]
 Type=simple
 Restart=on-failure
-ExecStart=/usr/bin/python3 -B /usr/lib/pt-sys-oled/pt-sys-oled
+Environment="PYTHONDONTWRITEBYTECODE=1"
+ExecStartPre=/usr/bin/dtoverlay spi1-1cs
+ExecStart=/usr/lib/pt-sys-oled/pt-sys-oled
 
 [Install]
-WantedBy=local-fs.target
+WantedBy=multi-user.target

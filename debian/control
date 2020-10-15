@@ -2,11 +2,9 @@ Source: pt-sys-oled
 Section: utils
 Priority: optional
 Maintainer: pi-top <deb-maintainers@pi-top.com>
-Build-Depends: debhelper (>= 7),
- dh-python,
- dh-systemd (>= 1.5),
- python3:any
-Standards-Version: 3.9.8
+Build-Depends: debhelper-compat (= 12),
+ dh-sequence-python3
+Standards-Version: 4.5.0
 Homepage: https://pi-top.com/
 
 Package: pt-sys-oled
@@ -15,8 +13,11 @@ Depends: ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
-# Required to take control of the OLED
- pt-device-manager,
+# Provides 'dtoverlay' command for initialising SPI bus in
+# systemd service
+ libraspberrypi-bin,
+# 'pt-host' command
+ pt-device-cli-utils,
  python3-pt-hub-v3,
 # Python libs required for common functions
  python3-luma-oled,
