@@ -3,6 +3,8 @@ pt-sys-oled (2.0.0) buster; urgency=medium
   * Migrate to native package
   * Use compat level 12
   * Switch to PYTHONDONTWRITEBYTECODE in systemd service
+  * Load SPI device tree overlay before starting
+  * If no SPI device is found, do not repeatedly restart service
 
  -- Mike Roberts <mike@pi-top.com>  Thu, 15 Oct 2020 11:40:37 +0100
 
