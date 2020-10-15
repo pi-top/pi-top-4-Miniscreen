@@ -1,3 +1,11 @@
+pt-sys-oled (2.0.0) buster; urgency=medium
+
+  * Migrate to native package
+  * Use compat level 12
+  * Switch to PYTHONDONTWRITEBYTECODE in systemd service
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 15 Oct 2020 11:40:37 +0100
+
 pt-sys-oled (1.8.0-1) buster; urgency=medium
 
   * Check for pi-topOS for first time setup page
