@@ -13,6 +13,9 @@ Depends: ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
+# Provides 'dtoverlay' command for initialising SPI bus in
+# systemd service
+ libraspberrypi-bin,
 # Required to take control of the OLED
  pt-device-manager,
  python3-pt-hub-v3,
