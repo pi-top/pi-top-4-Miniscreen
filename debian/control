@@ -16,8 +16,8 @@ Depends: ${misc:Depends},
 # Provides 'dtoverlay' command for initialising SPI bus in
 # systemd service
  libraspberrypi-bin,
-# Required to take control of the OLED
- pt-device-manager,
+# 'pt-host' command
+ pt-device-cli-utils,
  python3-pt-hub-v3,
 # Python libs required for common functions
  python3-luma-oled,
