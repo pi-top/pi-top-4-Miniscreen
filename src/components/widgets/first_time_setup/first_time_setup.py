@@ -22,11 +22,11 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.ethernet_gif = ImageComponent(
-            image_path=get_image_file("lan_vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("first_time_connect/lan_vnc.gif"), loop=False, playback_speed=2.0)
         self.usb_gif = ImageComponent(
-            image_path=get_image_file("usb_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("sys_info/usb.gif"), loop=False, playback_speed=2.0)
         self.connect_gif = ImageComponent(
-            image_path=get_image_file("first_time_connect.gif"), loop=True, playback_speed=1.0)
+            image_path=get_image_file("first_time_connect/first_time_connect.gif"), loop=True, playback_speed=1.0)
 
         self.eth0_ip = ""
         self.ptusb0_ip = ""
@@ -40,9 +40,9 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.ethernet_gif = ImageComponent(
-            image_path=get_image_file("lan_vnc_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("first_time_connect/lan_vnc.gif"), loop=False, playback_speed=2.0)
         self.usb_gif = ImageComponent(
-            image_path=get_image_file("usb_page.gif"), loop=False, playback_speed=2.0)
+            image_path=get_image_file("sys_info/usb.gif"), loop=False, playback_speed=2.0)
 
         self.eth0_ip = ""
         self.ptusb0_ip = ""
@@ -80,7 +80,7 @@ class Hotspot(BaseHotspot):
 
         if not self.usb_is_connected():
             self.usb_gif = ImageComponent(
-                image_path=get_image_file("usb_page.gif"),
+                image_path=get_image_file("sys_info/usb.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
@@ -93,7 +93,7 @@ class Hotspot(BaseHotspot):
 
         if not self.ethernet_is_connected():
             self.ethernet_gif = ImageComponent(
-                image_path=get_image_file("lan_vnc_page.gif"),
+                image_path=get_image_file("first_time_connect/lan_vnc.gif"),
                 loop=False,
                 playback_speed=2.0,
             )

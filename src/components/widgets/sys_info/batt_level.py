@@ -7,7 +7,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("battery_shell_empty.gif"), loop=False
+            image_path=get_image_file("sys_info/battery_shell_empty.gif"), loop=False
         )
 
         self.charging_state = None
@@ -51,11 +51,11 @@ class Hotspot(BaseHotspot):
 
         if self.is_charging():
             self.gif = ImageComponent(
-                image_path=get_image_file("battery_shell_charging.gif"), loop=False
+                image_path=get_image_file("sys_info/battery_shell_charging.gif"), loop=False
             )
         else:
             self.gif = ImageComponent(
-                image_path=get_image_file("battery_shell_empty.gif"), loop=False
+                image_path=get_image_file("sys_info/battery_shell_empty.gif"), loop=False
             )
             self.draw_battery_percentage(draw, width, height)
 

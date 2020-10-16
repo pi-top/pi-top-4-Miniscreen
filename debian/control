@@ -25,7 +25,10 @@ Depends: ${misc:Depends},
  python3-monotonic,
  python3-psutil,
  python3-pt-common,
- python3-pt-oled
+ python3-pt-oled,
+# Required to talk to the device manager
+# This functionality should probably be moved into the buttons library
+ python3-zmq,
 Recommends: autorandr (>= 1.9),
  pt-further-link
 Description: pi-top [4] OLED system menu application

@@ -29,14 +29,14 @@ def wifi_strength_image():
         wifi_rating += "wifi_good_signal.gif"
     else:
         wifi_rating += "wifi_excellent_signal.gif"
-    return get_image_file(wifi_rating)
+    return get_image_file(f"sys_info/{wifi_rating}")
 
 
 class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("wifi_page.gif"),
+            image_path=get_image_file("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -50,7 +50,7 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("wifi_page.gif"),
+            image_path=get_image_file("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -80,7 +80,7 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
-                image_path=get_image_file("wifi_page.gif"),
+                image_path=get_image_file("sys_info/wifi.gif"),
                 loop=False,
                 playback_speed=2.0,
             )

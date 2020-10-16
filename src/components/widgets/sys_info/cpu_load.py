@@ -16,7 +16,7 @@ class Hotspot(BaseHotspot):
     def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.image = ImageComponent(
-            image_path=get_image_file("cpu_page.gif"), loop=False
+            image_path=get_image_file("sys_info/cpu.gif"), loop=False
         )
 
     def render(self, draw, width, height):
