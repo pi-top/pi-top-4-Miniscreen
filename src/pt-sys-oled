@@ -16,7 +16,7 @@ from luma.core.error import DeviceNotFoundError
 from os import path
 from time import sleep
 from PIL import Image
-from components.widgets.common.functions import get_image_file
+from pathlib import Path
 
 from ptcommon.pt_os import is_pi_top_os
 from ptcommon.sys_info import is_pi
@@ -25,9 +25,11 @@ from ptcommon.command_runner import run_command
 from ptcommon.common_names import DeviceName
 from ptoled import PTOLEDDisplay, get_device_instance
 
+from components.widgets.common.functions import get_image_file
 
 # TODO: replace with check of file system size; remove patch from preinst
 fs_expanded_breadcrumb = "/etc/pi-top/.expandedFs"
+boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
 
 
 def configure_logging():
@@ -81,53 +83,49 @@ def enable_sp1_dtoverlay_if_required():
 
 
 def play_boot_animation(oled_device):
-    print("Playing animation...")
-    try:
-        img_path = get_image_file("startup/pi-top_startup.gif")
-        image = Image.open(img_path)
-        frame_no = 0
+    PTLogger.info("Playing boot animation...")
+    img_path = get_image_file("startup/pi-top_startup.gif")
+    image = Image.open(img_path)
+    frame_no = 0
 
-        breadcrumb_exists = path.exists(fs_expanded_breadcrumb)
-        one_loop_only = not is_pi_top_os() or breadcrumb_exists
+    fs_breadcrumb_exists = path.exists(fs_expanded_breadcrumb)
+    one_loop_only = not is_pi_top_os() or fs_breadcrumb_exists
 
-        while True:
-            # Get current frame
+    while True:
+        # Get current frame
+        image.seek(frame_no)
 
-            image.seek(frame_no)
+        # Set black background
+        background = Image.new(
+            "RGB",
+            oled_device.size,
+            "black"
+        )
 
-            # Set black background
-            background = Image.new(
-                "RGB",
-                oled_device.size,
-                "black"
-            )
+        # Paste image onto background
+        background.paste(
+            image.resize(oled_device.size)
+        )
 
-            # Paste image onto background
-            background.paste(
-                image.resize(oled_device.size)
-            )
+        # Render
+        oled_device.display(
+            background.convert(oled_device.mode)
+        )
 
-            # Render
-            oled_device.display(
-                background.convert(oled_device.mode)
-            )
+        # Get frame length
+        embedded_frame_speed_s = float(image.info["duration"] / 1000)
 
-            # Get frame length
-            embedded_frame_speed_s = float(image.info["duration"] / 1000)
+        # Wait for frame length
+        sleep(embedded_frame_speed_s)
 
-            # Wait for frame length
-            sleep(embedded_frame_speed_s)
-
-            if frame_no == image.n_frames - 1:
-                # Completed one pass
-                if one_loop_only:
-                    break
-                frame_no = 0
-            else:
-                frame_no = frame_no + 1
-    except Exception as e:
-        print("There was an error accessing the OLED device. " + str(e))
-        exit(1)
+        if frame_no == image.n_frames - 1:
+            # Completed one pass
+            if one_loop_only:
+                Path(boot_animation_played_breadcrumb).touch()
+                break
+            frame_no = 0
+        else:
+            frame_no = frame_no + 1
 
 
 if __name__ == "__main__":
@@ -174,7 +172,10 @@ if __name__ == "__main__":
                 ptoled = PTOLEDDisplay()
                 ptoled.reset()
 
-                play_boot_animation(_device)
+                played_boot_animation = path.exists(
+                    boot_animation_played_breadcrumb)
+                if not played_boot_animation:
+                    play_boot_animation(_device)
 
                 app = MenuManager()
                 app.main_loop()
