@@ -76,10 +76,8 @@ def setup():
 
 
 def enable_sp1_dtoverlay_if_required():
-    spi1_overlay = "spi1-1cs"
-    overlay_list = run_command("/usr/bin/dtoverlay -l", timeout=2)
-    if spi1_overlay not in overlay_list:
-        run_command(f"/usr/bin/dtoverlay {spi1_overlay}", timeout=5)
+    if not path.exists("/dev/spidev1.0"):
+        run_command("dtoverlay spi1-1cs", timeout=5)
 
 
 def play_boot_animation(oled_device):
