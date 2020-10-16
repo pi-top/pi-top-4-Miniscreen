@@ -1,7 +1,6 @@
 [Unit]
 Description=pi-top OLED system menu
 Documentation=https://knowledgebase.pi-top.com/knowledge
-After=pt-oled-startup-anim.service
 
 [Service]
 Type=simple
