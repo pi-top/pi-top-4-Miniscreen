@@ -1,7 +1,15 @@
-#!/bin/bash -e
+#!/bin/bash
+###############################################################
+#                Unofficial 'Bash strict mode'                #
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
+###############################################################
+set -euo pipefail
+IFS=$'\n\t'
+###############################################################
 
-case "$1" in
-configure) ;;
+case "${1}" in
+
+configure | abort-upgrade | abort-remove | abort-deconfigure) ;;
 
 \
 	try-restart)
@@ -10,12 +18,10 @@ configure) ;;
 
 \
 	triggered)
-	# Try to restart pt-sys-oled
+	# Try to restart service
 	invoke-rc.d pt-sys-oled try-restart || true
 	exit 0
 	;;
-
-abort-upgrade | abort-remove | abort-deconfigure) ;;
 
 \
 	*)
