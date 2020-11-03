@@ -21,8 +21,8 @@ from components.widgets.settings import (
 from components.widgets.projects import template as projects_menu_page
 from components.widgets.first_time_setup import first_time_setup
 from components.widgets.error import template as error_page
-from ptcommon.logger import PTLogger
-from ptcommon.sys_info import (
+from pitop.core.logger import PTLogger
+from pitop.core.sys_info import (
     get_ssh_enabled_state,
     get_vnc_enabled_state,
     get_systemd_enabled_state,

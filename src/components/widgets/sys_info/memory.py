@@ -2,7 +2,7 @@
 # See LICENSE.rst for details.
 
 import psutil
-from ptcommon.formatting import bytes2human
+from pitop.core.formatting import bytes2human
 from components.widgets.common.functions import right_text, title_text, draw_text
 from components.widgets.common.values import (
     default_margin_x,

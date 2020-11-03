@@ -1,3 +1,9 @@
+pt-sys-oled (2.1.0) buster; urgency=medium
+
+  * ptcommon -> pitop.core
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 03 Nov 2020 16:12:03 +0000
+
 pt-sys-oled (2.0.0) buster; urgency=medium
 
   * Migrate to native package

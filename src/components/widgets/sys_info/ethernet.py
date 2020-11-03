@@ -1,4 +1,4 @@
-from ptcommon.sys_info import get_internal_ip
+from pitop.core.sys_info import get_internal_ip
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
     default_margin_y,

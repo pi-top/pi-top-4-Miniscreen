@@ -1,4 +1,4 @@
-from ptcommon.sys_info import (
+from pitop.core.sys_info import (
     get_wifi_network_ssid,
     get_internal_ip,
     get_network_strength,
