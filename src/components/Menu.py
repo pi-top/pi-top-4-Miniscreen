@@ -1,7 +1,7 @@
 from components.helpers import MenuHelper
 
-from pitop.core.sys_info import is_pi
-from pitop.core.logger import PTLogger
+from pitop.utils.sys_info import is_pi
+from pitop.utils.logger import PTLogger
 
 from ptoled import get_device_instance, reset_device_instance
 

@@ -20,6 +20,7 @@ Depends: ${misc:Depends},
 # 'pt-host' command
  python3-pitop,
  python3-pt-hub-v3,
+ python3-pitop.utils,
 # Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,

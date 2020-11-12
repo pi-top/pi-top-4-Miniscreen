@@ -1,4 +1,4 @@
-from pitop.core.logger import PTLogger
+from pitop.utils.logger import PTLogger
 from PIL import Image
 from os.path import isfile
 from ptoled import get_device_instance

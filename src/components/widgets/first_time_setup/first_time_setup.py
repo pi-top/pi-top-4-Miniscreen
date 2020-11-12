@@ -1,11 +1,11 @@
 from getpass import getuser
 from ipaddress import ip_address
 
-from pitop.core.sys_info import (
+from pitop.utils.sys_info import (
     get_internal_ip,
     get_address_for_ptusb_connected_device
 )
-from pitop.core.pt_os import is_pi_using_default_password
+from pitop.utils.pt_os import is_pi_using_default_password
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
     default_margin_y,
