@@ -24,7 +24,6 @@ Depends: ${misc:Depends},
  python3-luma-oled,
  python3-monotonic,
  python3-psutil,
- python3-pt-oled,
 # Required to talk to the device manager
 # This functionality should probably be moved into the buttons library
  python3-zmq,
