@@ -1,4 +1,4 @@
-from pitop.oled import get_device_instance
+from pitop.miniscreen.oled import get_device_instance
 from components.Page import MenuPage
 from components.widgets.sys_info import (
     batt_level,

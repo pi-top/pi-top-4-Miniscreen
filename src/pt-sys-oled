@@ -23,7 +23,7 @@ from pitop.utils.sys_info import is_pi
 from pitop.utils.logger import PTLogger
 from pitop.utils.command_runner import run_command
 from pitop.utils.common_names import DeviceName
-from pitop.oled import PTOLEDDisplay, get_device_instance
+from pitop.miniscreen.oled import PTOLEDDisplay, get_device_instance
 
 from components.widgets.common.functions import get_image_file
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
             # If device is not found, exit normally to avoid restarting the service repeatedly
             if device_found:
-                from pitop.oled import PTOLEDDisplay
+                from pitop.miniscreen.oled import PTOLEDDisplay
                 from components.MenuManager import MenuManager
 
                 oled = PTOLEDDisplay()
