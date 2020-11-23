@@ -1,7 +1,7 @@
 from pitop.utils.logger import PTLogger
 from PIL import Image
 from os.path import isfile
-from pitop.oled import get_device_instance
+from pitop.miniscreen.oled import get_device_instance
 
 
 def _create_bitmap_to_render(image, width, height):

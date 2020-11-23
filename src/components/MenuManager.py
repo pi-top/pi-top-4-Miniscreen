@@ -3,7 +3,7 @@ from pitop.utils.sys_info import is_pi
 from subprocess import call
 from os import path, listdir
 
-from pitop.oled import get_device_instance, device_reserved
+from pitop.miniscreen.oled import get_device_instance, device_reserved
 from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.helpers.SubscriberClient import SubscriberClient

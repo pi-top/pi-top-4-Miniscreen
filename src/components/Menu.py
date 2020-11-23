@@ -3,10 +3,10 @@ from components.helpers import MenuHelper
 from pitop.utils.sys_info import is_pi
 from pitop.utils.logger import PTLogger
 
-from pitop.oled import get_device_instance, reset_device_instance
+from pitop.miniscreen.oled import get_device_instance, reset_device_instance
 
 if is_pi():
-    from pitop.oled import PTOLEDDisplay
+    from pitop.miniscreen.oled import PTOLEDDisplay
 
 
 class Menu:
