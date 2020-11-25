@@ -1,7 +1,7 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-from pitop.utils.formatting import bytes2human
+from pitopcommon.formatting import bytes2human
 import psutil
 from components.widgets.common.functions import right_text, title_text, draw_text
 from components.widgets.common.values import (

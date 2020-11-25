@@ -19,7 +19,7 @@ Depends: ${misc:Depends},
  pt-device-manager,
 # 'pt-host' command
  python3-pitop,
- python3-pitop.utils,
+ python3-pitopcommon,
 # Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,

@@ -18,11 +18,11 @@ from time import sleep
 from PIL import Image
 from pathlib import Path
 
-from pitop.utils.pt_os import is_pi_top_os
-from pitop.utils.sys_info import is_pi
-from pitop.utils.logger import PTLogger
-from pitop.utils.command_runner import run_command
-from pitop.utils.common_names import DeviceName
+from pitopcommon.pt_os import is_pi_top_os
+from pitopcommon.sys_info import is_pi
+from pitopcommon.logger import PTLogger
+from pitopcommon.command_runner import run_command
+from pitopcommon.common_names import DeviceName
 from pitop.miniscreen.oled import PTOLEDDisplay, get_device_instance
 
 from components.widgets.common.functions import get_image_file

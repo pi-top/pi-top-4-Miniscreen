@@ -1,6 +1,6 @@
 from components.ButtonPress import ButtonPress
-from pitop.utils.logger import PTLogger
-from pitop.utils.ptdm_message import Message
+from pitopcommon.logger import PTLogger
+from pitopcommon.ptdm_message import Message
 from threading import Thread
 from time import sleep
 import traceback

@@ -1,5 +1,5 @@
 from time import sleep
-from pitop.utils.sys_info import is_pi
+from pitopcommon.sys_info import is_pi
 from subprocess import call
 from os import path, listdir
 
@@ -8,9 +8,9 @@ from components.Menu import Menu
 from components.ButtonPress import ButtonPress
 from components.helpers.SubscriberClient import SubscriberClient
 from components.helpers import MenuHelper
-from pitop.utils.logger import PTLogger
+from pitopcommon.logger import PTLogger
 from threading import Thread
-from pitop.utils.pt_os import eula_agreed, is_pi_top_os
+from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
 if not is_pi():
     from components.helpers.ButtonPressHelper import ButtonPressHelper
