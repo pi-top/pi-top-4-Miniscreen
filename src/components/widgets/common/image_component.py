@@ -24,9 +24,9 @@ class ImageComponent:
         loop=True,
         playback_speed=1.0,
     ):
-        if width == None:
+        if width is None:
             width = get_device_instance().width
-        if height == None:
+        if height is None:
             height = get_device_instance().height
 
         self.hold_first_frame = False

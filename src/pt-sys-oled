@@ -55,7 +55,7 @@ def should_run():
     if is_pi():
         try:
             host_device = run_command("pi-top host", timeout=5).strip()
-        except Exception as e:
+        except Exception:
             PTLogger.info(
                 "Could not determine host device type from pt-device-manager. Exiting...")
             return False
@@ -165,7 +165,6 @@ if __name__ == "__main__":
 
             # If device is not found, exit normally to avoid restarting the service repeatedly
             if device_found:
-                from pitop.miniscreen.oled import OLEDDisplay
                 from components.MenuManager import MenuManager
 
                 oled = OLEDDisplay()

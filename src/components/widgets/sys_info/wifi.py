@@ -6,9 +6,7 @@ from pitopcommon.sys_info import (
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
     default_margin_x,
-    default_margin_y,
     common_second_line_y,
-    common_first_line_y,
     common_third_line_y,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
@@ -67,7 +65,7 @@ class Hotspot(BaseHotspot):
 
     def set_data_members(self):
         network_ssid = get_wifi_network_ssid()
-        if network_ssid is not "Error":
+        if network_ssid != "Error":
             self.wifi_id = network_ssid
 
         network_ip = get_internal_ip(iface="wlan0")

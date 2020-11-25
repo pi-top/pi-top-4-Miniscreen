@@ -42,6 +42,6 @@ class Hotspot(BaseHotspot):
                 draw, common_third_line_y, width, text=bytes2human(
                     counters.bytes_sent)
             )
-        except:
+        except Exception:
             draw_text(draw, xy=(default_margin_x,
                                 common_first_line_y), text="n/a")

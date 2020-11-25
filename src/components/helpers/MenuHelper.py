@@ -2,13 +2,8 @@ from pitop.miniscreen.oled import get_device_instance
 from components.Page import MenuPage
 from components.widgets.sys_info import (
     batt_level,
-    uptime,
-    memory,
-    disk,
     cpu_load,
-    clock,
     wifi,
-    network,
     usb,
     date_time,
     ethernet
@@ -27,7 +22,6 @@ from pitopcommon.sys_info import (
     get_vnc_enabled_state,
     get_systemd_enabled_state,
     get_pt_further_link_enabled_state,
-    is_pi,
     get_battery_capacity,
     get_battery_charging_state,
 )
@@ -35,7 +29,6 @@ from pitopcommon.sys_info import (
 from luma.core.virtual import viewport
 from enum import Enum
 from os import path, listdir, kill, system
-from pathlib import Path
 import signal
 from subprocess import check_output, Popen
 
@@ -44,12 +37,12 @@ _app = None
 # Used by SubscriberClient to pass the battery info to the battery page
 try:
     battery_charging_state = get_battery_charging_state()
-except:
+except Exception:
     battery_charging_state = None
 
 try:
     battery_capacity = get_battery_capacity()
-except:
+except Exception:
     battery_capacity = None
 
 

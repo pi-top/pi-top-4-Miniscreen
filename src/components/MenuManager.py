@@ -1,6 +1,5 @@
 from time import sleep
 from pitopcommon.sys_info import is_pi
-from subprocess import call
 from os import path, listdir
 
 from pitop.miniscreen.oled import get_device_instance, device_reserved
@@ -9,7 +8,6 @@ from components.ButtonPress import ButtonPress
 from components.helpers.SubscriberClient import SubscriberClient
 from components.helpers import MenuHelper
 from pitopcommon.logger import PTLogger
-from threading import Thread
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
 if not is_pi():
@@ -41,7 +39,7 @@ class MenuManager:
 
         # If EULA is not agreed to on pi-topOS, then user is still in onboarding
         # Not the best breadcrumb to look for...
-        if is_pi() and is_pi_top_os() and eula_agreed() == False:
+        if is_pi() and is_pi_top_os() and eula_agreed() is False:
             self.add_menu_to_list(MenuHelper.Menus.FIRST_TIME)
             self.change_menu(MenuHelper.Menus.FIRST_TIME)
         else:
