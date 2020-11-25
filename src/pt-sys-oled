@@ -54,7 +54,7 @@ def should_run():
 
     if is_pi():
         try:
-            host_device = run_command("pt-host", timeout=5).strip()
+            host_device = run_command("pi-top host", timeout=5).strip()
         except Exception as e:
             PTLogger.info(
                 "Could not determine host device type from pt-device-manager. Exiting...")

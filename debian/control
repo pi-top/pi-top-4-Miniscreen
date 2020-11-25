@@ -17,7 +17,7 @@ Depends: ${misc:Depends},
  libraspberrypi-bin,
 # Listening for button presses requires talking to the device manager
  pt-device-manager,
-# 'pt-host' command
+# 'pi-top host' command - TODO: replace with direct call to device manager
  python3-pitop,
  python3-pitopcommon,
 # Python libs required for common functions
