@@ -6,7 +6,7 @@ from pitopcommon.logger import PTLogger
 from pitop.miniscreen.oled import get_device_instance, reset_device_instance
 
 if is_pi():
-    from pitop.miniscreen.oled import PTOLEDDisplay
+    from pitop.miniscreen.oled import OLEDDisplay
 
 
 class Menu:
@@ -103,7 +103,7 @@ class Menu:
         PTLogger.info("Resetting device instance...")
         reset_device_instance(exclusive=False)
         if is_pi():
-            PTOLEDDisplay().reset()
+            OLEDDisplay().reset()
         self.update_oled(force=True)
 
     def update_oled(self, force=False):
