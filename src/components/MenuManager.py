@@ -1,17 +1,22 @@
-from time import sleep
-from pitopcommon.sys_info import is_pi
-from os import path, listdir
+
+from .components.Menu import Menu
+from .components.ButtonPress import ButtonPress
+from .components.helpers.SubscriberClient import SubscriberClient
+from .components.helpers import MenuHelper
 
 from pitop.miniscreen.oled import get_device_instance, device_reserved
-from components.Menu import Menu
-from components.ButtonPress import ButtonPress
-from components.helpers.SubscriberClient import SubscriberClient
-from components.helpers import MenuHelper
+
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
+from time import sleep
+from pitopcommon.sys_info import is_pi
+from os import listdir
+from re import compile
+
+
 if not is_pi():
-    from components.helpers.ButtonPressHelper import ButtonPressHelper
+    from .components.helpers.ButtonPressHelper import ButtonPressHelper
 
     PTLogger.debug("Is not Pi - running as emulator")
     PTLogger.info("Emulator: Setting up ButtonPressHelper")
@@ -82,13 +87,19 @@ class MenuManager:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
+    def __button_locks_exist(self):
+        locks_exist = False
+        for filepath in listdir("/tmp"):
+            if compile("pt-buttons-.*.lock").match(filepath):
+                locks_exist = True
+                break
+
+        return locks_exist
+
     def add_button_press_to_stack(self, button_press_event):
-        no_button_locks = not path.isdir("/tmp/button-locks") or not listdir(
-            "/tmp/button-locks"
-        )
         if (
             not device_reserved()
-            and no_button_locks
+            and not self.__button_locks_exist()
             and button_press_event.event_type != ButtonPress.ButtonType.NONE
         ):
             PTLogger.info(
