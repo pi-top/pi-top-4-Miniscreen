@@ -22,14 +22,6 @@ class Hotspot(BaseHotspot):
         self.battery = Battery()
         # TODO: do initial query, then handle updates via battery class's internal subscribe client
 
-    def is_charging(self):
-        try:
-            charging = int(self.battery.charging_state) == 1
-            fully_charged = int(self.battery.charging_state) == 2
-            return charging or fully_charged
-        except ValueError:
-            return False
-
     def draw_battery_percentage(self, draw, width, height):
         try:
             percentage = int(self.battery.capacity)
@@ -49,7 +41,7 @@ class Hotspot(BaseHotspot):
         )
 
     def render(self, draw, width, height):
-        if self.is_charging():
+        if self.battery.charging or self.battery.full:
             self.gif = ImageComponent(
                 device_mode=self.mode,
                 width=self.width,
