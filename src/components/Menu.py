@@ -72,35 +72,35 @@ class PageHelper:
                         batt_level,
                         interval=1.0,
                     ),
-                    select_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="cpu",
                     hotspot=self.__get_hotspot(cpu_load, interval=0.5),
-                    select_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="wifi",
                     hotspot=self.__get_hotspot(wifi, interval=1.0),
-                    select_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="ethernet",
                     hotspot=self.__get_hotspot(ethernet, interval=1.0),
-                    select_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="usb",
                     hotspot=self.__get_hotspot(usb, interval=1.0),
-                    select_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
@@ -111,7 +111,7 @@ class PageHelper:
                     name="Settings",
                     hotspot=self.__get_hotspot(
                         setting_title, title="Settings", interval=1.0),
-                    select_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.SETTINGS),
                     cancel_action_func=None,
                 ),
@@ -126,8 +126,8 @@ class PageHelper:
                         interval=1.0,
                         get_state_method=get_ssh_enabled_state,
                     ),
-                    select_action_func=change_ssh_enabled_state,
-                    cancel_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: change_ssh_enabled_state(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                 ),
                 MenuPage(
@@ -138,8 +138,8 @@ class PageHelper:
                         interval=1.0,
                         get_state_method=get_vnc_enabled_state,
                     ),
-                    select_action_func=change_vnc_enabled_state,
-                    cancel_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: change_vnc_enabled_state(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                 ),
                 MenuPage(
@@ -150,8 +150,8 @@ class PageHelper:
                         interval=1.0,
                         get_state_method=get_pt_further_link_enabled_state,
                     ),
-                    select_action_func=change_pt_further_link_enabled_state,
-                    cancel_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: change_pt_further_link_enabled_state(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                 ),
                 MenuPage(
@@ -162,8 +162,8 @@ class PageHelper:
                         interval=0.0,
                         get_state_method=None,
                     ),
-                    select_action_func=reset_hdmi_configuration,
-                    cancel_action_func=self.__callback_client.change_menu(
+                    select_action_func=lambda: reset_hdmi_configuration(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                 ),
             ]

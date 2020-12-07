@@ -84,8 +84,9 @@ class MenuManager:
         self.__sleeping = False
 
     def __add_menu_to_list(self, menu_id):
+        width, height = self.oled.device.size
         self.menus[menu_id] = Menu(
-            menu_id, self.oled.width, self.oled.height, self.oled.mode, self)
+            menu_id, width, height, self.oled.device.mode, self)
 
     # Public so that hotspots can use this
     def change_menu(self, menu_to_go_to):
