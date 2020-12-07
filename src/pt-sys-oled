@@ -20,6 +20,7 @@ from pitopcommon.logger import PTLogger
 from pitopcommon.command_runner import run_command
 from pitopcommon.common_names import DeviceName
 
+from pitop.system.devices import device_type
 from pitop.miniscreen.oled import OLED
 
 from .components.widgets.common.functions import get_image_file
@@ -51,14 +52,12 @@ def configure_interrupt_signals(app):
 
 def should_run():
     try:
-        hub_device = run_command("pi-top devices hub -q", timeout=5).strip()
+        return device_type() == DeviceName.pi_top_4.value
     except Exception:
         PTLogger.info(
             "Could not determine pi-top hub type from pt-device-manager. Exiting...")
-        return False
 
-    if hub_device == DeviceName.pi_top_4.value:
-        return True
+    return False
 
     PTLogger.info("Not running on a pi-top [4]. Exiting...")
     return False
@@ -72,12 +71,6 @@ def enable_sp1_dtoverlay_if_required():
 
 def get_parser():
     parser = ArgumentParser(description="pi-top OLED sys menu")
-    parser.add_argument(
-        "--emulator", help="run in on-screen emulator, not to OLED", action="store_true"
-    )
-    parser.add_argument(
-        "--no-journal", help="output to stdout not the journal", action="store_true"
-    )
     parser.add_argument(
         "--log-level",
         type=int,
@@ -93,7 +86,8 @@ def main():
 
         configure_logging()
         PTLogger.setup_logging(logger_name="pt-sys-oled",
-                               logging_level=args.log_level, log_to_journal=args.no_journal is False)
+                               logging_level=args.log_level,
+                               log_to_journal=False)
 
         if should_run():
             enable_sp1_dtoverlay_if_required()
