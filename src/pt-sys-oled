@@ -101,7 +101,7 @@ def main():
             if not device_found:
                 return
 
-            oled.device._set_exclusive_mode(False)
+            oled._set_exclusive_mode(False)
             oled.reset()
 
             played_boot_animation = path.exists(
