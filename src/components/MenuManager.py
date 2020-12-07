@@ -1,8 +1,8 @@
-from .components.Menu import (
+from components.Menu import (
     Menu,
     Menus,
 )
-from .components.helpers.button_press import ButtonPress
+from components.helpers.button_press import ButtonPress
 
 from pitop.miniscreen.buttons import (
     UpButton,

@@ -1,20 +1,20 @@
-from .components.Page import MenuPage
-from .components.widgets.sys_info import (
+from components.Page import MenuPage
+from components.widgets.sys_info import (
     batt_level,
     cpu_load,
     wifi,
     usb,
     ethernet
 )
-from .components.widgets.main import template as main_menu_page
-from .components.widgets.settings import (
+from components.widgets.main import template as main_menu_page
+from components.widgets.settings import (
     template as settings_menu_page,
     settings as setting_title,
 )
-from .components.widgets.projects import template as projects_menu_page
-from .components.widgets.first_time_setup import first_time_setup
-from .components.widgets.error import template as error_page
-from .components.helpers.menu_page_actions import (
+from components.widgets.projects import template as projects_menu_page
+from components.widgets.first_time_setup import first_time_setup
+from components.widgets.error import template as error_page
+from components.helpers.menu_page_actions import (
     change_ssh_enabled_state,
     change_vnc_enabled_state,
     change_pt_further_link_enabled_state,
