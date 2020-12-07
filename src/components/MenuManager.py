@@ -29,13 +29,13 @@ class MenuManager:
         self.down_button = DownButton()
         self.select_button = SelectButton()
         self.cancel_button = CancelButton()
-        self.up_button.when_pressed = self.add_button_press_to_stack(
+        self.up_button.when_pressed = self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.UP))
-        self.down_button.when_pressed = self.add_button_press_to_stack(
+        self.down_button.when_pressed = self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.DOWN))
-        self.select_button.when_pressed = self.add_button_press_to_stack(
+        self.select_button.when_pressed = self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.SELECT))
-        self.cancel_button.when_pressed = self.add_button_press_to_stack(
+        self.cancel_button.when_pressed = self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.CANCEL))
 
         self.__button_press_stack = []

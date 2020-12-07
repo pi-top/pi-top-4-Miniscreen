@@ -107,7 +107,7 @@ def main():
             played_boot_animation = path.exists(
                 boot_animation_played_breadcrumb)
             if not played_boot_animation:
-                oled.play_animated_image(
+                oled.play_animated_image_file(
                     get_image_file("startup/pi-top_startup.gif"))
 
             app = MenuManager(oled)
