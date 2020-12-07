@@ -57,8 +57,6 @@ def should_run():
         PTLogger.info(
             "Could not determine pi-top hub type from pt-device-manager. Exiting...")
 
-    return False
-
     PTLogger.info("Not running on a pi-top [4]. Exiting...")
     return False
 
