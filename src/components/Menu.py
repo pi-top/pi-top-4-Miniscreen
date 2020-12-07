@@ -237,9 +237,17 @@ class PageHelper:
 class Menu:
     def __init__(self, name, device_width, device_height, device_mode, callback_client):
         self.name = name
-        # TODO: review parent functionality
         self.parent = None
         self.pages = list()
+
+        if self.name == Menus.MAIN_MENU:
+            self.parent = Menus.SYS_INFO
+
+        elif self.name == Menus.PROJECTS:
+            self.parent = Menus.MAIN_MENU
+
+        elif self.name == Menus.SETTINGS:
+            self.parent = Menus.MAIN_MENU
 
         self.__device_width = device_width
         self.__device_height = device_height
