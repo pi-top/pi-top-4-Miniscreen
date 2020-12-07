@@ -115,7 +115,7 @@ class MenuManager:
 
         if force or self.current_menu.should_redraw():
             PTLogger.debug("Updating image on OLED display")
-            self.oled.display(self.current_menu.image)
+            self.oled.device.display(self.current_menu.image)
             self.current_menu.last_displayed_image = self.current_menu.image
 
     def update_state(self):
