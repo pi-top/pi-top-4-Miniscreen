@@ -18,10 +18,19 @@ from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/usb.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/usb.gif"),
+            loop=False,
+            playback_speed=2.0,
+        )
 
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
@@ -34,7 +43,13 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/usb.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/usb.gif"),
+            loop=False,
+            playback_speed=2.0,
+        )
 
         self.ptusb0_ip = ""
         self.connected_device_ip = ""
@@ -55,6 +70,9 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
                 image_path=get_image_file("sys_info/usb.gif"),
                 loop=False,
                 playback_speed=2.0,

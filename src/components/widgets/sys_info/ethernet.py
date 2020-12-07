@@ -10,10 +10,19 @@ from ipaddress import ip_address
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/lan.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/lan.gif"),
+            loop=False,
+            playback_speed=2.0
+        )
 
         self.eth0_ip = ""
         self.initialised = False
@@ -22,6 +31,9 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
             image_path=get_image_file("sys_info/lan.gif"),
             loop=False,
             playback_speed=2.0,
@@ -43,6 +55,9 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
                 image_path=get_image_file("sys_info/lan.gif"),
                 loop=False,
                 playback_speed=2.0,

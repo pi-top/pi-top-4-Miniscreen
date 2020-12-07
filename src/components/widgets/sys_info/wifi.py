@@ -31,9 +31,15 @@ def wifi_strength_image():
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
             image_path=get_image_file("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
@@ -48,6 +54,9 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
             image_path=get_image_file("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
@@ -78,6 +87,9 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
                 image_path=get_image_file("sys_info/wifi.gif"),
                 loop=False,
                 playback_speed=2.0,
@@ -114,7 +126,12 @@ class Hotspot(BaseHotspot):
         if self.initialised and not self.gif.is_animating():
             if self.is_connected() and self.gif.finished:
                 wifi_bars = ImageComponent(
-                    xy=(5, 0), image_path=self.wifi_bars_image, loop=True
+                    device_mode=self.mode,
+                    width=self.width,
+                    height=self.height,
+                    xy=(5, 0),
+                    image_path=self.wifi_bars_image,
+                    loop=True,
                 )
                 wifi_bars.render(draw)
 
