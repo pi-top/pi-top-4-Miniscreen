@@ -1,13 +1,10 @@
-from .components.Menu import (
+from .Menu import (
     Menu,
     Menus,
 )
-from .components.helpers.button_press import ButtonPress
+from .helpers.button_press import ButtonPress
 
-from pitop.miniscreen.buttons import (
-    _set_exclusive_mode as _set_buttons_exclusive_mode,
-    CaseButtons,
-)
+from pitop.miniscreen.buttons import CaseButtons
 
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
@@ -25,9 +22,8 @@ class MenuManager:
 
         self.current_menu = None
 
-        _set_buttons_exclusive_mode(False)
-
         self.__buttons = CaseButtons()
+        self.__buttons._set_exclusive_mode(False)
 
         self.__buttons.up.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.UP))
@@ -149,6 +145,7 @@ class MenuManager:
                 f"{self.current_menu.name}: {self.current_menu.page.name}"
             )
 
+            self.current_menu.refresh()
             self.__oled.device.display(self.current_menu.image)
             self.current_menu.last_displayed_image = self.current_menu.image
 
