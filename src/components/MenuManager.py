@@ -87,7 +87,7 @@ class MenuManager:
             if menu_to_go_to == Menus.PROJECTS:
                 self.current_menu.update_pages()
             self.current_menu.refresh(force=True)
-            self.__draw_current_menu_page_to_oled()
+            self.__draw_current_menu_page_to_oled(force=True)
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
