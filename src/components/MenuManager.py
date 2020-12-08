@@ -4,7 +4,7 @@ from .Menu import (
 )
 from .helpers.button_press import ButtonPress
 
-from pitop.miniscreen.buttons import CaseButtons
+from pitop.miniscreen.buttons import Buttons
 
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
@@ -22,7 +22,7 @@ class MenuManager:
 
         self.current_menu = None
 
-        self.__buttons = CaseButtons()
+        self.__buttons = Buttons()
         self.__buttons._set_exclusive_mode(False)
 
         self.__buttons.up.when_pressed = lambda: self.__add_button_press_to_stack(
