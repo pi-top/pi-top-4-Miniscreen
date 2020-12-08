@@ -3,7 +3,7 @@ from components.widgets.common.functions import draw_text, align_to_middle
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
 
         self.title = data.get("title")

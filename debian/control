@@ -2,22 +2,22 @@ Source: pt-sys-oled
 Section: utils
 Priority: optional
 Maintainer: pi-top <deb-maintainers@pi-top.com>
-Build-Depends: debhelper-compat (= 12),
- dh-sequence-python3
+Build-Depends:
+ debhelper-compat (= 12),
+ dh-sequence-python3,
 Standards-Version: 4.5.0
 Homepage: https://pi-top.com/
 
 Package: pt-sys-oled
 Architecture: any
-Depends: ${misc:Depends},
+Depends:
+ ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
 # 'dtoverlay' command
  libraspberrypi-bin,
-# Listening for button presses requires talking to the device manager
- pt-device-manager,
-# 'pi-top host' command - TODO: replace with direct call to device manager
+# API hardware calls
  python3-pitop,
  python3-pitopcommon,
 # Python libs required for common functions
@@ -27,8 +27,9 @@ Depends: ${misc:Depends},
 # Required to talk to the device manager
 # This functionality should probably be moved into the buttons library
  python3-zmq,
-Recommends: autorandr (>= 1.9),
- pt-further-link
+Recommends:
+ autorandr (>= 1.9),
+ pt-further-link,
 Description: pi-top [4] OLED system menu application
  Display and control important system settings/information
  on the pi-top [4]'s onboard OLED screen. Navigation is

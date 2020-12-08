@@ -13,19 +13,20 @@ from logging import (
 )
 from argparse import ArgumentParser
 from luma.core.error import DeviceNotFoundError
+from pathlib import Path
 from os import path
 from time import sleep
-from PIL import Image
-from pathlib import Path
 
-from pitopcommon.pt_os import is_pi_top_os
-from pitopcommon.sys_info import is_pi
 from pitopcommon.logger import PTLogger
 from pitopcommon.command_runner import run_command
 from pitopcommon.common_names import DeviceName
-from pitop.miniscreen.oled import OLEDDisplay, get_device_instance
+
+from pitop.system.device import device_type
+from pitop.miniscreen.oled import OLED
 
 from components.widgets.common.functions import get_image_file
+from components.MenuManager import MenuManager
+
 
 # TODO: replace with check of file system size; remove patch from preinst
 fs_expanded_breadcrumb = "/etc/pi-top/.expandedFs"
@@ -41,7 +42,7 @@ def configure_logging():
     getLogger('PIL').setLevel(ERROR)
 
 
-def configure_interrupt_signals():
+def configure_interrupt_signals(app):
     def signal_handler(signal, frame):
         PTLogger.debug("Stopping...")
         app.stop()
@@ -51,28 +52,14 @@ def configure_interrupt_signals():
 
 
 def should_run():
+    try:
+        return device_type() == DeviceName.pi_top_4.value
+    except Exception:
+        PTLogger.info(
+            "Could not determine pi-top hub type from pt-device-manager. Exiting...")
 
-    if is_pi():
-        try:
-            host_device = run_command("pi-top host", timeout=5).strip()
-        except Exception:
-            PTLogger.info(
-                "Could not determine host device type from pt-device-manager. Exiting...")
-            return False
-
-        if host_device == DeviceName.pi_top_4.value:
-            return True
-
-        PTLogger.info("Not running on a pi-top [4]. Exiting...")
-        return False
-    else:
-        PTLogger.info("Not running on a pi. Running in debug mode...")
-        return True
-
-
-def setup():
-    configure_logging()
-    configure_interrupt_signals()
+    PTLogger.info("Not running on a pi-top [4]. Exiting...")
+    return False
 
 
 def enable_sp1_dtoverlay_if_required():
@@ -81,103 +68,66 @@ def enable_sp1_dtoverlay_if_required():
         sleep(1)
 
 
-def play_boot_animation(oled_device):
-    PTLogger.info("Playing boot animation...")
-    img_path = get_image_file("startup/pi-top_startup.gif")
-    image = Image.open(img_path)
-    frame_no = 0
-
-    fs_breadcrumb_exists = path.exists(fs_expanded_breadcrumb)
-    one_loop_only = not is_pi_top_os() or fs_breadcrumb_exists
-
-    while True:
-        # Get current frame
-        image.seek(frame_no)
-
-        # Set black background
-        background = Image.new(
-            "RGB",
-            oled_device.size,
-            "black"
-        )
-
-        # Paste image onto background
-        background.paste(
-            image.resize(oled_device.size)
-        )
-
-        # Render
-        oled_device.display(
-            background.convert(oled_device.mode)
-        )
-
-        # Get frame length
-        embedded_frame_speed_s = float(image.info["duration"] / 1000)
-
-        # Wait for frame length
-        sleep(embedded_frame_speed_s)
-
-        if frame_no == image.n_frames - 1:
-            # Completed one pass
-            if one_loop_only:
-                Path(boot_animation_played_breadcrumb).touch()
-                break
-            frame_no = 0
-        else:
-            frame_no = frame_no + 1
+def get_parser():
+    parser = ArgumentParser(description="pi-top OLED sys menu")
+    parser.add_argument(
+        "--log-level",
+        type=int,
+        help="set the logging level from 10 (more verbose) to 50 (less verbose)",
+        default=20,
+    )
+    return parser
 
 
-if __name__ == "__main__":
+def main():
     try:
-        setup()
-        parser = ArgumentParser(description="pi-top OLED sys menu")
-        parser.add_argument(
-            "--emulator", help="run in on-screen emulator, not to OLED", action="store_true"
-        )
-        parser.add_argument(
-            "--no-journal", help="output to stdout not the journal", action="store_true"
-        )
-        parser.add_argument(
-            "--log-level",
-            type=int,
-            help="set the logging level from 10 (more verbose) to 50 (less verbose)",
-            default=20,
-        )
-        args = parser.parse_args()
+        args = get_parser().parse_args()
 
+        configure_logging()
         PTLogger.setup_logging(logger_name="pt-sys-oled",
-                               logging_level=args.log_level, log_to_journal=args.no_journal is False)
+                               logging_level=args.log_level,
+                               log_to_journal=False)
 
         if should_run():
             enable_sp1_dtoverlay_if_required()
 
-            # By getting the device at this early stage, we make sure the instance we get
-            # for the sys-oled is non-exclusive. That is, we don't want to block other
-            # OLED applications from using the device. When another application does lock
-            # the device, then the sys-oled should detect that and stop rendering.
-            device_found = True
+            device_found = False
             try:
-                _device = get_device_instance(
-                    emulator=args.emulator, exclusive=False)
+                oled = OLED()
+                device_found = True
             except DeviceNotFoundError as e:
-                device_found = False
                 PTLogger.error(f"Error getting device: {str(e)}")
 
             # If device is not found, exit normally to avoid restarting the service repeatedly
-            if device_found:
-                from components.MenuManager import MenuManager
+            if not device_found:
+                return
 
-                oled = OLEDDisplay()
-                oled.reset()
+            oled._set_exclusive_mode(False)
+            oled.reset()
 
-                played_boot_animation = path.exists(
-                    boot_animation_played_breadcrumb)
-                if not played_boot_animation:
-                    play_boot_animation(_device)
+            already_played_boot_animation = path.exists(
+                boot_animation_played_breadcrumb)
+            if not already_played_boot_animation:
+                PTLogger.info("Not played boot animation this session")
+                PTLogger.info("Starting startup animation")
+                oled.play_animated_image_file(
+                    get_image_file("startup/pi-top_startup.gif"),
+                    background=False,
+                    loop=False,
+                )
+                PTLogger.info("Finished startup animation")
+                Path(boot_animation_played_breadcrumb).touch()
 
-                app = MenuManager()
-                app.main_loop()
-                app.stop()
+            PTLogger.info("Setting up application")
+            app = MenuManager(oled)
+            configure_interrupt_signals(app)
+            PTLogger.info("Starting application")
+            app.main_loop()
+            app.stop()
 
     except KeyboardInterrupt:
         pass
+
+
+if __name__ == "__main__":
+    main()

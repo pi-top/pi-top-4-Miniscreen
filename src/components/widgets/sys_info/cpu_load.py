@@ -13,10 +13,14 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.image = ImageComponent(
-            image_path=get_image_file("sys_info/cpu.gif"), loop=False
+            device_mode=mode,
+            width=width,
+            height=height,
+            image_path=get_image_file("sys_info/cpu.gif"),
+            loop=False,
         )
 
     def render(self, draw, width, height):

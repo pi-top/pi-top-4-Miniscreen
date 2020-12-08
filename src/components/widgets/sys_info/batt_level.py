@@ -1,36 +1,30 @@
+from pitop.battery import Battery
+
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/battery_shell_empty.gif"), loop=False
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/battery_shell_empty.gif"),
+            loop=False,
         )
 
-        self.charging_state = None
-        self.capacity = None
-
-        self.get_battery_charging_state = data.get("battery_charging_state")
-        self.get_battery_capacity = data.get("battery_capacity")
-
-    def is_charging(self):
-        try:
-            charging = int(self.charging_state) == 1
-            fully_charged = int(self.charging_state) == 2
-            return charging or fully_charged
-        except ValueError:
-            return False
-
-    def update_battery_state(self):
-        self.charging_state = self.get_battery_charging_state()
-        self.capacity = self.get_battery_capacity()
+        self.battery = Battery()
+        # TODO: do initial query, then handle updates via battery class's internal subscribe client
 
     def draw_battery_percentage(self, draw, width, height):
         try:
-            percentage = int(self.capacity)
+            percentage = int(self.battery.capacity)
         except ValueError:
             percentage = 0
 
@@ -47,15 +41,22 @@ class Hotspot(BaseHotspot):
         )
 
     def render(self, draw, width, height):
-        self.update_battery_state()
-
-        if self.is_charging():
+        if self.battery.charging or self.battery.full:
             self.gif = ImageComponent(
-                image_path=get_image_file("sys_info/battery_shell_charging.gif"), loop=False
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file(
+                    "sys_info/battery_shell_charging.gif"),
+                loop=False
             )
         else:
             self.gif = ImageComponent(
-                image_path=get_image_file("sys_info/battery_shell_empty.gif"), loop=False
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file("sys_info/battery_shell_empty.gif"),
+                loop=False
             )
             self.draw_battery_percentage(draw, width, height)
 
@@ -63,10 +64,10 @@ class Hotspot(BaseHotspot):
 
         x_margin = 69
         y_margin = 21
-        if self.capacity is None:
+        if self.battery.capacity is None:
             battery_capacity_text = "Unknown"
         else:
-            battery_capacity_text = str(self.capacity) + "%"
+            battery_capacity_text = str(self.battery.capacity) + "%"
         draw_text(
             draw, xy=(
                 x_margin, y_margin), text=battery_capacity_text, font_size=18
