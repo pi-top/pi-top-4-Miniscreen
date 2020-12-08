@@ -270,13 +270,19 @@ class Menu:
             self.__callback_client
         ).get_pages_for_menu(self.name)
 
-    def get_page(self, page_index):
-        return self.pages[page_index]
+    @property
+    def page_number(self):
+        return self.__page_index
 
-    def set_page_index(self, page_index):
+    @page_number.setter
+    def page_number(self, page_index):
         PTLogger.info("Moving page: " +
                       str(self.get_current_page().name))
+
         self.__page_index = page_index
+
+    def get_page(self, page_index):
+        return self.pages[page_index]
 
     def get_current_hotspot(self):
         return self.get_page(self.__page_index).hotspot

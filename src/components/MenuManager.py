@@ -29,13 +29,13 @@ class MenuManager:
         self.down_button = DownButton()
         self.select_button = SelectButton()
         self.cancel_button = CancelButton()
-        self.up_button.when_pressed = self.__add_button_press_to_stack(
+        self.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.UP))
-        self.down_button.when_pressed = self.__add_button_press_to_stack(
+        self.down_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.DOWN))
-        self.select_button.when_pressed = self.__add_button_press_to_stack(
+        self.select_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.SELECT))
-        self.cancel_button.when_pressed = self.__add_button_press_to_stack(
+        self.cancel_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.CANCEL))
 
         self.__button_press_stack = []
@@ -61,14 +61,23 @@ class MenuManager:
             self.change_menu(Menus.SYS_INFO)
 
     def __add_button_press_to_stack(self, button_press_event):
-        if (
-            not self.oled.is_active()
-            and not self.__button_locks_exist()
-            and button_press_event.event_type != ButtonPress.ButtonType.NONE
-        ):
+        if self.oled.is_active():
             PTLogger.info(
-                "Adding " + str(button_press_event.event_type) + " to stack")
-            self.__button_press_stack.append(button_press_event)
+                f"OLED is active - skipping button press: {str(button_press_event.event_type)}")
+            return
+
+        if self.__button_lock_exists():
+            PTLogger.info(
+                f"Buttons lock exists - skipping button press: {str(button_press_event.event_type)}")
+            return
+
+        if button_press_event.event_type == ButtonPress.ButtonType.NONE:
+            PTLogger.info("NONE button type - skipping button press")
+            return
+
+        PTLogger.info(
+            "Adding " + str(button_press_event.event_type) + " to stack")
+        self.__button_press_stack.append(button_press_event)
 
     def stop(self):
         self.__continue = False
@@ -100,7 +109,7 @@ class MenuManager:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
-    def __button_locks_exist(self):
+    def __button_lock_exists(self):
         locks_exist = False
         for filepath in listdir("/tmp"):
             if compile("pt-buttons-.*.lock").match(filepath):
@@ -129,18 +138,18 @@ class MenuManager:
 
         def _get_page_no_to_move_to(forwards):
             if forwards:
-                on_first_page = self.current_menu.page_index == 0
+                on_first_page = self.current_menu.page_number == 0
                 return (
                     len(self.current_menu.pages) - 1
                     if on_first_page
-                    else self.current_menu.page_index - 1
+                    else self.current_menu.page_number - 1
                 )
             else:
                 on_last_page = (
-                    self.current_menu.page_index == len(
+                    self.current_menu.page_number == len(
                         self.current_menu.pages) - 1
                 )
-                return 0 if on_last_page else self.current_menu.page_index + 1
+                return 0 if on_last_page else self.current_menu.page_number + 1
 
         def _call_func_if_callable(func):
             if func is not None:
@@ -157,7 +166,7 @@ class MenuManager:
                 if button_press.is_direction():
                     forwards = button_press.event_type == ButtonPress.ButtonType.UP
                     new_page = _get_page_no_to_move_to(forwards)
-                    self.current_menu.set_page_index(new_page)
+                    self.current_menu.page_number = new_page
                     self.current_menu.refresh(force=True)
                     self.draw_current_menu_page_to_oled()
                     self.__current_page_frame_counter = 0
