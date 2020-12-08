@@ -2,9 +2,9 @@
 # See LICENSE.rst for details.
 
 import psutil
-from .components.widgets.common.base_widget_hotspot import BaseHotspot
-from .components.widgets.common.functions import get_image_file
-from .components.widgets.common.image_component import ImageComponent
+from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.functions import get_image_file
+from components.widgets.common.image_component import ImageComponent
 
 
 def vertical_bar(draw, x1, y1, x2, y2, yh):

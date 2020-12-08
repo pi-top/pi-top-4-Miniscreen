@@ -137,7 +137,7 @@ class MenuManager:
 
     def __draw_current_menu_page_to_oled(self, force=False):
         if force:
-            PTLogger.debug("Forcing redraw")
+            PTLogger.info("Forcing redraw")
 
         if force or self.current_menu.should_redraw():
             PTLogger.info(
@@ -147,7 +147,7 @@ class MenuManager:
 
             self.current_menu.refresh()
             self.__oled.device.display(self.current_menu.image)
-            self.current_menu.last_displayed_image = self.current_menu.image
+            self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
         # TODO: move into separate class

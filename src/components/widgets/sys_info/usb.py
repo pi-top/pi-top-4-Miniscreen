@@ -6,15 +6,15 @@ from pitopcommon.sys_info import (
     get_address_for_ptusb_connected_device
 )
 from pitopcommon.pt_os import is_pi_using_default_password
-from .components.widgets.common.functions import draw_text, get_image_file
-from .components.widgets.common.values import (
+from components.widgets.common.functions import draw_text, get_image_file
+from components.widgets.common.values import (
     default_margin_x,
     common_second_line_y,
     common_first_line_y,
     common_third_line_y,
 )
-from .components.widgets.common.base_widget_hotspot import BaseHotspot
-from .components.widgets.common.image_component import ImageComponent
+from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):

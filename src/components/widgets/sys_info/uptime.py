@@ -3,9 +3,9 @@
 
 from datetime import datetime
 import psutil
-from .components.widgets.common.functions import title_text, right_text
-from .components.widgets.common.values import default_margin_y
-from .components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.functions import title_text, right_text
+from components.widgets.common.values import default_margin_y
+from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 class Hotspot(BaseHotspot):

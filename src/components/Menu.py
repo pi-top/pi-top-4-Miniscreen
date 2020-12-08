@@ -1,20 +1,19 @@
-from .components.Page import MenuPage
-from .components.widgets.sys_info import (
+from .widgets.sys_info import (
     batt_level,
     cpu_load,
     wifi,
     usb,
     ethernet
 )
-from .components.widgets.main import template as main_menu_page
-from .components.widgets.settings import (
+from .widgets.main import template as main_menu_page
+from .widgets.settings import (
     template as settings_menu_page,
     settings as setting_title,
 )
-from .components.widgets.projects import template as projects_menu_page
-from .components.widgets.first_time_setup import first_time_setup
-from .components.widgets.error import template as error_page
-from .components.helpers.menu_page_actions import (
+from .widgets.projects import template as projects_menu_page
+from .widgets.first_time_setup import first_time_setup
+from .widgets.error import template as error_page
+from .helpers.menu_page_actions import (
     change_ssh_enabled_state,
     change_vnc_enabled_state,
     change_pt_further_link_enabled_state,
@@ -41,6 +40,17 @@ class Menus(Enum):
     SETTINGS = 3
     WIFI_SETUP = 4
     FIRST_TIME = 5
+
+
+class MenuPage:
+    """Base view on screen"""
+
+    def __init__(self, name, hotspot, select_action_func, cancel_action_func):
+        """Constructor for MenuPage"""
+        self.select_action_func = select_action_func
+        self.cancel_action_func = cancel_action_func
+        self.hotspot = hotspot
+        self.name = name
 
 
 class PageHelper:
@@ -258,7 +268,8 @@ class Menu:
         self.__page_index = 0
         self.__last_displayed_image = None
 
-        self.image = Image.new(device_mode, (device_width, device_height))
+        self.image = Image.new(
+            self.__device_mode, (self.__device_width, self.__device_height))
 
         self.update_pages()
 
@@ -276,9 +287,8 @@ class Menu:
 
     @page_number.setter
     def page_number(self, page_index):
-        PTLogger.info(f"Moving page: {self.page.name}")
-
         self.__page_index = page_index
+        PTLogger.info(f"{self.name}: Moved to page: {self.page.name}")
         self.refresh(force=True)
 
     @property
@@ -290,17 +300,38 @@ class Menu:
         return self.page.hotspot
 
     def __render_current_hotspot_to_image(self, force=False):
-        if force or self.hotspot.should_redraw():
+        if force:
+            PTLogger.info(
+                f"{self.name}: Forcing redraw of {self.page.name} to image")
+
+        redraw = self.hotspot.should_redraw()
+        if redraw:
+            PTLogger.debug(
+                f"{self.name}: Hotspot {self.page.name} requested a redraw to image")
+
+        if force or redraw:
+            self.image = Image.new(
+                self.__device_mode, (self.__device_width, self.__device_height))
             # Calls each hotspot's render() function
-            PTLogger.info(f"{self.page.name} - pasted into")
             self.hotspot.paste_into(self.image, (0, 0))
 
+    def set_current_image_as_rendered(self):
+        self.__last_displayed_image = self.image
+
+    def __image_updated(self):
+        return self.image != self.__last_displayed_image
+
     def should_redraw(self):
-        not_yet_shown = self.__last_displayed_image is None
-        image_updated = self.image != self.__last_displayed_image
-        if image_updated:
-            PTLogger.info("Image updated")
-        return not_yet_shown or image_updated
+        if self.__last_displayed_image is None:
+            PTLogger.debug(f"{self.name}: Not yet drawn image")
+            return True
+
+        if self.__image_updated():
+            PTLogger.debug(f"{self.name}: Image updated")
+            return True
+
+        PTLogger.debug(f"{self.name}: Nothing to redraw")
+        return False
 
     def refresh(self, force=False):
         if force:

@@ -3,14 +3,14 @@ from pitopcommon.sys_info import (
     get_internal_ip,
     get_network_strength,
 )
-from .components.widgets.common.functions import draw_text, get_image_file
-from .components.widgets.common.values import (
+from components.widgets.common.functions import draw_text, get_image_file
+from components.widgets.common.values import (
     default_margin_x,
     common_second_line_y,
     common_third_line_y,
 )
-from .components.widgets.common.base_widget_hotspot import BaseHotspot
-from .components.widgets.common.image_component import ImageComponent
+from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.image_component import ImageComponent
 from ipaddress import ip_address
 
 

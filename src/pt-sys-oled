@@ -24,8 +24,8 @@ from pitopcommon.common_names import DeviceName
 from pitop.system.device import device_type
 from pitop.miniscreen.oled import OLED
 
-from .components.widgets.common.functions import get_image_file
-from .components.MenuManager import MenuManager
+from components.widgets.common.functions import get_image_file
+from components.MenuManager import MenuManager
 
 
 # TODO: replace with check of file system size; remove patch from preinst
@@ -116,7 +116,7 @@ def main():
                     loop=False,
                 )
                 PTLogger.info("Finished startup animation")
-                Path(already_played_boot_animation).touch()
+                Path(boot_animation_played_breadcrumb).touch()
 
             PTLogger.info("Setting up application")
             app = MenuManager(oled)
