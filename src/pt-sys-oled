@@ -13,6 +13,7 @@ from logging import (
 )
 from argparse import ArgumentParser
 from luma.core.error import DeviceNotFoundError
+from pathlib import Path
 from os import path
 from time import sleep
 
@@ -20,7 +21,7 @@ from pitopcommon.logger import PTLogger
 from pitopcommon.command_runner import run_command
 from pitopcommon.common_names import DeviceName
 
-from pitop.system.devices import device_type
+from pitop.system.device import device_type
 from pitop.miniscreen.oled import OLED
 
 from components.widgets.common.functions import get_image_file
@@ -104,14 +105,23 @@ def main():
             oled._set_exclusive_mode(False)
             oled.reset()
 
-            played_boot_animation = path.exists(
+            already_played_boot_animation = path.exists(
                 boot_animation_played_breadcrumb)
-            if not played_boot_animation:
+            if not already_played_boot_animation:
+                PTLogger.info("Not played boot animation this session")
+                PTLogger.info("Starting startup animation")
                 oled.play_animated_image_file(
-                    get_image_file("startup/pi-top_startup.gif"))
+                    get_image_file("startup/pi-top_startup.gif"),
+                    background=False,
+                    loop=False,
+                )
+                PTLogger.info("Finished startup animation")
+                Path(already_played_boot_animation).touch()
 
+            PTLogger.info("Setting up application")
             app = MenuManager(oled)
             configure_interrupt_signals(app)
+            PTLogger.info("Starting application")
             app.main_loop()
             app.stop()
 
