@@ -4,8 +4,8 @@
 import math
 import datetime
 
-from components.widgets.common.functions import title_text, draw_text
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from .components.widgets.common.functions import title_text, draw_text
+from .components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 def posn(angle, arm_length):

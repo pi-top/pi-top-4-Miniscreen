@@ -1,7 +1,7 @@
 import datetime
-from components.widgets.common.functions import title_text, draw_text, align_to_middle
-from components.widgets.common.values import common_first_line_y, common_second_line_y
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from .components.widgets.common.functions import title_text, draw_text, align_to_middle
+from .components.widgets.common.values import common_first_line_y, common_second_line_y
+from .components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 class Hotspot(BaseHotspot):

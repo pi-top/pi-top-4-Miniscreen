@@ -1,5 +1,5 @@
-from components.widgets.common.base_widget_hotspot import BaseHotspot
-from components.widgets.common.functions import draw_text, align_to_middle
+from .components.widgets.common.base_widget_hotspot import BaseHotspot
+from .components.widgets.common.functions import draw_text, align_to_middle
 
 
 class Hotspot(BaseHotspot):

@@ -1,20 +1,20 @@
-from components.Page import MenuPage
-from components.widgets.sys_info import (
+from .components.Page import MenuPage
+from .components.widgets.sys_info import (
     batt_level,
     cpu_load,
     wifi,
     usb,
     ethernet
 )
-from components.widgets.main import template as main_menu_page
-from components.widgets.settings import (
+from .components.widgets.main import template as main_menu_page
+from .components.widgets.settings import (
     template as settings_menu_page,
     settings as setting_title,
 )
-from components.widgets.projects import template as projects_menu_page
-from components.widgets.first_time_setup import first_time_setup
-from components.widgets.error import template as error_page
-from components.helpers.menu_page_actions import (
+from .components.widgets.projects import template as projects_menu_page
+from .components.widgets.first_time_setup import first_time_setup
+from .components.widgets.error import template as error_page
+from .components.helpers.menu_page_actions import (
     change_ssh_enabled_state,
     change_vnc_enabled_state,
     change_pt_further_link_enabled_state,
@@ -276,32 +276,33 @@ class Menu:
 
     @page_number.setter
     def page_number(self, page_index):
-        PTLogger.info("Moving page: " +
-                      str(self.get_current_page().name))
+        PTLogger.info(f"Moving page: {self.page.name}")
 
         self.__page_index = page_index
+        self.refresh(force=True)
 
-    def get_page(self, page_index):
-        return self.pages[page_index]
+    @property
+    def page(self):
+        return self.pages[self.__page_index]
 
-    def get_current_hotspot(self):
-        return self.get_page(self.__page_index).hotspot
-
-    def get_current_page(self):
-        return self.get_page(self.__page_index)
+    @property
+    def hotspot(self):
+        return self.page.hotspot
 
     def __render_current_hotspot_to_image(self, force=False):
-        hotspot = self.get_current_hotspot()
-        if force or hotspot.should_redraw():
+        if force or self.hotspot.should_redraw():
             # Calls each hotspot's render() function
-            hotspot.paste_into(self.image, (0, 0))
+            PTLogger.info(f"{self.page.name} - pasted into")
+            self.hotspot.paste_into(self.image, (0, 0))
 
     def should_redraw(self):
         not_yet_shown = self.__last_displayed_image is None
         image_updated = self.image != self.__last_displayed_image
+        if image_updated:
+            PTLogger.info("Image updated")
         return not_yet_shown or image_updated
 
     def refresh(self, force=False):
         if force:
-            self.get_current_hotspot().reset()
+            self.hotspot.reset()
         self.__render_current_hotspot_to_image(force)
