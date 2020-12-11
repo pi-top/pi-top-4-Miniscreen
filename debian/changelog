@@ -1,6 +1,11 @@
-pt-sys-oled (2.1.0) buster; urgency=medium
+pt-sys-oled (3.0.0) buster; urgency=medium
 
-  * ptcommon -> pitop.core
+  * Use python3-pitop and python3-pitopcommon components for all
+  device operations, including OLED, buttons and battery
+  * Remove viewport; each menu tracks its image to render
+  * Update SDK dpkg trigger
+  * Refactor architecture so that menus no longer have any access
+  to the display hardware
 
  -- Mike Roberts <mike@pi-top.com>  Tue, 03 Nov 2020 16:12:03 +0000
 
