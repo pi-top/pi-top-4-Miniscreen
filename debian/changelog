@@ -1,3 +1,10 @@
+pt-sys-oled (3.0.2) buster; urgency=medium
+
+  * Make systemd service unbuffered
+  * Do not process logging outside of PTLogger
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Dec 2020 17:31:16 +0000
+
 pt-sys-oled (3.0.1) buster; urgency=medium
 
   * Use singleton buttons object in SDK

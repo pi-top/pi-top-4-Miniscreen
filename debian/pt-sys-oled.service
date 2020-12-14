@@ -5,6 +5,7 @@ Documentation=https://knowledgebase.pi-top.com/knowledge
 [Service]
 Type=simple
 Restart=on-failure
+Environment="PYTHONUNBUFFERED=1"
 Environment="PYTHONDONTWRITEBYTECODE=1"
 ExecStart=/usr/lib/pt-sys-oled/pt-sys-oled
 
