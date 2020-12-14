@@ -1,3 +1,9 @@
+pt-sys-oled (3.0.3) buster; urgency=medium
+
+  * Add recommended dependencies: wmctrl, x11-xserver-utils
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Dec 2020 22:17:15 +0000
+
 pt-sys-oled (3.0.2) buster; urgency=medium
 
   * Make systemd service unbuffered

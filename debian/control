@@ -30,6 +30,10 @@ Depends:
 Recommends:
  autorandr (>= 1.9),
  pt-further-link,
+# Used for closing 'Screen Layout Editor' when resetting display
+ wmctrl,
+# Used for 'xset' when resetting DPMS
+ x11-xserver-utils,
 Description: pi-top [4] OLED system menu application
  Display and control important system settings/information
  on the pi-top [4]'s onboard OLED screen. Navigation is
