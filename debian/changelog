@@ -1,3 +1,9 @@
+pt-sys-oled (3.0.1) buster; urgency=medium
+
+  * Use singleton buttons object in SDK
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Dec 2020 14:25:23 +0000
+
 pt-sys-oled (3.0.0) buster; urgency=medium
 
   * Use python3-pitop and python3-pitopcommon components for all
