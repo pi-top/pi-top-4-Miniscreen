@@ -1,3 +1,9 @@
+pt-sys-oled (3.0.4) buster; urgency=medium
+
+  * Force redraw of menu page when regaining control of oled
+
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 14 Dec 2020 22:49:12 -0300
+
 pt-sys-oled (3.0.3) buster; urgency=medium
 
   * Add recommended dependencies: wmctrl, x11-xserver-utils

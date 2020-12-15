@@ -231,5 +231,5 @@ class MenuManager:
                     PTLogger.info("OLED control restored")
                     self.__oled.reset()
                     self.current_menu.refresh(force=True)
-                    self.__draw_current_menu_page_to_oled()
+                    self.__draw_current_menu_page_to_oled(force=True)
                 break
