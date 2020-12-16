@@ -41,7 +41,7 @@ class Hotspot(BaseHotspot):
         )
 
     def render(self, draw, width, height):
-        if self.battery.charging or self.battery.full:
+        if self.battery.is_charging or self.battery.is_full:
             self.gif = ImageComponent(
                 device_mode=self.mode,
                 width=self.width,
