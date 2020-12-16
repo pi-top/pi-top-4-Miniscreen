@@ -1,3 +1,9 @@
+pt-sys-oled (3.0.6) buster; urgency=medium
+
+  * Start pt-sys-oled after pt-device-manager
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 16 Dec 2020 18:47:36 +0000
+
 pt-sys-oled (3.0.5) buster; urgency=medium
 
   * Use 'is_' prefix for battery charging and full states from SDK

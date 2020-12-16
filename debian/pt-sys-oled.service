@@ -1,6 +1,8 @@
 [Unit]
 Description=pi-top OLED system menu
 Documentation=https://knowledgebase.pi-top.com/knowledge
+# Required to determine what type of device
+After=pt-device-manager.service
 
 [Service]
 Type=simple
