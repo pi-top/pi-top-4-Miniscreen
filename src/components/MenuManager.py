@@ -140,7 +140,7 @@ class MenuManager:
             PTLogger.info("Forcing redraw")
 
         if force or self.current_menu.should_redraw():
-            PTLogger.info(
+            PTLogger.debug(
                 "Updating image on OLED display - "
                 f"{self.current_menu.name}: {self.current_menu.page.name}"
             )
