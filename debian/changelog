@@ -1,3 +1,9 @@
+pt-sys-oled (3.0.8) buster; urgency=medium
+
+  * Keep track of USB connection status on a thread
+
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 28 Dec 2020 16:07:57 -0300
+
 pt-sys-oled (3.0.7) buster; urgency=medium
 
   * Reduce log level when updating displayed image
