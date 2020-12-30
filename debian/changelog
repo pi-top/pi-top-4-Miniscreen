@@ -1,3 +1,9 @@
+pt-sys-oled (3.1.0) buster; urgency=medium
+
+  * Loop pi-top logo while expanding filesystem
+
+ -- Jorge Capona <jorge@pi-top.com>  Wed, 30 Dec 2020 16:42:35 -0300
+
 pt-sys-oled (3.0.8) buster; urgency=medium
 
   * Keep track of USB connection status on a thread

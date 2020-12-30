@@ -97,16 +97,22 @@ def main():
 
             already_played_boot_animation = path.exists(
                 boot_animation_played_breadcrumb)
+            one_loop_only = path.exists(fs_expanded_breadcrumb)
             if not already_played_boot_animation:
                 PTLogger.info("Not played boot animation this session")
                 PTLogger.info("Starting startup animation")
-                oled.play_animated_image_file(
-                    get_image_file("startup/pi-top_startup.gif"),
-                    background=False,
-                    loop=False,
-                )
+
+                while True:
+                    oled.play_animated_image_file(
+                        get_image_file("startup/pi-top_startup.gif"),
+                        background=False,
+                        loop=False,
+                    )
+                    if one_loop_only:
+                        Path(boot_animation_played_breadcrumb).touch()
+                        break
+
                 PTLogger.info("Finished startup animation")
-                Path(boot_animation_played_breadcrumb).touch()
 
             PTLogger.info("Setting up application")
             app = MenuManager(oled)
