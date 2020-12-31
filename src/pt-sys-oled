@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from argparse import ArgumentParser
+from logging import (
+    getLogger,
+    ERROR
+)
+from luma.core.error import DeviceNotFoundError
+from os import path
+from pathlib import Path
 from signal import (
     signal,
     SIGINT,
     SIGTERM
 )
-from logging import (
-    getLogger,
-    ERROR
-)
-from argparse import ArgumentParser
-from luma.core.error import DeviceNotFoundError
-from pathlib import Path
-from os import path
+from sys import exit
 from time import sleep
 
 from pitopcommon.logger import PTLogger
@@ -46,6 +47,7 @@ def should_run():
     except Exception:
         PTLogger.info(
             "Could not determine pi-top hub type from pt-device-manager. Exiting...")
+        exit(1)
 
     PTLogger.info("Not running on a pi-top [4]. Exiting...")
     return False

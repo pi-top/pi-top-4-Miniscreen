@@ -1,3 +1,10 @@
+pt-sys-oled (3.2.0) buster; urgency=medium
+
+  * Service exits with error code if hub is not detected
+  * Configure pt-sys-oled service start rate limiting
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 31 Dec 2020 12:01:03 -0300
+
 pt-sys-oled (3.1.0) buster; urgency=medium
 
   * Loop pi-top logo while expanding filesystem
