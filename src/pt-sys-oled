@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import atexit
 from argparse import ArgumentParser
 from logging import (
     getLogger,
@@ -19,6 +20,10 @@ from time import sleep
 from pitopcommon.logger import PTLogger
 from pitopcommon.command_runner import run_command
 from pitopcommon.common_names import DeviceName
+from pitopcommon.ptdm import (
+    PTDMSubscribeClient,
+    Message,
+)
 
 from pitop.system.device import device_type
 from pitop.miniscreen.oled import OLED
@@ -31,12 +36,34 @@ from components.MenuManager import MenuManager
 fs_expanded_breadcrumb = "/etc/pi-top/.expandedFs"
 boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
 
+ptdm_subscribe_client = None
+app = None
+
+
+def setup_subscribe_client(callback):
+    global ptdm_subscribe_client
+    if ptdm_subscribe_client is None:
+        ptdm_subscribe_client = PTDMSubscribeClient()
+
+    ptdm_subscribe_client.initialise({
+        Message.PUB_OLED_SPI_BUS_CHANGED: ptdm_subscribe_client.invoke_callback_func_if_exists(
+            callback)
+    })
+    ptdm_subscribe_client.start_listening()
+    atexit.register(clean_up)
+
+
+def clean_up():
+    try:
+        global ptdm_subscribe_client
+        ptdm_subscribe_client.stop_listening()
+    except Exception:
+        pass
+
 
 def configure_interrupt_signals(app):
     def signal_handler(signal, frame):
-        PTLogger.debug("Stopping...")
         app.stop()
-        PTLogger.debug("Stopped!")
     signal(SIGINT, signal_handler)
     signal(SIGTERM, signal_handler)
 
@@ -53,9 +80,13 @@ def should_run():
     return False
 
 
-def enable_sp1_dtoverlay_if_required():
-    if not path.exists("/dev/spidev1.0"):
-        run_command("dtoverlay spi1-1cs", timeout=5)
+def enable_spi_dtoverlay_if_required():
+    spi_port_to_use = 1
+    PTLogger.info(f"Will use SPI port {spi_port_to_use}")
+    if not path.exists("/dev/spidev{spi_port_to_use}.0"):
+        PTLogger.info(
+            f"Overlay not loaded, running 'dtoverlay spi{spi_port_to_use}-1cs'")
+        run_command("dtoverlay spi{spi_port_to_use}-1cs", timeout=5)
         sleep(1)
 
 
@@ -70,6 +101,13 @@ def get_parser():
     return parser
 
 
+def restart_app():
+    PTLogger.info("Stopping app")
+    app.stop()
+    PTLogger.info("Running 'main'")
+    main()
+
+
 def main():
     try:
         args = get_parser().parse_args()
@@ -81,7 +119,8 @@ def main():
                                log_to_journal=False)
 
         if should_run():
-            enable_sp1_dtoverlay_if_required()
+            enable_spi_dtoverlay_if_required()
+            setup_subscribe_client(restart_app)
 
             device_found = False
             try:
