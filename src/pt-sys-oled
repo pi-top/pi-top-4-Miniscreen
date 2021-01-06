@@ -21,12 +21,12 @@ from pitopcommon.logger import PTLogger
 from pitopcommon.command_runner import run_command
 from pitopcommon.common_names import DeviceName
 from pitopcommon.ptdm import (
-    PTDMRequestClient,
     PTDMSubscribeClient,
     Message,
 )
 
 from pitop.system.device import device_type
+from pitop.system.daemon import get_oled_spi_port
 from pitop.miniscreen.oled import OLED
 
 from components.widgets.common.functions import get_image_file
@@ -40,17 +40,6 @@ boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
 exit_code = 0
 ptdm_subscribe_client = None
 app = None
-
-
-def get_oled_spi_port():
-    message = Message.from_parts(Message.REQ_GET_OLED_SPI_IN_USE, [])
-
-    with PTDMRequestClient() as request_client:
-        response = request_client.send_message(message)
-
-    return int(response.parameters()[0])
-
-
 spi_port_to_use = get_oled_spi_port()
 
 
