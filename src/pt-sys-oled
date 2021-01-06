@@ -21,6 +21,7 @@ from pitopcommon.logger import PTLogger
 from pitopcommon.command_runner import run_command
 from pitopcommon.common_names import DeviceName
 from pitopcommon.ptdm import (
+    PTDMRequestClient,
     PTDMSubscribeClient,
     Message,
 )
@@ -36,18 +37,35 @@ from components.MenuManager import MenuManager
 fs_expanded_breadcrumb = "/etc/pi-top/.expandedFs"
 boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
 
+exit_code = 0
 ptdm_subscribe_client = None
 app = None
 
 
-def setup_subscribe_client(callback):
+def get_oled_spi_port():
+    message = Message.from_parts(Message.REQ_GET_OLED_SPI_IN_USE, [])
+
+    with PTDMRequestClient() as request_client:
+        response = request_client.send_message(message)
+
+    return int(response.parameters()[0])
+
+
+spi_port_to_use = get_oled_spi_port()
+
+
+def setup_subscribe_client():
     global ptdm_subscribe_client
-    if ptdm_subscribe_client is None:
-        ptdm_subscribe_client = PTDMSubscribeClient()
+    if ptdm_subscribe_client is not None:
+        return
+    ptdm_subscribe_client = PTDMSubscribeClient()
+
+    def on_oled_spi_port_changed(parameters):
+        ptdm_subscribe_client.invoke_callback_func_if_exists(
+            stop_app, parameters())
 
     ptdm_subscribe_client.initialise({
-        Message.PUB_OLED_SPI_BUS_CHANGED: ptdm_subscribe_client.invoke_callback_func_if_exists(
-            callback)
+        Message.PUB_OLED_SPI_BUS_CHANGED: on_oled_spi_port_changed,
     })
     ptdm_subscribe_client.start_listening()
     atexit.register(clean_up)
@@ -81,12 +99,12 @@ def should_run():
 
 
 def enable_spi_dtoverlay_if_required():
-    spi_port_to_use = 1
+    global spi_port_to_use
     PTLogger.info(f"Will use SPI port {spi_port_to_use}")
-    if not path.exists("/dev/spidev{spi_port_to_use}.0"):
+    if not path.exists(f"/dev/spidev{spi_port_to_use}.0"):
         PTLogger.info(
             f"Overlay not loaded, running 'dtoverlay spi{spi_port_to_use}-1cs'")
-        run_command("dtoverlay spi{spi_port_to_use}-1cs", timeout=5)
+        run_command(f"dtoverlay spi{spi_port_to_use}-1cs", timeout=5)
         sleep(1)
 
 
@@ -101,11 +119,16 @@ def get_parser():
     return parser
 
 
-def restart_app():
-    PTLogger.info("Stopping app")
-    app.stop()
-    PTLogger.info("Running 'main'")
-    main()
+def stop_app(new_spi_port):
+    PTLogger.info(
+        f"SPI port used by OLED changed to {new_spi_port}... restarting app")
+    global app
+    if app:
+        app.stop()
+
+    global exit_code
+    # to restart the systemd service
+    exit_code = 1
 
 
 def main():
@@ -120,7 +143,7 @@ def main():
 
         if should_run():
             enable_spi_dtoverlay_if_required()
-            setup_subscribe_client(restart_app)
+            setup_subscribe_client()
 
             device_found = False
             try:
@@ -156,6 +179,8 @@ def main():
                 PTLogger.info("Finished startup animation")
 
             PTLogger.info("Setting up application")
+
+            global app
             app = MenuManager(oled)
             configure_interrupt_signals(app)
             PTLogger.info("Starting application")
@@ -168,3 +193,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    exit(exit_code)
