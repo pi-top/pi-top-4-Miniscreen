@@ -55,9 +55,12 @@ class Hotspot(BaseHotspot):
 
     def __update_connection_status(self):
         while True:
-            connected_device_ip = get_address_for_ptusb_connected_device()
-            self.is_connected.value = connected_device_ip != ""
-            sleep(0.3)
+            try:
+                connected_device_ip = get_address_for_ptusb_connected_device()
+                self.is_connected.value = connected_device_ip != ""
+                sleep(0.3)
+            except KeyboardInterrupt:
+                pass
 
     def reset(self):
         self.gif = ImageComponent(
