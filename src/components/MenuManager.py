@@ -108,7 +108,7 @@ class MenuManager:
             return
 
         PTLogger.info(
-            "Adding " + str(button_press_event.event_type) + " to stack")
+            "Queueing " + str(button_press_event.event_type) + " event for processing")
         self.__button_press_stack.append(button_press_event)
 
     def __sleep_oled(self):
@@ -137,7 +137,10 @@ class MenuManager:
 
     def __draw_current_menu_page_to_oled(self, force=False):
         if force:
-            PTLogger.info("Forcing redraw")
+            PTLogger.debug(
+                f"MenuManager: Forcing redraw of {self.current_menu.page.name}"
+                " to image before updating image on device"
+            )
 
         if force or self.current_menu.should_redraw():
             PTLogger.debug(

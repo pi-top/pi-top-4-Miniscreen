@@ -301,7 +301,7 @@ class Menu:
 
     def __render_current_hotspot_to_image(self, force=False):
         if force:
-            PTLogger.info(
+            PTLogger.debug(
                 f"{self.name}: Forcing redraw of {self.page.name} to image")
 
         redraw = self.hotspot.should_redraw()
