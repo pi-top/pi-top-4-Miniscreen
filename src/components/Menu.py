@@ -1,121 +1,339 @@
-from components.helpers import MenuHelper
+from .widgets.sys_info import (
+    batt_level,
+    cpu_load,
+    wifi,
+    usb,
+    ethernet
+)
+from .widgets.main import template as main_menu_page
+from .widgets.settings import (
+    template as settings_menu_page,
+    settings as setting_title,
+)
+from .widgets.projects import template as projects_menu_page
+from .widgets.first_time_setup import first_time_setup
+from .widgets.error import template as error_page
+from .helpers.menu_page_actions import (
+    change_ssh_enabled_state,
+    change_vnc_enabled_state,
+    change_pt_further_link_enabled_state,
+    reset_hdmi_configuration,
+    start_stop_project,
+)
 
-from ptcommon.sys_info import is_pi
-from ptcommon.logger import PTLogger
+from pitopcommon.logger import PTLogger
+from pitopcommon.sys_info import (
+    get_ssh_enabled_state,
+    get_vnc_enabled_state,
+    get_pt_further_link_enabled_state,
+)
 
-from ptoled import get_device_instance, reset_device_instance
+from PIL import Image
+from enum import Enum
+from os import path, listdir
 
-if is_pi():
-    from ptoled import PTOLEDDisplay
+
+class Menus(Enum):
+    SYS_INFO = 0
+    MAIN_MENU = 1
+    PROJECTS = 2
+    SETTINGS = 3
+    WIFI_SETUP = 4
+    FIRST_TIME = 5
+
+
+class MenuPage:
+    """Base view on screen"""
+
+    def __init__(self, name, hotspot, select_action_func, cancel_action_func):
+        """Constructor for MenuPage"""
+        self.select_action_func = select_action_func
+        self.cancel_action_func = cancel_action_func
+        self.hotspot = hotspot
+        self.name = name
+
+
+class PageHelper:
+    def __init__(self, device_width, device_height, device_mode, callback_client):
+        self.__device_width = device_width
+        self.__device_height = device_height
+        self.__device_mode = device_mode
+        self.__callback_client = callback_client
+
+    def __get_hotspot(self, widget, interval=0.0, **extra_data):
+        data = {
+            **{
+                "width": self.__device_width,
+                "height": self.__device_height,
+                "mode": self.__device_mode,
+                "interval": interval
+            },
+            **extra_data,
+        }
+        return widget.Hotspot(**data)
+
+    def get_pages_for_menu(self, menu_id):
+        pages = list()
+        if menu_id == Menus.SYS_INFO:
+            pages = [
+                MenuPage(
+                    name="battery",
+                    hotspot=self.__get_hotspot(
+                        batt_level,
+                        interval=1.0,
+                    ),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="cpu",
+                    hotspot=self.__get_hotspot(cpu_load, interval=0.5),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="wifi",
+                    hotspot=self.__get_hotspot(wifi, interval=1.0),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="ethernet",
+                    hotspot=self.__get_hotspot(ethernet, interval=1.0),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="usb",
+                    hotspot=self.__get_hotspot(usb, interval=1.0),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+            ]
+        elif menu_id == Menus.MAIN_MENU:
+            pages = [
+                MenuPage(
+                    name="Settings",
+                    hotspot=self.__get_hotspot(
+                        setting_title, title="Settings", interval=1.0),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.SETTINGS),
+                    cancel_action_func=None,
+                ),
+            ]
+        elif menu_id == Menus.SETTINGS:
+            pages = [
+                MenuPage(
+                    name="ssh_connection",
+                    hotspot=self.__get_hotspot(
+                        settings_menu_page,
+                        type="ssh",
+                        interval=1.0,
+                        get_state_method=get_ssh_enabled_state,
+                    ),
+                    select_action_func=lambda: change_ssh_enabled_state(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                ),
+                MenuPage(
+                    name="vnc_connection",
+                    hotspot=self.__get_hotspot(
+                        settings_menu_page,
+                        type="vnc",
+                        interval=1.0,
+                        get_state_method=get_vnc_enabled_state,
+                    ),
+                    select_action_func=lambda: change_vnc_enabled_state(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                ),
+                MenuPage(
+                    name="pt_further_link",
+                    hotspot=self.__get_hotspot(
+                        settings_menu_page,
+                        type="pt_further_link",
+                        interval=1.0,
+                        get_state_method=get_pt_further_link_enabled_state,
+                    ),
+                    select_action_func=lambda: change_pt_further_link_enabled_state(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                ),
+                MenuPage(
+                    name="hdmi_reset",
+                    hotspot=self.__get_hotspot(
+                        settings_menu_page,
+                        type="hdmi_reset",
+                        interval=0.0,
+                        get_state_method=None,
+                    ),
+                    select_action_func=lambda: reset_hdmi_configuration(),
+                    cancel_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                ),
+            ]
+        elif menu_id == Menus.FIRST_TIME:
+            pages = [
+                MenuPage(
+                    name="initial_setup",
+                    hotspot=self.__get_hotspot(first_time_setup, interval=1),
+                    select_action_func=None,
+                    cancel_action_func=None,
+                ),
+            ]
+        elif menu_id == Menus.PROJECTS:
+            project_dir = path.expanduser("~/Desktop/My Projects")
+            if path.exists(project_dir):
+                # For each directory in project path
+                project_subdirs = [
+                    name
+                    for name in sorted(listdir(project_dir))
+                    if path.isdir(path.join(project_dir, name))
+                ]
+                for project_subdir in project_subdirs:
+                    # Get name from path
+                    title = project_subdir
+                    project_path = project_dir + "/" + project_subdir
+
+                    pages.append(
+                        MenuPage(
+                            title,
+                            self.__get_hotspot(
+                                projects_menu_page, title=title, project_path=project_path
+                            ),
+                            start_stop_project(project_path),
+                            None,
+                        )
+                    )
+                if not pages:
+                    title = "No Projects Found"
+
+                    pages.append(
+                        MenuPage(
+                            title,
+                            self.__get_hotspot(
+                                main_menu_page, title=title, image_path=None
+                            ),
+                            None,
+                            None,
+                        )
+                    )
+            else:
+                title = "Project Directory"
+                second_line = "Not Found"
+
+                pages.append(
+                    MenuPage(
+                        title,
+                        self.__get_hotspot(
+                            error_page,
+                            title=title,
+                            second_line=second_line,
+                            image_path=None,
+                        ),
+                        None,
+                        None,
+                    )
+                )
+
+        return pages
 
 
 class Menu:
-    def __init__(self, name):
-        self.pages = list()
+    def __init__(self, name, device_width, device_height, device_mode, callback_client):
         self.name = name
         self.parent = None
-        self.page_index = 0
-        self.last_displayed_image = None
+        self.pages = list()
 
-        if self.name == MenuHelper.Menus.SYS_INFO:
-            pages = MenuHelper.get_sys_info_pages()
-        elif self.name == MenuHelper.Menus.MAIN_MENU:
-            self.parent = MenuHelper.Menus.SYS_INFO
-            pages = MenuHelper.get_pages(MenuHelper.Menus.MAIN_MENU)
-        elif self.name == MenuHelper.Menus.PROJECTS:
-            self.parent = MenuHelper.Menus.MAIN_MENU
-            pages = MenuHelper.get_pages(MenuHelper.Menus.PROJECTS)
-        elif self.name == MenuHelper.Menus.SETTINGS:
-            self.parent = MenuHelper.Menus.SETTINGS
-            pages = MenuHelper.get_pages(MenuHelper.Menus.SETTINGS)
-        elif self.name == MenuHelper.Menus.FIRST_TIME:
-            pages = MenuHelper.get_pages(MenuHelper.Menus.FIRST_TIME)
-        else:
-            raise Exception("Unrecognised menu name")
+        if self.name == Menus.MAIN_MENU:
+            self.parent = Menus.SYS_INFO
 
-        self.set_up_viewport(pages)
+        elif self.name == Menus.PROJECTS:
+            self.parent = Menus.MAIN_MENU
 
-    def set_up_viewport(self, pages):
-        self.pages = pages
-        self.viewport = MenuHelper.create_viewport(
-            get_device_instance(), self.pages)
+        elif self.name == Menus.SETTINGS:
+            self.parent = Menus.MAIN_MENU
 
-    def get_page_y_pos(self, page_index=None):
-        if page_index is None:
-            page_index = self.page_index
-        return page_index * get_device_instance().height
+        self.__device_width = device_width
+        self.__device_height = device_height
+        self.__device_mode = device_mode
 
-    def move_instantly_to_page(self, page_index):
-        self.page_index = page_index
-        PTLogger.info("Moving instantly to " +
-                      str(self.get_current_page().name))
+        self.__callback_client = callback_client
 
-        self.get_current_hotspot().reset()
-        self.refresh()
+        self.__page_index = 0
+        self.__last_displayed_image = None
 
-    def get_current_hotspot(self):
-        return self.get_page(self.page_index).hotspot
+        self.image = Image.new(
+            self.__device_mode, (self.__device_width, self.__device_height))
 
-    def get_page(self, page_index):
-        return self.pages[page_index]
+        self.update_pages()
 
-    def get_current_page(self):
-        return self.get_page(self.page_index)
+    def update_pages(self):
+        self.pages = PageHelper(
+            self.__device_width,
+            self.__device_height,
+            self.__device_mode,
+            self.__callback_client
+        ).get_pages_for_menu(self.name)
 
-    def last_page_no(self):
-        return len(self.pages) - 1
+    @property
+    def page_number(self):
+        return self.__page_index
+
+    @page_number.setter
+    def page_number(self, page_index):
+        self.__page_index = page_index
+        PTLogger.info(f"{self.name}: Moved to page: {self.page.name}")
+        self.refresh(force=True)
+
+    @property
+    def page(self):
+        return self.pages[self.__page_index]
+
+    @property
+    def hotspot(self):
+        return self.page.hotspot
+
+    def __render_current_hotspot_to_image(self, force=False):
+        if force:
+            PTLogger.info(
+                f"{self.name}: Forcing redraw of {self.page.name} to image")
+
+        redraw = self.hotspot.should_redraw()
+        if redraw:
+            PTLogger.debug(
+                f"{self.name}: Hotspot {self.page.name} requested a redraw to image")
+
+        if force or redraw:
+            self.image = Image.new(
+                self.__device_mode, (self.__device_width, self.__device_height))
+            # Calls each hotspot's render() function
+            self.hotspot.paste_into(self.image, (0, 0))
+
+    def set_current_image_as_rendered(self):
+        self.__last_displayed_image = self.image
+
+    def __image_updated(self):
+        return self.image != self.__last_displayed_image
+
+    def should_redraw(self):
+        if self.__last_displayed_image is None:
+            PTLogger.debug(f"{self.name}: Not yet drawn image")
+            return True
+
+        if self.__image_updated():
+            PTLogger.debug(f"{self.name}: Image updated")
+            return True
+
+        PTLogger.debug(f"{self.name}: Nothing to redraw")
+        return False
 
     def refresh(self, force=False):
         if force:
-            self.get_current_hotspot().reset()
-        self.render_current_hotspot_to_viewport(force)
-        self.update_oled(force=force)
-
-    def render_current_hotspot_to_viewport(self, force=False):
-        self.render_hotspot_to_viewport(self.page_index, force)
-
-    def render_hotspot_to_viewport(self, page_index, force=False):
-        hotspot, xy = self.viewport._hotspots[page_index]
-        if force or hotspot.should_redraw():
-            # Calls each hotspot's render() function
-            hotspot.paste_into(self.viewport._backing_image, xy)
-
-    def should_redraw(self):
-        self.viewport._position = (0, self.get_page_y_pos())
-        image_to_display = self.viewport._backing_image.crop(
-            box=self.viewport._crop_box()
-        )
-
-        if self.last_displayed_image is None:
-            self.last_displayed_image = image_to_display
-            return True
-        elif self.new_image_is_different_from_current_image(image_to_display):
-            self.last_displayed_image = image_to_display
-            return True
-
-        return False
-
-    def new_image_is_different_from_current_image(self, image_to_display):
-        return image_to_display != self.last_displayed_image
-
-    def reset_device(self):
-        self.refresh(force=True)
-        PTLogger.info("Resetting device instance...")
-        reset_device_instance(exclusive=False)
-        if is_pi():
-            PTOLEDDisplay().reset()
-        self.update_oled(force=True)
-
-    def update_oled(self, force=False):
-        if force:
-            PTLogger.debug("Forcing redraw")
-
-        if force or self.should_redraw():
-            PTLogger.debug("Updating image on OLED display")
-            im = self.viewport._backing_image.crop(
-                box=self.viewport._crop_box())
-            get_device_instance().display(im)
-            del im
-
-    def get_viewport_height(self):
-        return self.viewport.size[1]
+            self.hotspot.reset()
+        self.__render_current_hotspot_to_image(force)

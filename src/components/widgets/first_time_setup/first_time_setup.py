@@ -1,14 +1,13 @@
 from getpass import getuser
 from ipaddress import ip_address
 
-from ptcommon.sys_info import (
+from pitopcommon.sys_info import (
     get_internal_ip,
     get_address_for_ptusb_connected_device
 )
-from ptcommon.pt_os import is_pi_using_default_password
+from pitopcommon.pt_os import is_pi_using_default_password
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
-    default_margin_y,
     default_margin_x,
     common_second_line_y,
     common_first_line_y,
@@ -19,14 +18,36 @@ from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.ethernet_gif = ImageComponent(
-            image_path=get_image_file("sys_info/lan_vnc_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("first_time_connect/lan_vnc.gif"),
+            loop=False,
+            playback_speed=2.0
+        )
         self.usb_gif = ImageComponent(
-            image_path=get_image_file("sys_info/usb_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/usb.gif"),
+            loop=False,
+            playback_speed=2.0
+        )
         self.connect_gif = ImageComponent(
-            image_path=get_image_file("first_time_connect/first_time_connect.gif"), loop=True, playback_speed=1.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file(
+                "first_time_connect/first_time_connect.gif"),
+            loop=True,
+            playback_speed=1.0
+        )
 
         self.eth0_ip = ""
         self.ptusb0_ip = ""
@@ -40,9 +61,21 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.ethernet_gif = ImageComponent(
-            image_path=get_image_file("sys_info/lan_vnc_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("first_time_connect/lan_vnc.gif"),
+            loop=False,
+            playback_speed=2.0
+        )
         self.usb_gif = ImageComponent(
-            image_path=get_image_file("sys_info/usb_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/usb.gif"),
+            loop=False,
+            playback_speed=2.0
+        )
 
         self.eth0_ip = ""
         self.ptusb0_ip = ""
@@ -80,7 +113,10 @@ class Hotspot(BaseHotspot):
 
         if not self.usb_is_connected():
             self.usb_gif = ImageComponent(
-                image_path=get_image_file("sys_info/usb_page.gif"),
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file("sys_info/usb.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
@@ -93,7 +129,10 @@ class Hotspot(BaseHotspot):
 
         if not self.ethernet_is_connected():
             self.ethernet_gif = ImageComponent(
-                image_path=get_image_file("sys_info/lan_vnc_page.gif"),
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file("first_time_connect/lan_vnc.gif"),
                 loop=False,
                 playback_speed=2.0,
             )

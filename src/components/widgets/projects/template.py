@@ -1,9 +1,8 @@
 from PIL import Image
 from os.path import isfile
-from components.widgets.common.functions import title_text, draw_text
+from components.widgets.common.functions import draw_text
 from components.widgets.common.base_widget_hotspot import BaseHotspot
-from ptcommon.logger import PTLogger
-from subprocess import check_output
+from pitopcommon.logger import PTLogger
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -29,7 +28,7 @@ def _create_bitmap_to_render(image, width, height):
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
 
         self._frame_no = 0

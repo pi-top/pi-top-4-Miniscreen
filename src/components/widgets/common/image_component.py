@@ -1,7 +1,6 @@
-from ptcommon.logger import PTLogger
+from pitopcommon.logger import PTLogger
 from PIL import Image
 from os.path import isfile
-from ptoled import get_device_instance
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -17,18 +16,15 @@ def _create_bitmap_to_render(image, width, height):
 class ImageComponent:
     def __init__(
         self,
+        device_mode,
+        width,
+        height,
         xy=(0, 0),
-        width=None,
-        height=None,
         image_path=None,
         loop=True,
         playback_speed=1.0,
     ):
-        if width == None:
-            width = get_device_instance().width
-        if height == None:
-            height = get_device_instance().height
-
+        self.device_mode = device_mode
         self.hold_first_frame = False
         self.xy = xy
         self.width = width
@@ -106,6 +102,6 @@ class ImageComponent:
 
             draw.bitmap(
                 xy=self.xy,
-                bitmap=img_bitmap.convert(get_device_instance().mode),
+                bitmap=img_bitmap.convert(self.device_mode),
                 fill="white",
             )

@@ -1,14 +1,19 @@
+from ctypes import c_bool
 from getpass import getuser
 from ipaddress import ip_address
+from multiprocessing import (
+    Process,
+    Value,
+)
+from time import sleep
 
-from ptcommon.sys_info import (
+from pitopcommon.sys_info import (
     get_internal_ip,
     get_address_for_ptusb_connected_device
 )
-from ptcommon.pt_os import is_pi_using_default_password
+from pitopcommon.pt_os import is_pi_using_default_password
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
-    default_margin_y,
     default_margin_x,
     common_second_line_y,
     common_first_line_y,
@@ -19,13 +24,28 @@ from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/usb_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/usb.gif"),
+            loop=False,
+            playback_speed=2.0,
+        )
 
         self.ptusb0_ip = ""
-        self.connected_device_ip = ""
+
+        self.is_connected = Value(c_bool, False)
+        self.connection_status_thread = Process(
+            target=self.__update_connection_status)
+        self.connection_status_thread.daemon = True
+        self.connection_status_thread.start()
+
         self.initialised = False
 
         self.username = "pi" if getuser() == "root" else getuser()
@@ -33,18 +53,26 @@ class Hotspot(BaseHotspot):
 
         self.default_interval = self.interval
 
+    def __update_connection_status(self):
+        while True:
+            connected_device_ip = get_address_for_ptusb_connected_device()
+            self.is_connected.value = connected_device_ip != ""
+            sleep(0.3)
+
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/usb_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/usb.gif"),
+            loop=False,
+            playback_speed=2.0,
+        )
 
         self.ptusb0_ip = ""
-        self.connected_device_ip = ""
         self.initialised = False
 
         self.interval = self.default_interval
-
-    def is_connected(self):
-        return self.connected_device_ip != ""
 
     def set_data_members(self):
         try:
@@ -52,16 +80,17 @@ class Hotspot(BaseHotspot):
         except ValueError:
             self.ptusb0_ip = ""
 
-        self.connected_device_ip = get_address_for_ptusb_connected_device()
-
-        if not self.is_connected():
+        if not self.is_connected.value:
             self.gif = ImageComponent(
-                image_path=get_image_file("sys_info/usb_page.gif"),
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file("sys_info/usb.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
 
-        self.gif.hold_first_frame = not self.is_connected()
+        self.gif.hold_first_frame = not self.is_connected.value
         self.initialised = True
 
     def render(self, draw, width, height):
@@ -90,7 +119,7 @@ class Hotspot(BaseHotspot):
         self.gif.render(draw)
 
         if self.initialised and not self.gif.is_animating():
-            if self.is_connected() and self.gif.finished:
+            if self.is_connected.value and self.gif.finished:
                 draw_text(
                     draw,
                     xy=(default_margin_x, common_first_line_y),
@@ -106,7 +135,7 @@ class Hotspot(BaseHotspot):
                     xy=(default_margin_x, common_third_line_y),
                     text=str(self.ptusb0_ip)
                 )
-            elif not self.is_connected() and self.gif.hold_first_frame:
+            elif not self.is_connected.value and self.gif.hold_first_frame:
                 draw.ellipse((70, 23) + (84, 37), 0, 0)
                 draw.ellipse((71, 24) + (83, 36), 1, 0)
                 draw.line((74, 27) + (79, 32), "black", 2)

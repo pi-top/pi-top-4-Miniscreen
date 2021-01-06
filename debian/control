@@ -2,30 +2,38 @@ Source: pt-sys-oled
 Section: utils
 Priority: optional
 Maintainer: pi-top <deb-maintainers@pi-top.com>
-Build-Depends: debhelper (>= 7),
- dh-python,
- dh-systemd (>= 1.5),
- python3:any
-Standards-Version: 3.9.8
+Build-Depends:
+ debhelper-compat (= 12),
+ dh-sequence-python3,
+Standards-Version: 4.5.0
 Homepage: https://pi-top.com/
 
 Package: pt-sys-oled
-Architecture: all
-Depends: ${misc:Depends},
+Architecture: any
+Depends:
+ ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
-# Required to take control of the OLED
- pt-device-manager,
- python3-pt-hub-v3,
+# 'dtoverlay' command
+ libraspberrypi-bin,
+# API hardware calls
+ python3-pitop,
+ python3-pitopcommon,
 # Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,
  python3-psutil,
- python3-pt-common,
- python3-pt-oled
-Recommends: autorandr (>= 1.9),
- pt-further-link
+# Required to talk to the device manager
+# This functionality should probably be moved into the buttons library
+ python3-zmq,
+Recommends:
+ autorandr (>= 1.9),
+ pt-further-link,
+# Used for closing 'Screen Layout Editor' when resetting display
+ wmctrl,
+# Used for 'xset' when resetting DPMS
+ x11-xserver-utils,
 Description: pi-top [4] OLED system menu application
  Display and control important system settings/information
  on the pi-top [4]'s onboard OLED screen. Navigation is

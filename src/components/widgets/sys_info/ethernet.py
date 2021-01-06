@@ -1,11 +1,8 @@
-from ptcommon.sys_info import get_internal_ip
+from pitopcommon.sys_info import get_internal_ip
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
-    default_margin_y,
     default_margin_x,
     common_second_line_y,
-    common_first_line_y,
-    common_third_line_y,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
@@ -13,10 +10,19 @@ from ipaddress import ip_address
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/lan_page.gif"), loop=False, playback_speed=2.0)
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/lan.gif"),
+            loop=False,
+            playback_speed=2.0
+        )
 
         self.eth0_ip = ""
         self.initialised = False
@@ -25,7 +31,10 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/lan_page.gif"),
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/lan.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -46,7 +55,10 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
-                image_path=get_image_file("sys_info/lan_page.gif"),
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file("sys_info/lan.gif"),
                 loop=False,
                 playback_speed=2.0,
             )

@@ -1,12 +1,17 @@
 [Unit]
 Description=pi-top OLED system menu
-After=pt-oled-startup-anim.service
+Documentation=https://knowledgebase.pi-top.com/knowledge
+# Required to determine what type of device
+After=pt-device-manager.service
+StartLimitIntervalSec=30
+StartLimitBurst=5
 
 [Service]
 Type=simple
 Restart=on-failure
+Environment="PYTHONUNBUFFERED=1"
 Environment="PYTHONDONTWRITEBYTECODE=1"
 ExecStart=/usr/lib/pt-sys-oled/pt-sys-oled
 
 [Install]
-WantedBy=local-fs.target
+WantedBy=multi-user.target

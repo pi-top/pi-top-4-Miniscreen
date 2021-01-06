@@ -4,10 +4,14 @@ from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
-            image_path=get_image_file("menu/settings.gif"), loop=True
+            device_mode=mode,
+            width=width,
+            height=height,
+            image_path=get_image_file("menu/settings.gif"),
+            loop=True,
         )
         self.title = data.get("title")
 

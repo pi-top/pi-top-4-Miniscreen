@@ -60,7 +60,7 @@ def analog(draw, width, height):
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod

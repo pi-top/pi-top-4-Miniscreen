@@ -1,4 +1,4 @@
-from ptcommon.sys_info import (
+from pitopcommon.sys_info import (
     get_wifi_network_ssid,
     get_internal_ip,
     get_network_strength,
@@ -6,9 +6,7 @@ from ptcommon.sys_info import (
 from components.widgets.common.functions import draw_text, get_image_file
 from components.widgets.common.values import (
     default_margin_x,
-    default_margin_y,
     common_second_line_y,
-    common_first_line_y,
     common_third_line_y,
 )
 from components.widgets.common.base_widget_hotspot import BaseHotspot
@@ -29,14 +27,20 @@ def wifi_strength_image():
         wifi_rating += "wifi_good_signal.gif"
     else:
         wifi_rating += "wifi_excellent_signal.gif"
-    return get_image_file(wifi_rating)
+    return get_image_file(f"sys_info/{wifi_rating}")
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
+        self.width = width
+        self.height = height
+        self.mode = mode
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/wifi_page.gif"),
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -50,7 +54,10 @@ class Hotspot(BaseHotspot):
 
     def reset(self):
         self.gif = ImageComponent(
-            image_path=get_image_file("sys_info/wifi_page.gif"),
+            device_mode=self.mode,
+            width=self.width,
+            height=self.height,
+            image_path=get_image_file("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -67,7 +74,7 @@ class Hotspot(BaseHotspot):
 
     def set_data_members(self):
         network_ssid = get_wifi_network_ssid()
-        if network_ssid is not "Error":
+        if network_ssid != "Error":
             self.wifi_id = network_ssid
 
         network_ip = get_internal_ip(iface="wlan0")
@@ -80,7 +87,10 @@ class Hotspot(BaseHotspot):
 
         if not self.is_connected():
             self.gif = ImageComponent(
-                image_path=get_image_file("sys_info/wifi_page.gif"),
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file("sys_info/wifi.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
@@ -116,7 +126,12 @@ class Hotspot(BaseHotspot):
         if self.initialised and not self.gif.is_animating():
             if self.is_connected() and self.gif.finished:
                 wifi_bars = ImageComponent(
-                    xy=(5, 0), image_path=self.wifi_bars_image, loop=True
+                    device_mode=self.mode,
+                    width=self.width,
+                    height=self.height,
+                    xy=(5, 0),
+                    image_path=self.wifi_bars_image,
+                    loop=True,
                 )
                 wifi_bars.render(draw)
 

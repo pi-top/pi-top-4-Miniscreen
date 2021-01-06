@@ -2,7 +2,7 @@
 # See LICENSE.rst for details.
 
 import psutil
-from ptcommon.formatting import bytes2human
+from pitopcommon.formatting import bytes2human
 from components.widgets.common.functions import right_text, title_text, draw_text
 from components.widgets.common.values import (
     default_margin_x,
@@ -14,7 +14,7 @@ from components.widgets.common.base_widget_hotspot import BaseHotspot
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, interval, **data):
+    def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod

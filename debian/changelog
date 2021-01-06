@@ -1,3 +1,86 @@
+pt-sys-oled (3.2.0) buster; urgency=medium
+
+  * Service exits with error code if hub is not detected
+  * Configure pt-sys-oled service start rate limiting
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 31 Dec 2020 12:01:03 -0300
+
+pt-sys-oled (3.1.0) buster; urgency=medium
+
+  * Loop pi-top logo while expanding filesystem
+
+ -- Jorge Capona <jorge@pi-top.com>  Wed, 30 Dec 2020 16:42:35 -0300
+
+pt-sys-oled (3.0.8) buster; urgency=medium
+
+  * Keep track of USB connection status on a thread
+
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 28 Dec 2020 16:07:57 -0300
+
+pt-sys-oled (3.0.7) buster; urgency=medium
+
+  * Reduce log level when updating displayed image
+
+ -- Jorge Capona <jorge@pi-top.com>  Wed, 23 Dec 2020 09:30:54 -0300
+
+pt-sys-oled (3.0.6) buster; urgency=medium
+
+  * Start pt-sys-oled after pt-device-manager
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 16 Dec 2020 18:47:36 +0000
+
+pt-sys-oled (3.0.5) buster; urgency=medium
+
+  * Use 'is_' prefix for battery charging and full states from SDK
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 16 Dec 2020 15:57:33 +0000
+
+pt-sys-oled (3.0.4) buster; urgency=medium
+
+  * Force redraw of menu page when regaining control of oled
+
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 14 Dec 2020 22:49:12 -0300
+
+pt-sys-oled (3.0.3) buster; urgency=medium
+
+  * Add recommended dependencies: wmctrl, x11-xserver-utils
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Dec 2020 22:17:15 +0000
+
+pt-sys-oled (3.0.2) buster; urgency=medium
+
+  * Make systemd service unbuffered
+  * Do not process logging outside of PTLogger
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Dec 2020 17:31:16 +0000
+
+pt-sys-oled (3.0.1) buster; urgency=medium
+
+  * Use singleton buttons object in SDK
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 14 Dec 2020 14:25:23 +0000
+
+pt-sys-oled (3.0.0) buster; urgency=medium
+
+  * Use python3-pitop and python3-pitopcommon components for all
+  device operations, including OLED, buttons and battery
+  * Remove viewport; each menu tracks its image to render
+  * Update SDK dpkg trigger
+  * Refactor architecture so that menus no longer have any access
+  to the display hardware
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 03 Nov 2020 16:12:03 +0000
+
+pt-sys-oled (2.0.0) buster; urgency=medium
+
+  * Migrate to native package
+  * Use compat level 12
+  * Switch to PYTHONDONTWRITEBYTECODE in systemd service
+  * Load SPI device tree overlay before starting
+  * If no SPI device is found, do not repeatedly restart service
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 15 Oct 2020 11:40:37 +0100
+
 pt-sys-oled (1.8.0-1) buster; urgency=medium
 
   * Check for pi-topOS for first time setup page
