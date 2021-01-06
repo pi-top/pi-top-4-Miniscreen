@@ -8,7 +8,7 @@ from .widgets.sys_info import (
 from .widgets.main import template as main_menu_page
 from .widgets.settings import (
     template as settings_menu_page,
-    settings as setting_title,
+    title as setting_title,
 )
 from .widgets.projects import template as projects_menu_page
 from .widgets.first_time_setup import first_time_setup
