@@ -1,3 +1,9 @@
+pt-sys-oled (3.3.0) buster; urgency=medium
+
+  * Add initial implementation of project selection
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 06 Jan 2021 13:13:29 +0000
+
 pt-sys-oled (3.2.0) buster; urgency=medium
 
   * Service exits with error code if hub is not detected
