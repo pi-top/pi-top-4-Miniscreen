@@ -16,7 +16,7 @@ from ipaddress import ip_address
 
 def wifi_strength_image():
     wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
-    wifi_rating = "wifi_strength_bars/"
+    wifi_rating = "sys_info/wifi_strength_bars/"
     if wifi_strength <= 0:
         wifi_rating += "wifi_no_signal.gif"
     elif 0 < wifi_strength <= 0.5:
