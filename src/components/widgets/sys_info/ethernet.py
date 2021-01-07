@@ -4,12 +4,12 @@ from components.widgets.common.values import (
     default_margin_x,
     common_second_line_y,
 )
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.base_widgets import BaseSnapshot
 from components.widgets.common.image_component import ImageComponent
 from ipaddress import ip_address
 
 
-class Hotspot(BaseHotspot):
+class Hotspot(BaseSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.width = width

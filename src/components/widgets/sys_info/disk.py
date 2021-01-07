@@ -11,10 +11,10 @@ from components.widgets.common.values import (
     common_first_line_y,
     common_third_line_y,
 )
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.base_widgets import BaseSnapshot
 
 
-class Hotspot(BaseHotspot):
+class Hotspot(BaseSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 

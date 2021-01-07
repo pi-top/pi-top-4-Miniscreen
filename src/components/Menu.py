@@ -10,7 +10,10 @@ from .widgets.settings import (
     template as settings_menu_page,
     title as setting_title,
 )
-from .widgets.projects import template as projects_menu_page
+from .widgets.projects import (
+    template as projects_menu_page,
+    title as projects_title,
+)
 from .widgets.first_time_setup import first_time_setup
 from .widgets.error import template as error_page
 from .helpers.menu_page_actions import (
@@ -60,7 +63,7 @@ class PageHelper:
         self.__device_mode = device_mode
         self.__callback_client = callback_client
 
-    def __get_hotspot(self, widget, interval=0.0, **extra_data):
+    def __get_hotspot(self, widget, interval=0.5, **extra_data):
         data = {
             **{
                 "width": self.__device_width,
@@ -120,10 +123,20 @@ class PageHelper:
                 MenuPage(
                     name="Settings",
                     hotspot=self.__get_hotspot(
-                        setting_title, title="Settings", interval=1.0),
+                        setting_title, title="Settings"),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.SETTINGS),
                     cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="Projects",
+                    hotspot=self.__get_hotspot(
+                        projects_title, title="Projects"),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.PROJECTS),
+                    cancel_action_func=None,
+                    # cancel_action_func=lambda: self.__callback_client.change_menu(
+                    #     Menus.SYS_INFO),
                 ),
             ]
         elif menu_id == Menus.SETTINGS:
@@ -169,7 +182,6 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         settings_menu_page,
                         type="hdmi_reset",
-                        interval=0.0,
                         get_state_method=None,
                     ),
                     select_action_func=lambda: reset_hdmi_configuration(),
