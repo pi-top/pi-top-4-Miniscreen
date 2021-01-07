@@ -1,3 +1,9 @@
+pt-sys-oled (3.4.0) buster; urgency=medium
+
+  * Improve handling of pages with no update interval
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 07 Jan 2021 14:22:14 +0000
+
 pt-sys-oled (3.3.0) buster; urgency=medium
 
   * Add initial implementation of project selection
