@@ -131,10 +131,12 @@ class PageHelper:
                 MenuPage(
                     name="Projects",
                     hotspot=self.__get_hotspot(
-                        projects_title, title="Settings"),
+                        projects_title, title="Projects"),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.PROJECTS),
                     cancel_action_func=None,
+                    # cancel_action_func=lambda: self.__callback_client.change_menu(
+                    #     Menus.SYS_INFO),
                 ),
             ]
         elif menu_id == Menus.SETTINGS:
