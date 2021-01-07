@@ -107,7 +107,7 @@ class MenuManager:
             PTLogger.info("NONE button type - skipping button press")
             return
 
-        PTLogger.info(
+        PTLogger.debug(
             "Queueing " + str(button_press_event.event_type) + " event for processing")
         self.__button_press_stack.append(button_press_event)
 
@@ -204,12 +204,15 @@ class MenuManager:
                             if self.current_menu.parent is not None:
                                 self.change_menu(self.current_menu.parent)
 
-        max_current_hotspot_interval = self.current_menu.page.hotspot.interval
-        self.__frame_sleep_time = (
-            max_current_hotspot_interval
-            if max_current_hotspot_interval < self.__default_frame_sleep_time
-            else self.__default_frame_sleep_time
-        )
+        try:
+            max_current_hotspot_interval = self.current_menu.page.hotspot.interval
+            self.__frame_sleep_time = (
+                max_current_hotspot_interval
+                if max_current_hotspot_interval < self.__default_frame_sleep_time
+                else self.__default_frame_sleep_time
+            )
+        except AttributeError:
+            self.__frame_sleep_time = self.__default_frame_sleep_time
 
         self.current_menu.refresh()
         self.__draw_current_menu_page_to_oled()
