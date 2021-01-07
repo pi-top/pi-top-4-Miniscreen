@@ -5,7 +5,7 @@ import math
 import datetime
 
 from components.widgets.common.functions import title_text, draw_text
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.base_widgets import BaseSnapshot
 
 
 def posn(angle, arm_length):
@@ -59,7 +59,7 @@ def analog(draw, width, height):
     title_text(draw, margin, width, today_date)
 
 
-class Hotspot(BaseHotspot):
+class Hotspot(BaseSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 

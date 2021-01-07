@@ -1,10 +1,10 @@
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.base_widgets import BaseHotspot
 from components.widgets.common.functions import draw_text, align_to_middle
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, mode, interval, **data):
-        super(Hotspot, self).__init__(width, height, interval, self.render)
+    def __init__(self, width, height, mode, **data):
+        super(Hotspot, self).__init__(width, height, self.render)
 
         self.title = data.get("title")
         self.second_line = data.get("second_line")

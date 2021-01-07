@@ -1,11 +1,11 @@
 from components.widgets.common.functions import get_image_file
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.base_widgets import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseHotspot):
-    def __init__(self, width, height, mode, interval, **data):
-        super(Hotspot, self).__init__(width, height, interval, self.render)
+    def __init__(self, width, height, mode, **data):
+        super(Hotspot, self).__init__(width, height, self.render)
 
         self.width = width
         self.height = height

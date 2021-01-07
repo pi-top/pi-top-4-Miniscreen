@@ -2,7 +2,7 @@
 # See LICENSE.rst for details.
 
 import psutil
-from components.widgets.common.base_widget_hotspot import BaseHotspot
+from components.widgets.common.base_widgets import BaseSnapshot
 from components.widgets.common.functions import get_image_file
 from components.widgets.common.image_component import ImageComponent
 
@@ -12,7 +12,7 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
     draw.rectangle((x1, yh) + (x2, y2), "white", "white")
 
 
-class Hotspot(BaseHotspot):
+class Hotspot(BaseSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, self.render)
         self.image = ImageComponent(
