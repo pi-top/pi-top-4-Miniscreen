@@ -1,3 +1,9 @@
+pt-sys-oled (3.5.0) buster; urgency=medium
+
+  * Move handling of device tree to device manager
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 11 Jan 2021 13:54:37 +0000
+
 pt-sys-oled (3.4.0) buster; urgency=medium
 
   * Improve handling of pages with no update interval
