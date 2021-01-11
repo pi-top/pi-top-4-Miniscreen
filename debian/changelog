@@ -1,7 +1,7 @@
 pt-sys-oled (3.6.0) buster; urgency=medium
 
-  * Use updated SDK to ensure that all OLED operations are supported by top-level
-  object
+  * Use updated SDK to ensure that all OLED operations are
+  supported by top-level object
   * Replace direct drawing to display with SDK's draw() function
 
  -- Mike Roberts <mike@pi-top.com>  Mon, 11 Jan 2021 16:48:49 +0000
