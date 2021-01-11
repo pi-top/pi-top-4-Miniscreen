@@ -112,19 +112,17 @@ class MenuManager:
         self.__button_press_stack.append(button_press_event)
 
     def __sleep_oled(self):
-        self.__oled.device.contrast(0)
-        # self.__oled.device.hide()
+        self.__oled.contrast(0)
         self.__sleeping = True
 
     def __wake_oled(self):
-        self.__oled.device.contrast(255)
-        # self.__oled.device.show()
+        self.__oled.contrast(255)
         self.__sleeping = False
 
     def __add_menu_to_list(self, menu_id):
-        width, height = self.__oled.device.size
+        width, height = self.__oled.size
         self.__menus[menu_id] = Menu(
-            menu_id, width, height, self.__oled.device.mode, self)
+            menu_id, width, height, self.__oled.mode, self)
 
     def __button_locks_exist(self):
         locks_exist = False
@@ -149,7 +147,8 @@ class MenuManager:
             )
 
             self.current_menu.refresh()
-            self.__oled.device.display(self.current_menu.image)
+            self.__oled.image = self.current_menu.image
+            self.__oled.draw()
             self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
