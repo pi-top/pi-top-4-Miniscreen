@@ -20,10 +20,12 @@ class MenuManager:
 
     def __init__(self, oled):
         self.__oled = oled
-        self.__oled.when_user_starts_using_oled = self.set_is_user_controlled
+        self.__oled.when_user_starts_using_oled = lambda: self.set_is_user_controlled(
+            True)
+        self.__oled.when_user_stops_using_oled = lambda: self.set_is_user_controlled(
+            False)
 
-        self.main_loop_timer = Timer(
-            self.__frame_sleep_time, self.do_frame, args=None, kwargs=None)
+        self.user_has_control = False
 
         self.should_redraw = False
 
