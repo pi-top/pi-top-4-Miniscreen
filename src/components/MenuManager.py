@@ -74,6 +74,7 @@ class MenuManager:
                 sleep(self.__frame_sleep_time)
 
                 while self.user_has_control:
+                    self.ack_user_has_control = True
                     sleep(1)
 
         except SystemExit:
@@ -227,14 +228,23 @@ class MenuManager:
             if go_to_sleep:
                 self.__sleep_oled()
             else:
-                self.__current_page_frame_counter += self.__frame_sleep_time
+                self.__current_page_frame_counter += self.__frame_seep_time
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
         if user_has_control:
             PTLogger.info("User has taken control of the OLED")
+            self.ack_user_has_control = False
         else:
-            PTLogger.info("OLED control restored")
+            PTLogger.info("User has stopped using the OLED")
+            PTLogger.info(
+                "Waiting for main loop to acknowledge previous state...")
+
+            # this will prevent short user operations to be acknowledged by the main loop
+            while not self.ack_user_has_control:
+                sleep(0.5)
+
             self.__oled.reset()
             self.current_menu.refresh(force=True)
             self.__draw_current_menu_page_to_oled(force=True)
+            PTLogger.info("OLED control restored")
