@@ -7,8 +7,8 @@ from components.widgets.common.functions import (
 
 
 class Hotspot(BaseSnapshot):
-    def __init__(self, width, height, **data):
-        super(Hotspot, self).__init__(width, height, self.render)
+    def __init__(self, width, height, mode, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, self.render)
         # self.gif = ImageComponent(
         #     image_path=get_image_file("menu/projects.gif"), loop=True
         # )
