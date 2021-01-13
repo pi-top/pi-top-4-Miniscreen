@@ -107,11 +107,11 @@ def main():
             app = MenuManager(oled)
             configure_interrupt_signals(app)
             PTLogger.info("Starting application")
-            app.main_loop()
-            app.stop()
+            app.start()
+            app.wait()
 
-    except KeyboardInterrupt:
-        pass
+    except (KeyboardInterrupt, SystemExit):
+        app.stop()
 
 
 if __name__ == "__main__":

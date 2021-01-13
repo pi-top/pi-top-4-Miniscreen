@@ -9,6 +9,7 @@ from pitop.miniscreen.buttons import Buttons
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
+from threading import Timer
 from time import sleep
 from os import listdir
 from re import compile
@@ -19,6 +20,11 @@ class MenuManager:
 
     def __init__(self, oled):
         self.__oled = oled
+
+        self.main_loop_timer = Timer(
+            self.__frame_sleep_time, self.do_frame, args=None, kwargs=None)
+
+        self.should_redraw = False
 
         self.current_menu = None
 
@@ -35,7 +41,6 @@ class MenuManager:
             ButtonPress(ButtonPress.ButtonType.CANCEL))
 
         self.__button_press_stack = []
-        self.__continue = True
         self.__sleeping = False
         self.__default_frame_sleep_time = 0.1
         self.__frame_sleep_time = self.__default_frame_sleep_time
@@ -56,26 +61,43 @@ class MenuManager:
             self.__add_menu_to_list(Menus.SETTINGS)
             self.change_menu(Menus.SYS_INFO)
 
-    def main_loop(self):
-        try:
-            while self.__continue:
-                # Only attempt to update state if OLED is owned by pt-sys-oled
-                if not self.__oled.is_active():
-                    self.__update_state()
-                    PTLogger.debug(
-                        f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
+    # TODO: trigger on oled lock file being locked
+    def set_is_user_controlled(self, is_user_controlled):
+        PTLogger.info(
+            f"Updating OLED control state - is user controlled? {is_user_controlled}")
 
-                PTLogger.debug("Sleeping for " + str(self.__frame_sleep_time))
-                sleep(self.__frame_sleep_time)
+        if self.user_has_control and not is_user_controlled:
+            # sys oled got control back - should force redraw
+            self.should_redraw = True
 
-                self.__wait_for_oled_control()
+        self.user_has_control = is_user_controlled
 
-        except SystemExit:
-            PTLogger.info("Program exited")
-            pass
+    def __start_timer(self):
+        self.main_loop_timer = Timer(
+            self.__frame_sleep_time, self.do_frame, args=None, kwargs=None)
+        self.main_loop_timer.start()
+
+    def start(self):
+        self.__start_timer()
+        # Don't wait to do first frame
+        self.main_loop_timer.function()
 
     def stop(self):
-        self.__continue = False
+        if self.main_loop_timer.is_alive():
+            self.main_loop_timer.cancel()
+
+    def wait(self):
+        while True:
+            sleep(1)
+
+    def do_frame(self):
+        if not self.user_has_control:
+            if self.should_redraw:
+                self.__force_reset()
+
+            self.__update_state()
+
+        self.__start_timer()
 
     # Public so that hotspots can use this
     def change_menu(self, menu_to_go_to):
@@ -223,18 +245,7 @@ class MenuManager:
             else:
                 self.__current_page_frame_counter += self.__frame_sleep_time
 
-    def __wait_for_oled_control(self):
-        oled_control_lost_since_last_cycle = False
-        while True:
-            if self.__oled.is_active():
-                if oled_control_lost_since_last_cycle is False:
-                    PTLogger.info("User has taken control of the OLED")
-                    oled_control_lost_since_last_cycle = True
-                sleep(1)
-            else:
-                if oled_control_lost_since_last_cycle:
-                    PTLogger.info("OLED control restored")
-                    self.__oled.reset()
-                    self.current_menu.refresh(force=True)
-                    self.__draw_current_menu_page_to_oled(force=True)
-                break
+    def __force_reset(self):
+        self.__oled.reset()
+        self.current_menu.refresh(force=True)
+        self.__draw_current_menu_page_to_oled(force=True)
