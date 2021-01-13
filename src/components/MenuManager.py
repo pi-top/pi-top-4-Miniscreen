@@ -175,12 +175,9 @@ class MenuManager:
                 )
                 return 0 if on_last_page else self.current_menu.page_number + 1
 
-        def __call_func_if_callable(func):
-            if func is not None:
-                func()
-            return func is not None
-
         button_press = __get_next_button_press_from_stack()
+
+        force_refresh = False
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             if self.__sleeping:
@@ -196,10 +193,13 @@ class MenuManager:
                 elif button_press.is_action():
                     current_page = self.current_menu.page
                     if button_press.event_type == ButtonPress.ButtonType.SELECT:
-                        __call_func_if_callable(
-                            current_page.select_action_func)
+                        if callable(current_page.select_action_func):
+                            current_page.select_action_func()
+                            force_refresh = True
                     else:
-                        if not __call_func_if_callable(current_page.cancel_action_func):
+                        if callable(current_page.cancel_action_func):
+                            current_page.cancel_action_func()
+                        else:
                             if self.current_menu.parent is not None:
                                 self.change_menu(self.current_menu.parent)
 
@@ -213,7 +213,7 @@ class MenuManager:
         except AttributeError:
             self.__frame_sleep_time = self.__default_frame_sleep_time
 
-        self.current_menu.refresh()
+        self.current_menu.refresh(force_refresh)
         self.__draw_current_menu_page_to_oled()
 
         if not self.__sleeping:
