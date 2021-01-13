@@ -82,7 +82,7 @@ class PageHelper:
                 MenuPage(
                     name="battery",
                     hotspot=self.__get_hotspot(
-                        batt_level,
+                        widget=batt_level,
                         interval=1.0,
                     ),
                     select_action_func=lambda: self.__callback_client.change_menu(
@@ -91,28 +91,40 @@ class PageHelper:
                 ),
                 MenuPage(
                     name="cpu",
-                    hotspot=self.__get_hotspot(cpu_load, interval=0.5),
+                    hotspot=self.__get_hotspot(
+                        widget=cpu_load,
+                        interval=0.5
+                    ),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="wifi",
-                    hotspot=self.__get_hotspot(wifi, interval=1.0),
+                    hotspot=self.__get_hotspot(
+                        widget=wifi,
+                        interval=1.0
+                    ),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="ethernet",
-                    hotspot=self.__get_hotspot(ethernet, interval=1.0),
+                    hotspot=self.__get_hotspot(
+                        widget=ethernet,
+                        interval=1.0
+                    ),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
                 MenuPage(
                     name="usb",
-                    hotspot=self.__get_hotspot(usb, interval=1.0),
+                    hotspot=self.__get_hotspot(
+                        widget=usb,
+                        interval=1.0
+                    ),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
@@ -123,7 +135,10 @@ class PageHelper:
                 MenuPage(
                     name="Settings",
                     hotspot=self.__get_hotspot(
-                        setting_title, title="Settings"),
+                        widget=setting_title,
+                        interval=0.5,
+                        title="Settings"
+                    ),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.SETTINGS),
                     cancel_action_func=None,
@@ -131,12 +146,13 @@ class PageHelper:
                 MenuPage(
                     name="Projects",
                     hotspot=self.__get_hotspot(
-                        projects_title, title="Projects"),
+                        widget=projects_title,
+                        interval=0.5,
+                        title="Projects"
+                    ),
                     select_action_func=lambda: self.__callback_client.change_menu(
                         Menus.PROJECTS),
                     cancel_action_func=None,
-                    # cancel_action_func=lambda: self.__callback_client.change_menu(
-                    #     Menus.SYS_INFO),
                 ),
             ]
         elif menu_id == Menus.SETTINGS:
@@ -144,56 +160,52 @@ class PageHelper:
                 MenuPage(
                     name="ssh_connection",
                     hotspot=self.__get_hotspot(
-                        settings_menu_page,
+                        widget=settings_menu_page,
                         type="ssh",
-                        interval=1.0,
                         get_state_method=get_ssh_enabled_state,
                     ),
                     select_action_func=lambda: change_ssh_enabled_state(),
-                    cancel_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
+                    cancel_action_func=None
                 ),
                 MenuPage(
                     name="vnc_connection",
                     hotspot=self.__get_hotspot(
-                        settings_menu_page,
+                        widget=settings_menu_page,
                         type="vnc",
-                        interval=1.0,
                         get_state_method=get_vnc_enabled_state,
                     ),
                     select_action_func=lambda: change_vnc_enabled_state(),
-                    cancel_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
+                    cancel_action_func=None
                 ),
                 MenuPage(
                     name="pt_further_link",
                     hotspot=self.__get_hotspot(
-                        settings_menu_page,
+                        widget=settings_menu_page,
                         type="pt_further_link",
-                        interval=1.0,
                         get_state_method=get_pt_further_link_enabled_state,
                     ),
                     select_action_func=lambda: change_pt_further_link_enabled_state(),
-                    cancel_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
+                    cancel_action_func=None
                 ),
                 MenuPage(
                     name="hdmi_reset",
                     hotspot=self.__get_hotspot(
-                        settings_menu_page,
+                        widget=settings_menu_page,
                         type="hdmi_reset",
                         get_state_method=None,
                     ),
                     select_action_func=lambda: reset_hdmi_configuration(),
-                    cancel_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
+                    cancel_action_func=None
                 ),
             ]
         elif menu_id == Menus.FIRST_TIME:
             pages = [
                 MenuPage(
                     name="initial_setup",
-                    hotspot=self.__get_hotspot(first_time_setup, interval=1),
+                    hotspot=self.__get_hotspot(
+                        widget=first_time_setup,
+                        interval=1.0
+                    ),
                     select_action_func=None,
                     cancel_action_func=None,
                 ),
@@ -216,7 +228,7 @@ class PageHelper:
                         MenuPage(
                             title,
                             self.__get_hotspot(
-                                projects_menu_page, title=title, project_path=project_path
+                                widget=projects_menu_page, title=title, project_path=project_path
                             ),
                             start_stop_project(project_path),
                             None,
@@ -229,7 +241,7 @@ class PageHelper:
                         MenuPage(
                             title,
                             self.__get_hotspot(
-                                main_menu_page, title=title, image_path=None
+                                widget=main_menu_page, title=title, image_path=None
                             ),
                             None,
                             None,
@@ -243,7 +255,7 @@ class PageHelper:
                     MenuPage(
                         title,
                         self.__get_hotspot(
-                            error_page,
+                            widget=error_page,
                             title=title,
                             second_line=second_line,
                             image_path=None,
