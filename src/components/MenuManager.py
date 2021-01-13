@@ -20,6 +20,7 @@ class MenuManager:
 
     def __init__(self, oled):
         self.__oled = oled
+        self.__oled.when_user_starts_using_oled = self.set_is_user_controlled
 
         self.main_loop_timer = Timer(
             self.__frame_sleep_time, self.do_frame, args=None, kwargs=None)
@@ -61,7 +62,6 @@ class MenuManager:
             self.__add_menu_to_list(Menus.SETTINGS)
             self.change_menu(Menus.SYS_INFO)
 
-    # TODO: trigger on oled lock file being locked
     def set_is_user_controlled(self, is_user_controlled):
         PTLogger.info(
             f"Updating OLED control state - is user controlled? {is_user_controlled}")
