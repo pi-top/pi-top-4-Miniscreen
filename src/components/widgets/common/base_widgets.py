@@ -13,7 +13,10 @@ except AttributeError:  # pragma: no cover
 class BaseSnapshot(snapshot):
     def __init__(self, width, height, interval=0.5, draw_fn=None, **kwargs):
         super(BaseSnapshot, self).__init__(
-            width, height, draw_fn=draw_fn, interval=interval
+            width=width,
+            height=height,
+            draw_fn=draw_fn,
+            interval=interval
         )
 
     def reset(self):
@@ -32,7 +35,9 @@ class BaseSnapshot(snapshot):
 class BaseHotspot(hotspot):
     def __init__(self, width, height, draw_fn=None, **kwargs):
         super(BaseHotspot, self).__init__(
-            width, height, draw_fn=draw_fn
+            width=width,
+            height=height,
+            draw_fn=draw_fn
         )
 
     def reset(self):

@@ -4,8 +4,8 @@ from components.widgets.common.image_component import ImageComponent
 
 
 class Hotspot(BaseSnapshot):
-    def __init__(self, width, height, mode, **data):
-        super(Hotspot, self).__init__(width, height, self.render)
+    def __init__(self, width, height, mode, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, self.render)
         self.gif = ImageComponent(
             device_mode=mode,
             width=width,
