@@ -228,7 +228,7 @@ class MenuManager:
             if go_to_sleep:
                 self.__sleep_oled()
             else:
-                self.__current_page_frame_counter += self.__frame_seep_time
+                self.__current_page_frame_counter += self.__frame_sleep_time
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
