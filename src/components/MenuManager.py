@@ -28,8 +28,7 @@ class MenuManager:
 
         self.current_menu = None
 
-        self.__buttons = Buttons.instance()
-        self.__buttons._set_exclusive_mode(False)
+        self.__buttons = Buttons(_exclusive_mode=False)
 
         self.__buttons.up.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.UP))
