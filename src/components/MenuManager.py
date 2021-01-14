@@ -25,7 +25,7 @@ class MenuManager:
             False)
 
         self.user_has_control = False
-        self.ack_user_has_control = False
+
         self.current_menu = None
 
         self.__buttons = Buttons.instance()
@@ -71,12 +71,15 @@ class MenuManager:
                     PTLogger.debug(
                         f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
 
-                PTLogger.debug("Sleeping for " + str(self.__frame_sleep_time))
-                sleep(self.__frame_sleep_time)
-
-                while self.user_has_control:
-                    self.ack_user_has_control = True
-                    sleep(1)
+                if self.user_has_control:
+                    PTLogger.info(
+                        "User has control. Waiting for user to give control back...")
+                    while self.user_has_control:
+                        sleep(0.2)
+                else:
+                    PTLogger.debug("Sleeping for " +
+                                   str(self.__frame_sleep_time))
+                    sleep(self.__frame_sleep_time)
 
         except SystemExit:
             PTLogger.info("Program exited")
@@ -236,14 +239,12 @@ class MenuManager:
         if user_has_control:
             PTLogger.info("User has taken control of the OLED")
             self.ack_user_has_control = False
+
         else:
             PTLogger.info("User has stopped using the OLED")
-            PTLogger.info(
-                "Waiting for main loop to acknowledge previous state...")
 
-            # this will prevent short user operations to be acknowledged by the main loop
-            while not self.ack_user_has_control:
-                sleep(0.5)
+            PTLogger.info(
+                "Forcing full state refresh...")
 
             self.__oled.reset()
             self.current_menu.refresh(force=True)
