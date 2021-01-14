@@ -25,6 +25,7 @@ class MenuManager:
             False)
 
         self.user_has_control = False
+        self.ack_user_has_control = False
         self.current_menu = None
 
         self.__buttons = Buttons.instance()
