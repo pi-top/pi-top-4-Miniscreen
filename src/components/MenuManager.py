@@ -19,9 +19,9 @@ class MenuManager:
 
     def __init__(self, oled):
         self.__oled = oled
-        self.__oled.when_user_starts_using_oled = lambda: self.set_is_user_controlled(
+        self.__oled._when_user_starts_using_oled = lambda: self.set_is_user_controlled(
             True)
-        self.__oled.when_user_stops_using_oled = lambda: self.set_is_user_controlled(
+        self.__oled._when_user_stops_using_oled = lambda: self.set_is_user_controlled(
             False)
 
         self.user_has_control = False
