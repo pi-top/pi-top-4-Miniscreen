@@ -72,10 +72,20 @@ class MenuManager:
                         f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
 
                 if self.user_has_control:
+
                     PTLogger.info(
                         "User has control. Waiting for user to give control back...")
+
                     while self.user_has_control:
                         sleep(0.2)
+
+                    PTLogger.info("Forcing full state refresh...")
+
+                    self.__oled.reset()
+                    self.current_menu.refresh(force=True)
+                    self.__draw_current_menu_page_to_oled(force=True)
+                    PTLogger.info("OLED control restored")
+
                 else:
                     PTLogger.debug("Sleeping for " +
                                    str(self.__frame_sleep_time))
@@ -236,17 +246,5 @@ class MenuManager:
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
-        if user_has_control:
-            PTLogger.info("User has taken control of the OLED")
-            self.ack_user_has_control = False
-
-        else:
-            PTLogger.info("User has stopped using the OLED")
-
-            PTLogger.info(
-                "Forcing full state refresh...")
-
-            self.__oled.reset()
-            self.current_menu.refresh(force=True)
-            self.__draw_current_menu_page_to_oled(force=True)
-            PTLogger.info("OLED control restored")
+        PTLogger.info(
+            f"User has {'taken' if user_has_control else 'given back'} control of the OLED")
