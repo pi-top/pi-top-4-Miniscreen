@@ -1,3 +1,9 @@
+pt-sys-oled (3.7.1) buster; urgency=medium
+
+  * Hide unfinished projects page
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 14 Jan 2021 13:43:28 +0000
+
 pt-sys-oled (3.7.0) buster; urgency=medium
 
   * Use OLED events to determine when to take control

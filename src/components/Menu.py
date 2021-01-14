@@ -12,7 +12,7 @@ from .widgets.settings import (
 )
 from .widgets.projects import (
     template as projects_menu_page,
-    title as projects_title,
+    # title as projects_title,
 )
 from .widgets.first_time_setup import first_time_setup
 from .widgets.error import template as error_page
@@ -143,17 +143,17 @@ class PageHelper:
                         Menus.SETTINGS),
                     cancel_action_func=None,
                 ),
-                MenuPage(
-                    name="Projects",
-                    hotspot=self.__get_hotspot(
-                        widget=projects_title,
-                        interval=0.5,
-                        title="Projects"
-                    ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.PROJECTS),
-                    cancel_action_func=None,
-                ),
+                # MenuPage(
+                #     name="Projects",
+                #     hotspot=self.__get_hotspot(
+                #         widget=projects_title,
+                #         interval=0.5,
+                #         title="Projects"
+                #     ),
+                #     select_action_func=lambda: self.__callback_client.change_menu(
+                #         Menus.PROJECTS),
+                #     cancel_action_func=None,
+                # ),
             ]
         elif menu_id == Menus.SETTINGS:
             pages = [
