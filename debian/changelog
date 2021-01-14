@@ -1,4 +1,4 @@
-pt-sys-oled (3.6.1) buster; urgency=medium
+pt-sys-oled (3.7.0) buster; urgency=medium
 
   * Use OLED events to determine when to take control
 
