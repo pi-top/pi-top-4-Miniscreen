@@ -4,7 +4,7 @@ from .Menu import (
 )
 from .helpers.button_press import ButtonPress
 
-from pitop.miniscreen.buttons import Buttons
+from pitop.miniscreen import Buttons
 
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
