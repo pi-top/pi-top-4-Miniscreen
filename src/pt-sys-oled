@@ -84,9 +84,6 @@ def main():
             if not device_found:
                 return
 
-            oled._set_exclusive_mode(False)
-            oled.reset()
-
             already_played_boot_animation = path.exists(
                 boot_animation_played_breadcrumb)
             one_loop_only = path.exists(fs_expanded_breadcrumb)
