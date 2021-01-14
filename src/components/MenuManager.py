@@ -19,6 +19,12 @@ class MenuManager:
 
     def __init__(self, oled):
         self.__oled = oled
+        self.__oled._when_user_starts_using_oled = lambda: self.set_is_user_controlled(
+            True)
+        self.__oled._when_user_stops_using_oled = lambda: self.set_is_user_controlled(
+            False)
+
+        self.user_has_control = False
 
         self.current_menu = None
 
@@ -65,10 +71,25 @@ class MenuManager:
                     PTLogger.debug(
                         f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
 
-                PTLogger.debug("Sleeping for " + str(self.__frame_sleep_time))
-                sleep(self.__frame_sleep_time)
+                if self.user_has_control:
 
-                self.__wait_for_oled_control()
+                    PTLogger.info(
+                        "User has control. Waiting for user to give control back...")
+
+                    while self.user_has_control:
+                        sleep(0.2)
+
+                    PTLogger.info("Forcing full state refresh...")
+
+                    self.__oled.reset()
+                    self.current_menu.refresh(force=True)
+                    self.__draw_current_menu_page_to_oled(force=True)
+                    PTLogger.info("OLED control restored")
+
+                else:
+                    PTLogger.debug("Sleeping for " +
+                                   str(self.__frame_sleep_time))
+                    sleep(self.__frame_sleep_time)
 
         except SystemExit:
             PTLogger.info("Program exited")
@@ -223,18 +244,7 @@ class MenuManager:
             else:
                 self.__current_page_frame_counter += self.__frame_sleep_time
 
-    def __wait_for_oled_control(self):
-        oled_control_lost_since_last_cycle = False
-        while True:
-            if self.__oled.is_active():
-                if oled_control_lost_since_last_cycle is False:
-                    PTLogger.info("User has taken control of the OLED")
-                    oled_control_lost_since_last_cycle = True
-                sleep(1)
-            else:
-                if oled_control_lost_since_last_cycle:
-                    PTLogger.info("OLED control restored")
-                    self.__oled.reset()
-                    self.current_menu.refresh(force=True)
-                    self.__draw_current_menu_page_to_oled(force=True)
-                break
+    def set_is_user_controlled(self, user_has_control):
+        self.user_has_control = user_has_control
+        PTLogger.info(
+            f"User has {'taken' if user_has_control else 'given back'} control of the OLED")

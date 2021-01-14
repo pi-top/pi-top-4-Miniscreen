@@ -1,3 +1,9 @@
+pt-sys-oled (3.6.1) buster; urgency=medium
+
+  * Use OLED events to determine when to take control
+
+ -- Jorge Capona <jorge@pi-top.com>  Wed, 13 Jan 2021 16:45:13 -0300
+
 pt-sys-oled (3.6.0) buster; urgency=medium
 
   * Use updated SDK to ensure that all OLED operations are
