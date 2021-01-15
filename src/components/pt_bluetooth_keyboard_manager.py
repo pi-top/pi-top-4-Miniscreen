@@ -28,7 +28,10 @@ from dbus import (
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository.GObject import MainLoop
 from subprocess import getoutput
-from threading import Thread, Event
+from threading import (
+    Thread,
+    Event,
+)
 from time import sleep
 
 
