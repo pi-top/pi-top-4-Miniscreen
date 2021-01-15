@@ -1,3 +1,5 @@
+from .pt_bluetooth_keyboard_manager import BTKBManager
+
 from pitopcommon.logger import PTLogger
 from pitopcommon.sys_info import get_systemd_enabled_state
 
@@ -6,7 +8,7 @@ from os import (
     kill,
     system,
 )
-import signal
+from signal import SIGTERM
 from subprocess import (
     check_output,
     Popen,
@@ -62,7 +64,10 @@ class Actions:
 
     @staticmethod
     def autopair_bluetooth_keyboard():
-        pass
+        bt_kb_manager = BTKBManager()
+        bt_kb_manager.initialise()
+        bt_kb_manager.start()
+        bt_kb_manager.signal_auto_connect()
 
     @staticmethod
     def start_stop_project(path_to_project):
@@ -89,7 +94,7 @@ class Actions:
                     else:
                         for pid in pids:
                             try:
-                                kill(int(pid), signal.SIGTERM)
+                                kill(int(pid), SIGTERM)
                             except ValueError:
                                 pass
                 else:

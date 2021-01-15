@@ -1,8 +1,23 @@
-#!/usr/bin/env python3
+# OLED BT KB PAGE
+#     Should show the user if a pi-top BT KB is detected
+#         For now, continously poll lsusb when page is in view
+#             When found, confirm BT Mac address in /proc/bus/input/devices
 
-from threading import Thread, Event
+# Settings pages - set them as static, but allow each page to update to dbus events
+#     systemd services (if possible)
+#           https://trstringer.com/python-systemd-dbus/
+
+#     Bluetooth/USB state change
+#           https://stackoverflow.com/questions/5109879/usb-devices-udev-and-d-bus#5111493
+
+#     Do nothing if not
+#     Update the page to "in progress" state for connection; disable navigation until complete (include timeout)
+#         clearly communicate "Please press Bluetooth button on your keyboard to auto pair..." visually
+
+#     for auto pairing, use pt-bt-kb stuff from ptdm
+
+
 from pitopcommon.logger import PTLogger
-from time import sleep
 
 from dbus import (
     exceptions,
@@ -13,6 +28,9 @@ from dbus import (
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository.GObject import MainLoop
 from subprocess import getoutput
+from threading import Thread, Event
+from time import sleep
+
 
 SERVICE_NAME = "org.bluez"
 ADAPTER_INTERFACE = SERVICE_NAME + ".Adapter1"
@@ -67,6 +85,7 @@ def trigger_keyboard_pairing_mode():
 
 
 def get_keyboard_mac_address():
+    # TODO: get BT KB mac address in /proc/bus/input/devices
     pass
 
 
@@ -1027,6 +1046,3 @@ class BTKBManager:
             signal_name="PropertiesChanged",
             path_keyword="path",
         )
-
-
-bt_kb_manager = BTKBManager()
