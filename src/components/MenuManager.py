@@ -52,13 +52,13 @@ class MenuManager:
         # If EULA is not agreed to on pi-topOS, then user is still in onboarding
         # Not the best breadcrumb to look for...
         if is_pi_top_os() and eula_agreed() is False:
-            self.__add_menu_to_list(Menus.FIRST_TIME)
+            self.__register_menu(Menus.FIRST_TIME)
             self.change_menu(Menus.FIRST_TIME)
         else:
-            self.__add_menu_to_list(Menus.SYS_INFO)
-            self.__add_menu_to_list(Menus.MAIN_MENU)
-            self.__add_menu_to_list(Menus.PROJECTS)
-            self.__add_menu_to_list(Menus.SETTINGS)
+            self.__register_menu(Menus.SYS_INFO)
+            self.__register_menu(Menus.MAIN_MENU)
+            self.__register_menu(Menus.PROJECTS)
+            self.__register_menu(Menus.SETTINGS)
             self.change_menu(Menus.SYS_INFO)
 
     def main_loop(self):
@@ -82,7 +82,7 @@ class MenuManager:
 
                     self.__oled.reset()
                     self.current_menu.refresh(force=True)
-                    self.__draw_current_menu_page_to_oled(force=True)
+                    self.display(force=True)
                     PTLogger.info("OLED control restored")
 
                 else:
@@ -103,11 +103,15 @@ class MenuManager:
             current_menu_name = "<not set>" if self.current_menu is None else self.current_menu.name
             PTLogger.info(
                 f"Changing menu from {current_menu_name} to {self.__menus[menu_to_go_to].name}")
+
             self.current_menu = self.__menus[menu_to_go_to]
+            self.__oled.active_canvas = self.current_menu.name
+
             if menu_to_go_to == Menus.PROJECTS:
                 self.current_menu.update_pages()
+
             self.current_menu.refresh(force=True)
-            self.__draw_current_menu_page_to_oled(force=True)
+            self.display(force=True)
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
@@ -139,10 +143,14 @@ class MenuManager:
         self.__oled.contrast(255)
         self.__sleeping = False
 
-    def __add_menu_to_list(self, menu_id):
+    def __register_menu(self, menu_id):
         width, height = self.__oled.size
         self.__menus[menu_id] = Menu(
             menu_id, width, height, self.__oled.mode, self)
+        self.__oled.add_canvas(
+            canvas_to_add=self.__menus[menu_id],
+            canvas_id=menu_id,
+        )
 
     def __button_locks_exist(self):
         locks_exist = False
@@ -153,7 +161,7 @@ class MenuManager:
 
         return locks_exist
 
-    def __draw_current_menu_page_to_oled(self, force=False):
+    def display(self, force=False):
         if force:
             PTLogger.debug(
                 f"MenuManager: Forcing redraw of {self.current_menu.page.name}"
@@ -168,7 +176,7 @@ class MenuManager:
 
             self.current_menu.refresh()
 
-            self.__oled.device.display(self.current_menu.image)
+            self.__oled.display()
 
             self.current_menu.set_current_image_as_rendered()
 
@@ -235,7 +243,7 @@ class MenuManager:
             self.__frame_sleep_time = self.__default_frame_sleep_time
 
         self.current_menu.refresh(force_refresh)
-        self.__draw_current_menu_page_to_oled()
+        self.display()
 
         if not self.__sleeping:
             go_to_sleep = self.__current_page_frame_counter > self.__current_page_frame_counter_limit
