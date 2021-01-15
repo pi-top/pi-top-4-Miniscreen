@@ -167,7 +167,9 @@ class MenuManager:
             )
 
             self.current_menu.refresh()
-            self.__oled.draw_image(self.current_menu.image)
+
+            self.__oled.device.display(self.current_menu.image)
+
             self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
