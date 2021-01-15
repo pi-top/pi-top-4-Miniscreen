@@ -1,3 +1,4 @@
+from .actions import Actions
 from .widgets.sys_info import (
     batt_level,
     cpu_load,
@@ -16,13 +17,6 @@ from .widgets.projects import (
 )
 from .widgets.first_time_setup import first_time_setup
 from .widgets.error import template as error_page
-from .helpers.menu_page_actions import (
-    change_ssh_enabled_state,
-    change_vnc_enabled_state,
-    change_pt_further_link_enabled_state,
-    reset_hdmi_configuration,
-    start_stop_project,
-)
 
 from pitopcommon.logger import PTLogger
 from pitopcommon.sys_info import (
@@ -31,9 +25,12 @@ from pitopcommon.sys_info import (
     get_pt_further_link_enabled_state,
 )
 
-from PIL import Image
 from enum import Enum
-from os import path, listdir
+from os import (
+    path,
+    listdir,
+)
+from PIL import Image
 
 
 class Menus(Enum):
@@ -45,18 +42,18 @@ class Menus(Enum):
     FIRST_TIME = 5
 
 
-class MenuPage:
+class __MenuPage:
     """Base view on screen"""
 
     def __init__(self, name, hotspot, select_action_func, cancel_action_func):
-        """Constructor for MenuPage"""
+        """Constructor for __MenuPage"""
         self.select_action_func = select_action_func
         self.cancel_action_func = cancel_action_func
         self.hotspot = hotspot
         self.name = name
 
 
-class PageHelper:
+class __PageHelper:
     def __init__(self, device_width, device_height, device_mode, callback_client):
         self.__device_width = device_width
         self.__device_height = device_height
@@ -79,7 +76,7 @@ class PageHelper:
         pages = list()
         if menu_id == Menus.SYS_INFO:
             pages = [
-                MenuPage(
+                __MenuPage(
                     name="battery",
                     hotspot=self.__get_hotspot(
                         widget=batt_level,
@@ -89,7 +86,7 @@ class PageHelper:
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
-                MenuPage(
+                __MenuPage(
                     name="cpu",
                     hotspot=self.__get_hotspot(
                         widget=cpu_load,
@@ -99,7 +96,7 @@ class PageHelper:
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
-                MenuPage(
+                __MenuPage(
                     name="wifi",
                     hotspot=self.__get_hotspot(
                         widget=wifi,
@@ -109,7 +106,7 @@ class PageHelper:
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
-                MenuPage(
+                __MenuPage(
                     name="ethernet",
                     hotspot=self.__get_hotspot(
                         widget=ethernet,
@@ -119,7 +116,7 @@ class PageHelper:
                         Menus.MAIN_MENU),
                     cancel_action_func=None,
                 ),
-                MenuPage(
+                __MenuPage(
                     name="usb",
                     hotspot=self.__get_hotspot(
                         widget=usb,
@@ -132,7 +129,7 @@ class PageHelper:
             ]
         elif menu_id == Menus.MAIN_MENU:
             pages = [
-                MenuPage(
+                __MenuPage(
                     name="Settings",
                     hotspot=self.__get_hotspot(
                         widget=setting_title,
@@ -143,7 +140,7 @@ class PageHelper:
                         Menus.SETTINGS),
                     cancel_action_func=None,
                 ),
-                # MenuPage(
+                # __MenuPage(
                 #     name="Projects",
                 #     hotspot=self.__get_hotspot(
                 #         widget=projects_title,
@@ -157,50 +154,60 @@ class PageHelper:
             ]
         elif menu_id == Menus.SETTINGS:
             pages = [
-                MenuPage(
+                __MenuPage(
                     name="ssh_connection",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="ssh",
                         get_state_method=get_ssh_enabled_state,
                     ),
-                    select_action_func=lambda: change_ssh_enabled_state(),
+                    select_action_func=lambda: Actions.change_ssh_enabled_state(),
                     cancel_action_func=None
                 ),
-                MenuPage(
+                __MenuPage(
                     name="vnc_connection",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="vnc",
                         get_state_method=get_vnc_enabled_state,
                     ),
-                    select_action_func=lambda: change_vnc_enabled_state(),
+                    select_action_func=lambda: Actions.change_vnc_enabled_state(),
                     cancel_action_func=None
                 ),
-                MenuPage(
+                __MenuPage(
                     name="pt_further_link",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="pt_further_link",
                         get_state_method=get_pt_further_link_enabled_state,
                     ),
-                    select_action_func=lambda: change_pt_further_link_enabled_state(),
+                    select_action_func=lambda: Actions.change_pt_further_link_enabled_state(),
                     cancel_action_func=None
                 ),
-                MenuPage(
+                __MenuPage(
                     name="hdmi_reset",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="hdmi_reset",
                         get_state_method=None,
                     ),
-                    select_action_func=lambda: reset_hdmi_configuration(),
+                    select_action_func=lambda: Actions.reset_hdmi_configuration(),
+                    cancel_action_func=None
+                ),
+                __MenuPage(
+                    name="bluetooth_keyboard_autopair",
+                    hotspot=self.__get_hotspot(
+                        widget=settings_menu_page,
+                        type="bluetooth_keyboard_autopair",
+                        get_state_method=None,
+                    ),
+                    select_action_func=lambda: Actions.autopair_bluetooth_keyboard(),
                     cancel_action_func=None
                 ),
             ]
         elif menu_id == Menus.FIRST_TIME:
             pages = [
-                MenuPage(
+                __MenuPage(
                     name="initial_setup",
                     hotspot=self.__get_hotspot(
                         widget=first_time_setup,
@@ -225,12 +232,12 @@ class PageHelper:
                     project_path = project_dir + "/" + project_subdir
 
                     pages.append(
-                        MenuPage(
+                        __MenuPage(
                             title,
                             self.__get_hotspot(
                                 widget=projects_menu_page, title=title, project_path=project_path
                             ),
-                            start_stop_project(project_path),
+                            Actions.start_stop_project(project_path),
                             None,
                         )
                     )
@@ -238,7 +245,7 @@ class PageHelper:
                     title = "No Projects Found"
 
                     pages.append(
-                        MenuPage(
+                        __MenuPage(
                             title,
                             self.__get_hotspot(
                                 widget=main_menu_page, title=title, image_path=None
@@ -252,7 +259,7 @@ class PageHelper:
                 second_line = "Not Found"
 
                 pages.append(
-                    MenuPage(
+                    __MenuPage(
                         title,
                         self.__get_hotspot(
                             widget=error_page,
@@ -298,7 +305,7 @@ class Menu:
         self.update_pages()
 
     def update_pages(self):
-        self.pages = PageHelper(
+        self.pages = __PageHelper(
             self.__device_width,
             self.__device_height,
             self.__device_mode,

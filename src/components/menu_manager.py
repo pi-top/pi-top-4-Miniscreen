@@ -1,17 +1,44 @@
-from .Menu import (
+from .menu_stuff import (
     Menu,
     Menus,
 )
-from .helpers.button_press import ButtonPress
 
 from pitop.miniscreen import Buttons
 
 from pitopcommon.logger import PTLogger
-from pitopcommon.pt_os import eula_agreed, is_pi_top_os
+from pitopcommon.pt_os import (
+    eula_agreed,
+    is_pi_top_os
+)
 
-from time import sleep
+from enum import Enum
 from os import listdir
 from re import compile
+from time import sleep
+
+
+class ButtonPress:
+    class ButtonType(Enum):
+        NONE = "NONE"
+        UP = "UP"
+        DOWN = "DOWN"
+        SELECT = "SELECT"
+        CANCEL = "CANCEL"
+
+    def __init__(self, event_type):
+        self.event_type = event_type
+
+    def is_direction(self):
+        return (
+            self.event_type == self.ButtonType.DOWN
+            or self.event_type == self.ButtonType.UP
+        )
+
+    def is_action(self):
+        return (
+            self.event_type == self.ButtonType.SELECT
+            or self.event_type == self.ButtonType.CANCEL
+        )
 
 
 class MenuManager:

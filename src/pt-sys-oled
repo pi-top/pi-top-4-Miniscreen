@@ -22,7 +22,7 @@ from pitop.system.device import device_type
 from pitop.miniscreen.oled import OLED
 
 from components.widgets.common.functions import get_image_file
-from components.MenuManager import MenuManager
+from components.menu_manager import MenuManager
 
 
 # TODO: replace with check of file system size; remove patch from preinst
