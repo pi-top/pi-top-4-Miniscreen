@@ -1,3 +1,9 @@
+pt-sys-oled (3.7.2) buster; urgency=medium
+
+  * Use OLED's internal device to display a canvas image
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 18 Jan 2021 16:22:08 +0000
+
 pt-sys-oled (3.7.1) buster; urgency=medium
 
   * Hide unfinished projects page
