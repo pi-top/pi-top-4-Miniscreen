@@ -27,7 +27,8 @@ def wifi_strength_image():
         wifi_rating += "wifi_good_signal.gif"
     else:
         wifi_rating += "wifi_excellent_signal.gif"
-    return get_image_file(f"sys_info/{wifi_rating}")
+
+    return get_image_file(f"{wifi_rating}")
 
 
 class Hotspot(BaseSnapshot):

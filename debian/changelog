@@ -1,3 +1,9 @@
+pt-sys-oled (3.7.3) buster; urgency=medium
+
+  * Fix wifi page's signal strength
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 20 Jan 2021 13:29:19 +0000
+
 pt-sys-oled (3.7.2) buster; urgency=medium
 
   * Use OLED's internal device to display a canvas image
