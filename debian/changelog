@@ -1,3 +1,9 @@
+pt-sys-oled (3.8.0) buster; urgency=medium
+
+  * Use SDK's OLED's 'is_active' property
+
+ -- Mike Roberts <mike@pi-top.com>  Sat, 23 Jan 2021 17:21:36 +0000
+
 pt-sys-oled (3.7.3) buster; urgency=medium
 
   * Fix wifi page's signal strength

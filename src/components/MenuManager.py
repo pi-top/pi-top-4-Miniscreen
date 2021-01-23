@@ -65,7 +65,7 @@ class MenuManager:
         try:
             while self.__continue:
                 # Only attempt to update state if OLED is owned by pt-sys-oled
-                if not self.__oled.is_active():
+                if not self.__oled.is_active:
                     self.__update_state()
                     PTLogger.debug(
                         f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
@@ -113,7 +113,7 @@ class MenuManager:
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def __add_button_press_to_stack(self, button_press_event):
-        if self.__oled.is_active():
+        if self.__oled.is_active:
             PTLogger.info(
                 f"OLED is active - skipping button press: {str(button_press_event.event_type)}")
             return
