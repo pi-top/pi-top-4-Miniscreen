@@ -1,3 +1,9 @@
+pt-sys-oled (3.9.0) buster; urgency=medium
+
+  * Use global buttons instance
+
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 25 Jan 2021 16:12:46 -0300
+
 pt-sys-oled (3.8.0) buster; urgency=medium
 
   * Use SDK's OLED's 'is_active' property
