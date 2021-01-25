@@ -10,8 +10,6 @@ from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
 from time import sleep
-from os import listdir
-from re import compile
 
 
 class MenuManager:
@@ -113,14 +111,11 @@ class MenuManager:
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def __add_button_press_to_stack(self, button_press_event):
-        if self.__oled.is_active:
+        if self.__oled.is_active or self.__buttons.is_active:
+            PTLogger.debug(f"OLED is active? {self.__oled.is_active}")
+            PTLogger.debug(f"Buttons are active? {self.__buttons.is_active}")
             PTLogger.info(
-                f"OLED is active - skipping button press: {str(button_press_event.event_type)}")
-            return
-
-        if self.__button_locks_exist():
-            PTLogger.info(
-                f"Buttons locks exist - skipping button press: {str(button_press_event.event_type)}")
+                f"OLED or buttons are active - skipping button press: {str(button_press_event.event_type)}")
             return
 
         if button_press_event.event_type == ButtonPress.ButtonType.NONE:
@@ -143,15 +138,6 @@ class MenuManager:
         width, height = self.__oled.size
         self.__menus[menu_id] = Menu(
             menu_id, width, height, self.__oled.mode, self)
-
-    def __button_locks_exist(self):
-        locks_exist = False
-        for filepath in listdir("/tmp"):
-            if compile("pt-buttons-.*.lock").match(filepath):
-                locks_exist = True
-                break
-
-        return locks_exist
 
     def __draw_current_menu_page_to_oled(self, force=False):
         if force:
