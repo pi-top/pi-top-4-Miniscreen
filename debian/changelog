@@ -1,3 +1,9 @@
+pt-sys-oled (4.0.0) buster; urgency=medium
+
+  * Use environment variable to set as system owner of miniscreen
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 01 Feb 2021 19:25:24 +0000
+
 pt-sys-oled (3.9.0) buster; urgency=medium
 
   * Use global buttons instance
