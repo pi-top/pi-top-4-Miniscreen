@@ -4,8 +4,6 @@ from .Menu import (
 )
 from .helpers.button_press import ButtonPress
 
-from pitop.miniscreen import Buttons
-
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
@@ -15,26 +13,24 @@ from time import sleep
 class MenuManager:
     """Owner class for all Menus. Handles input events and controls menu behaviour."""
 
-    def __init__(self, oled):
-        self.__oled = oled
-        self.__oled._when_user_starts_using_oled = lambda: self.set_is_user_controlled(
+    def __init__(self, miniscreen):
+        self.__miniscreen = miniscreen
+        self.__miniscreen._when_user_starts_using_oled = lambda: self.set_is_user_controlled(
             True)
-        self.__oled._when_user_stops_using_oled = lambda: self.set_is_user_controlled(
+        self.__miniscreen._when_user_stops_using_oled = lambda: self.set_is_user_controlled(
             False)
 
         self.user_has_control = False
 
         self.current_menu = None
 
-        self.__buttons = Buttons()
-
-        self.__buttons.up.when_pressed = lambda: self.__add_button_press_to_stack(
+        self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.UP))
-        self.__buttons.down.when_pressed = lambda: self.__add_button_press_to_stack(
+        self.__miniscreen.down_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.DOWN))
-        self.__buttons.select.when_pressed = lambda: self.__add_button_press_to_stack(
+        self.__miniscreen.select_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.SELECT))
-        self.__buttons.cancel.when_pressed = lambda: self.__add_button_press_to_stack(
+        self.__miniscreen.cancel_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.CANCEL))
 
         self.__button_press_stack = []
@@ -63,7 +59,7 @@ class MenuManager:
         try:
             while self.__continue:
                 # Only attempt to update state if OLED is owned by pt-sys-oled
-                if not self.__oled.is_active:
+                if not self.__miniscreen.is_active:
                     self.__update_state()
                     PTLogger.debug(
                         f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
@@ -78,7 +74,7 @@ class MenuManager:
 
                     PTLogger.info("Forcing full state refresh...")
 
-                    self.__oled.reset()
+                    self.__miniscreen.reset()
                     self.current_menu.refresh(force=True)
                     self.__draw_current_menu_page_to_oled(force=True)
                     PTLogger.info("OLED control restored")
@@ -111,11 +107,9 @@ class MenuManager:
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
 
     def __add_button_press_to_stack(self, button_press_event):
-        if self.__oled.is_active or self.__buttons.is_active:
-            PTLogger.debug(f"OLED is active? {self.__oled.is_active}")
-            PTLogger.debug(f"Buttons are active? {self.__buttons.is_active}")
+        if self.__miniscreen.is_active:
             PTLogger.info(
-                f"OLED or buttons are active - skipping button press: {str(button_press_event.event_type)}")
+                f"Miniscreen is currently active - skipping button press: {str(button_press_event.event_type)}")
             return
 
         if button_press_event.event_type == ButtonPress.ButtonType.NONE:
@@ -127,17 +121,17 @@ class MenuManager:
         self.__button_press_stack.append(button_press_event)
 
     def __sleep_oled(self):
-        self.__oled.contrast(0)
+        self.__miniscreen.contrast(0)
         self.__sleeping = True
 
     def __wake_oled(self):
-        self.__oled.contrast(255)
+        self.__miniscreen.contrast(255)
         self.__sleeping = False
 
     def __add_menu_to_list(self, menu_id):
-        width, height = self.__oled.size
+        width, height = self.__miniscreen.size
         self.__menus[menu_id] = Menu(
-            menu_id, width, height, self.__oled.mode, self)
+            menu_id, width, height, self.__miniscreen.mode, self)
 
     def __draw_current_menu_page_to_oled(self, force=False):
         if force:
@@ -154,7 +148,7 @@ class MenuManager:
 
             self.current_menu.refresh()
 
-            self.__oled.device.display(self.current_menu.image)
+            self.__miniscreen.device.display(self.current_menu.image)
 
             self.current_menu.set_current_image_as_rendered()
 
