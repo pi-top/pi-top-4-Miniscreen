@@ -1,3 +1,9 @@
+pt-sys-oled (4.0.1) buster; urgency=medium
+
+  * Use SDK's miniscreen class
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 01 Feb 2021 19:55:26 +0000
+
 pt-sys-oled (4.0.0) buster; urgency=medium
 
   * Use environment variable to set as system owner of miniscreen
