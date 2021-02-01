@@ -75,7 +75,7 @@ def main():
         if should_run():
             device_found = False
             try:
-                oled = OLED(_exclusive_mode=False)
+                oled = OLED()
                 device_found = True
             except DeviceNotFoundError as e:
                 PTLogger.error(f"Error getting device: {str(e)}")
