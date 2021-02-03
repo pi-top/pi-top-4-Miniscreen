@@ -1,6 +1,6 @@
 from pitop.battery import Battery
 
-from components.widgets.common.functions import draw_text, get_image_file
+from components.widgets.common.functions import draw_text, get_image_file_path
 from components.widgets.common.base_widgets import BaseSnapshot
 from components.widgets.common.image_component import ImageComponent
 
@@ -15,7 +15,7 @@ class Hotspot(BaseSnapshot):
             device_mode=self.mode,
             width=self.width,
             height=self.height,
-            image_path=get_image_file("sys_info/battery_shell_empty.gif"),
+            image_path=get_image_file_path("sys_info/battery_shell_empty.gif"),
             loop=False,
         )
 
@@ -46,7 +46,7 @@ class Hotspot(BaseSnapshot):
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
-                image_path=get_image_file(
+                image_path=get_image_file_path(
                     "sys_info/battery_shell_charging.gif"),
                 loop=False
             )
@@ -55,7 +55,8 @@ class Hotspot(BaseSnapshot):
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
-                image_path=get_image_file("sys_info/battery_shell_empty.gif"),
+                image_path=get_image_file_path(
+                    "sys_info/battery_shell_empty.gif"),
                 loop=False
             )
             self.draw_battery_percentage(draw, width, height)

@@ -3,7 +3,7 @@
 
 import psutil
 from components.widgets.common.base_widgets import BaseSnapshot
-from components.widgets.common.functions import get_image_file
+from components.widgets.common.functions import get_image_file_path
 from components.widgets.common.image_component import ImageComponent
 
 
@@ -19,7 +19,7 @@ class Hotspot(BaseSnapshot):
             device_mode=mode,
             width=width,
             height=height,
-            image_path=get_image_file("sys_info/cpu.gif"),
+            image_path=get_image_file_path("sys_info/cpu.gif"),
             loop=False,
         )
 

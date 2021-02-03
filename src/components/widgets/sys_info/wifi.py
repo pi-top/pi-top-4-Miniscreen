@@ -3,7 +3,7 @@ from pitopcommon.sys_info import (
     get_internal_ip,
     get_network_strength,
 )
-from components.widgets.common.functions import draw_text, get_image_file
+from components.widgets.common.functions import draw_text, get_image_file_path
 from components.widgets.common.values import (
     default_margin_x,
     common_second_line_y,
@@ -28,7 +28,7 @@ def wifi_strength_image():
     else:
         wifi_rating += "wifi_excellent_signal.gif"
 
-    return get_image_file(f"{wifi_rating}")
+    return get_image_file_path(f"{wifi_rating}")
 
 
 class Hotspot(BaseSnapshot):
@@ -41,7 +41,7 @@ class Hotspot(BaseSnapshot):
             device_mode=self.mode,
             width=self.width,
             height=self.height,
-            image_path=get_image_file("sys_info/wifi.gif"),
+            image_path=get_image_file_path("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -58,7 +58,7 @@ class Hotspot(BaseSnapshot):
             device_mode=self.mode,
             width=self.width,
             height=self.height,
-            image_path=get_image_file("sys_info/wifi.gif"),
+            image_path=get_image_file_path("sys_info/wifi.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -91,7 +91,7 @@ class Hotspot(BaseSnapshot):
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
-                image_path=get_image_file("sys_info/wifi.gif"),
+                image_path=get_image_file_path("sys_info/wifi.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
