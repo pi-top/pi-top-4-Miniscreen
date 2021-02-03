@@ -94,14 +94,21 @@ def main():
                 PTLogger.info("Not played boot animation this session")
                 PTLogger.info("Starting startup animation")
 
-                startup_image_path = custom_startup_gif_path if path.exists(
-                    custom_startup_gif_path) else get_image_file_path("startup/pi-top_startup.gif")
+                def play_animated_gif(gif_path):
+                    miniscreen.play_animated_image_file(
+                        gif_path,
+                        background=False,
+                        loop=not one_loop_only
+                    )
 
-                miniscreen.play_animated_image_file(
-                    startup_image_path,
-                    background=False,
-                    loop=not one_loop_only,
-                )
+                try:
+                    play_animated_gif(custom_startup_gif_path)
+
+                except Exception:
+                    # Fallback
+                    play_animated_gif(
+                        get_image_file_path("startup/pi-top_startup.gif")
+                    )
 
                 Path(boot_animation_played_breadcrumb).touch()
 
