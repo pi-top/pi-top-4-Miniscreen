@@ -1,5 +1,5 @@
 from pitopcommon.sys_info import get_internal_ip
-from components.widgets.common.functions import draw_text, get_image_file
+from components.widgets.common.functions import draw_text, get_image_file_path
 from components.widgets.common.values import (
     default_margin_x,
     common_second_line_y,
@@ -19,7 +19,7 @@ class Hotspot(BaseSnapshot):
             device_mode=self.mode,
             width=self.width,
             height=self.height,
-            image_path=get_image_file("sys_info/lan.gif"),
+            image_path=get_image_file_path("sys_info/lan.gif"),
             loop=False,
             playback_speed=2.0
         )
@@ -34,7 +34,7 @@ class Hotspot(BaseSnapshot):
             device_mode=self.mode,
             width=self.width,
             height=self.height,
-            image_path=get_image_file("sys_info/lan.gif"),
+            image_path=get_image_file_path("sys_info/lan.gif"),
             loop=False,
             playback_speed=2.0,
         )
@@ -58,7 +58,7 @@ class Hotspot(BaseSnapshot):
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
-                image_path=get_image_file("sys_info/lan.gif"),
+                image_path=get_image_file_path("sys_info/lan.gif"),
                 loop=False,
                 playback_speed=2.0,
             )
