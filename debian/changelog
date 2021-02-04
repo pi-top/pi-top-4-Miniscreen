@@ -1,3 +1,9 @@
+pt-sys-oled (4.1.0) buster; urgency=medium
+
+  * Support use of custom GIFs on boot
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 04 Feb 2021 15:05:15 -0300
+
 pt-sys-oled (4.0.1) buster; urgency=medium
 
   * Use SDK's miniscreen class
