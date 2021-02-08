@@ -31,7 +31,7 @@ from pitopcommon.sys_info import (
     get_pt_further_link_enabled_state,
 )
 
-from PIL import Image
+from PIL import Image, ImageDraw
 from enum import Enum
 from os import path, listdir
 
@@ -336,8 +336,11 @@ class Menu:
         if force or redraw:
             self.image = Image.new(
                 self.__device_mode, (self.__device_width, self.__device_height))
-            # Calls each hotspot's render() function
-            self.hotspot.paste_into(self.image, (0, 0))
+
+            # Create empty image, ready to apply hotspot render to
+            self.image = Image.new(self.image.mode, self.hotspot.size)
+            # Draw current page to image
+            self.hotspot.update(ImageDraw.Draw(self.image))
 
     def set_current_image_as_rendered(self):
         self.__last_displayed_image = self.image
