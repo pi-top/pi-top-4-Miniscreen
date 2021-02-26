@@ -11,15 +11,17 @@ repos:
     - id: check-symlinks
 
 -   repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 2.1.4
+    rev: 2.1.5
     hooks:
     - id: shellcheck
+      args: [-x]
     - id: shfmt
 
 -   repo: git://github.com/detailyang/pre-commit-shell
     rev: 1.0.5
     hooks:
     - id: shell-lint
+      args: [-x]
 
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.5.4
