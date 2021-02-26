@@ -9,7 +9,7 @@ Standards-Version: 4.5.0
 Homepage: https://pi-top.com/
 
 Package: pt-sys-oled
-Architecture: any
+Architecture: all
 Depends:
  ${misc:Depends},
  ${python3:Depends},
