@@ -7,7 +7,10 @@ from .helpers.button_press import ButtonPress
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
-from time import sleep
+from time import (
+    perf_counter,
+    sleep
+)
 
 
 class MenuManager:
@@ -19,6 +22,8 @@ class MenuManager:
             True)
         self.__miniscreen._when_user_stops_using_oled = lambda: self.set_is_user_controlled(
             False)
+
+        self.last_active_time = perf_counter()
 
         self.user_has_control = False
 
@@ -38,8 +43,7 @@ class MenuManager:
         self.__sleeping = False
         self.__default_frame_sleep_time = 0.1
         self.__frame_sleep_time = self.__default_frame_sleep_time
-        self.__current_page_frame_counter = 0
-        self.__current_page_frame_counter_limit = 300
+        self.__dim_time = 30
 
         self.__menus = dict()
 
@@ -62,7 +66,7 @@ class MenuManager:
                 if not self.__miniscreen.is_active:
                     self.__update_state()
                     PTLogger.debug(
-                        f"Sleep timer: {self.__current_page_frame_counter:.2f} / {self.__current_page_frame_counter_limit}")
+                        f"Sleep timer: {self.last_active_time - perf_counter()}")
 
                 if self.user_has_control:
 
@@ -183,13 +187,13 @@ class MenuManager:
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             if self.__sleeping:
                 self.__wake_oled()
-                self.__current_page_frame_counter = 0
+                self.last_active_time = perf_counter()
             else:
                 if button_press.is_direction():
                     forwards = button_press.event_type == ButtonPress.ButtonType.UP
                     self.current_menu.page_number = __get_page_no_to_move_to(
                         forwards)
-                    self.__current_page_frame_counter = 0
+                    self.last_active_time = perf_counter()
 
                 elif button_press.is_action():
                     current_page = self.current_menu.page
@@ -215,14 +219,12 @@ class MenuManager:
             self.__frame_sleep_time = self.__default_frame_sleep_time
 
         self.current_menu.refresh(force_refresh)
+
         self.__draw_current_menu_page_to_oled()
 
         if not self.__sleeping:
-            go_to_sleep = self.__current_page_frame_counter > self.__current_page_frame_counter_limit
-            if go_to_sleep:
+            if perf_counter() - self.last_active_time >= self.__dim_time:
                 self.__sleep_oled()
-            else:
-                self.__current_page_frame_counter += self.__frame_sleep_time
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
