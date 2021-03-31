@@ -17,3 +17,29 @@ The `MenuManager` deals with the core application functionality:
 Displaying to the miniscreen object is done via the miniscreen object in the pi-top Python SDK.
 
 Each menu is comprised of multiple pages that are navigated between with the miniscreen buttons. Menu pages have actions that can be triggered by using the select button. Each page has a hotspot that represents what is to be displayed on the OLED display while the menu is on that page.
+
+
+===============
+Useful Commands
+===============
+
+Restart the service:
+
+..
+  sudo systemctl restart pt-sys-oled
+
+
+===============
+Adding Projects
+===============
+
+Check out `this <https://forum.pi-top.com/t/wip-guide-adding-projects-to-the-system-menu/643>`_ guide for how to start projects from the menu.
+This is a temporary measure, until a better implementation that supports extensibility.
+
+
+==============
+Adding Widgets
+==============
+
+Check out `this <https://forum.pi-top.com/t/wip-guide-create-new-system-menu-widgets/644/8>`__ guide for how to add widget pages to the menu.
+This is a temporary measure, until a better implementation that supports extensibility.
