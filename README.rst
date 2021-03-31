@@ -1,6 +1,6 @@
-==============================================
-pi-top System OLED widget and menu application
-==============================================
+=============================================
+pi-top [4] Miniscreen Widget/Menu Application
+=============================================
 
 A simple Python-based widget and menu application that uses the pi-top [4]'s miniscreen OLED display and buttons.
 
