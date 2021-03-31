@@ -69,12 +69,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.2.0
 
-      - name: Download Python artifact
-        uses: actions/download-artifact@v2
-        with:
-            name: "${{ env.GITHUB_REPOSITORY_NAME }}-#${{ env.GITHUB_SHA_SHORT }}-py"
-            path: "./py"
-
       - name: Download Debian binary artifacts
         uses: actions/download-artifact@v2
         with:
@@ -101,7 +95,6 @@ jobs:
           prerelease: false
           body: ${{ secrets.GH_RELEASE_BODY_TEXT }}
           files: |
-            ./py/*
             ./deb/*
             ./deb-src/*
         env:
