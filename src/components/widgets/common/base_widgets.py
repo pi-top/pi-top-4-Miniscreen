@@ -23,9 +23,7 @@ class BaseSnapshot(snapshot):
         pass
 
     def should_redraw(self):
-        """
-        Only requests a redraw after ``interval`` seconds have elapsed.
-        """
+        """Only requests a redraw after ``interval`` seconds have elapsed."""
         if self.interval <= 0.0:
             return True
         else:

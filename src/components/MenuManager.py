@@ -11,7 +11,10 @@ from time import sleep
 
 
 class MenuManager:
-    """Owner class for all Menus. Handles input events and controls menu behaviour."""
+    """Owner class for all Menus.
+
+    Handles input events and controls menu behaviour.
+    """
 
     def __init__(self, miniscreen):
         self.__miniscreen = miniscreen

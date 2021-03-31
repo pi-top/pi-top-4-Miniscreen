@@ -1,0 +1,43 @@
+name: Deploy Published Release
+
+on:
+  push:
+    branches: [ "ci-test-publish-release-*" ]
+  release:
+    types: [published]
+
+jobs:
+  add-stable-tag:
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.2.0
+
+      - name: Tag release commit as 'stable' for ReadTheDocs
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: "stable"
+          commit_sha: ${{ github.sha }}
+          force_push_tag: true
+
+  deploy-release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.2.0
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Upload to PyPI
+        uses: casperdcl/deploy-pypi@v2
+        with:
+          user: ${{ secrets.PYPI_USERNAME }}
+          password: ${{ secrets.PYPI_PASSWORD }}
+          build: true
+          upload: ${{ github.event_name == 'release' && github.event.action == 'published' }}
