@@ -1,3 +1,20 @@
+pt-sys-oled (4.1.2) buster; urgency=medium
+
+  [ Mike Roberts ]
+  * Allow external sources when testing shell scripts
+  * Architecture: any --> all
+  * Add README; update CI (#121)
+  * Update README title
+  * Fix build badge URL
+  * Standards-Version: 4.5.1
+  * Suppress 'package-supports-alternative-init-but-no-init.d-script'
+  * Bump changelog
+
+  [ github-actions[bot] ]
+  * [CI] Update debian/changelog for next release (#122)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 31 Mar 2021 12:54:32 +0000
+
 pt-sys-oled (4.1.1) buster; urgency=medium
 
   * Standards-Version: 4.5.1
