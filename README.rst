@@ -10,7 +10,7 @@ A simple Python-based widget and menu application that uses the pi-top [4]'s min
 Build Status: Latest
 --------------------
 
-.. image:: https://img.shields.io/github/workflow/status/pi-top/pt-sys-oled/Build,%20Test%20and%20Publish
+.. image:: https://img.shields.io/github/workflow/status/pi-top/pt-sys-oled/Test%20and%20Build%20Packages%20on%20All%20Commits
    :alt: GitHub Workflow Status
 
 .. image:: https://img.shields.io/github/v/tag/pi-top/pt-sys-oled
