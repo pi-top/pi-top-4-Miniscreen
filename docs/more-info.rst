@@ -17,11 +17,3 @@ The `MenuManager` deals with the core application functionality:
 Displaying to the miniscreen object is done via the miniscreen object in the pi-top Python SDK.
 
 Each menu is comprised of multiple pages that are navigated between with the miniscreen buttons. Menu pages have actions that can be triggered by using the select button. Each page has a hotspot that represents what is to be displayed on the OLED display while the menu is on that page.
-
-.. ===========================
-.. Creating your own menu page
-.. ===========================
-
-.. TODO: explain
-.. * how to add a page to a menu
-.. * how to define a page's behaviour
