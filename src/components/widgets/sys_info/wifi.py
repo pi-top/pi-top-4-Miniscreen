@@ -19,11 +19,11 @@ def wifi_strength_image():
     wifi_rating = "sys_info/wifi_strength_bars/"
     if wifi_strength <= 0:
         wifi_rating += "wifi_no_signal.gif"
-    elif 0 < wifi_strength <= 0.5:
+    elif 0 < wifi_strength <= 0.25:
         wifi_rating += "wifi_weak_signal.gif"
-    elif 0.4 < wifi_strength <= 0.6:
+    elif 0.25 < wifi_strength <= 0.5:
         wifi_rating += "wifi_okay_signal.gif"
-    elif 0.6 < wifi_strength <= 0.7:
+    elif 0.5 < wifi_strength <= 0.75:
         wifi_rating += "wifi_good_signal.gif"
     else:
         wifi_rating += "wifi_excellent_signal.gif"

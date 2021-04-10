@@ -89,7 +89,6 @@ class MenuManager:
 
         except SystemExit:
             PTLogger.info("Program exited")
-            pass
 
     def stop(self):
         self.__continue = False
