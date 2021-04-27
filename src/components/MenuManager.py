@@ -234,15 +234,32 @@ class MenuManager:
                         if self.current_menu.parent is not None:
                             self.change_menu(self.current_menu.parent)
 
-        try:
-            max_current_hotspot_interval = self.current_menu.page.hotspot.interval
-            self.__frame_sleep_time = (
-                max_current_hotspot_interval
-                if max_current_hotspot_interval < self.__default_frame_sleep_time
-                else self.__default_frame_sleep_time
-            )
-        except AttributeError:
-            self.__frame_sleep_time = self.__default_frame_sleep_time
+        # Get frame time from menu
+        if self.state != MenuState.SCREENSAVER:
+            try:
+                max_current_hotspot_interval = self.current_menu.page.hotspot.interval
+                self.__frame_sleep_time = (
+                    max_current_hotspot_interval
+                    if max_current_hotspot_interval < self.__default_frame_sleep_time
+                    else self.__default_frame_sleep_time
+                )
+            except AttributeError:
+                self.__frame_sleep_time = self.__default_frame_sleep_time
+
+        # ------
+
+        if self.state == MenuState.SCREENSAVER:
+            image = self.screensaver.convert("1")
+
+            self.__frame_sleep_time = float(image.info["duration"] / 1000)
+            self.display(image, wake=False)
+            return
+
+        self.current_menu.refresh(force=True)
+        if self.current_menu.should_redraw():
+            self.__draw_current_menu_page_to_oled()
+
+        # ------
 
         time_since_last_active = perf_counter() - self.last_active_time
 
@@ -262,16 +279,6 @@ class MenuManager:
         if self.state != MenuState.SCREENSAVER:
             PTLogger.info("State: screensaver")
             self.state = MenuState.SCREENSAVER
-
-        # ------
-
-        if self.state == MenuState.SCREENSAVER:
-            self.display(self.screensaver.convert("1"), wake=False)
-            return
-
-        self.current_menu.refresh(force=True)
-        if self.current_menu.should_redraw():
-            self.__draw_current_menu_page_to_oled()
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
