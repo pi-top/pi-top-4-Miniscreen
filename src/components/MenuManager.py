@@ -102,6 +102,7 @@ class MenuManager:
 
     def reset(self):
         PTLogger.info("Forcing full state refresh...")
+        PTLogger.info("State: active")
         self.state = MenuState.ACTIVE
         self.__wake_oled()
         self.__miniscreen.reset()
@@ -164,11 +165,13 @@ class MenuManager:
 
     def __sleep_oled(self):
         self.__miniscreen.contrast(0)
+        PTLogger.info("State: dim")
         self.state = MenuState.DIM
 
     def __wake_oled(self):
         self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
+        PTLogger.info("State: active")
         self.state = MenuState.ACTIVE
 
     def __add_menu_to_list(self, menu_id):
@@ -212,8 +215,6 @@ class MenuManager:
 
         button_press = __get_next_button_press_from_stack()
 
-        force_refresh = False
-
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             self.__wake_oled()
             if button_press.is_direction():
@@ -226,7 +227,6 @@ class MenuManager:
                 if button_press.event_type == ButtonPress.ButtonType.SELECT:
                     if callable(current_page.select_action_func):
                         current_page.select_action_func()
-                        force_refresh = True
                 else:
                     if callable(current_page.cancel_action_func):
                         current_page.cancel_action_func()
@@ -251,7 +251,7 @@ class MenuManager:
         if time_since_last_active < self.timeouts[MenuState.DIM]:
             return
 
-        if self.state != MenuState.DIM:
+        if self.state == MenuState.ACTIVE:
             PTLogger.info("Going to sleep...")
             self.__sleep_oled()
             return
@@ -260,19 +260,18 @@ class MenuManager:
             return
 
         if self.state != MenuState.SCREENSAVER:
-            PTLogger.info("Starting screensaver...")
+            PTLogger.info("State: screensaver")
             self.state = MenuState.SCREENSAVER
 
         # ------
 
-        self.current_menu.refresh(force_refresh)
-
         if self.state == MenuState.SCREENSAVER:
             self.display(self.screensaver.convert("1"), wake=False)
-        else:
-            self.current_menu.refresh()
-            if self.current_menu.should_redraw():
-                self.__draw_current_menu_page_to_oled()
+            return
+
+        self.current_menu.refresh(force=True)
+        if self.current_menu.should_redraw():
+            self.__draw_current_menu_page_to_oled()
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
