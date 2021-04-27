@@ -216,6 +216,7 @@ class MenuManager:
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             self.__wake_oled()
+            self.sate = MenuState.ACTIVE
             if button_press.is_direction():
                 forwards = button_press.event_type == ButtonPress.ButtonType.UP
                 self.current_menu.page_number = __get_page_no_to_move_to(
@@ -234,6 +235,11 @@ class MenuManager:
                         if self.current_menu.parent is not None:
                             self.change_menu(self.current_menu.parent)
 
+        if self.sate == MenuState.ACTIVE:
+            self.current_menu.refresh()
+            if self.current_menu.should_redraw():
+                self.__draw_current_menu_page_to_oled()
+
         try:
             max_current_hotspot_interval = self.current_menu.page.hotspot.interval
             self.__frame_sleep_time = (
@@ -251,7 +257,7 @@ class MenuManager:
         if time_since_last_active < self.timeouts[MenuState.DIM]:
             return
 
-        if self.state != MenuState.DIM:
+        if self.state == MenuState.ACTIVE:
             PTLogger.info("Going to sleep...")
             self.__sleep_oled()
             return
@@ -259,20 +265,14 @@ class MenuManager:
         if time_since_last_active < self.timeouts[MenuState.SCREENSAVER]:
             return
 
-        if self.state != MenuState.SCREENSAVER:
+        if self.state == MenuState.DIM:
             PTLogger.info("Starting screensaver...")
             self.state = MenuState.SCREENSAVER
-
-        # ------
 
         self.current_menu.refresh(force_refresh)
 
         if self.state == MenuState.SCREENSAVER:
             self.display(self.screensaver.convert("1"), wake=False)
-        else:
-            self.current_menu.refresh()
-            if self.current_menu.should_redraw():
-                self.__draw_current_menu_page_to_oled()
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
