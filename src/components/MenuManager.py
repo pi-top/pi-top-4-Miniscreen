@@ -14,6 +14,13 @@ from time import (
 
 from PIL import Image
 from components.widgets.common.functions import get_image_file_path
+from enum import Enum
+
+
+class MenuState(Enum):
+    ACTIVE = 1
+    DIM = 2
+    SCREENSAVER = 3
 
 
 class MenuManager:
@@ -37,6 +44,13 @@ class MenuManager:
 
         self.current_menu = None
 
+        self.state = MenuState.ACTIVE
+
+        self.timeouts = {
+            MenuState.DIM: 5,          # 30
+            MenuState.SCREENSAVER: 10  # 120
+        }
+
         self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.UP))
         self.__miniscreen.down_button.when_pressed = lambda: self.__add_button_press_to_stack(
@@ -50,14 +64,8 @@ class MenuManager:
 
         self.__button_press_stack = []
         self.__continue = True
-        self.__sleeping = False
-        self.__playing_screensaver = False
         self.__default_frame_sleep_time = 0.1
         self.__frame_sleep_time = self.__default_frame_sleep_time
-        # self.__dim_time = 30
-        # self.__screensaver_time = 120
-        self.__dim_time = 5
-        self.__screensaver_time = 10
 
         self.__menus = dict()
 
@@ -75,9 +83,8 @@ class MenuManager:
 
     @property
     def screensaver(self):
-        frame_no = self._screensaver.tell()
         try:
-            self._screensaver.seek(frame_no + 1)
+            self._screensaver.seek(self._screensaver.tell() + 1)
         except EOFError:
             self._screensaver = Image.open(get_image_file_path("startup/pi-top_startup.gif"))
 
@@ -95,7 +102,7 @@ class MenuManager:
 
     def reset(self):
         PTLogger.info("Forcing full state refresh...")
-        self.__playing_screensaver = False
+        self.state = MenuState.ACTIVE
         self.__wake_oled()
         self.__miniscreen.reset()
         self.current_menu.refresh(force=True)
@@ -157,20 +164,21 @@ class MenuManager:
 
     def __sleep_oled(self):
         self.__miniscreen.contrast(0)
-        self.__sleeping = True
+        self.state = MenuState.DIM
 
     def __wake_oled(self):
         self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
-        self.__sleeping = False
+        self.state = MenuState.ACTIVE
 
     def __add_menu_to_list(self, menu_id):
         width, height = self.__miniscreen.size
         self.__menus[menu_id] = Menu(
             menu_id, width, height, self.__miniscreen.mode, self)
 
-    def display(self, image):
-        self.__wake_oled()
+    def display(self, image, wake=True):
+        if wake:
+            self.__wake_oled()
         self.__miniscreen.device.display(image)
         self.last_shown_image = image
 
@@ -240,27 +248,27 @@ class MenuManager:
 
         PTLogger.debug(f"Sleep timer: {time_since_last_active}")
 
-        if time_since_last_active < self.__dim_time:
+        if time_since_last_active < self.timeouts[MenuState.DIM]:
             return
 
-        if not self.__sleeping:
+        if self.state != MenuState.DIM:
             PTLogger.info("Going to sleep...")
             self.__sleep_oled()
             return
 
-        if time_since_last_active < self.__screensaver_time:
+        if time_since_last_active < self.timeouts[MenuState.SCREENSAVER]:
             return
 
-        if not self.__playing_screensaver:
+        if self.state != MenuState.SCREENSAVER:
             PTLogger.info("Starting screensaver...")
-            self.__playing_screensaver = True
+            self.state = MenuState.SCREENSAVER
 
         # ------
 
         self.current_menu.refresh(force_refresh)
 
-        if self.__playing_screensaver:
-            self.display(self.screensaver.convert("1"))
+        if self.state == MenuState.SCREENSAVER:
+            self.display(self.screensaver.convert("1"), wake=False)
         else:
             self.current_menu.refresh()
             if self.current_menu.should_redraw():
