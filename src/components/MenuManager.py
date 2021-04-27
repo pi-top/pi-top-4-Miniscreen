@@ -30,6 +30,8 @@ class MenuManager:
 
         self.user_has_control = False
 
+        self.last_shown_image = None
+
         self.current_menu = None
 
         self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
@@ -44,9 +46,11 @@ class MenuManager:
         self.__button_press_stack = []
         self.__continue = True
         self.__sleeping = False
+        # self.__playing_screensaver = False
         self.__default_frame_sleep_time = 0.1
         self.__frame_sleep_time = self.__default_frame_sleep_time
         self.__dim_time = 30
+        # self.__screensaver_time = 120
 
         self.__menus = dict()
 
@@ -62,29 +66,33 @@ class MenuManager:
             self.__add_menu_to_list(Menus.SETTINGS)
             self.change_menu(Menus.SYS_INFO)
 
+    def wait_for_user_control_release(self):
+        PTLogger.info(
+            "User has control. Waiting for user to give control back...")
+        while self.user_has_control:
+            sleep(0.2)
+
+    def redraw_last_image_to_display(self):
+        if self.last_shown_image is not None:
+            self.display(self.last_shown_image)
+
+    def reset(self):
+        PTLogger.info("Forcing full state refresh...")
+        self.__miniscreen.reset()
+        self.current_menu.refresh(force=True)
+        self.redraw_last_image_to_display()
+        PTLogger.info("OLED control restored")
+
     def main_loop(self):
         try:
             while self.__continue:
                 # Only attempt to update state if OLED is owned by pt-sys-oled
                 if not self.__miniscreen.is_active:
                     self.__update_state()
-                    PTLogger.debug(
-                        f"Sleep timer: {self.last_active_time - perf_counter()}")
 
                 if self.user_has_control:
-
-                    PTLogger.info(
-                        "User has control. Waiting for user to give control back...")
-
-                    while self.user_has_control:
-                        sleep(0.2)
-
-                    PTLogger.info("Forcing full state refresh...")
-
-                    self.__miniscreen.reset()
-                    self.current_menu.refresh(force=True)
-                    self.__draw_current_menu_page_to_oled(force=True)
-                    PTLogger.info("OLED control restored")
+                    self.wait_for_user_control_release()
+                    self.reset()
 
                 else:
                     PTLogger.debug("Sleeping for " +
@@ -106,8 +114,10 @@ class MenuManager:
             self.current_menu = self.__menus[menu_to_go_to]
             if menu_to_go_to == Menus.PROJECTS:
                 self.current_menu.update_pages()
+
             self.current_menu.refresh(force=True)
-            self.__draw_current_menu_page_to_oled(force=True)
+            self.__draw_current_menu_page_to_oled()
+
         else:
             self.stop()
             raise Exception("Unable to find menu: " + str(menu_to_go_to))
@@ -131,6 +141,7 @@ class MenuManager:
         self.__sleeping = True
 
     def __wake_oled(self):
+        self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
         self.__sleeping = False
 
@@ -139,24 +150,14 @@ class MenuManager:
         self.__menus[menu_id] = Menu(
             menu_id, width, height, self.__miniscreen.mode, self)
 
-    def __draw_current_menu_page_to_oled(self, force=False):
-        if force:
-            PTLogger.debug(
-                f"MenuManager: Forcing redraw of {self.current_menu.page.name}"
-                " to image before updating image on device"
-            )
+    def display(self, image):
+        self.__wake_oled()
+        self.__miniscreen.device.display(image)
+        self.last_shown_image = image
 
-        if force or self.current_menu.should_redraw():
-            PTLogger.debug(
-                "Updating image on OLED display - "
-                f"{self.current_menu.name}: {self.current_menu.page.name}"
-            )
-
-            self.current_menu.refresh()
-
-            self.__miniscreen.device.display(self.current_menu.image)
-
-            self.current_menu.set_current_image_as_rendered()
+    def __draw_current_menu_page_to_oled(self):
+        self.display(self.current_menu.image)
+        self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
         # TODO: move into separate class
@@ -187,28 +188,24 @@ class MenuManager:
         force_refresh = False
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
-            if self.__sleeping:
-                self.__wake_oled()
-                self.last_active_time = perf_counter()
-            else:
-                if button_press.is_direction():
-                    forwards = button_press.event_type == ButtonPress.ButtonType.UP
-                    self.current_menu.page_number = __get_page_no_to_move_to(
-                        forwards)
-                    self.last_active_time = perf_counter()
+            self.__wake_oled()
+            if button_press.is_direction():
+                forwards = button_press.event_type == ButtonPress.ButtonType.UP
+                self.current_menu.page_number = __get_page_no_to_move_to(
+                    forwards)
 
-                elif button_press.is_action():
-                    current_page = self.current_menu.page
-                    if button_press.event_type == ButtonPress.ButtonType.SELECT:
-                        if callable(current_page.select_action_func):
-                            current_page.select_action_func()
-                            force_refresh = True
+            elif button_press.is_action():
+                current_page = self.current_menu.page
+                if button_press.event_type == ButtonPress.ButtonType.SELECT:
+                    if callable(current_page.select_action_func):
+                        current_page.select_action_func()
+                        force_refresh = True
+                else:
+                    if callable(current_page.cancel_action_func):
+                        current_page.cancel_action_func()
                     else:
-                        if callable(current_page.cancel_action_func):
-                            current_page.cancel_action_func()
-                        else:
-                            if self.current_menu.parent is not None:
-                                self.change_menu(self.current_menu.parent)
+                        if self.current_menu.parent is not None:
+                            self.change_menu(self.current_menu.parent)
 
         try:
             max_current_hotspot_interval = self.current_menu.page.hotspot.interval
@@ -222,11 +219,32 @@ class MenuManager:
 
         self.current_menu.refresh(force_refresh)
 
+        # if self.__playing_screensaver:
+        #     pass
+        # else:
         self.__draw_current_menu_page_to_oled()
+        self.current_menu.refresh()
+        if self.current_menu.should_redraw():
+            self.__draw_current_menu_page_to_oled()
+
+        time_since_last_active = perf_counter() - self.last_active_time
+
+        PTLogger.debug(f"Sleep timer: {time_since_last_active}")
+
+        if time_since_last_active < self.__dim_time:
+            return
 
         if not self.__sleeping:
-            if perf_counter() - self.last_active_time >= self.__dim_time:
-                self.__sleep_oled()
+            PTLogger.info("Going to sleep...")
+            self.__sleep_oled()
+            return
+
+        # if time_since_last_active < self.__screensaver_time:
+            # return
+
+        # if not self.__playing_screensaver:
+        #     PTLogger.info("Starting screensaver...")
+        #     self.__playing_screensaver = True
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
