@@ -47,8 +47,8 @@ class MenuManager:
         self.state = MenuState.ACTIVE
 
         self.timeouts = {
-            MenuState.DIM: 5,          # 30
-            MenuState.SCREENSAVER: 10  # 120
+            MenuState.DIM: 30,
+            MenuState.SCREENSAVER: 120
         }
 
         self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
