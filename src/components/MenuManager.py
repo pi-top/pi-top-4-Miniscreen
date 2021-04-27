@@ -12,6 +12,9 @@ from time import (
     sleep
 )
 
+from PIL import Image
+from components.widgets.common.functions import get_image_file_path
+
 
 class MenuManager:
     """Owner class for all Menus.
@@ -43,14 +46,18 @@ class MenuManager:
         self.__miniscreen.cancel_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.CANCEL))
 
+        self._screensaver = Image.open(get_image_file_path("startup/pi-top_startup.gif"))
+
         self.__button_press_stack = []
         self.__continue = True
         self.__sleeping = False
         self.__playing_screensaver = False
         self.__default_frame_sleep_time = 0.1
         self.__frame_sleep_time = self.__default_frame_sleep_time
-        self.__dim_time = 30
+        # self.__dim_time = 30
         # self.__screensaver_time = 120
+        self.__dim_time = 5
+        self.__screensaver_time = 10
 
         self.__menus = dict()
 
@@ -65,6 +72,16 @@ class MenuManager:
             self.__add_menu_to_list(Menus.PROJECTS)
             self.__add_menu_to_list(Menus.SETTINGS)
             self.change_menu(Menus.SYS_INFO)
+
+    @property
+    def screensaver(self):
+        frame_no = self._screensaver.tell()
+        try:
+            self._screensaver.seek(frame_no + 1)
+        except EOFError:
+            self._screensaver = Image.open(get_image_file_path("startup/pi-top_startup.gif"))
+
+        return self._screensaver
 
     def wait_for_user_control_release(self):
         PTLogger.info(
@@ -238,12 +255,13 @@ class MenuManager:
             PTLogger.info("Starting screensaver...")
             self.__playing_screensaver = True
 
+        # ------
+
         self.current_menu.refresh(force_refresh)
 
         if self.__playing_screensaver:
-            pass
+            self.display(self.screensaver.convert("1"))
         else:
-            self.__draw_current_menu_page_to_oled()
             self.current_menu.refresh()
             if self.current_menu.should_redraw():
                 self.__draw_current_menu_page_to_oled()
