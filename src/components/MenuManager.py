@@ -12,8 +12,9 @@ from time import (
     sleep
 )
 
+from struct import pack
+from random import randint
 from PIL import Image
-from components.widgets.common.functions import get_image_file_path
 from enum import Enum
 
 
@@ -62,8 +63,6 @@ class MenuManager:
         self.__miniscreen.cancel_button.when_pressed = lambda: self.__add_button_press_to_stack(
             ButtonPress(ButtonPress.ButtonType.CANCEL))
 
-        self._screensaver = Image.open(get_image_file_path("startup/pi-top_startup.gif"))
-
         self.__button_press_stack = []
         self.__continue = True
         self.__default_frame_sleep_time = 0.1
@@ -85,12 +84,15 @@ class MenuManager:
 
     @property
     def screensaver(self):
-        try:
-            self._screensaver.seek(self._screensaver.tell() + 1)
-        except EOFError:
-            self._screensaver.seek(0)
-
-        return self._screensaver
+        data = [
+            randint(0, 0xFFFFFF)
+            for _ in range(self.__miniscreen.size[0] * self.__miniscreen.size[1])
+        ]
+        return Image.frombytes(
+            "RGBA",
+            self.__miniscreen.size,
+            pack('i' * len(data), *data)
+        ).convert("1")
 
     def wait_for_user_control_release(self):
         PTLogger.info(
@@ -174,7 +176,6 @@ class MenuManager:
             PTLogger.info("Waking up...")
             self.state = MenuState.WAKING
             self.__miniscreen.device.display(self.current_menu.image)
-        self._screensaver.seek(0)
 
     def __add_menu_to_list(self, menu_id):
         width, height = self.__miniscreen.size
