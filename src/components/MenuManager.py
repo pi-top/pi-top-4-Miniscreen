@@ -86,7 +86,7 @@ class MenuManager:
         try:
             self._screensaver.seek(self._screensaver.tell() + 1)
         except EOFError:
-            self._screensaver = Image.open(get_image_file_path("startup/pi-top_startup.gif"))
+            self._screensaver.seek(0)
 
         return self._screensaver
 
@@ -102,7 +102,6 @@ class MenuManager:
 
     def reset(self):
         PTLogger.info("Forcing full state refresh...")
-        self.state = MenuState.ACTIVE
         self.__wake_oled()
         self.__miniscreen.reset()
         self.current_menu.refresh(force=True)
@@ -170,6 +169,7 @@ class MenuManager:
         self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
         self.state = MenuState.ACTIVE
+        self._screensaver.seek(0)
 
     def __add_menu_to_list(self, menu_id):
         width, height = self.__miniscreen.size
@@ -215,25 +215,28 @@ class MenuManager:
         force_refresh = False
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
-            self.__wake_oled()
-            self.state = MenuState.ACTIVE
-            if button_press.is_direction():
-                forwards = button_press.event_type == ButtonPress.ButtonType.UP
-                self.current_menu.page_number = __get_page_no_to_move_to(
-                    forwards)
+            should_act = (self.state == MenuState.ACTIVE)
 
-            elif button_press.is_action():
-                current_page = self.current_menu.page
-                if button_press.event_type == ButtonPress.ButtonType.SELECT:
-                    if callable(current_page.select_action_func):
-                        current_page.select_action_func()
-                        force_refresh = True
-                else:
-                    if callable(current_page.cancel_action_func):
-                        current_page.cancel_action_func()
+            self.__wake_oled()
+
+            if should_act:
+                if button_press.is_direction():
+                    forwards = button_press.event_type == ButtonPress.ButtonType.UP
+                    self.current_menu.page_number = __get_page_no_to_move_to(
+                        forwards)
+
+                elif button_press.is_action():
+                    current_page = self.current_menu.page
+                    if button_press.event_type == ButtonPress.ButtonType.SELECT:
+                        if callable(current_page.select_action_func):
+                            current_page.select_action_func()
+                            force_refresh = True
                     else:
-                        if self.current_menu.parent is not None:
-                            self.change_menu(self.current_menu.parent)
+                        if callable(current_page.cancel_action_func):
+                            current_page.cancel_action_func()
+                        else:
+                            if self.current_menu.parent is not None:
+                                self.change_menu(self.current_menu.parent)
 
         if self.state == MenuState.ACTIVE:
             self.current_menu.refresh()
