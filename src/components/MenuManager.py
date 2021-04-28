@@ -21,6 +21,7 @@ class MenuState(Enum):
     ACTIVE = 1
     DIM = 2
     SCREENSAVER = 3
+    WAKING = 4
 
 
 class MenuManager:
@@ -47,8 +48,9 @@ class MenuManager:
         self.state = MenuState.ACTIVE
 
         self.timeouts = {
-            MenuState.DIM: 30,
-            MenuState.SCREENSAVER: 120
+            MenuState.DIM: 20,
+            MenuState.SCREENSAVER: 60,
+            MenuState.WAKING: 0.6
         }
 
         self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
@@ -168,7 +170,10 @@ class MenuManager:
     def __wake_oled(self):
         self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
-        self.state = MenuState.ACTIVE
+        if self.state != MenuState.ACTIVE:
+            PTLogger.info("Waking up...")
+            self.state = MenuState.WAKING
+            self.__miniscreen.device.display(self.current_menu.image)
         self._screensaver.seek(0)
 
     def __add_menu_to_list(self, menu_id):
@@ -256,6 +261,12 @@ class MenuManager:
         time_since_last_active = perf_counter() - self.last_active_time
 
         PTLogger.debug(f"Sleep timer: {time_since_last_active}")
+
+        if self.state == MenuState.WAKING:
+            if time_since_last_active < self.timeouts[MenuState.WAKING]:
+                return
+            else:
+                self.state = MenuState.ACTIVE
 
         if time_since_last_active < self.timeouts[MenuState.DIM]:
             return
