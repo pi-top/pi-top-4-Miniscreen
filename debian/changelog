@@ -1,19 +1,6 @@
 pt-sys-oled (4.1.2) buster; urgency=medium
 
-  [ Mike Roberts ]
-  * Drop stable tag
-  * Drop release to PyPI
-  * Suppress 'package-supports-alternative-init-but-no-init.d-script' on main builds
-  * Direct to forum posts for how to extend behaviour
-  * Fix LGTM alerts
-
-  [ pre-commit-ci[bot] ]
-  * [pre-commit.ci] pre-commit autoupdate (#125)
-
-  [ pre-commit-ci[bot] ]
-  * [pre-commit.ci] pre-commit autoupdate (#126)
   * Use time-based calculation for sleeping (#127)
-  * Use latest CI workflows
   * 2 minute screensaver (#129)
 
  -- pi-top <deb-maintainers@pi-top.com>  Thu, 29 Apr 2021 18:28:42 +0000
