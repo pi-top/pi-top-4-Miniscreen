@@ -1,4 +1,4 @@
-pt-sys-oled (4.1.2) buster; urgency=medium
+pt-sys-oled (4.2.0) buster; urgency=medium
 
   * Use time-based calculation for sleeping (#127)
   * 2 minute screensaver (#129)
