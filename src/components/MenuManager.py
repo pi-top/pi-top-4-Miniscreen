@@ -7,14 +7,13 @@ from .helpers.button_press import ButtonPress
 from pitopcommon.logger import PTLogger
 from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
+from random import randrange
 from time import (
     perf_counter,
     sleep
 )
 
-from struct import pack
-from random import randint
-from PIL import Image
+from PIL import Image, ImageDraw
 from enum import Enum
 
 
@@ -47,6 +46,17 @@ class MenuManager:
         self.current_menu = None
 
         self.state = MenuState.ACTIVE
+
+        self.screensaver_max_depth = 32
+        self.screensaver_max_no_of_stars = 512
+
+        self.screensaver_stars = [
+            [
+                randrange(-25, 25),
+                randrange(-25, 25),
+                randrange(1, self.screensaver_max_depth)
+            ] for i in range(self.screensaver_max_no_of_stars)
+        ]
 
         self.timeouts = {
             MenuState.DIM: 20,
@@ -84,15 +94,32 @@ class MenuManager:
 
     @property
     def screensaver(self):
-        data = [
-            randint(0, 0xFFFFFF)
-            for _ in range(self.__miniscreen.size[0] * self.__miniscreen.size[1])
-        ]
-        return Image.frombytes(
-            "RGBA",
-            self.__miniscreen.size,
-            pack('i' * len(data), *data)
-        ).convert("1")
+        # Adapted from https://github.com/rm-hull/luma.examples/blob/master/examples/starfield.py
+
+        origin_x = self.__miniscreen.size[0] // 2
+        origin_y = self.__miniscreen.size[1] // 2
+
+        image = Image.new(self.__miniscreen.mode, self.__miniscreen.size)
+
+        draw = ImageDraw.Draw(image)
+
+        for star in self.screensaver_stars:
+            star[2] -= 0.19
+
+            if star[2] <= 0:
+                star[0] = randrange(-25, 25)
+                star[1] = randrange(-25, 25)
+                star[2] = self.screensaver_max_depth
+
+            k = 128.0 / star[2]
+            x = int(star[0] * k + origin_x)
+            y = int(star[1] * k + origin_y)
+
+            if 0 <= x < self.__miniscreen.size[0] and 0 <= y < self.__miniscreen.size[1]:
+                size = (1 - float(star[2]) / self.screensaver_max_depth) * 4
+                draw.rectangle((x, y, x + size, y + size), fill="white")
+
+        return image
 
     def wait_for_user_control_release(self):
         PTLogger.info(
