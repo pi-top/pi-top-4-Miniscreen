@@ -272,7 +272,7 @@ class MenuManager:
                                 self.change_menu(self.current_menu.parent)
 
         if self.state == MenuState.ACTIVE:
-            self.current_menu.refresh()
+            self.current_menu.refresh(force=force_refresh)
             if self.current_menu.should_redraw():
                 self.__draw_current_menu_page_to_oled()
 
