@@ -1,3 +1,9 @@
+pt-sys-oled (4.2.1) buster; urgency=medium
+
+  * Force refresh after action button is clicked
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 09 Jun 2021 15:34:59 +0000
+
 pt-sys-oled (4.2.0) buster; urgency=medium
 
   * Use time-based calculation for sleeping (#127)
