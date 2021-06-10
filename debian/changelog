@@ -1,11 +1,5 @@
 pt-sys-oled (4.2.1) buster; urgency=medium
 
-  [ pre-commit-ci[bot] ]
-  * [pre-commit.ci] pre-commit autoupdate (#131)
-  * [pre-commit.ci] pre-commit autoupdate (#132)
-  * [pre-commit.ci] pre-commit autoupdate (#133)
-
-  [ Jorge Capona ]
   * Force refresh after action button is clicked
 
  -- pi-top <deb-maintainers@pi-top.com>  Wed, 09 Jun 2021 15:34:59 +0000
