@@ -1,9 +1,10 @@
 from .widgets.sys_info import (
+    ap,
     batt_level,
     cpu_load,
-    wifi,
+    ethernet,
     usb,
-    ethernet
+    wifi,
 )
 from .widgets.main import template as main_menu_page
 from .widgets.settings import (
@@ -105,6 +106,16 @@ class PageHelper:
                     name="wifi",
                     hotspot=self.__get_hotspot(
                         widget=wifi,
+                        interval=1.0
+                    ),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="ap",
+                    hotspot=self.__get_hotspot(
+                        widget=ap,
                         interval=1.0
                     ),
                     select_action_func=lambda: self.__callback_client.change_menu(
