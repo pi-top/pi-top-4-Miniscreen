@@ -20,6 +20,7 @@ from .helpers.menu_page_actions import (
     change_ssh_enabled_state,
     change_vnc_enabled_state,
     change_pt_further_link_enabled_state,
+    change_ap_mode_enabled_state,
     reset_hdmi_configuration,
     start_stop_project,
 )
@@ -29,6 +30,7 @@ from pitopcommon.sys_info import (
     get_ssh_enabled_state,
     get_vnc_enabled_state,
     get_pt_further_link_enabled_state,
+    get_ap_mode_enabled_state,
 )
 
 from PIL import Image
@@ -185,6 +187,16 @@ class PageHelper:
                         get_state_method=get_pt_further_link_enabled_state,
                     ),
                     select_action_func=lambda: change_pt_further_link_enabled_state(),
+                    cancel_action_func=None
+                ),
+                MenuPage(
+                    name="ap_mode",
+                    hotspot=self.__get_hotspot(
+                        widget=settings_menu_page,
+                        type="ap_mode",
+                        get_state_method=get_ap_mode_enabled_state,
+                    ),
+                    select_action_func=lambda: change_ap_mode_enabled_state(),
                     cancel_action_func=None
                 ),
                 MenuPage(

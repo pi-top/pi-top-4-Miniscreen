@@ -41,6 +41,10 @@ def change_pt_further_link_enabled_state():
     __change_service_enabled_state("pt-further-link.service")
 
 
+def change_ap_mode_enabled_state():
+    __change_service_enabled_state("rpi-wifi-ap.service")
+
+
 def reset_hdmi_configuration():
     # Close 'Screen Layout Editor'
     system("DISPLAY=:0 wmctrl -c \"Screen Layout Editor\"")
