@@ -8,7 +8,6 @@ from components.widgets.common.values import (
 )
 from components.widgets.common.base_widgets import BaseSnapshot
 from components.widgets.common.image_component import ImageComponent
-from ipaddress import ip_address
 
 
 class Hotspot(BaseSnapshot):
@@ -97,7 +96,6 @@ class Hotspot(BaseSnapshot):
         # Draw to OLED
         self.gif.render(draw)
 
-        ap_state = get_ap_mode_status()
         if self.initialised and not self.gif.is_animating():
             if self.is_connected() and self.gif.finished:
                 draw_text(
