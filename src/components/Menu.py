@@ -44,7 +44,7 @@ class Menus(Enum):
     MAIN_MENU = 1
     PROJECTS = 2
     SETTINGS = 3
-    WIFI_SETUP = 4
+    WIRELESS_SETTINGS = 4
     FIRST_TIME = 5
 
 
@@ -201,13 +201,14 @@ class PageHelper:
                     cancel_action_func=None
                 ),
                 MenuPage(
-                    name="ap_mode",
+                    name="wireless",
                     hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="ap_mode",
-                        get_state_method=get_ap_mode_enabled_state,
+                        widget=setting_title,
+                        title="Wireless",
+                        get_state_method=None,
                     ),
-                    select_action_func=lambda: change_ap_mode_enabled_state(),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.WIRELESS_SETTINGS),
                     cancel_action_func=None
                 ),
                 MenuPage(
