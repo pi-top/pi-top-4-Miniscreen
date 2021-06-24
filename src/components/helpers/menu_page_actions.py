@@ -1,3 +1,4 @@
+from pitopcommon.command_runner import run_command
 from pitopcommon.logger import PTLogger
 from pitopcommon.sys_info import get_systemd_enabled_state
 
@@ -48,8 +49,10 @@ def change_wifi_mode(mode):
     elif mode == "ap-sta":
         __enable_and_start_systemd_service("rpi-wifi-ap.service")
     elif mode == "wifi":
-        pass
-        #run_command("rfkill block wifi", timeout=5)
+        if read_wifi_mode_state("wifi"):
+            run_command("iwconfig wlan0 txpower off", timeout=5)
+        else:
+            run_command("rfkill unblock wifi", timeout=5)
 
 
 def read_wifi_mode_state(mode):
@@ -59,7 +62,7 @@ def read_wifi_mode_state(mode):
     elif mode == "ap-sta":
         return get_systemd_enabled_state("rpi-wifi-ap.service") == "Enabled"
     elif mode == "wifi":
-        pass
+        return run_command("rfkill list 0 -o Soft -n", timeout=5).strip() == "unblocked"
 
 
 def reset_hdmi_configuration():
