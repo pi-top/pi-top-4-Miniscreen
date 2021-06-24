@@ -175,7 +175,7 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="ssh",
-                        get_state_method=lambda: get_ssh_enabled_state() == "Enabled",
+                        get_state_method=get_ssh_enabled_state,
                     ),
                     select_action_func=lambda: change_ssh_enabled_state(),
                     cancel_action_func=None
@@ -185,7 +185,7 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="vnc",
-                        get_state_method=lambda: get_vnc_enabled_state() == "Enabled",
+                        get_state_method=get_vnc_enabled_state,
                     ),
                     select_action_func=lambda: change_vnc_enabled_state(),
                     cancel_action_func=None
@@ -195,7 +195,7 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="pt_further_link",
-                        get_state_method=lambda: get_pt_further_link_enabled_state() == "Enabled",
+                        get_state_method=get_pt_further_link_enabled_state,
                     ),
                     select_action_func=lambda: change_pt_further_link_enabled_state(),
                     cancel_action_func=None
