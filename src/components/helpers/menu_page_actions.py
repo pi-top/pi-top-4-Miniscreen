@@ -1,7 +1,7 @@
-from pitopcommon.command_runner import run_command
-from pitopcommon.logger import PTLogger
-from pitopcommon.sys_info import get_systemd_enabled_state
-
+from enum import (
+    auto,
+    Enum
+)
 from os import (
     path,
     kill,
@@ -9,6 +9,10 @@ from os import (
 )
 import signal
 from subprocess import check_output, Popen
+
+from pitopcommon.command_runner import run_command
+from pitopcommon.logger import PTLogger
+from pitopcommon.sys_info import get_systemd_enabled_state
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -42,27 +46,31 @@ def change_pt_further_link_enabled_state():
     __change_service_enabled_state("pt-further-link.service")
 
 
-def change_wifi_mode(mode):
-    mode = mode.lower()
-    if mode == "sta":
-        __disable_and_stop_systemd_service("rpi-wifi-ap.service")
-    elif mode == "ap-sta":
+class WifiModes(Enum):
+    STA = auto()
+    AP_STA = auto()
+    OFF = auto()
+
+
+def change_wifi_mode():
+    """Retrieve current wifi mode, and move to the next one: STA -> AP_STA ->
+    OFF."""
+    mode = read_wifi_mode_state()
+    if mode == WifiModes.STA:
         __enable_and_start_systemd_service("rpi-wifi-ap.service")
-    elif mode == "wifi":
-        if read_wifi_mode_state("wifi"):
-            run_command("iwconfig wlan0 txpower off", timeout=5)
-        else:
-            run_command("rfkill unblock wifi", timeout=5)
+    elif mode == WifiModes.AP_STA:
+        __disable_and_stop_systemd_service("rpi-wifi-ap.service")
+        run_command("iwconfig wlan0 txpower off", timeout=5)
+    elif mode == WifiModes.OFF:
+        run_command("rfkill unblock wifi", timeout=5)
 
 
-def read_wifi_mode_state(mode):
-    mode = mode.lower()
-    if mode == "sta":
-        return get_systemd_enabled_state("rpi-wifi-ap.service") != "Enabled"
-    elif mode == "ap-sta":
-        return get_systemd_enabled_state("rpi-wifi-ap.service") == "Enabled"
-    elif mode == "wifi":
-        return run_command("rfkill list 0 -o Soft -n", timeout=5).strip() == "unblocked"
+def read_wifi_mode_state():
+    if run_command("rfkill list 0 -o Soft -n", timeout=5).strip() == "blocked":
+        return WifiModes.OFF
+    elif get_systemd_enabled_state("rpi-wifi-ap.service") == "Enabled":
+        return WifiModes.AP_STA
+    return WifiModes.STA
 
 
 def reset_hdmi_configuration():

@@ -90,7 +90,6 @@ class MenuManager:
             self.__add_menu_to_list(Menus.MAIN_MENU)
             self.__add_menu_to_list(Menus.PROJECTS)
             self.__add_menu_to_list(Menus.SETTINGS)
-            self.__add_menu_to_list(Menus.WIRELESS_SETTINGS)
             self.change_menu(Menus.SYS_INFO)
 
     @property

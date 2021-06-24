@@ -10,6 +10,7 @@ from .widgets.main import template as main_menu_page
 from .widgets.settings import (
     template as settings_menu_page,
     title as setting_title,
+    wifi as wifi_settings_page,
 )
 from .widgets.projects import (
     template as projects_menu_page,
@@ -44,7 +45,6 @@ class Menus(Enum):
     MAIN_MENU = 1
     PROJECTS = 2
     SETTINGS = 3
-    WIRELESS_SETTINGS = 4
     FIRST_TIME = 5
 
 
@@ -201,15 +201,14 @@ class PageHelper:
                     cancel_action_func=None
                 ),
                 MenuPage(
-                    name="wireless",
+                    name="wifi",
                     hotspot=self.__get_hotspot(
-                        widget=setting_title,
-                        title="Wireless",
-                        get_state_method=None,
+                        widget=wifi_settings_page,
+                        type="wifi",
+                        get_state_method=read_wifi_mode_state,
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.WIRELESS_SETTINGS),
-                    cancel_action_func=None
+                    select_action_func=lambda: change_wifi_mode(),
+                    cancel_action_func=None,
                 ),
                 MenuPage(
                     name="hdmi_reset",
@@ -220,39 +219,6 @@ class PageHelper:
                     ),
                     select_action_func=lambda: reset_hdmi_configuration(),
                     cancel_action_func=None
-                ),
-            ]
-        elif menu_id == Menus.WIRELESS_SETTINGS:
-            pages = [
-                MenuPage(
-                    name="wifi_sta",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="wifi_sta",
-                        get_state_method=lambda: read_wifi_mode_state("sta"),
-                    ),
-                    select_action_func=lambda: change_wifi_mode("sta"),
-                    cancel_action_func=None,
-                ),
-                MenuPage(
-                    name="wifi_ap_sta",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="wifi_ap_sta",
-                        get_state_method=lambda: read_wifi_mode_state("ap-sta"),
-                    ),
-                    select_action_func=lambda: change_wifi_mode("ap-sta"),
-                    cancel_action_func=None,
-                ),
-                MenuPage(
-                    name="wifi",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="wifi",
-                        get_state_method=lambda: read_wifi_mode_state("wifi"),
-                    ),
-                    select_action_func=lambda: change_wifi_mode("wifi"),
-                    cancel_action_func=None,
                 ),
             ]
         elif menu_id == Menus.FIRST_TIME:
