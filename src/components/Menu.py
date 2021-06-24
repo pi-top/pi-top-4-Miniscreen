@@ -18,20 +18,20 @@ from .widgets.projects import (
 from .widgets.first_time_setup import first_time_setup
 from .widgets.error import template as error_page
 from .helpers.menu_page_actions import (
+    change_pt_further_link_enabled_state,
     change_ssh_enabled_state,
     change_vnc_enabled_state,
-    change_pt_further_link_enabled_state,
-    change_ap_mode_enabled_state,
+    change_wifi_mode,
+    read_wifi_mode_state,
     reset_hdmi_configuration,
     start_stop_project,
 )
 
 from pitopcommon.logger import PTLogger
 from pitopcommon.sys_info import (
+    get_pt_further_link_enabled_state,
     get_ssh_enabled_state,
     get_vnc_enabled_state,
-    get_pt_further_link_enabled_state,
-    get_ap_mode_enabled_state,
 )
 
 from PIL import Image
@@ -175,7 +175,7 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="ssh",
-                        get_state_method=get_ssh_enabled_state,
+                        get_state_method=lambda: get_ssh_enabled_state() == "Enabled",
                     ),
                     select_action_func=lambda: change_ssh_enabled_state(),
                     cancel_action_func=None
@@ -185,7 +185,7 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="vnc",
-                        get_state_method=get_vnc_enabled_state,
+                        get_state_method=lambda: get_vnc_enabled_state() == "Enabled",
                     ),
                     select_action_func=lambda: change_vnc_enabled_state(),
                     cancel_action_func=None
@@ -195,7 +195,7 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="pt_further_link",
-                        get_state_method=get_pt_further_link_enabled_state,
+                        get_state_method=lambda: get_pt_further_link_enabled_state() == "Enabled",
                     ),
                     select_action_func=lambda: change_pt_further_link_enabled_state(),
                     cancel_action_func=None
@@ -220,6 +220,39 @@ class PageHelper:
                     ),
                     select_action_func=lambda: reset_hdmi_configuration(),
                     cancel_action_func=None
+                ),
+            ]
+        elif menu_id == Menus.WIRELESS_SETTINGS:
+            pages = [
+                MenuPage(
+                    name="wifi_sta",
+                    hotspot=self.__get_hotspot(
+                        widget=settings_menu_page,
+                        type="wifi_sta",
+                        get_state_method=lambda: read_wifi_mode_state("sta"),
+                    ),
+                    select_action_func=lambda: change_wifi_mode("sta"),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="wifi_ap_sta",
+                    hotspot=self.__get_hotspot(
+                        widget=settings_menu_page,
+                        type="wifi_ap_sta",
+                        get_state_method=lambda: read_wifi_mode_state("ap-sta"),
+                    ),
+                    select_action_func=lambda: change_wifi_mode("ap-sta"),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
+                    name="wifi",
+                    hotspot=self.__get_hotspot(
+                        widget=settings_menu_page,
+                        type="wifi",
+                        get_state_method=lambda: read_wifi_mode_state("wifi"),
+                    ),
+                    select_action_func=lambda: change_wifi_mode("wifi"),
+                    cancel_action_func=None,
                 ),
             ]
         elif menu_id == Menus.FIRST_TIME:

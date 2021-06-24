@@ -41,8 +41,25 @@ def change_pt_further_link_enabled_state():
     __change_service_enabled_state("pt-further-link.service")
 
 
-def change_ap_mode_enabled_state():
-    __change_service_enabled_state("rpi-wifi-ap.service")
+def change_wifi_mode(mode):
+    mode = mode.lower()
+    if mode == "sta":
+        __disable_and_stop_systemd_service("rpi-wifi-ap.service")
+    elif mode == "ap-sta":
+        __enable_and_start_systemd_service("rpi-wifi-ap.service")
+    elif mode == "wifi":
+        pass
+        #run_command("rfkill block wifi", timeout=5)
+
+
+def read_wifi_mode_state(mode):
+    mode = mode.lower()
+    if mode == "sta":
+        return get_systemd_enabled_state("rpi-wifi-ap.service") != "Enabled"
+    elif mode == "ap-sta":
+        return get_systemd_enabled_state("rpi-wifi-ap.service") == "Enabled"
+    elif mode == "wifi":
+        pass
 
 
 def reset_hdmi_configuration():

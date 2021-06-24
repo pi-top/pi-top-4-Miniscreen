@@ -14,9 +14,8 @@ class Hotspot(BaseHotspot):
         self.get_state_method = data.get("get_state_method")
 
     def get_image(self):
-        if self.get_state_method is not None:
-            state = self.get_state_method()
-            if state == "Enabled":
+        if callable(self.get_state_method):
+            if self.get_state_method():
                 return get_image_file_path("settings/" + self.type + "_on.gif")
             else:
                 return get_image_file_path("settings/" + self.type + "_off.gif")
