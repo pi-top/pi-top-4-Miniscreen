@@ -60,13 +60,13 @@ def change_wifi_mode():
         __enable_and_start_systemd_service("rpi-wifi-ap.service")
     elif mode == WifiModes.AP_STA:
         __disable_and_stop_systemd_service("rpi-wifi-ap.service")
-        run_command("iwconfig wlan0 txpower off", timeout=5)
+        run_command("iwconfig wlan0 txpower off", timeout=5, check=False)
     elif mode == WifiModes.OFF:
-        run_command("rfkill unblock wifi", timeout=5)
+        run_command("rfkill unblock wifi", timeout=5, check=False)
 
 
 def read_wifi_mode_state():
-    if run_command("rfkill list 0 -o Soft -n", timeout=5).strip() == "blocked":
+    if run_command("rfkill list 0 -o Soft -n", timeout=5, check=False).strip() == "blocked":
         return WifiModes.OFF
     elif get_systemd_enabled_state("rpi-wifi-ap.service") == "Enabled":
         return WifiModes.AP_STA
