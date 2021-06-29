@@ -1,7 +1,4 @@
-from enum import (
-    auto,
-    Enum
-)
+from enum import IntEnum
 from os import (
     path,
     kill,
@@ -46,23 +43,27 @@ def change_pt_further_link_enabled_state():
     __change_service_enabled_state("pt-further-link.service")
 
 
-class WifiModes(Enum):
-    STA = auto()
-    AP_STA = auto()
-    OFF = auto()
+class WifiModes(IntEnum):
+    STA = 0
+    AP_STA = 1
+    OFF = 2
+
+    def next(self):
+        next_mode = self.value + 1 if self.value + 1 < len(WifiModes) else 0
+        return WifiModes(next_mode)
 
 
 def change_wifi_mode():
-    """Retrieve current wifi mode, and move to the next one: STA -> AP_STA ->
-    OFF."""
-    mode = read_wifi_mode_state()
-    if mode == WifiModes.STA:
-        __enable_and_start_systemd_service("wifi-ap-sta.service")
-    elif mode == WifiModes.AP_STA:
-        __disable_and_stop_systemd_service("wifi-ap-sta.service")
-        run_command("iwconfig wlan0 txpower off", timeout=5, check=False)
-    elif mode == WifiModes.OFF:
+    current_mode = read_wifi_mode_state()
+    next_mode = current_mode.next()
+
+    if next_mode == WifiModes.STA:
         run_command("rfkill unblock wifi", timeout=5, check=False)
+        __disable_and_stop_systemd_service("wifi-ap-sta.service")
+    elif next_mode == WifiModes.AP_STA:
+        __enable_and_start_systemd_service("wifi-ap-sta.service")
+    elif next_mode == WifiModes.OFF:
+        run_command("iwconfig wlan0 txpower off", timeout=5, check=False)
 
 
 def read_wifi_mode_state():
