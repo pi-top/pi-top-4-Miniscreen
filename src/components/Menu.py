@@ -14,7 +14,6 @@ from .widgets.projects import (
     template as projects_menu_page,
     # title as projects_title,
 )
-from .widgets.first_time_setup import first_time_setup
 from .widgets.error import template as error_page
 from .helpers.menu_page_actions import (
     change_ssh_enabled_state,
@@ -42,7 +41,6 @@ class Menus(Enum):
     PROJECTS = 2
     SETTINGS = 3
     WIFI_SETUP = 4
-    FIRST_TIME = 5
 
 
 class MenuPage:
@@ -196,18 +194,6 @@ class PageHelper:
                     ),
                     select_action_func=lambda: reset_hdmi_configuration(),
                     cancel_action_func=None
-                ),
-            ]
-        elif menu_id == Menus.FIRST_TIME:
-            pages = [
-                MenuPage(
-                    name="initial_setup",
-                    hotspot=self.__get_hotspot(
-                        widget=first_time_setup,
-                        interval=1.0
-                    ),
-                    select_action_func=None,
-                    cancel_action_func=None,
                 ),
             ]
         elif menu_id == Menus.PROJECTS:
