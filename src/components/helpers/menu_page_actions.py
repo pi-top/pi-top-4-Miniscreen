@@ -7,7 +7,6 @@ from os import (
 import signal
 from subprocess import check_output, Popen
 
-from pitopcommon.command_runner import run_command
 from pitopcommon.logger import PTLogger
 from pitopcommon.sys_info import get_systemd_enabled_state
 
@@ -46,7 +45,6 @@ def change_pt_further_link_enabled_state():
 class WifiModes(IntEnum):
     STA = 0
     AP_STA = 1
-    OFF = 2
 
     def next(self):
         next_mode = self.value + 1 if self.value + 1 < len(WifiModes) else 0
@@ -58,18 +56,13 @@ def change_wifi_mode():
     next_mode = current_mode.next()
 
     if next_mode == WifiModes.STA:
-        run_command("rfkill unblock wifi", timeout=5, check=False)
         __disable_and_stop_systemd_service("wifi-ap-sta.service")
     elif next_mode == WifiModes.AP_STA:
         __enable_and_start_systemd_service("wifi-ap-sta.service")
-    elif next_mode == WifiModes.OFF:
-        run_command("iwconfig wlan0 txpower off", timeout=5, check=False)
 
 
 def read_wifi_mode_state():
-    if run_command("rfkill list 0 -o Soft -n", timeout=5, check=False).strip() == "blocked":
-        return WifiModes.OFF
-    elif get_systemd_enabled_state("wifi-ap-sta.service") == "Enabled":
+    if get_systemd_enabled_state("wifi-ap-sta.service") == "Enabled":
         return WifiModes.AP_STA
     return WifiModes.STA
 

@@ -18,11 +18,9 @@ class Hotspot(BaseHotspot):
         if callable(self.get_state_method):
             wifi_mode = self.get_state_method()
             if wifi_mode == WifiModes.STA:
-                return get_image_file_path("settings/" + self.type + "_sta.gif")
+                return get_image_file_path("settings/" + self.type + "_off.png")
             elif wifi_mode == WifiModes.AP_STA:
-                return get_image_file_path("settings/" + self.type + "_ap_sta.gif")
-            elif wifi_mode == WifiModes.OFF:
-                return get_image_file_path("settings/" + self.type + "_off.gif")
+                return get_image_file_path("settings/" + self.type + "_on.png")
 
     def render(self, draw, width, height):
         ImageComponent(
