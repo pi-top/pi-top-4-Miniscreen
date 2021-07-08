@@ -200,10 +200,10 @@ class PageHelper:
                     cancel_action_func=None
                 ),
                 MenuPage(
-                    name="wifi",
+                    name="ap",
                     hotspot=self.__get_hotspot(
                         widget=wifi_settings_page,
-                        type="wifi",
+                        type="ap",
                         get_state_method=read_wifi_mode_state,
                     ),
                     select_action_func=lambda: change_wifi_mode(),
