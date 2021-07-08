@@ -5,7 +5,6 @@ from .Menu import (
 from .helpers.button_press import ButtonPress
 
 from pitopcommon.logger import PTLogger
-from pitopcommon.pt_os import eula_agreed, is_pi_top_os
 
 from random import randrange
 from time import (
@@ -80,17 +79,11 @@ class MenuManager:
 
         self.__menus = dict()
 
-        # If EULA is not agreed to on pi-topOS, then user is still in onboarding
-        # Not the best breadcrumb to look for...
-        if is_pi_top_os() and eula_agreed() is False:
-            self.__add_menu_to_list(Menus.FIRST_TIME)
-            self.change_menu(Menus.FIRST_TIME)
-        else:
-            self.__add_menu_to_list(Menus.SYS_INFO)
-            self.__add_menu_to_list(Menus.MAIN_MENU)
-            self.__add_menu_to_list(Menus.PROJECTS)
-            self.__add_menu_to_list(Menus.SETTINGS)
-            self.change_menu(Menus.SYS_INFO)
+        self.__add_menu_to_list(Menus.SYS_INFO)
+        self.__add_menu_to_list(Menus.MAIN_MENU)
+        self.__add_menu_to_list(Menus.PROJECTS)
+        self.__add_menu_to_list(Menus.SETTINGS)
+        self.change_menu(Menus.SYS_INFO)
 
     @property
     def screensaver(self):

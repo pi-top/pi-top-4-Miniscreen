@@ -16,7 +16,6 @@ from .widgets.projects import (
     template as projects_menu_page,
     # title as projects_title,
 )
-from .widgets.first_time_setup import first_time_setup
 from .widgets.error import template as error_page
 from .helpers.menu_page_actions import (
     change_pt_further_link_enabled_state,
@@ -219,18 +218,6 @@ class PageHelper:
                     ),
                     select_action_func=lambda: reset_hdmi_configuration(),
                     cancel_action_func=None
-                ),
-            ]
-        elif menu_id == Menus.FIRST_TIME:
-            pages = [
-                MenuPage(
-                    name="initial_setup",
-                    hotspot=self.__get_hotspot(
-                        widget=first_time_setup,
-                        interval=1.0
-                    ),
-                    select_action_func=None,
-                    cancel_action_func=None,
                 ),
             ]
         elif menu_id == Menus.PROJECTS:

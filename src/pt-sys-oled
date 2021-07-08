@@ -25,11 +25,7 @@ from components.widgets.common.functions import get_image_file_path
 from components.MenuManager import MenuManager
 
 
-# TODO: replace with check of file system size; remove patch from preinst
-fs_expanded_breadcrumb = "/etc/pi-top/.expandedFs"
 boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
-
-
 custom_startup_gif_path = "/etc/pi-top/pt-sys-oled/startup.gif"
 
 
@@ -89,7 +85,6 @@ def main():
 
             already_played_boot_animation = path.exists(
                 boot_animation_played_breadcrumb)
-            one_loop_only = path.exists(fs_expanded_breadcrumb)
             if not already_played_boot_animation:
                 PTLogger.info("Not played boot animation this session")
                 PTLogger.info("Starting startup animation")
@@ -98,7 +93,7 @@ def main():
                     miniscreen.play_animated_image_file(
                         gif_path,
                         background=False,
-                        loop=not one_loop_only
+                        loop=False
                     )
 
                 try:
