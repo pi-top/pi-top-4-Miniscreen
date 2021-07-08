@@ -55,9 +55,9 @@ def change_wifi_mode():
     current_mode = read_wifi_mode_state()
     next_mode = current_mode.next()
     if next_mode == WifiModes.STA:
-        __enable_and_start_systemd_service("wifi-ap-sta.service")
-    elif next_mode == WifiModes.AP_STA:
         __disable_and_stop_systemd_service("wifi-ap-sta.service")
+    elif next_mode == WifiModes.AP_STA:
+        __enable_and_start_systemd_service("wifi-ap-sta.service")
 
 
 def read_wifi_mode_state():
