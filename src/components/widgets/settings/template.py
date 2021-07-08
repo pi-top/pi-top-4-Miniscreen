@@ -16,11 +16,11 @@ class Hotspot(BaseHotspot):
     def get_image(self):
         if callable(self.get_state_method):
             if self.get_state_method() == "Enabled":
-                return get_image_file_path("settings/" + self.type + "_on.gif")
+                return get_image_file_path("settings/" + self.type + "_on.png")
             else:
-                return get_image_file_path("settings/" + self.type + "_off.gif")
+                return get_image_file_path("settings/" + self.type + "_off.png")
         else:
-            return get_image_file_path("settings/" + self.type + ".gif")
+            return get_image_file_path("settings/" + self.type + ".png")
 
     def render(self, draw, width, height):
         ImageComponent(
