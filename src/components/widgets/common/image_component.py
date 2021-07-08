@@ -64,7 +64,7 @@ class ImageComponent:
             PTLogger.error(self._error_text)
 
     def _set_frame_duration(self):
-        if self._image.is_animated:
+        if hasattr(self._image, "is_animated") and self._image.is_animated:
             embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
             self.frame_duration = float(
                 embedded_frame_speed_s / self.playback_speed)
@@ -78,7 +78,7 @@ class ImageComponent:
     def _update_frame(self):
         if self.hold_first_frame or not self.initialised:
             self.frame_no = 0
-        elif self._image.is_animated:
+        elif hasattr(self._image, "is_animated") and self._image.is_animated:
             if self.frame_no + 1 < self._image.n_frames:
                 self.finished = False
                 self.frame_no += 1
