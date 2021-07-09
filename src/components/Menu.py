@@ -112,9 +112,9 @@ class PageHelper:
                     cancel_action_func=None,
                 ),
                 MenuPage(
-                    name="ap",
+                    name="ethernet",
                     hotspot=self.__get_hotspot(
-                        widget=ap,
+                        widget=ethernet,
                         interval=1.0
                     ),
                     select_action_func=lambda: self.__callback_client.change_menu(
@@ -122,9 +122,9 @@ class PageHelper:
                     cancel_action_func=None,
                 ),
                 MenuPage(
-                    name="ethernet",
+                    name="ap",
                     hotspot=self.__get_hotspot(
-                        widget=ethernet,
+                        widget=ap,
                         interval=1.0
                     ),
                     select_action_func=lambda: self.__callback_client.change_menu(
