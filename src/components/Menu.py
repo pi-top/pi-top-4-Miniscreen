@@ -44,7 +44,6 @@ class Menus(Enum):
     MAIN_MENU = 1
     PROJECTS = 2
     SETTINGS = 3
-    FIRST_TIME = 5
 
 
 class MenuPage:
