@@ -7,10 +7,9 @@ from components.widgets.common.values import (
     common_third_line_y,
 )
 from components.widgets.common.base_widgets import BaseSnapshot
-from components.widgets.common.image_component import ImageComponent
 
 from enum import Enum
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 class RenderState(Enum):
@@ -29,7 +28,7 @@ class Hotspot(BaseSnapshot):
 
         self.title_image_pos = (0, 0)
 
-        self.title_connected_image = process_image(
+        self.title_connected_image = self.process_image(
             Image.open(get_image_file_path("sys_info/ap_title.png"))
         )
 
@@ -43,7 +42,7 @@ class Hotspot(BaseSnapshot):
         self.title_disconnected_image = self.title_connected_image.copy()
         add_disconnected_icon(self.title_disconnected_image)
 
-        self.info_image = process_image(
+        self.info_image = self.process_image(
             Image.open(get_image_file_path("sys_info/ap_info.png"))
         )
 
@@ -112,8 +111,8 @@ class Hotspot(BaseSnapshot):
         if self.render_state == RenderState.STATIONARY:
             self.interval = 0.5
         else:
-            if self.render_state == RenderState.ANIMATING
-            self.interval = 0.025
+            if self.render_state == RenderState.ANIMATING:
+                self.interval = 0.025
             else:
                 self.interval = self.default_interval
 
