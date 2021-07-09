@@ -1,9 +1,6 @@
 pt-sys-oled (4.2.2) buster; urgency=medium
 
   [ Mike Roberts ]
-  * Workflow: create draft release manually
-  * Drop unused workflow
-  * Drop unused workflow
   * Migrate onboarding to web portal (#139)
 
   [ Jorge Capona ]
