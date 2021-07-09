@@ -12,8 +12,9 @@ from enum import Enum
 from PIL import Image, ImageDraw
 
 
-# Tuning to match pages that use GIFs
-ANIMATION_SPEED = 5
+# Tunings to approximately match other sys info pages using GIFs
+ANIMATION_SPEED = 2
+ANIMATION_INTERVAL = 0.005
 
 
 class RenderState(Enum):
@@ -118,7 +119,7 @@ class Hotspot(BaseSnapshot):
             self.interval = 0.5
         else:
             if self.render_state == RenderState.ANIMATING:
-                self.interval = 0.025
+                self.interval = ANIMATION_INTERVAL
             else:
                 self.interval = self.default_interval
 
