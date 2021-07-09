@@ -1,6 +1,4 @@
-from pitopcommon.logger import PTLogger
-from pitopcommon.sys_info import get_systemd_enabled_state
-
+from enum import IntEnum
 from os import (
     path,
     kill,
@@ -8,6 +6,9 @@ from os import (
 )
 import signal
 from subprocess import check_output, Popen
+
+from pitopcommon.logger import PTLogger
+from pitopcommon.sys_info import get_systemd_enabled_state
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -39,6 +40,30 @@ def change_vnc_enabled_state():
 
 def change_pt_further_link_enabled_state():
     __change_service_enabled_state("pt-further-link.service")
+
+
+class WifiModes(IntEnum):
+    STA = 0
+    AP_STA = 1
+
+    def next(self):
+        next_mode = self.value + 1 if self.value + 1 < len(WifiModes) else 0
+        return WifiModes(next_mode)
+
+
+def change_wifi_mode():
+    current_mode = read_wifi_mode_state()
+    next_mode = current_mode.next()
+    if next_mode == WifiModes.STA:
+        __disable_and_stop_systemd_service("wifi-ap-sta.service")
+    elif next_mode == WifiModes.AP_STA:
+        __enable_and_start_systemd_service("wifi-ap-sta.service")
+
+
+def read_wifi_mode_state():
+    if get_systemd_enabled_state("wifi-ap-sta.service") == "Enabled":
+        return WifiModes.AP_STA
+    return WifiModes.STA
 
 
 def reset_hdmi_configuration():

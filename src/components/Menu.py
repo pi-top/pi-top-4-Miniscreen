@@ -1,14 +1,16 @@
 from .widgets.sys_info import (
+    ap,
     batt_level,
     cpu_load,
-    wifi,
+    ethernet,
     usb,
-    ethernet
+    wifi,
 )
 from .widgets.main import template as main_menu_page
 from .widgets.settings import (
     template as settings_menu_page,
     title as setting_title,
+    wifi as wifi_settings_page,
 )
 from .widgets.projects import (
     template as projects_menu_page,
@@ -16,18 +18,20 @@ from .widgets.projects import (
 )
 from .widgets.error import template as error_page
 from .helpers.menu_page_actions import (
+    change_pt_further_link_enabled_state,
     change_ssh_enabled_state,
     change_vnc_enabled_state,
-    change_pt_further_link_enabled_state,
+    change_wifi_mode,
+    read_wifi_mode_state,
     reset_hdmi_configuration,
     start_stop_project,
 )
 
 from pitopcommon.logger import PTLogger
 from pitopcommon.sys_info import (
+    get_pt_further_link_enabled_state,
     get_ssh_enabled_state,
     get_vnc_enabled_state,
-    get_pt_further_link_enabled_state,
 )
 
 from PIL import Image
@@ -40,7 +44,6 @@ class Menus(Enum):
     MAIN_MENU = 1
     PROJECTS = 2
     SETTINGS = 3
-    WIFI_SETUP = 4
 
 
 class MenuPage:
@@ -118,6 +121,16 @@ class PageHelper:
                     cancel_action_func=None,
                 ),
                 MenuPage(
+                    name="ap",
+                    hotspot=self.__get_hotspot(
+                        widget=ap,
+                        interval=1.0
+                    ),
+                    select_action_func=lambda: self.__callback_client.change_menu(
+                        Menus.MAIN_MENU),
+                    cancel_action_func=None,
+                ),
+                MenuPage(
                     name="usb",
                     hotspot=self.__get_hotspot(
                         widget=usb,
@@ -184,6 +197,16 @@ class PageHelper:
                     ),
                     select_action_func=lambda: change_pt_further_link_enabled_state(),
                     cancel_action_func=None
+                ),
+                MenuPage(
+                    name="ap",
+                    hotspot=self.__get_hotspot(
+                        widget=wifi_settings_page,
+                        type="ap",
+                        get_state_method=read_wifi_mode_state,
+                    ),
+                    select_action_func=lambda: change_wifi_mode(),
+                    cancel_action_func=None,
                 ),
                 MenuPage(
                     name="hdmi_reset",

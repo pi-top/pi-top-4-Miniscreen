@@ -15,8 +15,6 @@ Depends:
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
-# 'dtoverlay' command
- libraspberrypi-bin,
 # API hardware calls
  python3-pitop,
  python3-pitopcommon,
@@ -30,6 +28,8 @@ Depends:
 Recommends:
  autorandr (>= 1.9),
  pt-further-link,
+# Control Wi-Fi AP mode
+ wifi-ap-sta,
 # Used for closing 'Screen Layout Editor' when resetting display
  wmctrl,
 # Used for 'xset' when resetting DPMS

@@ -71,7 +71,7 @@ class Hotspot(BaseSnapshot):
         self.interval = self.default_interval
 
     def is_connected(self):
-        return self.wlan0_ip != ""
+        return self.wlan0_ip != "" and self.wifi_id != ""
 
     def set_data_members(self):
         network_ssid = get_wifi_network_ssid()

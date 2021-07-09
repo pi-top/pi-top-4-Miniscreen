@@ -1,6 +1,7 @@
 from components.widgets.common.functions import get_image_file_path
 from components.widgets.common.base_widgets import BaseHotspot
 from components.widgets.common.image_component import ImageComponent
+from components.helpers.menu_page_actions import WifiModes
 
 
 class Hotspot(BaseHotspot):
@@ -15,12 +16,11 @@ class Hotspot(BaseHotspot):
 
     def get_image(self):
         if callable(self.get_state_method):
-            if self.get_state_method() == "Enabled":
-                return get_image_file_path("settings/" + self.type + "_on.png")
-            else:
+            wifi_mode = self.get_state_method()
+            if wifi_mode == WifiModes.STA:
                 return get_image_file_path("settings/" + self.type + "_off.png")
-        else:
-            return get_image_file_path("settings/" + self.type + ".png")
+            elif wifi_mode == WifiModes.AP_STA:
+                return get_image_file_path("settings/" + self.type + "_on.png")
 
     def render(self, draw, width, height):
         ImageComponent(
