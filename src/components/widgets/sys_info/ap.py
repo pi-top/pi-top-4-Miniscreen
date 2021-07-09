@@ -12,6 +12,10 @@ from enum import Enum
 from PIL import Image, ImageDraw
 
 
+# Tuning to match pages that use GIFs
+ANIMATION_SPEED = 5
+
+
 class RenderState(Enum):
     STATIONARY = 0
     ANIMATING = 1
@@ -26,6 +30,7 @@ class Hotspot(BaseSnapshot):
         self.size = (self.width, self.height)
         self.mode = mode
 
+        self.first_draw = True
         self.title_image_pos = (0, 0)
 
         self.title_connected_image = self.process_image(
@@ -84,6 +89,7 @@ class Hotspot(BaseSnapshot):
     def reset_animation(self):
         self.title_image_pos = (0, 0)
         self.render_state = RenderState.STATIONARY
+        self.first_draw = True
 
     def reset_data_members(self):
         self.ssid = ""
@@ -117,13 +123,17 @@ class Hotspot(BaseSnapshot):
                 self.interval = self.default_interval
 
     def update_render_state(self):
+        if self.first_draw:
+            # Stay in stationary state for 1 frame
+            return
+
         if self.is_connected():
             if self.title_image_pos[0] <= -self.width:
                 self.render_state = RenderState.DISPLAYING_INFO
 
             elif self.render_state != RenderState.DISPLAYING_INFO:
                 self.render_state = RenderState.ANIMATING
-                self.title_image_pos = (self.title_image_pos[0] - 1, 0)
+                self.title_image_pos = (self.title_image_pos[0] - ANIMATION_SPEED, 0)
         else:
             self.reset_animation()
 
@@ -135,6 +145,12 @@ class Hotspot(BaseSnapshot):
         self.update_render_state()
 
         if self.render_state == RenderState.DISPLAYING_INFO:
+            draw.bitmap(
+                xy=(0, 0),
+                bitmap=self.info_image,
+                fill="white",
+            )
+
             draw_text(
                 draw,
                 xy=(default_margin_x, common_first_line_y),
@@ -160,4 +176,5 @@ class Hotspot(BaseSnapshot):
                 fill="white",
             )
 
+        self.first_draw = False
         self.set_interval()
