@@ -68,8 +68,7 @@ class MenuPage:
         self.action_func = action_func
         self.menu_to_change_to = menu_to_change_to
 
-        self.action_thread = Process(
-            target=self.action_func)
+        self.action_thread = None
 
     def is_menu_changer(self):
         return self.menu_to_change_to is not None

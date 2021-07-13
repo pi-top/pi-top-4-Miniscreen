@@ -39,6 +39,7 @@ class MenuManager:
             False)
 
         self.last_active_time = perf_counter()
+        self.action_start_time = None
 
         self.user_has_control = False
 
@@ -87,14 +88,18 @@ class MenuManager:
         self.__add_menu_to_list(Menus.SETTINGS)
         self.change_menu(Menus.SYS_INFO)
 
-        self.current_menu_action_counter = 0
-        self.current_menu_action_counter_max = 60
+        self.action_timeout = 30
 
     def start_current_menu_action(self):
+        PTLogger.info("Setting state to RUNNING_ACTION")
         self.state = MenuState.RUNNING_ACTION
+
+        PTLogger.info("Taking note of current time for start of action")
+        self.action_start_time = perf_counter()
 
         # If page is a settings page with an action state,
         # tell the renderer to display 'in progress'
+        PTLogger.info("Notifying renderer to display 'in progress'")
         self.current_menu.page.hotspot.action_state = ActionState.PROCESSING
 
     @property
@@ -227,16 +232,6 @@ class MenuManager:
         self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
-        if self.state == MenuState.ACTIVE:
-            self.current_menu_action_counter = 0
-
-        elif self.state == MenuState.RUNNING_ACTION:
-            if self.current_menu_action_counter <= self.current_menu_action_counter_max:
-                self.current_menu_action_counter = self.current_menu_action_counter + 1
-            else:
-                self.state == MenuState.ACTIVE
-                self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
-
         def __get_next_button_press_from_stack():
             button_press = ButtonPress(ButtonPress.ButtonType.NONE)
             if len(self.__button_press_stack):
@@ -282,7 +277,8 @@ class MenuManager:
                     elif self.current_menu.parent is not None:
                         self.change_menu(self.current_menu.parent)
 
-        if self.state == MenuState.ACTIVE:
+        # Draw current screen
+        if self.state in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
             self.current_menu.refresh(force=force_refresh)
             if self.current_menu.should_redraw():
                 self.__draw_current_menu_page_to_oled()
@@ -300,6 +296,24 @@ class MenuManager:
         time_since_last_active = perf_counter() - self.last_active_time
 
         PTLogger.debug(f"Sleep timer: {time_since_last_active}")
+
+        if self.state == MenuState.RUNNING_ACTION:
+            # Prevent dimming while running action
+            self.last_active_time = perf_counter()
+
+            time_since_action_started = perf_counter() - self.action_start_time
+            PTLogger.info(f"Time since action started: {time_since_action_started}")
+
+            if time_since_action_started > self.action_timeout:
+                PTLogger.info("Action timed out - setting state to WAKING")
+                self.state = MenuState.WAKING
+
+                PTLogger.info("Notifying renderer to display 'unknown'")
+                self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
+
+                self.current_menu.page.hotspot.reset()
+
+            return
 
         if self.state == MenuState.WAKING:
             if time_since_last_active < self.timeouts[MenuState.WAKING]:
