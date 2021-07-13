@@ -91,15 +91,15 @@ class MenuManager:
         self.action_timeout = 30
 
     def start_current_menu_action(self):
-        PTLogger.info("Setting state to RUNNING_ACTION")
+        PTLogger.debug("Setting state to RUNNING_ACTION")
         self.state = MenuState.RUNNING_ACTION
 
-        PTLogger.info("Taking note of current time for start of action")
+        PTLogger.debug("Taking note of current time for start of action")
         self.action_start_time = perf_counter()
 
         # If page is a settings page with an action state,
         # tell the renderer to display 'in progress'
-        PTLogger.info("Notifying renderer to display 'in progress'")
+        PTLogger.info("Notifying renderer to display 'in progress' action state")
         self.current_menu.page.hotspot.set_as_processing()
 
     @property
@@ -297,17 +297,17 @@ class MenuManager:
             self.last_active_time = perf_counter()
 
             time_since_action_started = perf_counter() - self.action_start_time
-            PTLogger.info(f"Time since action started: {time_since_action_started}")
+            PTLogger.debug(f"Time since action started: {time_since_action_started}")
 
             if self.current_menu.page.action_thread.is_alive():
-                PTLogger.info("Action not yet completed")
+                PTLogger.debug("Action not yet completed")
                 return
 
             if time_since_action_started > self.action_timeout:
                 PTLogger.info("Action timed out - setting state to WAKING")
                 self.state = MenuState.WAKING
 
-                PTLogger.info("Notifying renderer to display 'unknown'")
+                PTLogger.info("Notifying renderer to display 'unknown' action state")
                 self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
                 return
 
