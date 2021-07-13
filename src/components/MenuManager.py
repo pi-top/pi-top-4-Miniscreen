@@ -100,7 +100,7 @@ class MenuManager:
         # If page is a settings page with an action state,
         # tell the renderer to display 'in progress'
         PTLogger.info("Notifying renderer to display 'in progress'")
-        self.current_menu.page.hotspot.action_state = ActionState.PROCESSING
+        self.current_menu.page.hotspot.set_as_processing()
 
     @property
     def screensaver(self):
@@ -173,8 +173,6 @@ class MenuManager:
 
     # Public so that hotspots can use this
     def change_menu(self, menu_to_go_to):
-        print("Changing menu...")
-
         if menu_to_go_to in self.__menus:
             current_menu_name = "<not set>" if self.current_menu is None else self.current_menu.name
             PTLogger.info(
@@ -211,7 +209,7 @@ class MenuManager:
     def __wake_oled(self):
         self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
-        if self.state != MenuState.ACTIVE:
+        if self.state not in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
             PTLogger.info("Waking up...")
             self.state = MenuState.WAKING
             self.__miniscreen.device.display(self.current_menu.image)
@@ -304,14 +302,22 @@ class MenuManager:
             time_since_action_started = perf_counter() - self.action_start_time
             PTLogger.info(f"Time since action started: {time_since_action_started}")
 
+            if self.current_menu.page.action_thread.is_alive():
+                PTLogger.info("Action not yet completed")
+                return
+
             if time_since_action_started > self.action_timeout:
                 PTLogger.info("Action timed out - setting state to WAKING")
                 self.state = MenuState.WAKING
 
                 PTLogger.info("Notifying renderer to display 'unknown'")
                 self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
+                return
 
-                self.current_menu.page.hotspot.reset()
+            PTLogger.info("Action completed - setting state to WAKING")
+            self.state = MenuState.WAKING
+            PTLogger.info("Resetting state of hotspot to re-renderer current state")
+            self.current_menu.page.hotspot.reset()
 
             return
 

@@ -29,16 +29,25 @@ class Hotspot(BaseSnapshot):
         )
 
         self.action_state = ActionState.UNKNOWN
-
         self.status_img_path = self.get_status_image_path()
         self.status_image = process_image(
             Image.open(self.status_img_path),
             self.size,
             self.mode
         )
-
         self.processing_icon_frame = 0
         self.initialised = False
+
+    def reset(self):
+        self.action_state = ActionState.UNKNOWN
+        self.status_img_path = self.get_status_image_path()
+        self.status_image = process_image(
+            Image.open(self.status_img_path),
+            self.size,
+            self.mode
+        )
+        self.initialised = False
+        self.processing_icon_frame = 0
 
     @property
     def is_status_type(self):
@@ -90,9 +99,16 @@ class Hotspot(BaseSnapshot):
                 self.mode
             )
 
+    def set_as_processing(self):
+        self.action_state = ActionState.PROCESSING
+        print("SET TO PROCESSING")
+        print(self.action_state)
+
     def render(self, draw, width, height):
         self.update_state()
         self.update_status_image()
+
+        print(self.action_state)
 
         draw.bitmap(
             xy=(0, 0),
