@@ -101,14 +101,10 @@ class Hotspot(BaseSnapshot):
 
     def set_as_processing(self):
         self.action_state = ActionState.PROCESSING
-        print("SET TO PROCESSING")
-        print(self.action_state)
 
     def render(self, draw, width, height):
         self.update_state()
         self.update_status_image()
-
-        print(self.action_state)
 
         draw.bitmap(
             xy=(0, 0),

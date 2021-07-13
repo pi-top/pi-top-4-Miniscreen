@@ -253,8 +253,6 @@ class MenuManager:
 
         button_press = __get_next_button_press_from_stack()
 
-        force_refresh = False
-
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             should_act = (self.state == MenuState.ACTIVE)
 
@@ -271,13 +269,12 @@ class MenuManager:
                     if button_press.event_type == ButtonPress.ButtonType.SELECT:
                         if current_page.has_action():
                             current_page.run_action()
-                            force_refresh = True
                     elif self.current_menu.parent is not None:
                         self.change_menu(self.current_menu.parent)
 
         # Draw current screen
         if self.state in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
-            self.current_menu.refresh(force=force_refresh)
+            self.current_menu.refresh()
             if self.current_menu.should_redraw():
                 self.__draw_current_menu_page_to_oled()
 
@@ -342,7 +339,7 @@ class MenuManager:
             PTLogger.info("Starting screensaver...")
             self.state = MenuState.SCREENSAVER
 
-        self.current_menu.refresh(force_refresh)
+        self.current_menu.refresh()
 
         if self.state == MenuState.SCREENSAVER:
             self.display(self.screensaver.convert("1"), wake=False)
