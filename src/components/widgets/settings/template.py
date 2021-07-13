@@ -1,11 +1,16 @@
-from components.widgets.common.functions import get_image_file_path
-from components.widgets.common.base_widgets import BaseHotspot
-from components.widgets.common.image_component import ImageComponent
+from components.widgets.common.functions import (
+    get_image_file_path,
+    process_image,
+)
+from components.widgets.common.base_widgets import BaseSnapshot
+from components.widgets.common.values import ActionState
+
+from PIL import Image
 
 
-class Hotspot(BaseHotspot):
-    def __init__(self, width, height, mode, **data):
-        super(Hotspot, self).__init__(width, height, self.render)
+class Hotspot(BaseSnapshot):
+    def __init__(self, width, height, mode, interval, **data):
+        super(Hotspot, self).__init__(width, height, interval, self.render)
 
         self.width = width
         self.height = height
@@ -13,20 +18,91 @@ class Hotspot(BaseHotspot):
         self.type = data.get("type")
         self.get_state_method = data.get("get_state_method")
 
-    def get_image(self):
-        if callable(self.get_state_method):
-            if self.get_state_method() == "Enabled":
-                return get_image_file_path("settings/" + self.type + "_on.png")
-            else:
-                return get_image_file_path("settings/" + self.type + "_off.png")
+        image_dir = "status_icons" if self.is_status_type else "full_icons"
+        self.icon_img_path = get_image_file_path(
+            f"settings/{image_dir}/{self.type}.png"
+        )
+        self.icon_image = process_image(
+            Image.open(self.icon_img_path),
+            self.size,
+            self.mode
+        )
+
+        self.action_state = ActionState.UNKNOWN
+
+        self.status_img_path = self.get_status_image_path()
+        self.status_image = process_image(
+            Image.open(self.status_img_path),
+            self.size,
+            self.mode
+        )
+
+        self.processing_icon_frame = 0
+        self.initialised = False
+
+    @property
+    def is_status_type(self):
+        return callable(self.get_state_method)
+
+    def update_state(self):
+        if not self.is_status_type:
+            return
+
+        if self.action_state == ActionState.PROCESSING:
+            self.processing_icon_frame = (self.processing_icon_frame + 1) % 3
+            return
+
+        if self.action_state == ActionState.UNKNOWN:
+            # If unknown state is entered into after initialisation
+            # stay in that state until page is reset
+            if self.initialised:
+                return
+
+        if self.get_state_method() == "Enabled":
+            self.action_state = ActionState.ENABLED
         else:
-            return get_image_file_path("settings/" + self.type + ".png")
+            self.action_state = ActionState.DISABLED
+
+        self.initialised = True
+
+    def get_status_image_path(self):
+        if self.action_state == ActionState.PROCESSING:
+            img_file = f"processing-{self.processing_icon_frame + 1}"
+
+        elif self.action_state == ActionState.UNKNOWN:
+            img_file = "unknown"
+
+        elif self.action_state == ActionState.ENABLED:
+            img_file = "on"
+
+        else:
+            img_file = "off"
+
+        return get_image_file_path(f"settings/status/{img_file}.png")
+
+    def update_status_image(self):
+        current_status_img_path = self.get_status_image_path()
+        if self.status_img_path != current_status_img_path:
+            self.status_img_path = current_status_img_path
+            self.status_image = process_image(
+                Image.open(self.status_img_path),
+                self.size,
+                self.mode
+            )
 
     def render(self, draw, width, height):
-        ImageComponent(
-            device_mode=self.mode,
-            width=self.width,
-            height=self.height,
-            image_path=self.get_image(),
-            loop=False,
-        ).render(draw)
+        self.update_state()
+        self.update_status_image()
+
+        draw.bitmap(
+            xy=(0, 0),
+            bitmap=self.icon_image,
+            fill="white",
+        )
+
+        if self.is_status_type:
+            draw.bitmap(
+                xy=(0, 0),
+                bitmap=self.status_image,
+                fill="white",
+            )

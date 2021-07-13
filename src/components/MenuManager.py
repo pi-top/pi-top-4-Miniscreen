@@ -2,6 +2,7 @@ from .Menu import (
     Menu,
     Menus,
 )
+from .widgets.common.values import ActionState
 from .helpers.button_press import ButtonPress
 
 from pitopcommon.logger import PTLogger
@@ -21,6 +22,7 @@ class MenuState(Enum):
     DIM = 2
     SCREENSAVER = 3
     WAKING = 4
+    RUNNING_ACTION = 5
 
 
 class MenuManager:
@@ -60,7 +62,7 @@ class MenuManager:
         self.timeouts = {
             MenuState.DIM: 20,
             MenuState.SCREENSAVER: 60,
-            MenuState.WAKING: 0.6
+            MenuState.WAKING: 0.6,
         }
 
         self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
@@ -84,6 +86,16 @@ class MenuManager:
         self.__add_menu_to_list(Menus.PROJECTS)
         self.__add_menu_to_list(Menus.SETTINGS)
         self.change_menu(Menus.SYS_INFO)
+
+        self.current_menu_action_counter = 0
+        self.current_menu_action_counter_max = 60
+
+    def start_current_menu_action(self):
+        self.state = MenuState.RUNNING_ACTION
+
+        # If page is a settings page with an action state,
+        # tell the renderer to display 'in progress'
+        self.current_menu.page.hotspot.action_state = ActionState.PROCESSING
 
     @property
     def screensaver(self):
@@ -156,6 +168,8 @@ class MenuManager:
 
     # Public so that hotspots can use this
     def change_menu(self, menu_to_go_to):
+        print("Changing menu...")
+
         if menu_to_go_to in self.__menus:
             current_menu_name = "<not set>" if self.current_menu is None else self.current_menu.name
             PTLogger.info(
@@ -213,7 +227,15 @@ class MenuManager:
         self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
-        # TODO: move into separate class
+        if self.state == MenuState.ACTIVE:
+            self.current_menu_action_counter = 0
+
+        elif self.state == MenuState.RUNNING_ACTION:
+            if self.current_menu_action_counter <= self.current_menu_action_counter_max:
+                self.current_menu_action_counter = self.current_menu_action_counter + 1
+            else:
+                self.state == MenuState.ACTIVE
+                self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
 
         def __get_next_button_press_from_stack():
             button_press = ButtonPress(ButtonPress.ButtonType.NONE)
@@ -254,15 +276,11 @@ class MenuManager:
                 elif button_press.is_action():
                     current_page = self.current_menu.page
                     if button_press.event_type == ButtonPress.ButtonType.SELECT:
-                        if callable(current_page.select_action_func):
-                            current_page.select_action_func()
+                        if current_page.has_action():
+                            current_page.run_action()
                             force_refresh = True
-                    else:
-                        if callable(current_page.cancel_action_func):
-                            current_page.cancel_action_func()
-                        else:
-                            if self.current_menu.parent is not None:
-                                self.change_menu(self.current_menu.parent)
+                    elif self.current_menu.parent is not None:
+                        self.change_menu(self.current_menu.parent)
 
         if self.state == MenuState.ACTIVE:
             self.current_menu.refresh(force=force_refresh)

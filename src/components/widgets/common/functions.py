@@ -1,4 +1,7 @@
-from PIL import ImageFont
+from PIL import (
+    Image,
+    ImageFont,
+)
 from os import path
 from .values import right_text_default_margin
 
@@ -60,3 +63,25 @@ def title_text(draw, y, width, text):
 
 def align_to_middle(draw, width, text):
     return (width - draw.textsize(text)[0]) / 2
+
+
+# TODO: pre-process the images in source; remove this function
+def process_image(image_to_process, size, mode):
+    if image_to_process.size == size:
+        image = image_to_process
+        if image.mode != mode:
+            image = image.convert(mode)
+    else:
+        image = Image.new(
+            mode,
+            size,
+            "black"
+        )
+        image.paste(
+            image_to_process.resize(
+                size,
+                resample=Image.NEAREST
+            )
+        )
+
+    return image

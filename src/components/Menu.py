@@ -34,8 +34,9 @@ from pitopcommon.sys_info import (
     get_vnc_enabled_state,
 )
 
-from PIL import Image
 from enum import Enum
+from multiprocessing import Process
+from PIL import Image
 from os import path, listdir
 
 
@@ -47,14 +48,51 @@ class Menus(Enum):
 
 
 class MenuPage:
-    """Base view on screen."""
 
-    def __init__(self, name, hotspot, select_action_func, cancel_action_func):
-        """Constructor for MenuPage."""
-        self.select_action_func = select_action_func
-        self.cancel_action_func = cancel_action_func
-        self.hotspot = hotspot
+    def __init__(
+        self,
+        callback_client,
+        name,
+        hotspot,
+        action_func=None,
+        menu_to_change_to=None,
+    ):
+        if action_func is not None:
+            assert(menu_to_change_to is None)
+        elif menu_to_change_to is not None:
+            assert(action_func is None)
+
+        self.__callback_client = callback_client
         self.name = name
+        self.hotspot = hotspot
+        self.action_func = action_func
+        self.menu_to_change_to = menu_to_change_to
+
+        self.action_thread = Process(
+            target=self.action_func)
+
+    def is_menu_changer(self):
+        return self.menu_to_change_to is not None
+
+    def has_custom_action(self):
+        return callable(self.action_func)
+
+    def has_action(self):
+        return self.is_menu_changer() or self.has_custom_action()
+
+    def run_action(self):
+        if self.is_menu_changer():
+            self.__callback_client.change_menu(self.menu_to_change_to)
+            return
+
+        if not self.has_custom_action():
+            return
+
+        self.action_thread = Process(target=self.action_func)
+        self.action_thread.daemon = True
+        self.action_thread.start()
+
+        self.__callback_client.start_current_menu_action()
 
 
 class PageHelper:
@@ -81,142 +119,134 @@ class PageHelper:
         if menu_id == Menus.SYS_INFO:
             pages = [
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="battery",
                     hotspot=self.__get_hotspot(
                         widget=batt_level,
                         interval=1.0,
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="cpu",
                     hotspot=self.__get_hotspot(
                         widget=cpu_load,
                         interval=0.5
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="wifi",
                     hotspot=self.__get_hotspot(
                         widget=wifi,
                         interval=1.0
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="ethernet",
                     hotspot=self.__get_hotspot(
                         widget=ethernet,
                         interval=1.0
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="ap",
                     hotspot=self.__get_hotspot(
                         widget=ap,
                         interval=1.0
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="usb",
                     hotspot=self.__get_hotspot(
                         widget=usb,
                         interval=1.0
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.MAIN_MENU),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.MAIN_MENU,
                 ),
             ]
         elif menu_id == Menus.MAIN_MENU:
             pages = [
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="Settings",
                     hotspot=self.__get_hotspot(
                         widget=setting_title,
                         interval=0.5,
                         title="Settings"
                     ),
-                    select_action_func=lambda: self.__callback_client.change_menu(
-                        Menus.SETTINGS),
-                    cancel_action_func=None,
+                    menu_to_change_to=Menus.SETTINGS,
                 ),
                 # MenuPage(
+                #     callback_client=self.__callback_client,
                 #     name="Projects",
                 #     hotspot=self.__get_hotspot(
                 #         widget=projects_title,
                 #         interval=0.5,
                 #         title="Projects"
                 #     ),
-                #     select_action_func=lambda: self.__callback_client.change_menu(
-                #         Menus.PROJECTS),
-                #     cancel_action_func=None,
+                #     menu_to_change_to=Menus.PROJECTS,
                 # ),
             ]
         elif menu_id == Menus.SETTINGS:
             pages = [
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="ssh_connection",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="ssh",
                         get_state_method=get_ssh_enabled_state,
                     ),
-                    select_action_func=lambda: change_ssh_enabled_state(),
-                    cancel_action_func=None
+                    action_func=change_ssh_enabled_state,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="vnc_connection",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="vnc",
                         get_state_method=get_vnc_enabled_state,
                     ),
-                    select_action_func=lambda: change_vnc_enabled_state(),
-                    cancel_action_func=None
+                    action_func=change_vnc_enabled_state,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="pt_further_link",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="pt_further_link",
                         get_state_method=get_pt_further_link_enabled_state,
                     ),
-                    select_action_func=lambda: change_pt_further_link_enabled_state(),
-                    cancel_action_func=None
+                    action_func=change_pt_further_link_enabled_state,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="ap",
                     hotspot=self.__get_hotspot(
                         widget=wifi_settings_page,
                         type="ap",
                         get_state_method=read_wifi_mode_state,
                     ),
-                    select_action_func=lambda: change_wifi_mode(),
-                    cancel_action_func=None,
+                    action_func=change_wifi_mode,
                 ),
                 MenuPage(
+                    callback_client=self.__callback_client,
                     name="hdmi_reset",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="hdmi_reset",
                         get_state_method=None,
                     ),
-                    select_action_func=lambda: reset_hdmi_configuration(),
-                    cancel_action_func=None
+                    action_func=reset_hdmi_configuration,
                 ),
             ]
         elif menu_id == Menus.PROJECTS:
@@ -235,12 +265,14 @@ class PageHelper:
 
                     pages.append(
                         MenuPage(
-                            title,
-                            self.__get_hotspot(
-                                widget=projects_menu_page, title=title, project_path=project_path
+                            callback_client=self.__callback_client,
+                            name=title,
+                            hotspot=self.__get_hotspot(
+                                widget=projects_menu_page,
+                                title=title,
+                                project_path=project_path,
                             ),
-                            start_stop_project(project_path),
-                            None,
+                            action_func=lambda: start_stop_project(project_path),
                         )
                     )
                 if not pages:
@@ -248,12 +280,13 @@ class PageHelper:
 
                     pages.append(
                         MenuPage(
-                            title,
-                            self.__get_hotspot(
-                                widget=main_menu_page, title=title, image_path=None
+                            callback_client=self.__callback_client,
+                            name=title,
+                            hotspot=self.__get_hotspot(
+                                widget=main_menu_page,
+                                title=title,
+                                image_path=None,
                             ),
-                            None,
-                            None,
                         )
                     )
             else:
@@ -262,15 +295,14 @@ class PageHelper:
 
                 pages.append(
                     MenuPage(
-                        title,
-                        self.__get_hotspot(
+                        callback_client=self.__callback_client,
+                        name=title,
+                        hotspot=self.__get_hotspot(
                             widget=error_page,
                             title=title,
                             second_line=second_line,
                             image_path=None,
                         ),
-                        None,
-                        None,
                     )
                 )
 
