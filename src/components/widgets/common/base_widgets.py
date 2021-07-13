@@ -31,10 +31,8 @@ class BaseSnapshot(snapshot):
             interval=interval
         )
 
-        self.processing = False
-
     def reset(self):
-        self.processing = False
+        pass
 
     def should_redraw(self):
         """Only requests a redraw after ``interval`` seconds have elapsed."""
@@ -256,10 +254,8 @@ class BaseHotspot(hotspot):
             draw_fn=draw_fn
         )
 
-        self.processing = False
-
     def reset(self):
-        self.processing = False
+        pass
 
     def should_redraw(self):
         return False
