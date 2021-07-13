@@ -10,7 +10,6 @@ from .widgets.main import template as main_menu_page
 from .widgets.settings import (
     template as settings_menu_page,
     title as setting_title,
-    wifi as wifi_settings_page,
 )
 from .widgets.projects import (
     template as projects_menu_page,
@@ -231,7 +230,7 @@ class PageHelper:
                     callback_client=self.__callback_client,
                     name="ap",
                     hotspot=self.__get_hotspot(
-                        widget=wifi_settings_page,
+                        widget=settings_menu_page,
                         type="ap",
                         get_state_method=read_wifi_mode_state,
                     ),
@@ -243,7 +242,6 @@ class PageHelper:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="hdmi_reset",
-                        get_state_method=None,
                     ),
                     action_func=reset_hdmi_configuration,
                 ),

@@ -1,3 +1,4 @@
+from components.helpers.menu_page_actions import WifiModes
 from components.widgets.common.functions import (
     get_image_file_path,
     process_image,
@@ -67,7 +68,7 @@ class Hotspot(BaseSnapshot):
             if self.initialised:
                 return
 
-        if self.get_state_method() == "Enabled":
+        if self.get_state_method() in ["Enabled", WifiModes.AP_STA]:
             self.action_state = ActionState.ENABLED
         else:
             self.action_state = ActionState.DISABLED
