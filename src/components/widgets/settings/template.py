@@ -1,8 +1,5 @@
 from components.helpers.menu_page_actions import WifiModes
-from components.widgets.common.functions import (
-    get_image_file_path,
-    process_image,
-)
+from components.widgets.common.functions import get_image_file_path
 from components.widgets.common.base_widgets import BaseSnapshot
 from components.widgets.common.values import ActionState
 
@@ -23,30 +20,18 @@ class Hotspot(BaseSnapshot):
         self.icon_img_path = get_image_file_path(
             f"settings/{image_dir}/{self.type}.png"
         )
-        self.icon_image = process_image(
-            Image.open(self.icon_img_path),
-            self.size,
-            self.mode
-        )
+        self.icon_image = Image.open(self.icon_img_path),
 
         self.action_state = ActionState.UNKNOWN
         self.status_img_path = self.get_status_image_path()
-        self.status_image = process_image(
-            Image.open(self.status_img_path),
-            self.size,
-            self.mode
-        )
+        self.status_image = Image.open(self.status_img_path)
         self.processing_icon_frame = 0
         self.initialised = False
 
     def reset(self):
         self.action_state = ActionState.UNKNOWN
         self.status_img_path = self.get_status_image_path()
-        self.status_image = process_image(
-            Image.open(self.status_img_path),
-            self.size,
-            self.mode
-        )
+        self.status_image = Image.open(self.status_img_path)
         self.initialised = False
         self.processing_icon_frame = 0
 
@@ -94,11 +79,7 @@ class Hotspot(BaseSnapshot):
         current_status_img_path = self.get_status_image_path()
         if self.status_img_path != current_status_img_path:
             self.status_img_path = current_status_img_path
-            self.status_image = process_image(
-                Image.open(self.status_img_path),
-                self.size,
-                self.mode
-            )
+            self.status_image = Image.open(self.status_img_path)
 
     def set_as_processing(self):
         self.action_state = ActionState.PROCESSING

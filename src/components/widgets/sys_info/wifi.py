@@ -3,10 +3,7 @@ from pitopcommon.sys_info import (
     get_internal_ip,
     get_network_strength,
 )
-from components.widgets.common.functions import (
-    get_image_file_path,
-    process_image,
-)
+from components.widgets.common.functions import get_image_file_path
 from components.widgets.common.base_widgets import BaseNetworkingSysInfoSnapshot
 
 from ipaddress import ip_address
@@ -49,12 +46,8 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
             else:
                 wifi_signal_strength = "excellent"
 
-            return process_image(
-                Image.open(
-                    get_image_file_path(f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png")
-                ),
-                self.size,
-                self.mode,
+            return Image.open(
+                get_image_file_path(f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png")
             )
 
         self.wifi_bars_image = wifi_strength_image()

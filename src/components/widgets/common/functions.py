@@ -65,7 +65,6 @@ def align_to_middle(draw, width, text):
     return (width - draw.textsize(text)[0]) / 2
 
 
-# TODO: pre-process the images in source; remove this function
 def process_image(image_to_process, size, mode):
     if image_to_process.size == size:
         image = image_to_process

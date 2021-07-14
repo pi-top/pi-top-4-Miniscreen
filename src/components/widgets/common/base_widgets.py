@@ -1,7 +1,6 @@
 from components.widgets.common.functions import (
     draw_text,
     get_image_file_path,
-    process_image,
 )
 from components.widgets.common.values import (
     default_margin_x,
@@ -92,12 +91,8 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
     @property
     def title_connected_image(self):
         if self._title_connected_image is None:
-            self._title_connected_image = process_image(
-                Image.open(
-                    get_image_file_path(f"sys_info/networking/{self.name}_title.png")
-                ),
-                self.size,
-                self.mode,
+            self._title_connected_image = Image.open(
+                get_image_file_path(f"sys_info/networking/{self.name}_title.png")
             )
 
         return self._title_connected_image
@@ -121,12 +116,8 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
     @property
     def info_image(self):
         if self._info_image is None:
-            self._info_image = process_image(
-                Image.open(
-                    get_image_file_path(f"sys_info/networking/{self.name}_info.png")
-                ),
-                self.size,
-                self.mode,
+            self._info_image = Image.open(
+                get_image_file_path(f"sys_info/networking/{self.name}_info.png")
             )
 
         return self._info_image
