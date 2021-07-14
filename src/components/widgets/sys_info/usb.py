@@ -19,9 +19,11 @@ from time import sleep
 class Hotspot(BaseNetworkingSysInfoSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         self.name = "usb"
+        self.human_readable_name = "USB"
 
         super(Hotspot, self).__init__(
             name=self.name,
+            human_readable_name=self.human_readable_name,
             width=width,
             height=height,
             mode=mode,

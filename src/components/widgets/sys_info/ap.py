@@ -5,9 +5,11 @@ from pitopcommon.sys_info import get_ap_mode_status
 class Hotspot(BaseNetworkingSysInfoSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         self.name = "ap"
+        self.human_readable_name = "Access Point"
 
         super(Hotspot, self).__init__(
             name=self.name,
+            human_readable_name=self.human_readable_name,
             width=width,
             height=height,
             mode=mode,

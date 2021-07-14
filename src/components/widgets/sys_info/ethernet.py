@@ -6,9 +6,11 @@ from ipaddress import ip_address
 class Hotspot(BaseNetworkingSysInfoSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         self.name = "ethernet"
+        self.human_readable_name = "LAN"
 
         super(Hotspot, self).__init__(
             name=self.name,
+            human_readable_name=self.human_readable_name,
             width=width,
             height=height,
             mode=mode,

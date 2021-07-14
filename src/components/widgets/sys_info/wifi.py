@@ -13,9 +13,11 @@ from PIL import Image
 class Hotspot(BaseNetworkingSysInfoSnapshot):
     def __init__(self, width, height, mode, interval, **data):
         self.name = "wifi"
+        self.human_readable_name = "WiFi"
 
         super(Hotspot, self).__init__(
             name=self.name,
+            human_readable_name=self.human_readable_name,
             width=width,
             height=height,
             mode=mode,

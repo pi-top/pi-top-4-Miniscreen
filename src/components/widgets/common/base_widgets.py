@@ -58,7 +58,7 @@ class NetworkingSysInfoRenderState(Enum):
 
 
 class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
-    def __init__(self, name, width, height, mode, interval=0.5, draw_fn=None, **kwargs):
+    def __init__(self, name, human_readable_name, width, height, mode, interval=0.5, draw_fn=None, **kwargs):
         super(BaseNetworkingSysInfoSnapshot, self).__init__(
             width=width,
             height=height,
@@ -67,6 +67,7 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
         )
 
         self.name = name
+        self.human_readable_name = human_readable_name
         self.width = width
         self.height = height
         self.size = (self.width, self.height)
@@ -98,7 +99,7 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
 
             font_size = 15
             font = get_font(font_size)
-            text = str(self.name).upper()
+            text = str(self.human_readable_name)
 
             text_width, text_height = font.getsize(text)
 
