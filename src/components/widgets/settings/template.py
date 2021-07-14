@@ -20,7 +20,7 @@ class Hotspot(BaseSnapshot):
         self.icon_img_path = get_image_file_path(
             f"settings/{image_dir}/{self.type}.png"
         )
-        self.icon_image = Image.open(self.icon_img_path),
+        self.icon_image = Image.open(self.icon_img_path)
 
         self.action_state = ActionState.UNKNOWN
         self.status_img_path = self.get_status_image_path()
