@@ -21,6 +21,8 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
 
     def set_data_members(self):
         try:
-            self.second_line = ip_address(get_internal_ip(iface="eth0"))
+            internal_eth0_ip = get_internal_ip(iface="eth0")
+            parsed_ip = ip_address(internal_eth0_ip)
+            self.second_line = parsed_ip
         except ValueError:
             self.second_line = ""

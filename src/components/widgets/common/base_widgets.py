@@ -1,8 +1,8 @@
-from components.widgets.common.functions import draw_text, get_image_file_path
-from enum import Enum
-from PIL import Image, ImageDraw
-
-from components.widgets.common.functions import process_image
+from components.widgets.common.functions import (
+    draw_text,
+    get_image_file_path,
+    process_image,
+)
 from components.widgets.common.values import (
     default_margin_x,
     common_second_line_y,
@@ -10,16 +10,22 @@ from components.widgets.common.values import (
     common_third_line_y,
 )
 
-from time import time
+from enum import Enum
 from luma.core.virtual import (
     hotspot,
     snapshot,
 )
 
+from time import time
 try:
     monotonic = time.monotonic
 except AttributeError:  # pragma: no cover
     from monotonic import monotonic
+
+from PIL import (
+    Image,
+    ImageDraw,
+)
 
 
 class BaseSnapshot(snapshot):
@@ -74,8 +80,6 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
         self.first_line = ""
         self.second_line = ""
         self.third_line = ""
-
-        self.initialised = False
 
         self.interval = self.default_interval
 
@@ -140,7 +144,6 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
         self.first_line = ""
         self.second_line = ""
         self.third_line = ""
-        self.initialised = False
 
         self.interval = self.default_interval
 
@@ -160,6 +163,7 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
                 self.interval = self.default_interval
 
     def update_render_state(self):
+
         if self.first_draw:
             # Stay in stationary state for 1 frame
             return
@@ -172,7 +176,8 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
                 self.render_state = NetworkingSysInfoRenderState.ANIMATING
                 self.title_image_pos = (self.title_image_pos[0] - 1, 0)
         else:
-            self.reset_animation()
+            if self.render_state != NetworkingSysInfoRenderState.STATIONARY:
+                self.reset()
 
     def render_info(self, draw):
         draw.bitmap(
@@ -214,14 +219,8 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
         )
 
     def render(self, draw, width, height):
-        # Determine connection state
-        if not self.initialised or self.render_state == NetworkingSysInfoRenderState.DISPLAYING_INFO:
+        if self.render_state != NetworkingSysInfoRenderState.ANIMATING:
             self.set_data_members()
-
-            if not self.is_connected():
-                self.reset_animation()
-
-            self.initialised = True
 
         self.update_render_state()
 

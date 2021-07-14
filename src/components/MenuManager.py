@@ -1,20 +1,17 @@
-from .Menu import (
-    Menu,
-    Menus,
-)
+from .Menu import Menu
+from .PageManager import Menus
 from .widgets.common.values import ActionState
 from .helpers.button_press import ButtonPress
 
 from pitopcommon.logger import PTLogger
 
+from enum import Enum
+from PIL import Image, ImageDraw
 from random import randrange
 from time import (
     perf_counter,
     sleep
 )
-
-from PIL import Image, ImageDraw
-from enum import Enum
 
 
 class MenuState(Enum):
