@@ -1,5 +1,6 @@
 from components.widgets.common.functions import (
     draw_text,
+    get_font,
     get_image_file_path,
 )
 from components.widgets.common.values import (
@@ -95,6 +96,23 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
                 get_image_file_path(f"sys_info/networking/{self.name}_title.png")
             )
 
+            font_size = 15
+            font = get_font(font_size)
+            text = str(self.name).upper()
+
+            text_width, text_height = font.getsize(text)
+
+            center = (self.size[0]/2, self.size[1]/2)
+            text_top_left_pos = (center[0] - text_width/2, center[1] + text_height/2)
+
+            # Draw title text onto page
+            draw_text(
+                ImageDraw.Draw(self._title_connected_image),
+                xy=text_top_left_pos,
+                text=text,
+                font=font,
+            )
+
         return self._title_connected_image
 
     @property
@@ -103,11 +121,17 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
             self._title_disconnected_image = self.title_connected_image.copy()
 
             def add_disconnected_icon(pil_image):
-                pil_image_disconnected_draw = ImageDraw.Draw(pil_image)
-                pil_image_disconnected_draw.ellipse((70, 23) + (84, 37), 0, 0)
-                pil_image_disconnected_draw.ellipse((71, 24) + (83, 36), 1, 0)
-                pil_image_disconnected_draw.line((74, 27) + (79, 32), "black", 2)
-                pil_image_disconnected_draw.line((75, 32) + (80, 27), "black", 2)
+                draw = ImageDraw.Draw(pil_image)
+
+                # black outer circle
+                draw.ellipse((70, 23) + (84, 37), "black", 0)
+
+                # white inner circle
+                draw.ellipse((71, 24) + (83, 36), "white", 0)
+
+                # black cross mark over white circle
+                draw.line((74, 27) + (79, 32), "black", 2)
+                draw.line((75, 32) + (80, 27), "black", 2)
 
             add_disconnected_icon(self._title_disconnected_image)
 
