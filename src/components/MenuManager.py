@@ -299,7 +299,7 @@ class MenuManager:
             time_since_action_started = perf_counter() - self.action_start_time
             PTLogger.debug(f"Time since action started: {time_since_action_started}")
 
-            if self.current_menu.page.action_thread.is_alive():
+            if self.current_menu.page.action_process.is_alive():
                 PTLogger.debug("Action not yet completed")
                 return
 
@@ -309,6 +309,7 @@ class MenuManager:
 
                 PTLogger.info("Notifying renderer to display 'unknown' action state")
                 self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
+                self.current_menu.page.action_process.terminate()
                 return
 
             PTLogger.info("Action completed - setting state to WAKING")

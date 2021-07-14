@@ -67,7 +67,7 @@ class MenuPage:
         self.action_func = action_func
         self.menu_to_change_to = menu_to_change_to
 
-        self.action_thread = None
+        self.action_process = None
 
     def is_menu_changer(self):
         return self.menu_to_change_to is not None
@@ -86,9 +86,9 @@ class MenuPage:
         if not self.has_custom_action():
             return
 
-        self.action_thread = Process(target=self.action_func)
-        self.action_thread.daemon = True
-        self.action_thread.start()
+        self.action_process = Process(target=self.action_func)
+        self.action_process.daemon = True
+        self.action_process.start()
 
         self.__callback_client.start_current_menu_action()
 
