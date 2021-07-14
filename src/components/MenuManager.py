@@ -1,19 +1,17 @@
-from .Menu import (
-    Menu,
-    Menus,
-)
+from .Menu import Menu
+from .PageManager import Menus
+from .widgets.common.values import ActionState
 from .helpers.button_press import ButtonPress
 
 from pitopcommon.logger import PTLogger
 
+from enum import Enum
+from PIL import Image, ImageDraw
 from random import randrange
 from time import (
     perf_counter,
     sleep
 )
-
-from PIL import Image, ImageDraw
-from enum import Enum
 
 
 class MenuState(Enum):
@@ -21,6 +19,7 @@ class MenuState(Enum):
     DIM = 2
     SCREENSAVER = 3
     WAKING = 4
+    RUNNING_ACTION = 5
 
 
 class MenuManager:
@@ -37,6 +36,7 @@ class MenuManager:
             False)
 
         self.last_active_time = perf_counter()
+        self.action_start_time = None
 
         self.user_has_control = False
 
@@ -60,7 +60,7 @@ class MenuManager:
         self.timeouts = {
             MenuState.DIM: 20,
             MenuState.SCREENSAVER: 60,
-            MenuState.WAKING: 0.6
+            MenuState.WAKING: 0.6,
         }
 
         self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
@@ -84,6 +84,20 @@ class MenuManager:
         self.__add_menu_to_list(Menus.PROJECTS)
         self.__add_menu_to_list(Menus.SETTINGS)
         self.change_menu(Menus.SYS_INFO)
+
+        self.action_timeout = 30
+
+    def start_current_menu_action(self):
+        PTLogger.debug("Setting state to RUNNING_ACTION")
+        self.state = MenuState.RUNNING_ACTION
+
+        PTLogger.debug("Taking note of current time for start of action")
+        self.action_start_time = perf_counter()
+
+        # If page is a settings page with an action state,
+        # tell the renderer to display 'in progress'
+        PTLogger.info("Notifying renderer to display 'in progress' action state")
+        self.current_menu.page.hotspot.set_as_processing()
 
     @property
     def screensaver(self):
@@ -192,7 +206,7 @@ class MenuManager:
     def __wake_oled(self):
         self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
-        if self.state != MenuState.ACTIVE:
+        if self.state not in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
             PTLogger.info("Waking up...")
             self.state = MenuState.WAKING
             self.__miniscreen.device.display(self.current_menu.image)
@@ -213,8 +227,6 @@ class MenuManager:
         self.current_menu.set_current_image_as_rendered()
 
     def __update_state(self):
-        # TODO: move into separate class
-
         def __get_next_button_press_from_stack():
             button_press = ButtonPress(ButtonPress.ButtonType.NONE)
             if len(self.__button_press_stack):
@@ -238,8 +250,6 @@ class MenuManager:
 
         button_press = __get_next_button_press_from_stack()
 
-        force_refresh = False
-
         if button_press.event_type != ButtonPress.ButtonType.NONE:
             should_act = (self.state == MenuState.ACTIVE)
 
@@ -254,18 +264,14 @@ class MenuManager:
                 elif button_press.is_action():
                     current_page = self.current_menu.page
                     if button_press.event_type == ButtonPress.ButtonType.SELECT:
-                        if callable(current_page.select_action_func):
-                            current_page.select_action_func()
-                            force_refresh = True
-                    else:
-                        if callable(current_page.cancel_action_func):
-                            current_page.cancel_action_func()
-                        else:
-                            if self.current_menu.parent is not None:
-                                self.change_menu(self.current_menu.parent)
+                        if current_page.has_action():
+                            current_page.run_action()
+                    elif self.current_menu.parent is not None:
+                        self.change_menu(self.current_menu.parent)
 
-        if self.state == MenuState.ACTIVE:
-            self.current_menu.refresh(force=force_refresh)
+        # Draw current screen
+        if self.state in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
+            self.current_menu.refresh()
             if self.current_menu.should_redraw():
                 self.__draw_current_menu_page_to_oled()
 
@@ -282,6 +288,33 @@ class MenuManager:
         time_since_last_active = perf_counter() - self.last_active_time
 
         PTLogger.debug(f"Sleep timer: {time_since_last_active}")
+
+        if self.state == MenuState.RUNNING_ACTION:
+            # Prevent dimming while running action
+            self.last_active_time = perf_counter()
+
+            time_since_action_started = perf_counter() - self.action_start_time
+            PTLogger.debug(f"Time since action started: {time_since_action_started}")
+
+            if self.current_menu.page.action_process.is_alive():
+                PTLogger.debug("Action not yet completed")
+                return
+
+            if time_since_action_started > self.action_timeout:
+                PTLogger.info("Action timed out - setting state to WAKING")
+                self.state = MenuState.WAKING
+
+                PTLogger.info("Notifying renderer to display 'unknown' action state")
+                self.current_menu.page.hotspot.action_state = ActionState.UNKNOWN
+                self.current_menu.page.action_process.terminate()
+                return
+
+            PTLogger.info("Action completed - setting state to WAKING")
+            self.state = MenuState.WAKING
+            PTLogger.info("Resetting state of hotspot to re-renderer current state")
+            self.current_menu.page.hotspot.reset()
+
+            return
 
         if self.state == MenuState.WAKING:
             if time_since_last_active < self.timeouts[MenuState.WAKING]:
@@ -304,7 +337,7 @@ class MenuManager:
             PTLogger.info("Starting screensaver...")
             self.state = MenuState.SCREENSAVER
 
-        self.current_menu.refresh(force_refresh)
+        self.current_menu.refresh()
 
         if self.state == MenuState.SCREENSAVER:
             self.display(self.screensaver.convert("1"), wake=False)

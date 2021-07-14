@@ -19,7 +19,7 @@ class Hotspot(BaseSnapshot):
             device_mode=mode,
             width=width,
             height=height,
-            image_path=get_image_file_path("sys_info/cpu.gif"),
+            image_path=get_image_file_path("sys_info/cpu.png"),
             loop=False,
         )
 

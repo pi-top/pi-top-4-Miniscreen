@@ -3,152 +3,70 @@ from pitopcommon.sys_info import (
     get_internal_ip,
     get_network_strength,
 )
-from components.widgets.common.functions import draw_text, get_image_file_path
-from components.widgets.common.values import (
-    default_margin_x,
-    common_second_line_y,
-    common_third_line_y,
-)
-from components.widgets.common.base_widgets import BaseSnapshot
-from components.widgets.common.image_component import ImageComponent
+from components.widgets.common.functions import get_image_file_path
+from components.widgets.common.base_widgets import BaseNetworkingSysInfoSnapshot
+
 from ipaddress import ip_address
+from PIL import Image
 
 
-def wifi_strength_image():
-    wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
-    wifi_rating = "sys_info/wifi_strength_bars/"
-    if wifi_strength <= 0:
-        wifi_rating += "wifi_no_signal.gif"
-    elif 0 < wifi_strength <= 0.25:
-        wifi_rating += "wifi_weak_signal.gif"
-    elif 0.25 < wifi_strength <= 0.5:
-        wifi_rating += "wifi_okay_signal.gif"
-    elif 0.5 < wifi_strength <= 0.75:
-        wifi_rating += "wifi_good_signal.gif"
-    else:
-        wifi_rating += "wifi_excellent_signal.gif"
-
-    return get_image_file_path(f"{wifi_rating}")
-
-
-class Hotspot(BaseSnapshot):
+class Hotspot(BaseNetworkingSysInfoSnapshot):
     def __init__(self, width, height, mode, interval, **data):
-        super(Hotspot, self).__init__(width, height, interval, self.render)
-        self.width = width
-        self.height = height
-        self.mode = mode
-        self.gif = ImageComponent(
-            device_mode=self.mode,
-            width=self.width,
-            height=self.height,
-            image_path=get_image_file_path("sys_info/wifi.gif"),
-            loop=False,
-            playback_speed=2.0,
+        self.name = "wifi"
+        self.human_readable_name = "WiFi"
+
+        super(Hotspot, self).__init__(
+            name=self.name,
+            human_readable_name=self.human_readable_name,
+            width=width,
+            height=height,
+            mode=mode,
+            interval=interval,
+            draw_fn=self.render
         )
 
-        self.wifi_id = ""
-        self.wlan0_ip = ""
         self.wifi_bars_image = ""
-        self.initialised = False
 
-        self.default_interval = interval
-
-    def reset(self):
-        self.gif = ImageComponent(
-            device_mode=self.mode,
-            width=self.width,
-            height=self.height,
-            image_path=get_image_file_path("sys_info/wifi.gif"),
-            loop=False,
-            playback_speed=2.0,
-        )
-
-        self.wifi_id = ""
-        self.wlan0_ip = ""
+    def reset_extra_data_members(self):
         self.wifi_bars_image = ""
-        self.initialised = False
-
-        self.interval = self.default_interval
 
     def is_connected(self):
-        return self.wlan0_ip != "" and self.wifi_id != ""
+        return self.second_line != "" and self.third_line != ""
 
     def set_data_members(self):
-        network_ssid = get_wifi_network_ssid()
-        if network_ssid != "Error":
-            self.wifi_id = network_ssid
+        def wifi_strength_image():
+            wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
 
-        network_ip = get_internal_ip(iface="wlan0")
-        try:
-            self.wlan0_ip = ip_address(network_ip)
-        except ValueError:
-            self.wlan0_ip = ""
+            if wifi_strength <= 0:
+                wifi_signal_strength = "no"
+            elif wifi_strength <= 0.25:
+                wifi_signal_strength = "weak"
+            elif wifi_strength <= 0.5:
+                wifi_signal_strength = "okay"
+            elif wifi_strength <= 0.75:
+                wifi_signal_strength = "good"
+            else:
+                wifi_signal_strength = "excellent"
+
+            return Image.open(
+                get_image_file_path(f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png")
+            )
 
         self.wifi_bars_image = wifi_strength_image()
 
-        if not self.is_connected():
-            self.gif = ImageComponent(
-                device_mode=self.mode,
-                width=self.width,
-                height=self.height,
-                image_path=get_image_file_path("sys_info/wifi.gif"),
-                loop=False,
-                playback_speed=2.0,
-            )
+        network_ssid = get_wifi_network_ssid()
+        if network_ssid != "Error":
+            self.second_line = network_ssid
 
-        self.gif.hold_first_frame = not self.is_connected()
-        self.initialised = True
+        network_ip = get_internal_ip(iface="wlan0")
+        try:
+            self.third_line = ip_address(network_ip)
+        except ValueError:
+            self.third_line = ""
 
-    def render(self, draw, width, height):
-        first_frame = not self.initialised
-
-        # Determine initial connection state
-        if first_frame:
-            self.set_data_members()
-
-        # Determine connection state
-        if not self.gif.is_animating():
-            self.set_data_members()
-
-        # Determine animation speed
-        # TODO: fix frame speed in GIF
-        # self.interval = self.gif.frame_duration
-        if first_frame:
-            self.interval = 0.5
-        else:
-            if self.gif.is_animating():
-                self.interval = 0.025
-            else:
-                self.interval = self.default_interval
-
-        # Draw to OLED
-        self.gif.render(draw)
-
-        if self.initialised and not self.gif.is_animating():
-            if self.is_connected() and self.gif.finished:
-                wifi_bars = ImageComponent(
-                    device_mode=self.mode,
-                    width=self.width,
-                    height=self.height,
-                    xy=(5, 0),
-                    image_path=self.wifi_bars_image,
-                    loop=True,
-                )
-                wifi_bars.render(draw)
-
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_second_line_y),
-                    text=str(self.wifi_id),
-                )
-
-                draw_text(
-                    draw,
-                    xy=(default_margin_x, common_third_line_y),
-                    text=str(self.wlan0_ip),
-                )
-            elif not self.is_connected() and self.gif.hold_first_frame:
-                draw.ellipse((69, 21) + (83, 35), 0, 0)
-                draw.ellipse((70, 22) + (82, 34), 1, 0)
-                draw.line((73, 25) + (78, 30), "black", 2)
-                draw.line((74, 30) + (79, 25), "black", 2)
+    def render_extra_info(self, draw):
+        draw.bitmap(
+            xy=(5, 0),
+            bitmap=self.wifi_bars_image,
+            fill="white",
+        )

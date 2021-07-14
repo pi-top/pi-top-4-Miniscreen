@@ -11,11 +11,11 @@ class Hotspot(BaseSnapshot):
         self.width = width
         self.height = height
         self.mode = mode
-        self.gif = ImageComponent(
+        self.battery_image = ImageComponent(
             device_mode=self.mode,
             width=self.width,
             height=self.height,
-            image_path=get_image_file_path("sys_info/battery_shell_empty.gif"),
+            image_path=get_image_file_path("sys_info/battery_shell_empty.png"),
             loop=False,
         )
 
@@ -42,26 +42,26 @@ class Hotspot(BaseSnapshot):
 
     def render(self, draw, width, height):
         if self.battery.is_charging or self.battery.is_full:
-            self.gif = ImageComponent(
+            self.battery_image = ImageComponent(
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
                 image_path=get_image_file_path(
-                    "sys_info/battery_shell_charging.gif"),
+                    "sys_info/battery_shell_charging.png"),
                 loop=False
             )
         else:
-            self.gif = ImageComponent(
+            self.battery_image = ImageComponent(
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
                 image_path=get_image_file_path(
-                    "sys_info/battery_shell_empty.gif"),
+                    "sys_info/battery_shell_empty.png"),
                 loop=False
             )
             self.draw_battery_percentage(draw, width, height)
 
-        self.gif.render(draw)
+        self.battery_image.render(draw)
 
         x_margin = 69
         y_margin = 21
