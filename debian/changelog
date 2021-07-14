@@ -1,3 +1,9 @@
+pt-sys-oled (4.3.0) buster; urgency=medium
+
+  * Add improved UX for AP mode
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 14 Jul 2021 15:40:50 +0000
+
 pt-sys-oled (4.2.2) buster; urgency=medium
 
   [ Mike Roberts ]
