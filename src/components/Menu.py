@@ -57,7 +57,7 @@ class Menu:
 
     @property
     def page(self):
-        return self.pages[self.__page_index]
+        return self.pages[self.page_number]
 
     @property
     def hotspot(self):
