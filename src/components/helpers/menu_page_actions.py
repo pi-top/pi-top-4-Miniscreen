@@ -7,8 +7,12 @@ from os import (
 import signal
 from subprocess import check_output, Popen
 
+from pitopcommon.command_runner import run_command
 from pitopcommon.logger import PTLogger
-from pitopcommon.sys_info import get_systemd_enabled_state
+from pitopcommon.sys_info import (
+    get_ap_mode_status,
+    get_systemd_enabled_state,
+)
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -55,13 +59,14 @@ def change_wifi_mode():
     current_mode = read_wifi_mode_state()
     next_mode = current_mode.next()
     if next_mode == WifiModes.STA:
-        __disable_and_stop_systemd_service("wifi-ap-sta.service")
+        run_command("/usr/bin/wifi-ap-sta stop", timeout=20)
     elif next_mode == WifiModes.AP_STA:
-        __enable_and_start_systemd_service("wifi-ap-sta.service")
+        run_command("/usr/bin/wifi-ap-sta start", timeout=20)
 
 
 def read_wifi_mode_state():
-    if get_systemd_enabled_state("wifi-ap-sta.service") == "Enabled":
+    status_data = get_ap_mode_status()
+    if status_data.get("state", "").lower() == "active":
         return WifiModes.AP_STA
     return WifiModes.STA
 
