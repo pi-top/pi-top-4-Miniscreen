@@ -55,12 +55,14 @@ def change_wifi_mode():
     current_mode = read_wifi_mode_state()
     next_mode = current_mode.next()
     if next_mode == WifiModes.STA:
-        __disable_and_stop_systemd_service("wifi-ap-sta.service")
+        system("sudo wifi-ap-sta start")
     elif next_mode == WifiModes.AP_STA:
-        __enable_and_start_systemd_service("wifi-ap-sta.service")
+        system("sudo wifi-ap-sta stop")
 
 
 def read_wifi_mode_state():
+    # TODO: 'grep' output for 'State: active'
+    # system("sudo wifi-ap-sta status")
     if get_systemd_enabled_state("wifi-ap-sta.service") == "Enabled":
         return WifiModes.AP_STA
     return WifiModes.STA
