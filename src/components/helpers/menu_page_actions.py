@@ -59,9 +59,9 @@ def change_wifi_mode():
     current_mode = read_wifi_mode_state()
     next_mode = current_mode.next()
     if next_mode == WifiModes.STA:
-        run_command("/usr/bin/wifi-ap-sta stop", timeout=20)
+        run_command("/usr/bin/wifi-ap-sta stop", timeout=30)
     elif next_mode == WifiModes.AP_STA:
-        run_command("/usr/bin/wifi-ap-sta start", timeout=20)
+        run_command("/usr/bin/wifi-ap-sta start", timeout=30)
 
 
 def read_wifi_mode_state():
