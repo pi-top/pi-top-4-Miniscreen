@@ -1,7 +1,6 @@
 pt-sys-oled (4.3.1) buster; urgency=medium
 
-  [ Jorge Capona ]
-  * Update how state of AP mode is retrieved (#150)
+  * Update how state of AP mode is retrieved
 
  -- pi-top <deb-maintainers@pi-top.com>  Thu, 15 Jul 2021 14:12:43 +0000
 
