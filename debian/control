@@ -14,7 +14,6 @@ Depends:
  ${misc:Depends},
  ${python3:Depends},
  fonts-freefont-ttf,
- fonts-fs-me-pro,
 # API hardware calls/common functions
  python3-pitop,
 # TODO: handle with pybuild:

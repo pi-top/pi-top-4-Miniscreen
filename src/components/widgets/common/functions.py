@@ -14,15 +14,9 @@ def get_image_file_path(relative_file_name):
 
 def get_font(size=12):
 
-    if size >= 12:
-        font = ImageFont.truetype(
-            "/usr/share/fonts/opentype/FSMePro/FSMePro-Light.otf", size
-        )
-    else:
-        font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/freefont/FreeMono.ttf", size
-        )
-    return font
+    return ImageFont.truetype(
+        "/usr/share/fonts/truetype/freefont/FreeMono.ttf", size
+    )
 
 
 def draw_text(
