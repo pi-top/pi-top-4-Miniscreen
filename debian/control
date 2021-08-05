@@ -15,14 +15,13 @@ Depends:
  ${python3:Depends},
  fonts-freefont-ttf,
  fonts-fs-me-pro,
-# API hardware calls
+# API hardware calls/common functions
  python3-pitop,
-# Python libs required for common functions
- python3-luma-oled,
+# TODO: handle with pybuild:
  python3-monotonic,
  python3-psutil,
 Recommends:
- autorandr (>= 1.9),
+ autorandr,
  pt-further-link,
 # Control Wi-Fi AP mode
  wifi-ap-sta,

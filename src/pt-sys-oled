@@ -5,7 +5,8 @@ from logging import (
     getLogger,
     ERROR
 )
-from luma.core.error import DeviceNotFoundError
+
+from pitop.miniscreen.oled.core.contrib.luma.core.error import DeviceNotFoundError
 from os import path
 from pathlib import Path
 from signal import (
