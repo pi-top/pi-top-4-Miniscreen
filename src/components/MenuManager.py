@@ -3,7 +3,7 @@ from .PageManager import Menus
 from .widgets.common.values import ActionState
 from .helpers.button_press import ButtonPress
 
-from pitopcommon.logger import PTLogger
+from pitop.common.logger import PTLogger
 
 from enum import Enum
 from PIL import Image, ImageDraw

@@ -15,8 +15,8 @@ from signal import (
 )
 from sys import exit
 
-from pitopcommon.logger import PTLogger
-from pitopcommon.common_names import DeviceName
+from pitop.common.logger import PTLogger
+from pitop.common.common_names import DeviceName
 
 from pitop.system.device import device_type
 from pitop.miniscreen import Miniscreen

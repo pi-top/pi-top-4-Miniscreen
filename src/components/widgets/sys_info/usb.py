@@ -1,7 +1,7 @@
 from components.widgets.common.base_widgets import BaseNetworkingSysInfoSnapshot
 
-from pitopcommon.pt_os import is_pi_using_default_password
-from pitopcommon.sys_info import (
+from pitop.common.pt_os import is_pi_using_default_password
+from pitop.common.sys_info import (
     get_internal_ip,
     get_address_for_ptusb_connected_device
 )

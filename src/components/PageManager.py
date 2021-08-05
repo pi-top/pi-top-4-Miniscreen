@@ -28,7 +28,7 @@ from .helpers.menu_page_actions import (
     start_stop_project,
 )
 
-from pitopcommon.sys_info import (
+from pitop.common.sys_info import (
     get_pt_further_link_enabled_state,
     get_ssh_enabled_state,
     get_vnc_enabled_state,

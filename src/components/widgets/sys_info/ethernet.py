@@ -1,5 +1,5 @@
 from components.widgets.common.base_widgets import BaseNetworkingSysInfoSnapshot
-from pitopcommon.sys_info import get_internal_ip
+from pitop.common.sys_info import get_internal_ip
 from ipaddress import ip_address
 
 

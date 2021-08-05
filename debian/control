@@ -17,7 +17,6 @@ Depends:
  fonts-fs-me-pro,
 # API hardware calls
  python3-pitop,
- python3-pitopcommon,
 # Python libs required for common functions
  python3-luma-oled,
  python3-monotonic,

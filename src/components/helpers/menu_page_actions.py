@@ -7,9 +7,9 @@ from os import (
 import signal
 from subprocess import check_output, Popen
 
-from pitopcommon.command_runner import run_command
-from pitopcommon.logger import PTLogger
-from pitopcommon.sys_info import (
+from pitop.common.command_runner import run_command
+from pitop.common.logger import PTLogger
+from pitop.common.sys_info import (
     get_ap_mode_status,
     get_systemd_enabled_state,
 )
