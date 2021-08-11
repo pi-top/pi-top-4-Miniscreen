@@ -8,7 +8,7 @@ from .values import right_text_default_margin
 
 def get_image_file_path(relative_file_name):
     return path.abspath(
-        path.join("/usr", "share", "pt-sys-oled", "images", relative_file_name)
+        path.join("/usr", "share", "pt-miniscreen", "images", relative_file_name)
     )
 
 

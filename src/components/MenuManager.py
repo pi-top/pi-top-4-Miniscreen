@@ -149,7 +149,7 @@ class MenuManager:
     def main_loop(self):
         try:
             while self.__continue:
-                # Only attempt to update state if OLED is owned by pt-sys-oled
+                # Only attempt to update state if OLED is not owned by another process
                 if not self.__miniscreen.is_active:
                     self.__update_state()
 

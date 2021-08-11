@@ -3,4 +3,4 @@
 	dh $@
 
 override_dh_installsystemd:
-	dh_installsystemd --name=pt-sys-oled
+	dh_installsystemd --name=pt-miniscreen

@@ -26,7 +26,7 @@ from components.widgets.common.functions import get_image_file_path
 from components.MenuManager import MenuManager
 
 
-boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
+boot_animation_played_breadcrumb = "/tmp/.pt-miniscreen.boot-played"
 custom_startup_gif_path = "/etc/pi-top/pt-miniscreen/startup.gif"
 legacy_custom_startup_gif_path = "/etc/pi-top/pt-sys-oled/startup.gif"
 
@@ -69,7 +69,7 @@ def main():
 
         # Ignore PIL debug messages
         getLogger('PIL').setLevel(ERROR)
-        PTLogger.setup_logging(logger_name="pt-sys-oled",
+        PTLogger.setup_logging(logger_name="pt-miniscreen",
                                logging_level=args.log_level,
                                log_to_journal=False)
 
