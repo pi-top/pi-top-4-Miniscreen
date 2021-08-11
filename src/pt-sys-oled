@@ -27,7 +27,8 @@ from components.MenuManager import MenuManager
 
 
 boot_animation_played_breadcrumb = "/tmp/.pt-sys-oled.boot-played"
-custom_startup_gif_path = "/etc/pi-top/pt-sys-oled/startup.gif"
+custom_startup_gif_path = "/etc/pi-top/pt-miniscreen/startup.gif"
+legacy_custom_startup_gif_path = "/etc/pi-top/pt-sys-oled/startup.gif"
 
 
 def configure_interrupt_signals(app):
@@ -97,10 +98,23 @@ def main():
                         loop=False
                     )
 
+                played_startup = False
                 try:
                     play_animated_gif(custom_startup_gif_path)
+                    played_startup = True
 
                 except Exception:
+                    pass
+
+                if not played_startup:
+                    try:
+                        play_animated_gif(legacy_custom_startup_gif_path)
+                        played_startup = True
+
+                    except Exception:
+                        pass
+
+                if not played_startup:
                     # Fallback
                     play_animated_gif(
                         get_image_file_path("startup/pi-top_startup.gif")
