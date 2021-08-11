@@ -29,7 +29,7 @@ from .helpers.menu_page_actions import (
 )
 
 from pitop.common.sys_info import (
-    get_further_link_enabled_state,
+    get_pt_further_link_enabled_state,
     get_ssh_enabled_state,
     get_vnc_enabled_state,
 )
@@ -177,7 +177,7 @@ class PageManager:
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
                         type="further_link",
-                        get_state_method=get_further_link_enabled_state,
+                        get_state_method=get_pt_further_link_enabled_state,
                     ),
                     action_func=change_further_link_enabled_state,
                 ),
