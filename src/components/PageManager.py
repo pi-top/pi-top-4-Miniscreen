@@ -19,7 +19,7 @@ from .widgets.projects import (
 )
 from .widgets.error import template as error_page
 from .helpers.menu_page_actions import (
-    change_pt_further_link_enabled_state,
+    change_further_link_enabled_state,
     change_ssh_enabled_state,
     change_vnc_enabled_state,
     change_wifi_mode,
@@ -29,7 +29,7 @@ from .helpers.menu_page_actions import (
 )
 
 from pitop.common.sys_info import (
-    get_pt_further_link_enabled_state,
+    get_further_link_enabled_state,
     get_ssh_enabled_state,
     get_vnc_enabled_state,
 )
@@ -173,13 +173,13 @@ class PageManager:
                 ),
                 MenuPage(
                     callback_client=self.__callback_client,
-                    name="pt_further_link",
+                    name="further_link",
                     hotspot=self.__get_hotspot(
                         widget=settings_menu_page,
-                        type="pt_further_link",
-                        get_state_method=get_pt_further_link_enabled_state,
+                        type="further_link",
+                        get_state_method=get_further_link_enabled_state,
                     ),
-                    action_func=change_pt_further_link_enabled_state,
+                    action_func=change_further_link_enabled_state,
                 ),
                 MenuPage(
                     callback_client=self.__callback_client,

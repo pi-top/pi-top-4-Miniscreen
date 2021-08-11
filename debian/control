@@ -21,7 +21,7 @@ Depends:
  python3-psutil,
 Recommends:
  autorandr,
- pt-further-link,
+ further-link,
 # Control Wi-Fi AP mode
  wifi-ap-sta,
 # Used for closing 'Screen Layout Editor' when resetting display

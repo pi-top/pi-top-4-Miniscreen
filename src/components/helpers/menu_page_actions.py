@@ -42,8 +42,8 @@ def change_vnc_enabled_state():
     __change_service_enabled_state("vncserver-x11-serviced.service")
 
 
-def change_pt_further_link_enabled_state():
-    __change_service_enabled_state("pt-further-link.service")
+def change_further_link_enabled_state():
+    __change_service_enabled_state("further-link.service")
 
 
 class WifiModes(IntEnum):
