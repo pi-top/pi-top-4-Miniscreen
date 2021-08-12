@@ -1,6 +1,6 @@
+from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 from PIL import (
     Image,
-    ImageFont,
 )
 from os import path
 from .values import right_text_default_margin
@@ -13,10 +13,10 @@ def get_image_file_path(relative_file_name):
 
 
 def get_font(size=12):
+    # Hard-code OLED properties for simple import
+    assistant = MiniscreenAssistant("1", (128, 64))
 
-    return ImageFont.truetype(
-        "/usr/share/fonts/truetype/freefont/FreeMono.ttf", size
-    )
+    return assistant.get_recommended_font(size=size)
 
 
 def draw_text(
