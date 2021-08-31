@@ -1,10 +1,10 @@
+from configparser import ConfigParser
 from logging import ERROR, getLogger
 from os import path
 from pathlib import Path
 from signal import SIGINT, SIGTERM, signal
 
 import click
-from configparser import ConfigParser
 from pitop import Pitop
 from pitop.common.logger import PTLogger
 
