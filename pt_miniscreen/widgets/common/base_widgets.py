@@ -1,9 +1,9 @@
-from .functions import (  # noqa: F401
+from .functions import (
     draw_text,
     get_image_file_path,
     get_font,
 )
-from .values import (  # noqa: F401
+from .values import (
     default_margin_x,
     common_first_line_y,
     common_second_line_y,
