@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 from logging import ERROR, getLogger
 from os import path
-from pathlib import Path
 from signal import SIGINT, SIGTERM, signal
 
 import click
@@ -12,6 +11,7 @@ from pitop.common.logger import PTLogger
 from pitop.miniscreen.oled.core.contrib.luma.core.error import DeviceNotFoundError
 
 from . import MiniscreenApp
+from .bootsplash import Bootsplash
 from .widgets.common.functions import get_image_file_path
 
 config_file = "/etc/pt-miniscreen/settings.ini"
@@ -25,27 +25,6 @@ def configure_interrupt_signals(app):
 
     signal(SIGINT, signal_handler)
     signal(SIGTERM, signal_handler)
-
-
-class Bootsplash:
-    has_played_breadcrumb = "/tmp/.com.pi-top.pt_miniscreen.boot-played"
-
-    def __init__(self, path, miniscreen):
-        self.path = path
-        self.miniscreen = miniscreen
-
-    def has_played(self):
-        return path.exists(self.has_played_breadcrumb)
-
-    def play(self):
-        try:
-            self.miniscreen.play_animated_image_file(
-                self.path, background=False, loop=False
-            )
-        except Exception as e:
-            PTLogger.warning(f"Unable to play miniscreen startup animation: {e}")
-
-        Path(self.has_played_breadcrumb).touch()
 
 
 @click.command()
@@ -72,7 +51,8 @@ def main(log_level) -> None:
 
     bootsplash_path = get_image_file_path("startup/pi-top_startup.gif")
     if path.exists(config_file):
-        config = ConfigParser().read(config_file)
+        config = ConfigParser()
+        config.read(config_file)
         try:
             bootsplash_path = config.get("Bootsplash", "Path")
         except Exception:
