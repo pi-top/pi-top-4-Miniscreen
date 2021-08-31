@@ -4,7 +4,7 @@ from pathlib import Path
 from signal import SIGINT, SIGTERM, signal
 
 import click
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from pitop import Pitop
 from pitop.common.logger import PTLogger
 
