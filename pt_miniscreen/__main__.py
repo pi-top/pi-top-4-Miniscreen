@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 from logging import ERROR, getLogger
 from signal import SIGINT, SIGTERM, signal
 
@@ -23,26 +22,20 @@ def configure_interrupt_signals(app):
     signal(SIGTERM, signal_handler)
 
 
-def get_parser():
-    parser = ArgumentParser(description="pi-top [4] Miniscreen App")
-    parser.add_argument(
-        "--log-level",
-        type=int,
-        help="set logging level from 10 (more verbose) to 50 (less verbose)",
-        default=20,
-    )
-    return parser
-
-
 @click.command()
+@click.option(
+    "--log-level",
+    type=int,
+    help="set logging level from 10 (more verbose) to 50 (less verbose)",
+    default=20,
+    show_default=True,
+)
 @click.version_option()
-def main() -> None:
-    args = get_parser().parse_args()
-
+def main(log_level) -> None:
     # Ignore PIL debug messages
     getLogger("PIL").setLevel(ERROR)
     PTLogger.setup_logging(
-        logger_name="pt-miniscreen", logging_level=args.log_level, log_to_journal=False
+        logger_name="pt-miniscreen", logging_level=log_level, log_to_journal=False
     )
 
     try:
