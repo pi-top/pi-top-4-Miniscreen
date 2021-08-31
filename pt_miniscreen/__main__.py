@@ -44,7 +44,6 @@ class Bootsplash:
             )
         except Exception as e:
             PTLogger.warning(f"Unable to play miniscreen startup animation: {e}")
-            pass
 
         Path(self.has_played_breadcrumb).touch()
 
