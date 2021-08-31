@@ -1,4 +1,4 @@
-from .widgets.common import BaseNetworkingSysInfoSnapshot
+from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
 from pitop.common.sys_info import get_internal_ip
 from ipaddress import ip_address
 

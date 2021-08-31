@@ -1,6 +1,6 @@
 from PIL import Image
 from os.path import isfile
-from .widgets.common import BaseSnapshot, draw_text
+from pt_miniscreen.widgets.common import BaseSnapshot, draw_text
 from pitop.common.logger import PTLogger
 
 

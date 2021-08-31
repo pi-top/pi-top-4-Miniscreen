@@ -1,6 +1,6 @@
 from pitop.battery import Battery
 
-from .widgets.common import (
+from pt_miniscreen.widgets.common import (
     draw_text, get_image_file_path, BaseSnapshot, ImageComponent
 )
 

@@ -1,4 +1,4 @@
-from .widgets import (
+from pt_miniscreen.widgets.common import (
     get_image_file_path,
     BaseSnapshot,
     ActionState,

@@ -1,4 +1,4 @@
-from .widgets.common import BaseHotspot, draw_text, align_to_middle
+from pt_miniscreen.widgets.common import BaseHotspot, draw_text, align_to_middle
 
 
 class Hotspot(BaseHotspot):

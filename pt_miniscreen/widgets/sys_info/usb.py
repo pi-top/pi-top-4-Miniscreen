@@ -1,4 +1,4 @@
-from .widgets.common import BaseNetworkingSysInfoSnapshot
+from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
 
 from pitop.common.pt_os import is_pi_using_default_password
 from pitop.common.sys_info import (

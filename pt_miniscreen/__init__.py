@@ -8,7 +8,7 @@ from .menu_page_actions import (  # noqa: F401
     change_ssh_enabled_state,
     change_vnc_enabled_state,
     change_wifi_mode,
-    read_wifi_mode_state,
+    get_wifi_ap_state,
     reset_hdmi_configuration,
     start_stop_project,
 )

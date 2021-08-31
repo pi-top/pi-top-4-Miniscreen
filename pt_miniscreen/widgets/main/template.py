@@ -1,4 +1,4 @@
-from .widgets.common import BaseHotspot, draw_text
+from pt_miniscreen.widgets.common import BaseHotspot, draw_text
 
 
 class Hotspot(BaseHotspot):

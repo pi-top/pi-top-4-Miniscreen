@@ -3,7 +3,7 @@ from pitop.common.sys_info import (
     get_internal_ip,
     get_network_strength,
 )
-from .widgets.common import BaseNetworkingSysInfoSnapshot, get_image_file_path
+from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot, get_image_file_path
 
 from ipaddress import ip_address
 from PIL import Image

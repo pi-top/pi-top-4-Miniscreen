@@ -3,7 +3,7 @@
 
 from datetime import datetime
 import psutil
-from .widgets.common import BaseSnapshot, default_margin_y, title_text, right_text
+from pt_miniscreen.widgets.common import BaseSnapshot, default_margin_y, title_text, right_text
 
 
 class Hotspot(BaseSnapshot):

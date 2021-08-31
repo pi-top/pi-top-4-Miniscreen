@@ -1,4 +1,4 @@
-from .widgets.common import (
+from pt_miniscreen.widgets.common import (
     BaseSnapshot,
     draw_text,
     # get_image_file_path,

@@ -3,7 +3,7 @@
 
 from pitop.common.formatting import bytes2human
 import psutil
-from .widgets.common import (
+from pt_miniscreen.widgets.common import (
     default_margin_y,
     default_margin_x,
     common_second_line_y,

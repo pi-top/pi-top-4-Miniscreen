@@ -4,7 +4,7 @@
 import math
 import datetime
 
-from .widgets.common import BaseSnapshot, title_text, draw_text
+from pt_miniscreen.widgets.common import BaseSnapshot, title_text, draw_text
 
 
 def posn(angle, arm_length):

@@ -6,7 +6,7 @@ import click
 
 # TODO: drop/override 'DeviceNotFoundError' to avoid awkward luma.core import
 from pitop.miniscreen.oled.core.contrib.luma.core.error import DeviceNotFoundError
-from pitop import Miniscreen
+from pitop import Pitop
 
 from pitop.common.logger import PTLogger
 
@@ -36,17 +36,17 @@ def get_parser():
 
 @click.command()
 @click.version_option()
-def main(prog_name) -> None:
+def main() -> None:
     args = get_parser().parse_args()
 
     # Ignore PIL debug messages
     getLogger("PIL").setLevel(ERROR)
     PTLogger.setup_logging(
-        logger_name=prog_name, logging_level=args.log_level, log_to_journal=False
+        logger_name="pt-miniscreen", logging_level=args.log_level, log_to_journal=False
     )
 
     try:
-        miniscreen = Miniscreen()
+        miniscreen = Pitop().miniscreen
     except DeviceNotFoundError as e:
         PTLogger.error(f"Error getting device: {str(e)}")
         return
