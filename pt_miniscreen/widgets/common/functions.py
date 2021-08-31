@@ -4,17 +4,12 @@ from PIL import (
 )
 from os import path
 from .values import right_text_default_margin
-
-from pathlib import Path
-
-
-def get_project_root() -> Path:
-    return Path(__file__).parent.parent
+from pt_miniscreen.utils import get_project_root
 
 
 def get_image_file_path(relative_file_name):
     return path.abspath(
-        path.join(get_project_root(), relative_file_name)
+        path.join(get_project_root(), "images", relative_file_name)
     )
 
 
