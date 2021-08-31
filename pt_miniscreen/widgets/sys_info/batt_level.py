@@ -1,7 +1,10 @@
 from pitop.battery import Battery
 
 from pt_miniscreen.widgets.common import (
-    draw_text, get_image_file_path, BaseSnapshot, ImageComponent
+    BaseSnapshot,
+    ImageComponent,
+    draw_text,
+    get_image_file_path,
 )
 
 
@@ -36,9 +39,7 @@ class Hotspot(BaseSnapshot):
         bar_width = left_margin + ((50 - left_margin) * (percentage / 100))
 
         draw.rectangle(
-            (left_margin, top_margin) + (bar_width, bottom_margin),
-            "white",
-            "white"
+            (left_margin, top_margin) + (bar_width, bottom_margin), "white", "white"
         )
 
     def render(self, draw, width, height):
@@ -47,18 +48,16 @@ class Hotspot(BaseSnapshot):
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
-                image_path=get_image_file_path(
-                    "sys_info/battery_shell_charging.png"),
-                loop=False
+                image_path=get_image_file_path("sys_info/battery_shell_charging.png"),
+                loop=False,
             )
         else:
             self.battery_image = ImageComponent(
                 device_mode=self.mode,
                 width=self.width,
                 height=self.height,
-                image_path=get_image_file_path(
-                    "sys_info/battery_shell_empty.png"),
-                loop=False
+                image_path=get_image_file_path("sys_info/battery_shell_empty.png"),
+                loop=False,
             )
             self.draw_battery_percentage(draw, width, height)
 
@@ -71,6 +70,5 @@ class Hotspot(BaseSnapshot):
         else:
             battery_capacity_text = str(self.battery.capacity) + "%"
         draw_text(
-            draw, xy=(
-                x_margin, y_margin), text=battery_capacity_text, font_size=18
+            draw, xy=(x_margin, y_margin), text=battery_capacity_text, font_size=18
         )

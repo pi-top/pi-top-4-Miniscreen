@@ -4,7 +4,6 @@ from .widgets import ActionState
 
 
 class MenuPage:
-
     def __init__(
         self,
         callback_client,
@@ -14,9 +13,9 @@ class MenuPage:
         menu_to_change_to=None,
     ):
         if action_func is not None:
-            assert(menu_to_change_to is None)
+            assert menu_to_change_to is None
         elif menu_to_change_to is not None:
-            assert(action_func is None)
+            assert action_func is None
 
         self.__callback_client = callback_client
         self.name = name

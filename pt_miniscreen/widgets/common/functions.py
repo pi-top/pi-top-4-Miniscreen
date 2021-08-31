@@ -1,16 +1,15 @@
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
-from PIL import (
-    Image,
-)
 from os import path
-from .values import right_text_default_margin
+
+from PIL import Image
+from pitop.miniscreen.oled.assistant import MiniscreenAssistant
+
 from pt_miniscreen.utils import get_project_root
+
+from .values import right_text_default_margin
 
 
 def get_image_file_path(relative_file_name):
-    return path.abspath(
-        path.join(get_project_root(), "images", relative_file_name)
-    )
+    return path.abspath(path.join(get_project_root(), "images", relative_file_name))
 
 
 def get_font(size=12):
@@ -66,16 +65,7 @@ def process_image(image_to_process, size, mode):
         if image.mode != mode:
             image = image.convert(mode)
     else:
-        image = Image.new(
-            mode,
-            size,
-            "black"
-        )
-        image.paste(
-            image_to_process.resize(
-                size,
-                resample=Image.NEAREST
-            )
-        )
+        image = Image.new(mode, size, "black")
+        image.paste(image_to_process.resize(size, resample=Image.NEAREST))
 
     return image

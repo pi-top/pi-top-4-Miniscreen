@@ -13,11 +13,7 @@ class ButtonPress:
         self.event_type = event_type
 
     def is_direction(self):
-        return (
-            self.event_type in [self.ButtonType.DOWN, self.ButtonType.UP]
-        )
+        return self.event_type in [self.ButtonType.DOWN, self.ButtonType.UP]
 
     def is_action(self):
-        return (
-            self.event_type in [self.ButtonType.SELECT, self.ButtonType.CANCEL]
-        )
+        return self.event_type in [self.ButtonType.SELECT, self.ButtonType.CANCEL]

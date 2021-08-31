@@ -1,8 +1,7 @@
-from .page_manager import Menus, PageManager
-
+from PIL import Image
 from pitop.common.logger import PTLogger
 
-from PIL import Image
+from .page_manager import Menus, PageManager
 
 
 class Menu:
@@ -30,7 +29,8 @@ class Menu:
         self.__last_displayed_image = None
 
         self.image = Image.new(
-            self.__device_mode, (self.__device_width, self.__device_height))
+            self.__device_mode, (self.__device_width, self.__device_height)
+        )
 
         self.update_pages()
 
@@ -39,7 +39,7 @@ class Menu:
             self.__device_width,
             self.__device_height,
             self.__device_mode,
-            self.__callback_client
+            self.__callback_client,
         ).get_pages_for_menu(self.name)
 
     @property
@@ -62,17 +62,18 @@ class Menu:
 
     def __render_current_hotspot_to_image(self, force=False):
         if force:
-            PTLogger.debug(
-                f"{self.name}: Forcing redraw of {self.page.name} to image")
+            PTLogger.debug(f"{self.name}: Forcing redraw of {self.page.name} to image")
 
         redraw = self.hotspot.should_redraw()
         if redraw:
             PTLogger.debug(
-                f"{self.name}: Hotspot {self.page.name} requested a redraw to image")
+                f"{self.name}: Hotspot {self.page.name} requested a redraw to image"
+            )
 
         if force or redraw:
             self.image = Image.new(
-                self.__device_mode, (self.__device_width, self.__device_height))
+                self.__device_mode, (self.__device_width, self.__device_height)
+            )
             # Calls each hotspot's render() function
             self.hotspot.paste_into(self.image, (0, 0))
 

@@ -2,12 +2,11 @@ from logging import ERROR, getLogger
 from signal import SIGINT, SIGTERM, signal
 
 import click
+from pitop import Pitop
+from pitop.common.logger import PTLogger
 
 # TODO: drop/override 'DeviceNotFoundError' to avoid awkward luma.core import
 from pitop.miniscreen.oled.core.contrib.luma.core.error import DeviceNotFoundError
-from pitop import Pitop
-
-from pitop.common.logger import PTLogger
 
 from . import MiniscreenApp
 

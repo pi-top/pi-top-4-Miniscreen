@@ -2,7 +2,12 @@
 # See LICENSE.rst for details.
 
 import psutil
-from pt_miniscreen.widgets.common import BaseSnapshot, get_image_file_path, ImageComponent
+
+from pt_miniscreen.widgets.common import (
+    BaseSnapshot,
+    ImageComponent,
+    get_image_file_path,
+)
 
 
 def vertical_bar(draw, x1, y1, x2, y2, yh):

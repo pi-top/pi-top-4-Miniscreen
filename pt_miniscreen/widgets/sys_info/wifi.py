@@ -1,12 +1,16 @@
+from ipaddress import ip_address
+
+from PIL import Image
 from pitop.common.sys_info import (
-    get_wifi_network_ssid,
     get_internal_ip,
     get_network_strength,
+    get_wifi_network_ssid,
 )
-from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot, get_image_file_path
 
-from ipaddress import ip_address
-from PIL import Image
+from pt_miniscreen.widgets.common import (
+    BaseNetworkingSysInfoSnapshot,
+    get_image_file_path,
+)
 
 
 class Hotspot(BaseNetworkingSysInfoSnapshot):
@@ -21,7 +25,7 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
             height=height,
             mode=mode,
             interval=interval,
-            draw_fn=self.render
+            draw_fn=self.render,
         )
 
         self.wifi_bars_image = ""
@@ -48,7 +52,9 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
                 wifi_signal_strength = "excellent"
 
             return Image.open(
-                get_image_file_path(f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png")
+                get_image_file_path(
+                    f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png"
+                )
             )
 
         self.wifi_bars_image = wifi_strength_image()

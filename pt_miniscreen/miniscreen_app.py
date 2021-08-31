@@ -1,17 +1,14 @@
-from .menu import Menu
-from .page_manager import Menus
-# TODO: move logic to button press handler
-from .button_press import ButtonPress
+from enum import Enum
+from random import randrange
+from time import perf_counter, sleep
 
+from PIL import Image, ImageDraw
 from pitop.common.logger import PTLogger
 
-from enum import Enum
-from PIL import Image, ImageDraw
-from random import randrange
-from time import (
-    perf_counter,
-    sleep
-)
+# TODO: move logic to button press handler
+from .button_press import ButtonPress
+from .menu import Menu
+from .page_manager import Menus
 
 
 class MenuState(Enum):
@@ -30,10 +27,12 @@ class MiniscreenApp:
 
     def __init__(self, miniscreen):
         self.__miniscreen = miniscreen
-        self.__miniscreen._when_user_starts_using_oled = lambda: self.set_is_user_controlled(
-            True)
-        self.__miniscreen._when_user_stops_using_oled = lambda: self.set_is_user_controlled(
-            False)
+        self.__miniscreen._when_user_starts_using_oled = (
+            lambda: self.set_is_user_controlled(True)
+        )
+        self.__miniscreen._when_user_stops_using_oled = (
+            lambda: self.set_is_user_controlled(False)
+        )
 
         self.last_active_time = perf_counter()
         self.action_start_time = None
@@ -53,8 +52,9 @@ class MiniscreenApp:
             [
                 randrange(-25, 25),
                 randrange(-25, 25),
-                randrange(1, self.screensaver_max_depth)
-            ] for i in range(self.screensaver_max_no_of_stars)
+                randrange(1, self.screensaver_max_depth),
+            ]
+            for i in range(self.screensaver_max_no_of_stars)
         ]
 
         self.timeouts = {
@@ -63,14 +63,26 @@ class MiniscreenApp:
             MenuState.WAKING: 0.6,
         }
 
-        self.__miniscreen.up_button.when_pressed = lambda: self.__add_button_press_to_stack(
-            ButtonPress(ButtonPress.ButtonType.UP))
-        self.__miniscreen.down_button.when_pressed = lambda: self.__add_button_press_to_stack(
-            ButtonPress(ButtonPress.ButtonType.DOWN))
-        self.__miniscreen.select_button.when_pressed = lambda: self.__add_button_press_to_stack(
-            ButtonPress(ButtonPress.ButtonType.SELECT))
-        self.__miniscreen.cancel_button.when_pressed = lambda: self.__add_button_press_to_stack(
-            ButtonPress(ButtonPress.ButtonType.CANCEL))
+        self.__miniscreen.up_button.when_pressed = (
+            lambda: self.__add_button_press_to_stack(
+                ButtonPress(ButtonPress.ButtonType.UP)
+            )
+        )
+        self.__miniscreen.down_button.when_pressed = (
+            lambda: self.__add_button_press_to_stack(
+                ButtonPress(ButtonPress.ButtonType.DOWN)
+            )
+        )
+        self.__miniscreen.select_button.when_pressed = (
+            lambda: self.__add_button_press_to_stack(
+                ButtonPress(ButtonPress.ButtonType.SELECT)
+            )
+        )
+        self.__miniscreen.cancel_button.when_pressed = (
+            lambda: self.__add_button_press_to_stack(
+                ButtonPress(ButtonPress.ButtonType.CANCEL)
+            )
+        )
 
         self.__button_press_stack = []
         self.__continue = True
@@ -122,15 +134,17 @@ class MiniscreenApp:
             x = int(star[0] * k + origin_x)
             y = int(star[1] * k + origin_y)
 
-            if 0 <= x < self.__miniscreen.size[0] and 0 <= y < self.__miniscreen.size[1]:
+            if (
+                0 <= x < self.__miniscreen.size[0]
+                and 0 <= y < self.__miniscreen.size[1]
+            ):
                 size = (1 - float(star[2]) / self.screensaver_max_depth) * 4
                 draw.rectangle((x, y, x + size, y + size), fill="white")
 
         return image
 
     def wait_for_user_control_release(self):
-        PTLogger.info(
-            "User has control. Waiting for user to give control back...")
+        PTLogger.info("User has control. Waiting for user to give control back...")
         while self.user_has_control:
             sleep(0.2)
 
@@ -170,9 +184,12 @@ class MiniscreenApp:
     # Public so that hotspots can use this
     def change_menu(self, menu_to_go_to):
         if menu_to_go_to in self.__menus:
-            current_menu_name = "<not set>" if self.current_menu is None else self.current_menu.name
+            current_menu_name = (
+                "<not set>" if self.current_menu is None else self.current_menu.name
+            )
             PTLogger.info(
-                f"Changing menu from {current_menu_name} to {self.__menus[menu_to_go_to].name}")
+                f"Changing menu from {current_menu_name} to {self.__menus[menu_to_go_to].name}"
+            )
             self.current_menu = self.__menus[menu_to_go_to]
             if menu_to_go_to == Menus.PROJECTS:
                 self.current_menu.update_pages()
@@ -187,7 +204,8 @@ class MiniscreenApp:
     def __add_button_press_to_stack(self, button_press_event):
         if self.__miniscreen.is_active:
             PTLogger.info(
-                f"Miniscreen is currently active - skipping button press: {str(button_press_event.event_type)}")
+                f"Miniscreen is currently active - skipping button press: {str(button_press_event.event_type)}"
+            )
             return
 
         if button_press_event.event_type == ButtonPress.ButtonType.NONE:
@@ -195,7 +213,8 @@ class MiniscreenApp:
             return
 
         PTLogger.debug(
-            "Queueing " + str(button_press_event.event_type) + " event for processing")
+            "Queueing " + str(button_press_event.event_type) + " event for processing"
+        )
         self.__button_press_stack.append(button_press_event)
 
     def __sleep_oled(self):
@@ -213,7 +232,8 @@ class MiniscreenApp:
     def __add_menu_to_list(self, menu_id):
         width, height = self.__miniscreen.size
         self.__menus[menu_id] = Menu(
-            menu_id, width, height, self.__miniscreen.mode, self)
+            menu_id, width, height, self.__miniscreen.mode, self
+        )
 
     def display(self, image, wake=True):
         if wake:
@@ -242,23 +262,21 @@ class MiniscreenApp:
                 )
             else:
                 on_last_page = (
-                    self.current_menu.page_number == len(
-                        self.current_menu.pages) - 1
+                    self.current_menu.page_number == len(self.current_menu.pages) - 1
                 )
                 return 0 if on_last_page else self.current_menu.page_number + 1
 
         button_press = __get_next_button_press_from_stack()
 
         if button_press.event_type != ButtonPress.ButtonType.NONE:
-            should_act = (self.state == MenuState.ACTIVE)
+            should_act = self.state == MenuState.ACTIVE
 
             self.__wake_oled()
 
             if should_act:
                 if button_press.is_direction():
                     forwards = button_press.event_type == ButtonPress.ButtonType.UP
-                    self.current_menu.page_number = __get_page_no_to_move_to(
-                        forwards)
+                    self.current_menu.page_number = __get_page_no_to_move_to(forwards)
 
                 elif button_press.is_action():
                     current_page = self.current_menu.page
@@ -343,4 +361,5 @@ class MiniscreenApp:
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
         PTLogger.info(
-            f"User has {'taken' if user_has_control else 'given back'} control of the OLED")
+            f"User has {'taken' if user_has_control else 'given back'} control of the OLED"
+        )

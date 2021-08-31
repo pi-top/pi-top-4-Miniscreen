@@ -3,15 +3,16 @@
 
 import psutil
 from pitop.common.formatting import bytes2human
+
 from pt_miniscreen.widgets.common import (
-    default_margin_x,
-    common_second_line_y,
+    BaseSnapshot,
     common_first_line_y,
+    common_second_line_y,
     common_third_line_y,
+    default_margin_x,
+    draw_text,
     right_text,
     title_text,
-    draw_text,
-    BaseSnapshot
 )
 
 
@@ -27,15 +28,11 @@ class Hotspot(BaseSnapshot):
 
         title_text(draw, y=default_margin_x, width=width, text="Memory")
         draw_text(draw, xy=(default_margin_x, common_first_line_y), text="Used:")
-        draw_text(draw, xy=(default_margin_x,
-                            common_second_line_y), text="Phys:")
+        draw_text(draw, xy=(default_margin_x, common_second_line_y), text="Phys:")
         draw_text(draw, xy=(default_margin_x, common_third_line_y), text="Swap:")
 
         right_text(
-            draw, common_first_line_y, width, text="{0:0.1f}%".format(
-                mem_used_pct)
+            draw, common_first_line_y, width, text="{0:0.1f}%".format(mem_used_pct)
         )
-        right_text(draw, common_second_line_y,
-                   width, text=bytes2human(mem.used))
-        right_text(draw, common_third_line_y, width,
-                   text=bytes2human(swap.used))
+        right_text(draw, common_second_line_y, width, text=bytes2human(mem.used))
+        right_text(draw, common_third_line_y, width, text=bytes2human(swap.used))

@@ -1,5 +1,6 @@
-from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
 from pitop.common.sys_info import get_ap_mode_status
+
+from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
 
 
 class Hotspot(BaseNetworkingSysInfoSnapshot):
@@ -14,7 +15,7 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
             height=height,
             mode=mode,
             interval=interval,
-            draw_fn=self.render
+            draw_fn=self.render,
         )
 
     def set_data_members(self):

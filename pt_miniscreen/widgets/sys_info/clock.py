@@ -1,10 +1,10 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-import math
 import datetime
+import math
 
-from pt_miniscreen.widgets.common import BaseSnapshot, title_text, draw_text
+from pt_miniscreen.widgets.common import BaseSnapshot, draw_text, title_text
 
 
 def posn(angle, arm_length):
@@ -53,8 +53,7 @@ def analog(draw, width, height):
     draw.line((cx, cy, cx + hrs[0], cy + hrs[1]), fill="white")
     draw.line((cx, cy, cx + mins[0], cy + mins[1]), fill="white")
     draw.line((cx, cy, cx + secs[0], cy + secs[1]), fill="red")
-    draw.ellipse((cx - 1, cy - 1, cx + 1, cy + 1),
-                 fill="white", outline="white")
+    draw.ellipse((cx - 1, cy - 1, cx + 1, cy + 1), fill="white", outline="white")
     title_text(draw, margin, width, today_date)
 
 

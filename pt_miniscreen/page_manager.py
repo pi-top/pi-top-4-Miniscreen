@@ -1,3 +1,12 @@
+from enum import Enum
+from os import listdir, path
+
+from pitop.common.sys_info import (
+    get_pt_further_link_enabled_state,
+    get_ssh_enabled_state,
+    get_vnc_enabled_state,
+)
+
 from .menu_page import MenuPage
 from .menu_page_actions import (
     change_further_link_enabled_state,
@@ -8,37 +17,12 @@ from .menu_page_actions import (
     reset_hdmi_configuration,
     start_stop_project,
 )
-
-from .widgets.sys_info import (
-    ap,
-    batt_level,
-    cpu_load,
-    ethernet,
-    usb,
-    wifi,
-)
-from .widgets.main import template as main_menu_page
-from .widgets.settings import (
-    template as settings_menu_page,
-    title as setting_title,
-)
-from .widgets.projects import (
-    template as projects_menu_page,
-    # title as projects_title,
-)
 from .widgets.error import template as error_page
-
-from pitop.common.sys_info import (
-    get_pt_further_link_enabled_state,
-    get_ssh_enabled_state,
-    get_vnc_enabled_state,
-)
-
-from enum import Enum
-from os import (
-    listdir,
-    path,
-)
+from .widgets.main import template as main_menu_page
+from .widgets.projects import template as projects_menu_page  # title as projects_title,
+from .widgets.settings import template as settings_menu_page
+from .widgets.settings import title as setting_title
+from .widgets.sys_info import ap, batt_level, cpu_load, ethernet, usb, wifi
 
 
 class Menus(Enum):
@@ -61,7 +45,7 @@ class PageManager:
                 "width": self.__device_width,
                 "height": self.__device_height,
                 "mode": self.__device_mode,
-                "interval": interval
+                "interval": interval,
             },
             **extra_data,
         }
@@ -83,46 +67,31 @@ class PageManager:
                 MenuPage(
                     callback_client=self.__callback_client,
                     name="cpu",
-                    hotspot=self.__get_hotspot(
-                        widget=cpu_load,
-                        interval=0.5
-                    ),
+                    hotspot=self.__get_hotspot(widget=cpu_load, interval=0.5),
                     menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
                     callback_client=self.__callback_client,
                     name="wifi",
-                    hotspot=self.__get_hotspot(
-                        widget=wifi,
-                        interval=1.0
-                    ),
+                    hotspot=self.__get_hotspot(widget=wifi, interval=1.0),
                     menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
                     callback_client=self.__callback_client,
                     name="ethernet",
-                    hotspot=self.__get_hotspot(
-                        widget=ethernet,
-                        interval=1.0
-                    ),
+                    hotspot=self.__get_hotspot(widget=ethernet, interval=1.0),
                     menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
                     callback_client=self.__callback_client,
                     name="ap",
-                    hotspot=self.__get_hotspot(
-                        widget=ap,
-                        interval=1.0
-                    ),
+                    hotspot=self.__get_hotspot(widget=ap, interval=1.0),
                     menu_to_change_to=Menus.MAIN_MENU,
                 ),
                 MenuPage(
                     callback_client=self.__callback_client,
                     name="usb",
-                    hotspot=self.__get_hotspot(
-                        widget=usb,
-                        interval=1.0
-                    ),
+                    hotspot=self.__get_hotspot(widget=usb, interval=1.0),
                     menu_to_change_to=Menus.MAIN_MENU,
                 ),
             ]
@@ -132,9 +101,7 @@ class PageManager:
                     callback_client=self.__callback_client,
                     name="Settings",
                     hotspot=self.__get_hotspot(
-                        widget=setting_title,
-                        interval=0.5,
-                        title="Settings"
+                        widget=setting_title, interval=0.5, title="Settings"
                     ),
                     menu_to_change_to=Menus.SETTINGS,
                 ),

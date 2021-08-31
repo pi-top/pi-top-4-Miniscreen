@@ -1,6 +1,7 @@
-from pitop.common.logger import PTLogger
-from PIL import Image
 from os.path import isfile
+
+from PIL import Image
+from pitop.common.logger import PTLogger
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -42,8 +43,7 @@ class ImageComponent:
     def _load_image_from_path(self, image_path):
         self._error = False
         if not isfile(image_path):
-            self._error_text = "Invalid path for image file: " + \
-                str(image_path)
+            self._error_text = "Invalid path for image file: " + str(image_path)
             self._error = True
             return
 
@@ -66,8 +66,7 @@ class ImageComponent:
     def _set_frame_duration(self):
         if hasattr(self._image, "is_animated") and self._image.is_animated:
             embedded_frame_speed_s = float(self._image.info["duration"] / 1000)
-            self.frame_duration = float(
-                embedded_frame_speed_s / self.playback_speed)
+            self.frame_duration = float(embedded_frame_speed_s / self.playback_speed)
 
     def _get_current_frame(self):
         self._image.seek(self.frame_no)
@@ -97,8 +96,7 @@ class ImageComponent:
         if self._image is not None:
             self._update_frame()
 
-            img_bitmap = _create_bitmap_to_render(
-                self._image, self.width, self.height)
+            img_bitmap = _create_bitmap_to_render(self._image, self.width, self.height)
 
             draw.bitmap(
                 xy=self.xy,

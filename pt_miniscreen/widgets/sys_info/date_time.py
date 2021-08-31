@@ -1,5 +1,13 @@
 import datetime
-from pt_miniscreen.widgets.common import BaseSnapshot, title_text, draw_text, align_to_middle, common_first_line_y, common_second_line_y
+
+from pt_miniscreen.widgets.common import (
+    BaseSnapshot,
+    align_to_middle,
+    common_first_line_y,
+    common_second_line_y,
+    draw_text,
+    title_text,
+)
 
 
 class Hotspot(BaseSnapshot):

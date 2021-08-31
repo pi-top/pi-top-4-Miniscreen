@@ -1,17 +1,10 @@
-from os import (
-    path,
-    kill,
-    system,
-)
 import signal
-from subprocess import check_output, Popen
+from os import kill, path, system
+from subprocess import Popen, check_output
 
 from pitop.common.command_runner import run_command
 from pitop.common.logger import PTLogger
-from pitop.common.sys_info import (
-    get_ap_mode_status,
-    get_systemd_enabled_state,
-)
+from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -61,7 +54,7 @@ def get_wifi_ap_state():
 
 def reset_hdmi_configuration():
     # Close 'Screen Layout Editor'
-    system("DISPLAY=:0 wmctrl -c \"Screen Layout Editor\"")
+    system('DISPLAY=:0 wmctrl -c "Screen Layout Editor"')
 
     # Reset all HDMI outputs to lowest common resolution
     system("DISPLAY=:0 autorandr -c common")

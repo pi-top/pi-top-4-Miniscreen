@@ -1,8 +1,6 @@
-from pt_miniscreen.widgets.common import (
+from pt_miniscreen.widgets.common import (  # get_image_file_path,; ImageComponent,
     BaseSnapshot,
     draw_text,
-    # get_image_file_path,
-    # ImageComponent,
 )
 
 

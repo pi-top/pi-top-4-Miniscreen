@@ -1,6 +1,8 @@
-from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
-from pitop.common.sys_info import get_internal_ip
 from ipaddress import ip_address
+
+from pitop.common.sys_info import get_internal_ip
+
+from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
 
 
 class Hotspot(BaseNetworkingSysInfoSnapshot):
@@ -15,7 +17,7 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
             height=height,
             mode=mode,
             interval=interval,
-            draw_fn=self.render
+            draw_fn=self.render,
         )
 
     def is_connected(self):

@@ -1,40 +1,28 @@
-from .functions import (
-    draw_text,
-    get_image_file_path,
-    get_font,
-)
+from enum import Enum
+from time import time
+
+from pitop.miniscreen.oled.core.contrib.luma.core.virtual import hotspot, snapshot
+
+from .functions import draw_text, get_font, get_image_file_path
 from .values import (
-    default_margin_x,
     common_first_line_y,
     common_second_line_y,
     common_third_line_y,
+    default_margin_x,
 )
 
-from enum import Enum
-from pitop.miniscreen.oled.core.contrib.luma.core.virtual import (
-    hotspot,
-    snapshot,
-)
-
-from time import time
 try:
     monotonic = time.monotonic
 except AttributeError:  # pragma: no cover
     from monotonic import monotonic
 
-from PIL import (
-    Image,
-    ImageDraw,
-)
+from PIL import Image, ImageDraw
 
 
 class BaseSnapshot(snapshot):
     def __init__(self, width, height, interval=0.5, draw_fn=None, **kwargs):
         super(BaseSnapshot, self).__init__(
-            width=width,
-            height=height,
-            draw_fn=draw_fn,
-            interval=interval
+            width=width, height=height, draw_fn=draw_fn, interval=interval
         )
 
     def reset(self):
@@ -58,12 +46,19 @@ class NetworkingSysInfoRenderState(Enum):
 
 
 class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
-    def __init__(self, name, human_readable_name, width, height, mode, interval=0.5, draw_fn=None, **kwargs):
+    def __init__(
+        self,
+        name,
+        human_readable_name,
+        width,
+        height,
+        mode,
+        interval=0.5,
+        draw_fn=None,
+        **kwargs,
+    ):
         super(BaseNetworkingSysInfoSnapshot, self).__init__(
-            width=width,
-            height=height,
-            draw_fn=draw_fn,
-            interval=interval
+            width=width, height=height, draw_fn=draw_fn, interval=interval
         )
 
         self.name = name
@@ -104,7 +99,10 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
             text_width, text_height = font.getsize(text)
 
             center = (self.size[0] / 2, self.size[1] / 2)
-            text_top_left_pos = (center[0] - text_width / 2, center[1] + text_height / 2)
+            text_top_left_pos = (
+                center[0] - text_width / 2,
+                center[1] + text_height / 2,
+            )
 
             # Draw title text onto page
             draw_text(
@@ -213,9 +211,7 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
             text=str(self.second_line),
         )
         draw_text(
-            draw,
-            xy=(default_margin_x, common_third_line_y),
-            text=str(self.third_line)
+            draw, xy=(default_margin_x, common_third_line_y), text=str(self.third_line)
         )
 
         try:
@@ -225,8 +221,11 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
             pass
 
     def render_title(self, draw):
-        title_image = self.title_connected_image if self.is_connected() \
+        title_image = (
+            self.title_connected_image
+            if self.is_connected()
             else self.title_disconnected_image
+        )
 
         draw.bitmap(
             xy=self.title_image_pos,
@@ -249,7 +248,9 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
         self.set_interval()
 
     def is_connected(self):
-        return self.first_line != "" and self.second_line != "" and self.third_line != ""
+        return (
+            self.first_line != "" and self.second_line != "" and self.third_line != ""
+        )
 
     def set_data_members(self):
         raise NotImplementedError
@@ -263,11 +264,7 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
 
 class BaseHotspot(hotspot):
     def __init__(self, width, height, draw_fn=None, **kwargs):
-        super(BaseHotspot, self).__init__(
-            width=width,
-            height=height,
-            draw_fn=draw_fn
-        )
+        super(BaseHotspot, self).__init__(width=width, height=height, draw_fn=draw_fn)
 
     def reset(self):
         pass

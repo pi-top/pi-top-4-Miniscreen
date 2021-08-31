@@ -1,10 +1,6 @@
-from pt_miniscreen.widgets.common import (
-    get_image_file_path,
-    BaseSnapshot,
-    ActionState,
-)
-
 from PIL import Image
+
+from pt_miniscreen.widgets.common import ActionState, BaseSnapshot, get_image_file_path
 
 
 class Hotspot(BaseSnapshot):
