@@ -158,8 +158,7 @@ class MiniscreenApp:
                     self.reset()
 
                 else:
-                    PTLogger.debug("Sleeping for " +
-                                   str(self.__frame_sleep_time))
+                    PTLogger.debug(f"Sleeping for {self.__frame_sleep_time}")
                     sleep(self.__frame_sleep_time)
 
         except SystemExit:

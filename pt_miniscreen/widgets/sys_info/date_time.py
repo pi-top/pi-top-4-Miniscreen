@@ -9,17 +9,8 @@ class Hotspot(BaseSnapshot):
     @staticmethod
     def render(draw, width, height):
         date_time = datetime.datetime.now()
-        date = (
-            str(date_time.day) + "/" + str(date_time.month) +
-            "/" + str(date_time.year)
-        )
-        time = (
-            str(date_time.hour)
-            + ":"
-            + str(date_time.minute)
-            + ":"
-            + str(date_time.second)
-        )
+        date = f"{date_time.day}/{date_time.month}/{date_time.year}"
+        time = f"{date_time.hour}:{date_time.minute}:{date_time.second}"
 
         title_text(draw, common_first_line_y, width, date)
 

@@ -19,7 +19,7 @@ configure | abort-upgrade | abort-remove | abort-deconfigure) ;;
 \
 	triggered)
 	# Try to restart service
-	invoke-rc.d pt-sys-oled try-restart || true
+	invoke-rc.d pt-miniscreen try-restart || true
 	exit 0
 	;;
 

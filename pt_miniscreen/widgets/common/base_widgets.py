@@ -103,8 +103,8 @@ class BaseNetworkingSysInfoSnapshot(BaseSnapshot):
 
             text_width, text_height = font.getsize(text)
 
-            center = (self.size[0]/2, self.size[1]/2)
-            text_top_left_pos = (center[0] - text_width/2, center[1] + text_height/2)
+            center = (self.size[0] / 2, self.size[1] / 2)
+            text_top_left_pos = (center[0] - text_width / 2, center[1] + text_height / 2)
 
             # Draw title text onto page
             draw_text(

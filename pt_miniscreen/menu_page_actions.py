@@ -87,9 +87,7 @@ def start_stop_project(path_to_project):
         try:
             if len(pids) > 1:
                 PTLogger.info(
-                    "Project already running: "
-                    + str(path_to_project)
-                    + ". Attempting to stop..."
+                    f"Project already running: {path_to_project}. Attempting to stop..."
                 )
 
                 if path.exists(stop_script):
