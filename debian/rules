@@ -1,6 +1,12 @@
 #!/usr/bin/make -f
+
+export PYBUILD_NAME=pt_miniscreen
+
 %:
-	dh $@
+	dh $@ --buildsystem=pybuild
+
+override_dh_auto_test:
+	# Don't run the tests!
 
 override_dh_installsystemd:
-	dh_installsystemd --name=pt-sys-oled
+	dh_installsystemd --name=pt-miniscreen

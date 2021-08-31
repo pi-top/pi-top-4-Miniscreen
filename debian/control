@@ -1,30 +1,23 @@
-Source: pt-sys-oled
+Source: pi-top-4-miniscreen
 Section: utils
 Priority: optional
 Maintainer: pi-top <deb-maintainers@pi-top.com>
 Build-Depends:
  debhelper-compat (= 12),
  dh-sequence-python3,
+ python3-all,
+ python3-setuptools,
 Standards-Version: 4.5.1
 Homepage: https://pi-top.com/
 
-Package: pt-sys-oled
+Package: pt-miniscreen
 Architecture: all
 Depends:
  ${misc:Depends},
  ${python3:Depends},
- fonts-freefont-ttf,
- fonts-fs-me-pro,
-# API hardware calls
- python3-pitop,
- python3-pitopcommon,
-# Python libs required for common functions
- python3-luma-oled,
- python3-monotonic,
- python3-psutil,
 Recommends:
  autorandr (>= 1.9),
- pt-further-link,
+ further-link,
 # Control Wi-Fi AP mode
  wifi-ap-sta,
 # Used for closing 'Screen Layout Editor' when resetting display

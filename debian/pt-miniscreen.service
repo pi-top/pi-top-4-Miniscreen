@@ -1,0 +1,18 @@
+[Unit]
+Description=pi-top OLED system menu
+Documentation=https://knowledgebase.pi-top.com/knowledge
+# Required to determine what type of device
+After=pt-device-manager.service
+StartLimitIntervalSec=30
+StartLimitBurst=5
+
+[Service]
+Type=simple
+Restart=on-failure
+Environment="PT_MINISCREEN_SYSTEM=1"
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONDONTWRITEBYTECODE=1"
+ExecStart=/usr/bin/pt-miniscreen
+
+[Install]
+WantedBy=multi-user.target
