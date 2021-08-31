@@ -1,7 +1,7 @@
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-from pitopcommon.formatting import bytes2human
+from pitop.common.formatting import bytes2human
 import psutil
 from .widgets.common import (
     default_margin_x,

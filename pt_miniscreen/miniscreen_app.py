@@ -3,7 +3,7 @@ from .page_manager import Menus
 # TODO: move logic to button press handler
 from .button_press import ButtonPress
 
-from pitopcommon.logger import PTLogger
+from pitop.common.logger import PTLogger
 
 from enum import Enum
 from PIL import Image, ImageDraw
@@ -149,7 +149,7 @@ class MiniscreenApp:
     def main_loop(self):
         try:
             while self.__continue:
-                # Only attempt to update state if OLED is owned by pt-sys-oled
+                # Only attempt to update state if OLED is not owned by another process
                 if not self.__miniscreen.is_active:
                     self.__update_state()
 

@@ -11,7 +11,7 @@ from .values import (  # noqa: F401
 )
 
 from enum import Enum
-from luma.core.virtual import (
+from pitop.miniscreen.oled.core.contrib.luma.core.virtual import (
     hotspot,
     snapshot,
 )

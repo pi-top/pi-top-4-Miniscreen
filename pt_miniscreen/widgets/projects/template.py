@@ -1,7 +1,7 @@
 from PIL import Image
 from os.path import isfile
 from .widgets.common import BaseSnapshot, draw_text
-from pitopcommon.logger import PTLogger
+from pitop.common.logger import PTLogger
 
 
 def _create_bitmap_to_render(image, width, height):

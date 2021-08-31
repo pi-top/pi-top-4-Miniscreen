@@ -12,7 +12,7 @@ Restart=on-failure
 Environment="PT_MINISCREEN_SYSTEM=1"
 Environment="PYTHONUNBUFFERED=1"
 Environment="PYTHONDONTWRITEBYTECODE=1"
-ExecStart=/usr/lib/pt-sys-oled/pt-sys-oled
+ExecStart=/usr/bin/pt-miniscreen
 
 [Install]
 WantedBy=multi-user.target

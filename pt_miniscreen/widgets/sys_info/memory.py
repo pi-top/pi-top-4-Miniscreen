@@ -2,7 +2,7 @@
 # See LICENSE.rst for details.
 
 import psutil
-from pitopcommon.formatting import bytes2human
+from pitop.common.formatting import bytes2human
 from .widgets.common import (
     default_margin_x,
     common_second_line_y,

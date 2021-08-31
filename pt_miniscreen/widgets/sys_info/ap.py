@@ -1,5 +1,5 @@
 from pt_miniscreen.widgets.common import BaseNetworkingSysInfoSnapshot
-from pitopcommon.sys_info import get_ap_mode_status
+from pitop.common.sys_info import get_ap_mode_status
 
 
 class Hotspot(BaseNetworkingSysInfoSnapshot):

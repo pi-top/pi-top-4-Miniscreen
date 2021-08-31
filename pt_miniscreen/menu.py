@@ -1,6 +1,6 @@
 from .page_manager import Menus, PageManager
 
-from pitopcommon.logger import PTLogger
+from pitop.common.logger import PTLogger
 
 from PIL import Image
 
