@@ -8,7 +8,7 @@ pi-top-4-miniscreen (4.4.1) buster; urgency=medium
   * Startup animation (#162)
   * Updated master workflow files
 
- -- pi-top <deb-maintainers@pi-top.com>  Wed, 01 Sep 2021 20:46:43 +0000
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 01 Sep 2021 20:47:43 +0000
 
 pi-top-4-miniscreen (4.4.0) buster; urgency=medium
 
