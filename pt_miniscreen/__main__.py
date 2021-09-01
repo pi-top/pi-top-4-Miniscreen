@@ -1,4 +1,6 @@
+from configparser import ConfigParser
 from logging import ERROR, getLogger
+from os import path
 from signal import SIGINT, SIGTERM, signal
 
 import click
@@ -9,6 +11,10 @@ from pitop.common.logger import PTLogger
 from pitop.miniscreen.oled.core.contrib.luma.core.error import DeviceNotFoundError
 
 from . import MiniscreenApp
+from .bootsplash import Bootsplash
+from .widgets.common.functions import get_image_file_path
+
+config_file = "/etc/pt-miniscreen/settings.ini"
 
 
 def configure_interrupt_signals(app):
@@ -42,6 +48,22 @@ def main(log_level) -> None:
     except DeviceNotFoundError as e:
         PTLogger.error(f"Error getting device: {str(e)}")
         return
+
+    bootsplash_path = get_image_file_path("startup/pi-top_startup.gif")
+    if path.exists(config_file):
+        config = ConfigParser()
+        config.read(config_file)
+        try:
+            bootsplash_path = config.get("Bootsplash", "Path")
+        except Exception:
+            pass
+
+    splash = Bootsplash(bootsplash_path, miniscreen)
+
+    if not splash.has_played():
+        PTLogger.info("Not played boot animation this session - starting...")
+        splash.play()
+        PTLogger.info("Finished startup animation")
 
     app = MiniscreenApp(miniscreen)
     configure_interrupt_signals(app)

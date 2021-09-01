@@ -1,5 +1,5 @@
 from enum import Enum
-from time import time
+from time import monotonic
 
 from PIL import Image, ImageDraw
 from pitop.miniscreen.oled.core.contrib.luma.core.virtual import hotspot, snapshot
@@ -27,7 +27,7 @@ class BaseSnapshot(snapshot):
         if self.interval <= 0.0:
             return True
         else:
-            return time.monotonic() - self.last_updated > self.interval
+            return monotonic() - self.last_updated > self.interval
 
 
 ANIMATION_INTERVAL = 0.0025
