@@ -1,12 +1,9 @@
 pi-top-4-miniscreen (4.4.1) bullseye; urgency=medium
 
   * Drop unused direct zmq dependency
-  * New workflows (#156)
-  * Update master workflow files
-  * Update master workflow files
   * Bullseye release: `pt-miniscreen` built using `pybuild` (#155)
   * Startup animation (#162)
-  * Updated master workflow files
+  * Update master workflow files
 
  -- pi-top <deb-maintainers@pi-top.com>  Wed, 01 Sep 2021 20:47:43 +0000
 
