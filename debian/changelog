@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (4.4.1) bullseye; urgency=medium
+pi-top-4-miniscreen (4.4.1-1) bullseye; urgency=medium
 
   * Drop unused direct zmq dependency
   * Bullseye release: `pt-miniscreen` built using `pybuild` (#155)
