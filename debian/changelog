@@ -1,6 +1,5 @@
 pi-top-4-miniscreen (4.4.1-2) bullseye; urgency=medium
 
-  * Updated master workflow files
   * Remove version locking for SDK
 
  -- pi-top <deb-maintainers@pi-top.com>  Mon, 06 Sep 2021 10:00:59 +0000
