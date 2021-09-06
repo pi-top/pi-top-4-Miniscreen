@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (4.4.2-1) bullseye; urgency=medium
+
+  * Remove version locking for SDK
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 06 Sep 2021 10:00:59 +0000
+
 pi-top-4-miniscreen (4.4.1-1) bullseye; urgency=medium
 
   * Drop unused direct zmq dependency
