@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (4.4.1-2) bullseye; urgency=medium
+pi-top-4-miniscreen (4.4.2-1) bullseye; urgency=medium
 
   * Remove version locking for SDK
 
