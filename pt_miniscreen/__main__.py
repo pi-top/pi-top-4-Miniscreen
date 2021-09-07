@@ -28,6 +28,7 @@ def configure_interrupt_signals(app):
 
 
 @click.command()
+@click.option("--journal/--no-journal", default=True)
 @click.option(
     "--log-level",
     type=int,
@@ -36,11 +37,11 @@ def configure_interrupt_signals(app):
     show_default=True,
 )
 @click.version_option()
-def main(log_level) -> None:
+def main(journal, log_level) -> None:
     # Ignore PIL debug messages
     getLogger("PIL").setLevel(ERROR)
     PTLogger.setup_logging(
-        logger_name="pt-miniscreen", logging_level=log_level, log_to_journal=False
+        logger_name="pt-miniscreen", logging_level=log_level, log_to_journal=journal
     )
 
     try:
