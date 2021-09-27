@@ -1,5 +1,5 @@
 # Refresh when pi-top Python SDK is updated
 interest-noawait updated-pitop-sdk
 
-# Refresh when device manager has updated
-interest-noawait updated-pt-device-manager
+# Refresh when pi-topd has updated
+interest-noawait updated-pi-topd
