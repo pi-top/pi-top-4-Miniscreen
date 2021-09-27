@@ -1,3 +1,14 @@
+pi-top-4-miniscreen (4.4.2-2) bullseye; urgency=medium
+
+  * Add journal input
+  * [pre-commit.ci] pre-commit autoupdate (#169)
+  * Drop log_to_journal
+  * Don't cap versions if there's no reason to
+  * `pi-topd` (#172)
+  * [pre-commit.ci] pre-commit autoupdate (#171)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 27 Sep 2021 14:28:02 +0000
+
 pi-top-4-miniscreen (4.4.2-1) bullseye; urgency=medium
 
   * Remove version locking for SDK
