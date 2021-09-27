@@ -1,3 +1,12 @@
+pi-top-4-miniscreen (5.0.0-1) bullseye; urgency=medium
+
+  * Add journal input
+  * Drop log_to_journal
+  * Don't cap versions if there's no reason to
+  * Use pi-topd (#172)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 27 Sep 2021 14:28:02 +0000
+
 pi-top-4-miniscreen (4.4.2-1) bullseye; urgency=medium
 
   * Remove version locking for SDK
