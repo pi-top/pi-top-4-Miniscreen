@@ -7,6 +7,3 @@ export PYBUILD_NAME=pt_miniscreen
 
 override_dh_auto_test:
 	# Don't run the tests!
-
-override_dh_installsystemd:
-	dh_installsystemd --name=pt-miniscreen
