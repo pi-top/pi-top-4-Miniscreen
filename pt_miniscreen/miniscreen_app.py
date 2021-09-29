@@ -27,11 +27,11 @@ class MiniscreenApp:
 
     def __init__(self, miniscreen):
         self.__miniscreen = miniscreen
-        self.__miniscreen._when_user_starts_using_oled = (
-            lambda: self.set_is_user_controlled(True)
+        self.__miniscreen.when_user_controlled = lambda: self.set_is_user_controlled(
+            True
         )
-        self.__miniscreen._when_user_stops_using_oled = (
-            lambda: self.set_is_user_controlled(False)
+        self.__miniscreen.when_system_controlled = lambda: self.set_is_user_controlled(
+            False
         )
 
         self.last_active_time = perf_counter()
