@@ -222,10 +222,10 @@ class MiniscreenApp:
         self.state = MenuState.DIM
 
     def __wake_oled(self):
-        self.last_active_time = perf_counter()
         self.__miniscreen.contrast(255)
         if self.state not in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
             PTLogger.info("Waking up...")
+            self.last_active_time = perf_counter()
             self.state = MenuState.WAKING
             self.__miniscreen.device.display(self.current_menu.image)
 
