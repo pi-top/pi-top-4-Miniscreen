@@ -20,6 +20,7 @@ Depends:
  python3-pitopcommon,
 # Python libs required for common functions
  python3-luma-oled,
+ python3-luma-core,
  python3-monotonic,
  python3-psutil,
 Recommends:
