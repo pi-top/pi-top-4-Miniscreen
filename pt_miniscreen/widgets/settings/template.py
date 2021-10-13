@@ -2,6 +2,15 @@ from PIL import Image
 
 from pt_miniscreen.widgets.common import ActionState, BaseSnapshot, get_image_file_path
 
+status_images = {
+    "off": Image.open(get_image_file_path("settings/status/off.png")),
+    "on": Image.open(get_image_file_path("settings/status/on.png")),
+    "processing-1": Image.open(get_image_file_path("settings/status/processing-1.png")),
+    "processing-2": Image.open(get_image_file_path("settings/status/processing-2.png")),
+    "processing-3": Image.open(get_image_file_path("settings/status/processing-3.png")),
+    "unknown": Image.open(get_image_file_path("settings/status/unknown.png")),
+}
+
 
 class Hotspot(BaseSnapshot):
     def __init__(self, width, height, mode, interval, **data):
@@ -13,28 +22,26 @@ class Hotspot(BaseSnapshot):
         self.type = data.get("type")
         self.get_state_method = data.get("get_state_method")
 
-        image_dir = "status_icons" if self.is_status_type else "full_icons"
-        self.icon_img_path = get_image_file_path(
-            f"settings/{image_dir}/{self.type}.png"
+        icon_image_dir = "status" if self.is_status_type else "full"
+        self.icon_image = Image.open(
+            get_image_file_path(f"settings/icons/{icon_image_dir}/{self.type}.png")
         )
-        self.icon_image = Image.open(self.icon_img_path)
 
         self.action_state = ActionState.UNKNOWN
-        self.status_img_path = self.get_status_image_path()
-        self.status_image = Image.open(self.status_img_path)
         self.processing_icon_frame = 0
         self.initialised = False
-
-    def reset(self):
-        self.action_state = ActionState.UNKNOWN
-        self.status_img_path = self.get_status_image_path()
-        self.status_image = Image.open(self.status_img_path)
-        self.initialised = False
-        self.processing_icon_frame = 0
 
     @property
     def is_status_type(self):
         return callable(self.get_state_method)
+
+    def set_as_processing(self):
+        self.action_state = ActionState.PROCESSING
+
+    def reset(self):
+        self.action_state = ActionState.UNKNOWN
+        self.initialised = False
+        self.processing_icon_frame = 0
 
     def update_state(self):
         if not self.is_status_type:
@@ -57,33 +64,24 @@ class Hotspot(BaseSnapshot):
 
         self.initialised = True
 
-    def get_status_image_path(self):
+    @property
+    def status_image(self):
         if self.action_state == ActionState.PROCESSING:
-            img_file = f"processing-{self.processing_icon_frame + 1}"
+            image = f"processing-{self.processing_icon_frame + 1}"
 
         elif self.action_state == ActionState.UNKNOWN:
-            img_file = "unknown"
+            image = "unknown"
 
         elif self.action_state == ActionState.ENABLED:
-            img_file = "on"
+            image = "on"
 
         else:
-            img_file = "off"
+            image = "off"
 
-        return get_image_file_path(f"settings/status/{img_file}.png")
-
-    def update_status_image(self):
-        current_status_img_path = self.get_status_image_path()
-        if self.status_img_path != current_status_img_path:
-            self.status_img_path = current_status_img_path
-            self.status_image = Image.open(self.status_img_path)
-
-    def set_as_processing(self):
-        self.action_state = ActionState.PROCESSING
+        return status_images[image]
 
     def render(self, draw, width, height):
         self.update_state()
-        self.update_status_image()
 
         draw.bitmap(
             xy=(0, 0),
