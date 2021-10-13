@@ -43,7 +43,7 @@ pi-top.com_. To install on Raspberry Pi OS or other operating systems, check out
 
 .. _pi-top.com: https://www.pi-top.com/products/os/
 
-.. _Using pi-top Hardware with Raspberry Pi OS: https://knowledgebase.pi-top.com/knowledge/pi-top-and-raspberry-pi-os
+.. _Using pi-top Hardware with Raspberry Pi OS: https://pi-top.com/pi-top-rpi-os
 
 ----------------
 More Information
