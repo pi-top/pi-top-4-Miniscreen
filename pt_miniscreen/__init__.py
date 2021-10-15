@@ -1,3 +1,1 @@
-"""Hypermodern Python."""
-
-from .miniscreen_app import MiniscreenApp
+from .app import App

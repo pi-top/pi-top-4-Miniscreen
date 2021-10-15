@@ -1,228 +1,196 @@
-from enum import Enum
-from os import listdir, path
+import logging
+from threading import Event
 
-from pitop.common.sys_info import (
-    get_pt_further_link_enabled_state,
-    get_ssh_enabled_state,
-    get_vnc_enabled_state,
-)
+from PIL import ImageDraw
+from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from .menu_page import MenuPage
-from .menu_page_actions import (
-    change_further_link_enabled_state,
-    change_ssh_enabled_state,
-    change_vnc_enabled_state,
-    change_wifi_mode,
-    get_wifi_ap_state,
-    reset_hdmi_configuration,
-    start_stop_project,
-)
-from .widgets.error import template as error_page
-from .widgets.main import template as main_menu_page
-from .widgets.projects import template as projects_menu_page  # title as projects_title,
-from .widgets.settings import template as settings_menu_page
-from .widgets.settings import title as setting_title
-from .widgets.sys_info import ap, batt_level, cpu_load, ethernet, usb, wifi
+from .event import AppEvents, subscribe
+from .pages.guide import GuidePage, GuidePageGenerator
+from .pages.menu import MenuPage, MenuPageGenerator
+from .viewport import ViewportManager
+
+logger = logging.getLogger(__name__)
 
 
-class Menus(Enum):
-    SYS_INFO = 0
-    MAIN_MENU = 1
-    PROJECTS = 2
-    SETTINGS = 3
+scroll_px_resolution = 2
 
 
 class PageManager:
-    def __init__(self, device_width, device_height, device_mode, callback_client):
-        self.__device_width = device_width
-        self.__device_height = device_height
-        self.__device_mode = device_mode
-        self.__callback_client = callback_client
+    def __init__(self, miniscreen, page_redraw_speed, scroll_speed, skip_speed):
+        self._ms = miniscreen
 
-    def __get_hotspot(self, widget, interval=0.5, **extra_data):
-        data = {
-            **{
-                "width": self.__device_width,
-                "height": self.__device_height,
-                "mode": self.__device_mode,
-                "interval": interval,
-            },
-            **extra_data,
-        }
-        return widget.Hotspot(**data)
+        self.page_redraw_speed = page_redraw_speed
+        self.scroll_speed = scroll_speed
+        self.skip_speed = skip_speed
 
-    def get_pages_for_menu(self, menu_id):
-        pages = list()
-        if menu_id == Menus.SYS_INFO:
-            pages = [
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="battery",
-                    hotspot=self.__get_hotspot(
-                        widget=batt_level,
-                        interval=1.0,
-                    ),
-                    menu_to_change_to=Menus.MAIN_MENU,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="cpu",
-                    hotspot=self.__get_hotspot(widget=cpu_load, interval=0.5),
-                    menu_to_change_to=Menus.MAIN_MENU,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="wifi",
-                    hotspot=self.__get_hotspot(widget=wifi, interval=1.0),
-                    menu_to_change_to=Menus.MAIN_MENU,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="ethernet",
-                    hotspot=self.__get_hotspot(widget=ethernet, interval=1.0),
-                    menu_to_change_to=Menus.MAIN_MENU,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="ap",
-                    hotspot=self.__get_hotspot(widget=ap, interval=1.0),
-                    menu_to_change_to=Menus.MAIN_MENU,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="usb",
-                    hotspot=self.__get_hotspot(widget=usb, interval=1.0),
-                    menu_to_change_to=Menus.MAIN_MENU,
-                ),
-            ]
-        elif menu_id == Menus.MAIN_MENU:
-            pages = [
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="Settings",
-                    hotspot=self.__get_hotspot(
-                        widget=setting_title, interval=0.5, title="Settings"
-                    ),
-                    menu_to_change_to=Menus.SETTINGS,
-                ),
-                # MenuPage(
-                #     callback_client=self.__callback_client,
-                #     name="Projects",
-                #     hotspot=self.__get_hotspot(
-                #         widget=projects_title,
-                #         interval=0.5,
-                #         title="Projects"
-                #     ),
-                #     menu_to_change_to=Menus.PROJECTS,
-                # ),
-            ]
-        elif menu_id == Menus.SETTINGS:
-            pages = [
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="ssh_connection",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="ssh",
-                        get_state_method=get_ssh_enabled_state,
-                    ),
-                    action_func=change_ssh_enabled_state,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="vnc_connection",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="vnc",
-                        get_state_method=get_vnc_enabled_state,
-                    ),
-                    action_func=change_vnc_enabled_state,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="further_link",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="further_link",
-                        get_state_method=get_pt_further_link_enabled_state,
-                    ),
-                    action_func=change_further_link_enabled_state,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="ap",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="ap",
-                        get_state_method=get_wifi_ap_state,
-                    ),
-                    action_func=change_wifi_mode,
-                ),
-                MenuPage(
-                    callback_client=self.__callback_client,
-                    name="hdmi_reset",
-                    hotspot=self.__get_hotspot(
-                        widget=settings_menu_page,
-                        type="hdmi_reset",
-                    ),
-                    action_func=reset_hdmi_configuration,
-                ),
-            ]
-        elif menu_id == Menus.PROJECTS:
-            project_dir = path.expanduser("~/Desktop/My Projects")
-            if path.exists(project_dir):
-                # For each directory in project path
-                project_subdirs = [
-                    name
-                    for name in sorted(listdir(project_dir))
-                    if path.isdir(path.join(project_dir, name))
-                ]
-                for project_subdir in project_subdirs:
-                    # Get name from path
-                    title = project_subdir
-                    project_path = project_dir + "/" + project_subdir
+        self.is_skipping = False
 
-                    pages.append(
-                        MenuPage(
-                            callback_client=self.__callback_client,
-                            name=title,
-                            hotspot=self.__get_hotspot(
-                                widget=projects_menu_page,
-                                title=title,
-                                project_path=project_path,
-                            ),
-                            action_func=lambda: start_stop_project(project_path),
-                        )
-                    )
-                if not pages:
-                    title = "No Projects Found"
+        self._ms.up_button.when_released = self.set_page_to_previous_page
+        self._ms.down_button.when_released = self.set_page_to_next_page
+        self._ms.select_button.when_released = self.handle_select_btn
+        self._ms.cancel_button.when_released = self.handle_cancel_btn
 
-                    pages.append(
-                        MenuPage(
-                            callback_client=self.__callback_client,
-                            name=title,
-                            hotspot=self.__get_hotspot(
-                                widget=main_menu_page,
-                                title=title,
-                                image_path=None,
-                            ),
-                        )
-                    )
-            else:
-                title = "Project Directory"
-                second_line = "Not Found"
-
-                pages.append(
-                    MenuPage(
-                        callback_client=self.__callback_client,
-                        name=title,
-                        hotspot=self.__get_hotspot(
-                            widget=error_page,
-                            title=title,
-                            second_line=second_line,
-                            image_path=None,
-                        ),
-                    )
+        self.guide_viewport = ViewportManager(
+            "guide",
+            miniscreen,
+            [
+                GuidePageGenerator.get_page(guide_page_type)(
+                    miniscreen.size, miniscreen.mode, page_redraw_speed
                 )
+                for guide_page_type in GuidePage
+            ],
+        )
 
-        return pages
+        def menu_overlay(image):
+            title_overlay_h = 19
+            asst = MiniscreenAssistant(self._ms.mode, self._ms.size)
+            ImageDraw.Draw(image).rectangle(
+                ((0, 0), (self._ms.size[0], title_overlay_h)), fill=1
+            )
+            ImageDraw.Draw(image).rectangle(
+                ((0, title_overlay_h), (self._ms.size[0], title_overlay_h)), fill=0
+            )
+            asst.render_text(
+                image,
+                xy=(self._ms.size[0] / 2, self._ms.size[1] / 6),
+                text="M E N U",
+                wrap=False,
+                font=asst.get_mono_font_path(bold=True),
+                fill=0,
+            )
+
+        self.menu_viewport = ViewportManager(
+            "menu",
+            miniscreen,
+            [
+                MenuPageGenerator.get_page(menu_page_type)(
+                    miniscreen.size, miniscreen.mode, page_redraw_speed
+                )
+                for menu_page_type in MenuPage
+            ],
+            overlay_render_func=menu_overlay,
+        )
+
+        self.active_viewport = self.guide_viewport
+        self.page_has_changed = Event()
+
+        self.setup_event_triggers()
+
+    def setup_event_triggers(self):
+        def soft_transition_to_last_page(_):
+            if self.active_viewport != self.guide_viewport:
+                return
+
+            last_page_index = len(self.active_viewport.pages) - 1
+            # Only do automatic update if on previous page
+            if self.guide_viewport.page_index == last_page_index - 1:
+                self.guide_viewport.page_index = last_page_index
+
+        subscribe(AppEvents.READY_TO_BE_A_MAKER, soft_transition_to_last_page)
+
+        def hard_transition_to_connect_page(_):
+            self.active_viewport = self.guide_viewport
+            self.active_viewport.page_index = len(self.active_viewport.pages) - 2
+            self.is_skipping = True
+
+        subscribe(
+            AppEvents.USER_SKIPPED_CONNECTION_GUIDE, hard_transition_to_connect_page
+        )
+
+    def handle_select_btn(self):
+        if self.active_viewport == self.guide_viewport:
+            self.set_page_to_next_page()
+        else:
+            self.active_viewport.current_page.on_select_press()
+
+        self.page_has_changed.set()
+
+    def handle_cancel_btn(self):
+        if self.active_viewport == self.guide_viewport:
+            self.active_viewport = self.menu_viewport
+            self.active_viewport.move_to_page(0)
+        else:
+            self.active_viewport = self.guide_viewport
+
+        self.page_has_changed.set()
+
+    def get_page(self, index):
+        return self.active_viewport.pages[index]
+
+    @property
+    def page(self):
+        return self.get_page(self.active_viewport.page_index)
+
+    @property
+    def needs_to_scroll(self):
+        y_pos = self.active_viewport.y_pos
+        correct_y_pos = self.active_viewport.page_index * self.page.height
+
+        return y_pos != correct_y_pos
+
+    def set_page_to(self, page):
+        if self.needs_to_scroll:
+            return
+
+        new_page = page.type
+
+        new_page_index = new_page.value - 1
+        if self.active_viewport.page_index == new_page_index:
+            logger.debug(
+                f"Miniscreen onboarding: Already on page '{new_page.name}' - nothing to do"
+            )
+            return
+
+        logger.debug(
+            f"Page index: {self.active_viewport.page_index} -> {new_page_index}"
+        )
+        self.active_viewport.page_index = new_page_index
+        self.page_has_changed.set()
+
+    def set_page_to_previous_page(self):
+        self.set_page_to(self.get_previous_page())
+
+    def set_page_to_next_page(self):
+        self.set_page_to(self.get_next_page())
+
+    def get_previous_page(self):
+        # Return next page if at top
+        if self.active_viewport.page_index == 0:
+            return self.get_next_page()
+
+        candidate = self.get_page(self.active_viewport.page_index - 1)
+        return candidate if candidate.visible else self.page
+
+    def get_next_page(self):
+        # Return current page if at end
+        if self.active_viewport.page_index + 1 >= len(self.active_viewport.pages):
+            return self.page
+
+        candidate = self.get_page(self.active_viewport.page_index + 1)
+        return candidate if candidate.visible else self.page
+
+    def display_current_viewport_image(self):
+        self._ms.device.display(self.active_viewport.image)
+
+    def wait_until_timeout_or_page_has_changed(self):
+        if self.needs_to_scroll:
+            if self.is_skipping:
+                interval = self.skip_speed
+            else:
+                interval = self.scroll_speed
+        else:
+            interval = self.page_redraw_speed
+
+        self.page_has_changed.wait(interval)
+        if self.page_has_changed.is_set():
+            self.page_has_changed.clear()
+
+    def update_scroll_position(self):
+        if not self.needs_to_scroll:
+            self.is_skipping = False
+            return
+
+        correct_y_pos = self.active_viewport.page_index * self._ms.size[1]
+        move_down = correct_y_pos > self.active_viewport.y_pos
+
+        self.active_viewport.y_pos += scroll_px_resolution * (1 if move_down else -1)

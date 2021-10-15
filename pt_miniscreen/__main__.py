@@ -1,73 +1,41 @@
-from configparser import ConfigParser
-from logging import ERROR, getLogger
-from os import path
-from signal import SIGINT, SIGTERM, signal
+import logging
+from signal import SIGINT, SIGTERM, pause, signal
 
 import click
-from pitop import Pitop
-from pitop.common.logger import PTLogger
+import click_logging
 
-# TODO: drop/override 'DeviceNotFoundError' to avoid awkward luma.core import
-from pitop.miniscreen.oled.core.contrib.luma.core.error import DeviceNotFoundError
+from . import App
 
-from . import MiniscreenApp
-from .bootsplash import Bootsplash
-from .widgets.common.functions import get_image_file_path
-
-config_file = "/etc/pt-miniscreen/settings.ini"
+logger = logging.getLogger(__name__)
+click_logging.basic_config(logger)
 
 
 def configure_interrupt_signals(app):
+    logger.info("Configuring interrupt signals...")
+
     def signal_handler(signal, frame):
-        PTLogger.debug("Stopping...")
+        logger.debug("Stopping...")
         app.stop()
-        PTLogger.debug("Stopped!")
+        logger.debug("Stopped!")
 
     signal(SIGINT, signal_handler)
     signal(SIGTERM, signal_handler)
 
 
 @click.command()
-@click.option(
-    "--log-level",
-    type=int,
-    help="set logging level from 10 (more verbose) to 50 (less verbose)",
-    default=20,
-    show_default=True,
-)
+@click_logging.simple_verbosity_option(logger)
 @click.version_option()
-def main(log_level) -> None:
+def main() -> None:
     # Ignore PIL debug messages
-    getLogger("PIL").setLevel(ERROR)
-    PTLogger.setup_logging(logger_name="pt-miniscreen", logging_level=log_level)
+    logging.getLogger("PIL").setLevel(logging.ERROR)
 
-    try:
-        miniscreen = Pitop().miniscreen
-    except DeviceNotFoundError as e:
-        PTLogger.error(f"Error getting device: {str(e)}")
-        return
-
-    bootsplash_path = get_image_file_path("startup/pi-top_startup.gif")
-    if path.exists(config_file):
-        config = ConfigParser()
-        config.read(config_file)
-        try:
-            bootsplash_path = config.get("Bootsplash", "Path")
-        except Exception:
-            pass
-
-    splash = Bootsplash(bootsplash_path, miniscreen)
-
-    if not splash.has_played():
-        PTLogger.info("Not played boot animation this session - starting...")
-        splash.play()
-        PTLogger.info("Finished startup animation")
-
-    app = MiniscreenApp(miniscreen)
+    logger.debug("Creating app...")
+    app = App()
     configure_interrupt_signals(app)
-
-    app.main_loop()
-    app.stop()
+    logger.info("Starting app...")
+    app.start()
+    logger.info("App is now running...")
+    pause()
 
 
 if __name__ == "__main__":
