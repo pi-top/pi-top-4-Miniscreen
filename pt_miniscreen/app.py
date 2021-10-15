@@ -21,6 +21,8 @@ class App:
     }
 
     def __init__(self):
+        logger.debug("Initialising app...")
+
         self.__thread = Thread(target=self._main, args=())
         self.__stop = False
 
@@ -61,6 +63,8 @@ class App:
         logger.info("Stopped miniscreen app")
 
     def handle_startup_animation(self):
+        logger.info("Handling startup animation...")
+        logger.debug(f"Splash has played? {self.splash.has_played()}")
         if not self.splash.has_played():
             logger.info("Not played boot animation this session - starting...")
             self.splash.play()

@@ -6,7 +6,7 @@ import click_logging
 
 from . import App
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 click_logging.basic_config(logger)
 
 

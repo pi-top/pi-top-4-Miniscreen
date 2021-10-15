@@ -30,6 +30,7 @@ class Bootsplash:
         return path.exists(self.has_played_breadcrumb)
 
     def play(self):
+        logger.info("Playing boot splash...")
         try:
             self.miniscreen.play_animated_image_file(
                 self.path, background=False, loop=False
@@ -37,4 +38,5 @@ class Bootsplash:
         except Exception as e:
             logger.warning(f"Unable to play miniscreen startup animation: {e}")
 
+        logger.debug("Finished playing boot splash, touching breadcrumb...")
         Path(self.has_played_breadcrumb).touch()
