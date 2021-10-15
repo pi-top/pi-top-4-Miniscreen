@@ -1,10 +1,14 @@
 import logging
+from os import environ
 from signal import SIGINT, SIGTERM, pause, signal
 
 import click
 import click_logging
 
 from . import App
+
+# Always run as system
+environ["PT_MINISCREEN_SYSTEM"] = "1"
 
 logger = logging.getLogger()
 click_logging.basic_config(logger)

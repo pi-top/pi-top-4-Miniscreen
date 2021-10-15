@@ -28,7 +28,6 @@ class App:
 
         self.last_shown_image = None
 
-        self.user_has_control = False
         self.user_gave_back_control_event = Event()
 
         self.miniscreen = Pitop().miniscreen
@@ -63,37 +62,48 @@ class App:
         logger.info("Stopped miniscreen app")
 
     def handle_startup_animation(self):
-        logger.info("Handling startup animation...")
-        logger.debug(f"Splash has played? {self.splash.has_played()}")
         if not self.splash.has_played():
             logger.info("Not played boot animation this session - starting...")
             self.splash.play()
             logger.info("Finished startup animation")
 
+    @property
+    def user_has_control(self):
+        return not self.miniscreen.is_active
+
     def _main(self):
         self.handle_startup_animation()
+
+        logger.info("Starting main loop...")
         while not self.__stop:
-            # Only attempt to update state if OLED is not owned by another process
-            if not self.miniscreen.is_active:
-                if self.state_manager.state in [
-                    MenuState.ACTIVE,
-                    MenuState.RUNNING_ACTION,
-                ]:
-                    self.__wake_oled()
 
-                    self.manager.update_scroll_position()
-                    self.manager.display_current_viewport_image()
-                    self.manager.wait_until_timeout_or_page_has_changed()
+            logger.debug(f"User has control: {self.user_has_control}")
 
-            if self.user_has_control:
+            if not self.user_has_control:
                 self.wait_for_user_control_release()
                 self.reset()
 
-            # update sleep time
+            logger.debug(f"Current state: {self.state_manager.state}")
 
-            # process any currently running action
+            if self.state_manager.state in [
+                MenuState.ACTIVE,
+                MenuState.RUNNING_ACTION,
+            ]:
+                logger.debug("Waking OLED...")
+                self.__wake_oled()
+
+                logger.debug("Updating scroll position...")
+                self.manager.update_scroll_position()
+                logger.debug("Displaying current viewport image...")
+                self.manager.display_current_viewport_image()
+                logger.debug("Waiting until timeout or until page has changed...")
+                self.manager.wait_until_timeout_or_page_has_changed()
+                logger.debug("Done waiting!")
+
             if self.state_manager.state == MenuState.RUNNING_ACTION:
-                # Prevent dimming while running action
+                logger.debug("Processing currently running action...")
+
+                logger.debug("Resetting activity timer to prevent dimming...")
                 self.state_manager.user_activity_timer.reset()
 
                 time_since_action_started = self.state_manager.action_timer.elapsed_time
@@ -102,7 +112,7 @@ class App:
 
                 if self.current_menu.page.action_process.is_alive():
                     logger.debug("Action not yet completed")
-                    return
+                    continue
 
                 if time_since_action_started > self.TIMEOUTS[MenuState.RUNNING_ACTION]:
                     logger.info("Action timed out - setting state to WAKING")
@@ -110,34 +120,35 @@ class App:
 
                     logger.info("Notifying renderer to display 'unknown' action state")
                     self.current_menu.page.set_unknown_state()
-                    return
+                    continue
 
                 logger.info("Action completed - setting state to WAKING")
                 self.state_manager.state = MenuState.WAKING
                 logger.info("Resetting state of hotspot to re-renderer current state")
                 self.current_menu.page.hotspot.reset()
 
-                return
+                continue
 
-            # handle dimming
+            logger.debug("Handling screen dimming...")
+
             time_since_last_active = self.state_manager.user_activity_timer.elapsed_time
 
             if self.state_manager.state == MenuState.WAKING:
                 if time_since_last_active < self.TIMEOUTS[MenuState.WAKING]:
-                    return
+                    continue
                 else:
                     self.state_manager.state = MenuState.ACTIVE
 
             if time_since_last_active < self.TIMEOUTS[MenuState.DIM]:
-                return
+                continue
 
             if self.state_manager.state == MenuState.ACTIVE:
                 logger.info("Going to sleep...")
                 self.__sleep_oled()
-                return
+                continue
 
             if time_since_last_active < self.TIMEOUTS[MenuState.SCREENSAVER]:
-                return
+                continue
 
             if self.state_manager.state == MenuState.DIM:
                 logger.info("Starting screensaver...")
@@ -155,7 +166,6 @@ class App:
         if self.user_has_control and not user_has_control:
             self.user_gave_back_control_event.set()
 
-        self.user_has_control = user_has_control
         logger.info(
             f"User has {'taken' if user_has_control else 'given back'} control of the OLED"
         )
