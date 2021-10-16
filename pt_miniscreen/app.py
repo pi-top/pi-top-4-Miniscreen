@@ -5,7 +5,7 @@ from pitop import Pitop
 
 from .bootsplash import Bootsplash
 from .page_manager import PageManager
-from .screensaver import Screensaver
+from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import MenuState, MenuStateManager, Speeds
 
@@ -45,7 +45,7 @@ class App:
         )
 
         self.splash = Bootsplash(self.miniscreen)
-        self.screensaver = Screensaver(self.miniscreen)
+        self.screensaver = StarfieldScreensaver(self.miniscreen)
 
         self.state_manager = MenuStateManager()
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
