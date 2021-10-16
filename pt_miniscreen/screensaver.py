@@ -24,10 +24,10 @@ class Screensaver:
     def image(self):
         # Adapted from https://github.com/rm-hull/luma.examples/blob/master/examples/starfield.py
 
-        origin_x = self.miniscreen.size[0] // 2
-        origin_y = self.miniscreen.size[1] // 2
+        origin_x = self.size[0] // 2
+        origin_y = self.size[1] // 2
 
-        image = Image.new(self.miniscreen.mode, self.miniscreen.size)
+        image = Image.new(self.mode, self.size)
 
         draw = ImageDraw.Draw(image)
 
@@ -43,7 +43,7 @@ class Screensaver:
             x = int(star[0] * k + origin_x)
             y = int(star[1] * k + origin_y)
 
-            if 0 <= x < self.miniscreen.size[0] and 0 <= y < self.miniscreen.size[1]:
+            if 0 <= x < self.size[0] and 0 <= y < self.size[1]:
                 size = (1 - float(star[2]) / self.SCREENSAVER_MAX_DEPTH) * 4
                 draw.rectangle((x, y, x + size, y + size), fill="white")
 
