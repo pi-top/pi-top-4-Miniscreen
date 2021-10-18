@@ -52,6 +52,7 @@ class Page(PageBase):
             self.draw_battery_percentage(image)
 
         PIL.ImageDraw.Draw(image).bitmap(
+            # Offset battery image slightly
             xy=(4, 0),
             bitmap=self.battery_image.convert(self.mode),
             fill="white",
@@ -64,5 +65,8 @@ class Page(PageBase):
         )
 
         assistant.render_text(
-            image, text=battery_capacity_text, xy=(128 / 4 * 3, 64 / 2), font_size=20
+            image,
+            text=battery_capacity_text,
+            xy=(3 / 4 * self.size[0], 1 / 2 * self.size[1]),
+            font_size=20,
         )

@@ -1,2 +1,1 @@
-from .base import Page
-from .factory import PageFactory
+from .base import Page, PageFactory

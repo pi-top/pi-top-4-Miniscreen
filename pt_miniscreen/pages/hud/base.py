@@ -1,23 +1,28 @@
 from enum import Enum, auto
 
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
-
-from ..base import PageBase as _PageBase
-
-
-class TextPage(_PageBase):
-    def __init__(self, text, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
-        self.text = text
-
-    def render(self, image):
-        MiniscreenAssistant(self.mode, self.size).render_text(
-            image,
-            text=self.text,
-            wrap=self.wrap,
-            font_size=self.font_size,
-        )
+from .battery import Page as BatteryPage
+from .cpu import Page as CpuPage
 
 
 class Page(Enum):
     BATTERY = auto()
+    CPU = auto()
+    # WIFI = auto()
+    # ETHERNET = auto()
+    # AP = auto()
+    # USB = auto()
+
+
+class PageFactory:
+    pages = {
+        Page.BATTERY: BatteryPage,
+        Page.CPU: CpuPage,
+        # Page.WIFI: WifiPage,
+        # Page.ETHERNET: EthernetPage,
+        # Page.AP: ApPage,
+        # Page.USB: UsbPage,
+    }
+
+    @staticmethod
+    def get_page(page_type: Page):
+        return PageFactory.pages[page_type]
