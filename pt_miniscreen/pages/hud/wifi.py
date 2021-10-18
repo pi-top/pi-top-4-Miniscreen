@@ -1,92 +1,114 @@
-# import PIL.Image
-# import PIL.ImageDraw
-# import psutil
+from ipaddress import ip_address
 
-# from ...utils import get_image_file_path
-# from ..base import PageBase
+import PIL.Image
+import PIL.ImageDraw
+from pitop.common.sys_info import (
+    get_internal_ip,
+    get_network_strength,
+    get_wifi_network_ssid,
+)
+from pitop.miniscreen.oled.assistant import MiniscreenAssistant
+
+from ...utils import get_image_file_path
+from ..base import PageBase
+from .values import common_second_line_y, common_third_line_y, default_margin_x
+
+wifi_images = {
+    "no": PIL.Image.open(
+        get_image_file_path("sys_info/networking/wifi_strength_bars/wifi_no_signal.png")
+    ),
+    "weak": PIL.Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_weak_signal.png"
+        )
+    ),
+    "okay": PIL.Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_okay_signal.png"
+        )
+    ),
+    "good": PIL.Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_good_signal.png"
+        )
+    ),
+    "excellent": PIL.Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_excellent_signal.png"
+        )
+    ),
+}
 
 
-# class Page(PageBase):
-#     def __init__(self, interval, size, mode):
-#         super().__init__(interval=interval, size=size, mode=mode)
-#         self.wifi_bars_image = PIL.Image.open(get_image_file_path("sys_info/cpu.png"))
+class Page(PageBase):
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
+        self.wifi_bars_image = wifi_images["no"]
+        self.info_image = PIL.Image.open(
+            get_image_file_path("sys_info/networking/wifi_info.png")
+        )
 
-#     def reset_extra_data_members(self):
-#         self.wifi_bars_image = ""
+    def draw_wifi_strength(self, image):
+        wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
 
-#     def is_connected(self):
-#         return self.second_line != "" and self.third_line != ""
+        if wifi_strength <= 0:
+            self.wifi_bars_image = wifi_images["no"]
+        elif wifi_strength <= 0.25:
+            self.wifi_bars_image = wifi_images["weak"]
+        elif wifi_strength <= 0.5:
+            self.wifi_bars_image = wifi_images["okay"]
+        elif wifi_strength <= 0.75:
+            self.wifi_bars_image = wifi_images["good"]
+        else:
+            self.wifi_bars_image = wifi_images["excellent"]
 
-#     def set_data_members(self):
-#         def wifi_strength_image():
-#             wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
+        PIL.ImageDraw.Draw(image).bitmap(
+            xy=(0, 0),
+            bitmap=self.wifi_bars_image.convert(self.mode),
+            fill="white",
+        )
 
-#             if wifi_strength <= 0:
-#                 wifi_signal_strength = "no"
-#             elif wifi_strength <= 0.25:
-#                 wifi_signal_strength = "weak"
-#             elif wifi_strength <= 0.5:
-#                 wifi_signal_strength = "okay"
-#             elif wifi_strength <= 0.75:
-#                 wifi_signal_strength = "good"
-#             else:
-#                 wifi_signal_strength = "excellent"
+    def draw_info_image(self, image):
+        draw = PIL.ImageDraw.Draw(image)
 
-#             return Image.open(
-#                 get_image_file_path(
-#                     f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png"
-#                 )
-#             )
+        draw.bitmap(
+            xy=(0, 0),
+            bitmap=self.info_image,
+            fill="white",
+        )
 
-#         self.wifi_bars_image = wifi_strength_image()
+    def draw_info_text(self, image):
+        assistant = MiniscreenAssistant("1", (128, 64))
+        assistant.render_text(
+            image,
+            text=get_wifi_network_ssid(),
+            font_size=12,
+            xy=(default_margin_x, common_second_line_y),
+            align="left",
+            anchor="lm",
+            wrap=False,
+        )
 
-#         network_ssid = get_wifi_network_ssid()
-#         if network_ssid != "Error":
-#             self.second_line = network_ssid
+        network_ip = ""
+        try:
+            network_ip_candidate = get_internal_ip(iface="wlan0")
+            ip_address(network_ip_candidate)
+            network_ip = network_ip_candidate
 
-#         network_ip = get_internal_ip(iface="wlan0")
-#         try:
-#             self.third_line = ip_address(network_ip)
-#         except ValueError:
-#             self.third_line = ""
+        except ValueError:
+            pass
 
-#     def render_extra_info(self, draw):
-#         draw.bitmap(
-#             xy=(5, 0),
-#             bitmap=self.wifi_bars_image,
-#             fill="white",
-#         )
+        assistant.render_text(
+            image,
+            text=network_ip,
+            font_size=12,
+            xy=(default_margin_x, common_third_line_y),
+            align="left",
+            anchor="lm",
+            wrap=False,
+        )
 
-#     def render(self, image):
-#         draw = PIL.ImageDraw.Draw(image)
-#         draw.bitmap(
-#             xy=(0, 0),
-#             bitmap=self.cpu_image.convert(self.mode),
-#             fill="white",
-#         )
-
-#         percentages = psutil.cpu_percent(interval=None, percpu=True)
-
-#         top_margin = 10
-#         bottom_margin = 10
-
-#         bar_height = self.size[1] - top_margin - bottom_margin
-#         width_cpu = (self.size[0] / 2) / len(percentages)
-#         bar_width = 10
-#         bar_margin = 10
-
-#         x = bar_margin
-
-#         for cpu in percentages:
-#             cpu_height = bar_height * (cpu / 100.0)
-#             y2 = self.size[1] - bottom_margin
-#             vertical_bar(
-#                 draw,
-#                 self.size[0] - x,
-#                 y2 - bar_height - 1,
-#                 self.size[0] - x - bar_width,
-#                 y2,
-#                 y2 - cpu_height,
-#             )
-
-#             x += width_cpu
+    def render(self, image):
+        self.draw_info_image(image)
+        self.draw_wifi_strength(image)
+        self.draw_info_text(image)
