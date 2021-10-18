@@ -25,7 +25,7 @@ def firmware_version():
 
 
 class PageBase(_PageBase):
-    def __init__(self, interval=1, size=(0, 0), mode=0):
+    def __init__(self, interval, size, mode):
         super().__init__(interval=interval, size=size, mode=mode)
         self.invert = True
 

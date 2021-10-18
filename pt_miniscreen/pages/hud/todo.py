@@ -1,45 +1,7 @@
-from enum import Enum, auto
 from subprocess import run
 
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
-
+from ..base import PageBase
 from ..event import AppEvents, subscribe
-from .base import PageBase as _PageBase
-
-
-class PageBase(_PageBase):
-    def __init__(self, interval=1, size=(0, 0), mode=0):
-        super().__init__(interval=interval, size=size, mode=mode)
-
-    def render(self, image):
-        MiniscreenAssistant(self.mode, self.size).render_text(
-            image,
-            text=self.text,
-            wrap=self.wrap,
-            font_size=self.font_size,
-        )
-
-
-class Page(Enum):
-    START = auto()
-    WELCOME = auto()
-    START_WIRELESS_CONNECTION = auto()
-    HELP_URL = auto()
-    GET_DEVICE = auto()
-    CONNECT_PITOP_WIFI_NETWORK = auto()
-    OPEN_BROWSER = auto()
-    CARRY_ON = auto()
-
-
-class StartPage(PageBase):
-    """Welcome!
-
-    Let's get you set up, press any button to get started!
-    """
-
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
-        self.text = "Welcome to your pi-top! Press any button to get started..."
 
 
 class WelcomePage(PageBase):
@@ -185,20 +147,3 @@ class CarryOnPage(PageBase):
             self.visible = visible
 
         subscribe(AppEvents.READY_TO_BE_A_MAKER, update_visible)
-
-
-class PageFactory:
-    pages = {
-        Page.START: StartPage,
-        Page.WELCOME: WelcomePage,
-        Page.START_WIRELESS_CONNECTION: StartWirelessConnectionPage,
-        Page.HELP_URL: HelpURLPage,
-        Page.GET_DEVICE: GetDevicePage,
-        Page.CONNECT_PITOP_WIFI_NETWORK: ConnectPitopWifiNetworkPage,
-        Page.OPEN_BROWSER: OpenBrowserPage,
-        Page.CARRY_ON: CarryOnPage,
-    }
-
-    @staticmethod
-    def get_page(page_type: Page):
-        return PageFactory.pages[page_type]

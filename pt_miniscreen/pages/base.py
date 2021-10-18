@@ -6,7 +6,7 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 # Based on luma.core hotspots/snapshots
 class PageBase:
-    def __init__(self, interval=1, size=(128, 64), mode="1"):
+    def __init__(self, interval, size, mode):
         self.interval = interval
         self.size = size
         self.mode = mode

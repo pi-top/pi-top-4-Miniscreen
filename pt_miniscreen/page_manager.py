@@ -5,7 +5,7 @@ from PIL import ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from .event import AppEvents, subscribe
-from .pages import guide, menu
+from .pages import hud, menu
 from .viewport import ViewportManager
 
 logger = logging.getLogger(__name__)
@@ -29,16 +29,16 @@ class PageManager:
         self._ms.select_button.when_released = self.handle_select_btn
         self._ms.cancel_button.when_released = self.handle_cancel_btn
 
-        self.guide_viewport = ViewportManager(
-            "guide",
+        self.hud_viewport = ViewportManager(
+            "hud",
             miniscreen,
             [
-                guide.PageFactory.get_page(guide_page_type)(
+                hud.PageFactory.get_page(hud_page_type)(
                     interval=page_redraw_speed,
                     size=miniscreen.size,
                     mode=miniscreen.mode,
                 )
-                for guide_page_type in guide.Page
+                for hud_page_type in hud.Page
             ],
         )
 
@@ -74,25 +74,25 @@ class PageManager:
             overlay_render_func=menu_overlay,
         )
 
-        self.active_viewport = self.guide_viewport
+        self.active_viewport = self.hud_viewport
         self.page_has_changed = Event()
 
         self.setup_event_triggers()
 
     def setup_event_triggers(self):
         def soft_transition_to_last_page(_):
-            if self.active_viewport != self.guide_viewport:
+            if self.active_viewport != self.hud_viewport:
                 return
 
             last_page_index = len(self.active_viewport.pages) - 1
             # Only do automatic update if on previous page
-            if self.guide_viewport.page_index == last_page_index - 1:
-                self.guide_viewport.page_index = last_page_index
+            if self.hud_viewport.page_index == last_page_index - 1:
+                self.hud_viewport.page_index = last_page_index
 
         subscribe(AppEvents.READY_TO_BE_A_MAKER, soft_transition_to_last_page)
 
         def hard_transition_to_connect_page(_):
-            self.active_viewport = self.guide_viewport
+            self.active_viewport = self.hud_viewport
             self.active_viewport.page_index = len(self.active_viewport.pages) - 2
             self.is_skipping = True
 
@@ -101,7 +101,7 @@ class PageManager:
         )
 
     def handle_select_btn(self):
-        if self.active_viewport == self.guide_viewport:
+        if self.active_viewport == self.hud_viewport:
             self.set_page_to_next_page()
         else:
             self.active_viewport.current_page.on_select_press()
@@ -109,11 +109,11 @@ class PageManager:
         self.page_has_changed.set()
 
     def handle_cancel_btn(self):
-        if self.active_viewport == self.guide_viewport:
+        if self.active_viewport == self.hud_viewport:
             self.active_viewport = self.menu_viewport
             self.active_viewport.move_to_page(0)
         else:
-            self.active_viewport = self.guide_viewport
+            self.active_viewport = self.hud_viewport
 
         self.page_has_changed.set()
 
@@ -135,8 +135,8 @@ class PageManager:
         if self.needs_to_scroll:
             return
 
-        if self.active_viewport == self.guide_viewport:
-            factory = guide.PageFactory
+        if self.active_viewport == self.hud_viewport:
+            factory = hud.PageFactory
         else:
             factory = menu.PageFactory
 
