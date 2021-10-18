@@ -4,8 +4,7 @@ from .ap import Page as ApPage
 from .battery import Page as BatteryPage
 from .cpu import Page as CpuPage
 from .ethernet import Page as EthernetPage
-
-# from .usb import Page as UsbPage
+from .usb import Page as UsbPage
 from .wifi import Page as WifiPage
 
 
@@ -15,7 +14,7 @@ class Page(Enum):
     WIFI = auto()
     ETHERNET = auto()
     AP = auto()
-    # USB = auto()
+    USB = auto()
 
 
 class PageFactory:
@@ -25,7 +24,7 @@ class PageFactory:
         Page.WIFI: WifiPage,
         Page.ETHERNET: EthernetPage,
         Page.AP: ApPage,
-        # Page.USB: UsbPage,
+        Page.USB: UsbPage,
     }
 
     @staticmethod
