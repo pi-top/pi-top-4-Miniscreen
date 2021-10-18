@@ -4,12 +4,12 @@ from subprocess import run
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..event import AppEvents, subscribe
-from .base import PageBase
+from .base import PageBase as _PageBase
 
 
-class GuidePageBase(PageBase):
-    def __init__(self, type, size=(0, 0), mode=0, interval=1):
-        super().__init__(type, size, mode, interval)
+class PageBase(_PageBase):
+    def __init__(self, interval=1, size=(0, 0), mode=0):
+        super().__init__(interval=interval, size=size, mode=mode)
 
     def render(self, image):
         MiniscreenAssistant(self.mode, self.size).render_text(
@@ -20,7 +20,7 @@ class GuidePageBase(PageBase):
         )
 
 
-class GuidePage(Enum):
+class Page(Enum):
     START = auto()
     WELCOME = auto()
     START_WIRELESS_CONNECTION = auto()
@@ -31,102 +31,76 @@ class GuidePage(Enum):
     CARRY_ON = auto()
 
 
-# TODO: replace with factory
-class GuidePageGenerator:
-    @staticmethod
-    def get_page(page_type: GuidePage):
-        pages = {
-            GuidePage.START: StartPage,
-            GuidePage.WELCOME: WelcomePage,
-            GuidePage.START_WIRELESS_CONNECTION: StartWirelessConnectionPage,
-            GuidePage.HELP_URL: HelpURLPage,
-            GuidePage.GET_DEVICE: GetDevicePage,
-            GuidePage.CONNECT_PITOP_WIFI_NETWORK: ConnectPitopWifiNetworkPage,
-            GuidePage.OPEN_BROWSER: OpenBrowserPage,
-            GuidePage.CARRY_ON: CarryOnPage,
-        }
-
-        return pages[page_type]
-
-
-class StartPage(GuidePageBase):
+class StartPage(PageBase):
     """Welcome!
 
     Let's get you set up, press any button to get started!
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(type=GuidePage.START, size=size, mode=mode, interval=interval)
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.text = "Welcome to your pi-top! Press any button to get started..."
 
 
-class WelcomePage(GuidePageBase):
+class WelcomePage(PageBase):
     """That's it!
 
     Now press DOWN to scroll...
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=GuidePage.WELCOME, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.text = "That's it!\nNow press DOWN to scroll..."
 
 
-class StartWirelessConnectionPage(GuidePageBase):
+class StartWirelessConnectionPage(PageBase):
     """Awesome!
 
     Press DOWN to continue through pi-top connection setup...
     """
 
-    def __init__(self, size, mode, interval):
+    def __init__(self, interval, size, mode):
         super().__init__(
-            type=GuidePage.START_WIRELESS_CONNECTION,
+            interval=interval,
             size=size,
             mode=mode,
-            interval=interval,
         )
         self.text = "Awesome! Press DOWN to continue through pi-top connection setup..."
 
 
-class HelpURLPage(GuidePageBase):
+class HelpURLPage(PageBase):
     """Detailed setup instructions: pi-top.com/start-4.
 
     Press SELECT to continue
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=GuidePage.HELP_URL, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.text = "Detailed setup instructions: pi-top.com/start-4"
 
 
-class GetDevicePage(GuidePageBase):
+class GetDevicePage(PageBase):
     """Let's get started!
 
     You will need a laptop/computer to connect with...
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=GuidePage.GET_DEVICE, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.text = (
             "Let's get started!\nYou will need a\nlaptop/computer\nto connect with..."
         )
         self.wrap = False
 
 
-class ConnectPitopWifiNetworkPage(GuidePageBase):
+class ConnectPitopWifiNetworkPage(PageBase):
     """Connect to Wi-Fi network '{ssid}' using password '{passphrase}'."""
 
-    def __init__(self, size, mode, interval):
+    def __init__(self, interval, size, mode):
         super().__init__(
-            type=GuidePage.CONNECT_PITOP_WIFI_NETWORK,
+            interval=interval,
             size=size,
             mode=mode,
-            interval=interval,
         )
         self.font_size = 13
         self.wrap = False
@@ -150,14 +124,12 @@ class ConnectPitopWifiNetworkPage(GuidePageBase):
         return f"Connect to\nWi-Fi network:\n'{self.ssid}'\n'{self.passphrase}'"
 
 
-class OpenBrowserPage(GuidePageBase):
+class OpenBrowserPage(PageBase):
     # Default: "Waiting for connection...", then:
     """Open browser to http://pi-top.local or http://192.168.64.1."""
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=GuidePage.OPEN_BROWSER, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.wrap = False
 
         self.has_connected_device = False
@@ -198,16 +170,14 @@ class OpenBrowserPage(GuidePageBase):
         return txt
 
 
-class CarryOnPage(GuidePageBase):
+class CarryOnPage(PageBase):
     """You've started the onboarding!
 
     Continue in your browser...
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=GuidePage.CARRY_ON, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.text = "You've started the onboarding!\nContinue in your browser..."
         self.visible = False
 
@@ -215,3 +185,20 @@ class CarryOnPage(GuidePageBase):
             self.visible = visible
 
         subscribe(AppEvents.READY_TO_BE_A_MAKER, update_visible)
+
+
+class PageFactory:
+    pages = {
+        Page.START: StartPage,
+        Page.WELCOME: WelcomePage,
+        Page.START_WIRELESS_CONNECTION: StartWirelessConnectionPage,
+        Page.HELP_URL: HelpURLPage,
+        Page.GET_DEVICE: GetDevicePage,
+        Page.CONNECT_PITOP_WIFI_NETWORK: ConnectPitopWifiNetworkPage,
+        Page.OPEN_BROWSER: OpenBrowserPage,
+        Page.CARRY_ON: CarryOnPage,
+    }
+
+    @staticmethod
+    def get_page(page_type: Page):
+        return PageFactory.pages[page_type]

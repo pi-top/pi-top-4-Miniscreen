@@ -5,8 +5,7 @@ from PIL import ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from .event import AppEvents, subscribe
-from .pages.guide import GuidePage, GuidePageGenerator
-from .pages.menu import MenuPage, MenuPageGenerator
+from .pages import guide, menu
 from .viewport import ViewportManager
 
 logger = logging.getLogger(__name__)
@@ -34,10 +33,12 @@ class PageManager:
             "guide",
             miniscreen,
             [
-                GuidePageGenerator.get_page(guide_page_type)(
-                    miniscreen.size, miniscreen.mode, page_redraw_speed
+                guide.PageFactory.get_page(guide_page_type)(
+                    interval=page_redraw_speed,
+                    size=miniscreen.size,
+                    mode=miniscreen.mode,
                 )
-                for guide_page_type in GuidePage
+                for guide_page_type in guide.Page
             ],
         )
 
@@ -63,10 +64,12 @@ class PageManager:
             "menu",
             miniscreen,
             [
-                MenuPageGenerator.get_page(menu_page_type)(
-                    miniscreen.size, miniscreen.mode, page_redraw_speed
+                menu.PageFactory.get_page(menu_page_type)(
+                    interval=page_redraw_speed,
+                    size=miniscreen.size,
+                    mode=miniscreen.mode,
                 )
-                for menu_page_type in MenuPage
+                for menu_page_type in menu.Page
             ],
             overlay_render_func=menu_overlay,
         )
@@ -132,7 +135,14 @@ class PageManager:
         if self.needs_to_scroll:
             return
 
-        new_page = page.type
+        if self.active_viewport == self.guide_viewport:
+            factory = guide.PageFactory
+        else:
+            factory = menu.PageFactory
+
+        new_page = list(factory.pages.keys())[
+            list(factory.pages.values()).index(type(page))
+        ]
 
         new_page_index = new_page.value - 1
         if self.active_viewport.page_index == new_page_index:

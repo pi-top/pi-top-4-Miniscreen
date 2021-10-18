@@ -8,7 +8,7 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 from pitop.system import device_type
 
 from ..event import AppEvents, post_event
-from .base import PageBase
+from .base import PageBase as _PageBase
 
 build_info = get_pitopOS_info()
 
@@ -24,9 +24,9 @@ def firmware_version():
     return None
 
 
-class MenuPageBase(PageBase):
-    def __init__(self, type, size=(0, 0), mode=0, interval=1):
-        super().__init__(type, size, mode, interval)
+class PageBase(_PageBase):
+    def __init__(self, interval=1, size=(0, 0), mode=0):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.invert = True
 
     def on_select_press(self):
@@ -48,7 +48,7 @@ class MenuPageBase(PageBase):
         )
 
 
-class MenuPage(Enum):
+class Page(Enum):
     SKIP = auto()
     BATTERY = auto()
     BUILD_INFO = auto()
@@ -56,39 +56,25 @@ class MenuPage(Enum):
     ADDITIONAL_IP_ADDR = auto()
 
 
-class MenuPageGenerator:
-    @staticmethod
-    def get_page(page_type: MenuPage):
-        pages = {
-            MenuPage.SKIP: SkipToEndPage,
-            MenuPage.BATTERY: BatteryPage,
-            MenuPage.BUILD_INFO: BuildInfoPage,
-            MenuPage.ADDITIONAL_BUILD_INFO: AdditionalBuildInfoPage,
-            MenuPage.ADDITIONAL_IP_ADDR: AdditionalIPAddressesPage,
-        }
-
-        return pages[page_type]
-
-
-class SkipToEndPage(MenuPageBase):
+class SkipToEndPage(PageBase):
     """Skip pi-top connection guide?"""
 
-    def __init__(self, size, mode, interval):
-        super().__init__(type=MenuPage.SKIP, size=size, mode=mode, interval=interval)
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.text = "Skip pi-top connection guide?"
 
     def on_select_press(self):
         post_event(AppEvents.USER_SKIPPED_CONNECTION_GUIDE, True)
 
 
-class BatteryPage(MenuPageBase):
+class BatteryPage(PageBase):
     """
     Battery: ?%
     Charging? Yes
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(type=MenuPage.BATTERY, size=size, mode=mode, interval=interval)
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.battery_instance = Battery()
 
     @property
@@ -105,13 +91,11 @@ class BatteryPage(MenuPageBase):
         )
 
 
-class BuildInfoPage(MenuPageBase):
+class BuildInfoPage(PageBase):
     """pi-topOS v3.0 experimental 2021-09-29."""
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=MenuPage.BUILD_INFO, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.wrap = False
 
         self.text = (
@@ -120,17 +104,15 @@ class BuildInfoPage(MenuPageBase):
         )
 
 
-class AdditionalBuildInfoPage(MenuPageBase):
+class AdditionalBuildInfoPage(PageBase):
     """
     Schema: 1
     Run: 554
     #: b2da89ff
     """
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=MenuPage.ADDITIONAL_BUILD_INFO, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.wrap = False
         self.font_size = 12
 
@@ -142,14 +124,12 @@ class AdditionalBuildInfoPage(MenuPageBase):
         )
 
 
-class AdditionalIPAddressesPage(MenuPageBase):
+class AdditionalIPAddressesPage(PageBase):
     """Wi-Fi (Network): 192.168.1.104 Wired (Network): 192.168.1.197 Wi-Fi
     (Direct): 192.168.90.1 Wired (Direct): 192.168.64.1."""
 
-    def __init__(self, size, mode, interval):
-        super().__init__(
-            type=MenuPage.ADDITIONAL_IP_ADDR, size=size, mode=mode, interval=interval
-        )
+    def __init__(self, interval, size, mode):
+        super().__init__(interval=interval, size=size, mode=mode)
         self.wrap = False
         self.font_size = 12
 
@@ -163,3 +143,17 @@ class AdditionalIPAddressesPage(MenuPageBase):
                 ips.append(ip)
 
         return "\n".join(ips)
+
+
+class PageFactory:
+    pages = {
+        Page.SKIP: SkipToEndPage,
+        Page.BATTERY: BatteryPage,
+        Page.BUILD_INFO: BuildInfoPage,
+        Page.ADDITIONAL_BUILD_INFO: AdditionalBuildInfoPage,
+        Page.ADDITIONAL_IP_ADDR: AdditionalIPAddressesPage,
+    }
+
+    @staticmethod
+    def get_page(page_type: Page):
+        return PageFactory.pages[page_type]
