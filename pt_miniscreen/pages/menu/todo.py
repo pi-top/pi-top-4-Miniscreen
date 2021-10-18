@@ -1,14 +1,10 @@
-from enum import Enum, auto
-
-from pitop.battery import Battery
 from pitop.common.common_names import DeviceName
 from pitop.common.pt_os import get_pitopOS_info
 from pitop.common.sys_info import get_internal_ip
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 from pitop.system import device_type
 
-from ..event import AppEvents, post_event
-from .base import PageBase as _PageBase
+from ..base import PageBase as _PageBase
 
 build_info = get_pitopOS_info()
 
@@ -48,47 +44,12 @@ class PageBase(_PageBase):
         )
 
 
-class Page(Enum):
-    SKIP = auto()
-    BATTERY = auto()
-    BUILD_INFO = auto()
-    ADDITIONAL_BUILD_INFO = auto()
-    ADDITIONAL_IP_ADDR = auto()
-
-
 class SkipToEndPage(PageBase):
     """Skip pi-top connection guide?"""
 
     def __init__(self, interval, size, mode):
         super().__init__(interval=interval, size=size, mode=mode)
         self.text = "Skip pi-top connection guide?"
-
-    def on_select_press(self):
-        post_event(AppEvents.USER_SKIPPED_CONNECTION_GUIDE, True)
-
-
-class BatteryPage(PageBase):
-    """
-    Battery: ?%
-    Charging? Yes
-    """
-
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
-        self.battery_instance = Battery()
-
-    @property
-    def text(self):
-        def _power_source_text():
-            if self.battery_instance.is_full or self.battery_instance.is_charging:
-                return "Power Adapter"
-
-            return "Battery"
-
-        return (
-            f"Battery: {self.battery_instance.capacity}%\n"
-            f"Power Source: {_power_source_text()}"
-        )
 
 
 class BuildInfoPage(PageBase):
@@ -143,17 +104,3 @@ class AdditionalIPAddressesPage(PageBase):
                 ips.append(ip)
 
         return "\n".join(ips)
-
-
-class PageFactory:
-    pages = {
-        Page.SKIP: SkipToEndPage,
-        Page.BATTERY: BatteryPage,
-        Page.BUILD_INFO: BuildInfoPage,
-        Page.ADDITIONAL_BUILD_INFO: AdditionalBuildInfoPage,
-        Page.ADDITIONAL_IP_ADDR: AdditionalIPAddressesPage,
-    }
-
-    @staticmethod
-    def get_page(page_type: Page):
-        return PageFactory.pages[page_type]
