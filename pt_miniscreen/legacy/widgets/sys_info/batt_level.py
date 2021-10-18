@@ -10,13 +10,25 @@ class Hotspot(BaseSnapshot):
         self.width = width
         self.height = height
         self.mode = mode
-        self.battery_image = ImageComponent(
-            device_mode=self.mode,
-            width=self.width,
-            height=self.height,
-            image_path=get_image_file_path("sys_info/battery_shell_empty.png"),
-            loop=False,
-        )
+
+        self._battery_images = {
+            "empty": ImageComponent(
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file_path("sys_info/battery_shell_empty.png"),
+                loop=False,
+            ),
+            "charging": ImageComponent(
+                device_mode=self.mode,
+                width=self.width,
+                height=self.height,
+                image_path=get_image_file_path("sys_info/battery_shell_charging.png"),
+                loop=False,
+            ),
+        }
+
+        self.battery_image = self._battery_images["empty"]
 
         self.battery = Battery()
         # TODO: do initial query, then handle updates via battery class's internal subscribe client
@@ -40,21 +52,9 @@ class Hotspot(BaseSnapshot):
 
     def render(self, draw, width, height):
         if self.battery.is_charging or self.battery.is_full:
-            self.battery_image = ImageComponent(
-                device_mode=self.mode,
-                width=self.width,
-                height=self.height,
-                image_path=get_image_file_path("sys_info/battery_shell_charging.png"),
-                loop=False,
-            )
+            self.battery_image = self._battery_images["charging"]
         else:
-            self.battery_image = ImageComponent(
-                device_mode=self.mode,
-                width=self.width,
-                height=self.height,
-                image_path=get_image_file_path("sys_info/battery_shell_empty.png"),
-                loop=False,
-            )
+            self.battery_image = self._battery_images["empty"]
             self.draw_battery_percentage(draw, width, height)
 
         self.battery_image.render(draw)

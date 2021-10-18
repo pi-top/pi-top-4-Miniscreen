@@ -10,6 +10,32 @@ from pitop.common.sys_info import (
 from ...utils import get_image_file_path
 from ..widgets.common import BaseNetworkingSysInfoSnapshot
 
+wifi_images = {
+    "no": Image.open(
+        get_image_file_path("sys_info/networking/wifi_strength_bars/wifi_no_signal.png")
+    ),
+    "weak": Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_weak_signal.png"
+        )
+    ),
+    "okay": Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_okay_signal.png"
+        )
+    ),
+    "good": Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_good_signal.png"
+        )
+    ),
+    "excellent": Image.open(
+        get_image_file_path(
+            "sys_info/networking/wifi_strength_bars/wifi_excellent_signal.png"
+        )
+    ),
+}
+
 
 class Hotspot(BaseNetworkingSysInfoSnapshot):
     def __init__(self, width, height, mode, interval, **data):
@@ -35,27 +61,18 @@ class Hotspot(BaseNetworkingSysInfoSnapshot):
         return self.second_line != "" and self.third_line != ""
 
     def set_data_members(self):
-        def wifi_strength_image():
-            wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
+        wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
 
-            if wifi_strength <= 0:
-                wifi_signal_strength = "no"
-            elif wifi_strength <= 0.25:
-                wifi_signal_strength = "weak"
-            elif wifi_strength <= 0.5:
-                wifi_signal_strength = "okay"
-            elif wifi_strength <= 0.75:
-                wifi_signal_strength = "good"
-            else:
-                wifi_signal_strength = "excellent"
-
-            return Image.open(
-                get_image_file_path(
-                    f"sys_info/networking/wifi_strength_bars/wifi_{wifi_signal_strength}_signal.png"
-                )
-            )
-
-        self.wifi_bars_image = wifi_strength_image()
+        if wifi_strength <= 0:
+            self.wifi_bars_image = wifi_images["no"]
+        elif wifi_strength <= 0.25:
+            self.wifi_bars_image = wifi_images["weak"]
+        elif wifi_strength <= 0.5:
+            self.wifi_bars_image = wifi_images["okay"]
+        elif wifi_strength <= 0.75:
+            self.wifi_bars_image = wifi_images["good"]
+        else:
+            self.wifi_bars_image = wifi_images["excellent"]
 
         network_ssid = get_wifi_network_ssid()
         if network_ssid != "Error":
