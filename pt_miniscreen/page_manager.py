@@ -1,8 +1,10 @@
 import logging
 from threading import Event
 
+from .config import menu_config
 from .event import AppEvents, subscribe
-from .pages import hud, menu
+
+# from .pages import hud, settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +26,12 @@ class PageManager:
         self._ms.select_button.when_released = self.handle_select_btn
         self._ms.cancel_button.when_released = self.handle_cancel_btn
 
+        hud = menu_config["hud"]["module"]
+        settings = menu_config["settings"]["module"]
+
         self.viewports = {
             "hud": hud.get_viewport(miniscreen, page_redraw_speed),
-            "menu": menu.get_viewport(
+            "settings": settings.get_viewport(
                 miniscreen,
                 page_redraw_speed,
             ),
@@ -72,7 +77,7 @@ class PageManager:
 
     def handle_cancel_btn(self):
         if self.active_viewport_id == "hud":
-            self.active_viewport_id = "menu"
+            self.active_viewport_id = "settings"
             self.active_viewport.move_to_page(0)
         else:
             self.active_viewport_id = "hud"
@@ -97,10 +102,7 @@ class PageManager:
         if self.needs_to_scroll:
             return
 
-        if self.active_viewport_id == "hud":
-            factory = hud.PageFactory
-        else:
-            factory = menu.PageFactory
+        factory = menu_config[self.active_viewport_id]["module"].PageFactory
 
         new_page = list(factory.pages.keys())[
             list(factory.pages.values()).index(type(page))
