@@ -153,16 +153,33 @@ class viewport:
 
 
 class ViewportManager:
-    def __init__(self, name, miniscreen, pages, overlay_render_func=None):
-        self.name = name
+    def __init__(
+        self,
+        miniscreen,
+        page_factory,
+        page_enum,
+        page_redraw_speed,
+        overlay_render_func=None,
+    ):
+        print(page_factory)
+        print([e.value for e in page_enum])
+
+        self.pages = [
+            page_factory.get_page(page_type)(
+                interval=page_redraw_speed,
+                size=miniscreen.size,
+                mode=miniscreen.mode,
+            )
+            for page_type in page_enum
+        ]
+        self.page_index = 0
+
         self.viewport = viewport(
-            display_size=(miniscreen.size[0], miniscreen.size[1] * len(pages)),
+            display_size=(miniscreen.size[0], miniscreen.size[1] * len(self.pages)),
             window_size=miniscreen.size,
             mode=miniscreen.mode,
         )
 
-        self.pages = pages
-        self.page_index = 0
         self.overlay_render_func = overlay_render_func
 
         for i, page in enumerate(self.pages):

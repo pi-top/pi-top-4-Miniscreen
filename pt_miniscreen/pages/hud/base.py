@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+from ...viewport import ViewportManager
 from .ap import Page as ApPage
 from .battery import Page as BatteryPage
 from .cpu import Page as CpuPage
@@ -30,3 +31,12 @@ class PageFactory:
     @staticmethod
     def get_page(page_type: Page):
         return PageFactory.pages[page_type]
+
+
+def get_viewport(miniscreen, page_redraw_speed):
+    return ViewportManager(
+        miniscreen,
+        PageFactory,
+        Page,
+        page_redraw_speed,
+    )

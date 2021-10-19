@@ -1,20 +1,15 @@
 import logging
 from threading import Event
 
-from PIL import ImageDraw
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
-
 from .event import AppEvents, subscribe
 from .pages import hud, menu
-from .viewport import ViewportManager
 
 logger = logging.getLogger(__name__)
 
 
-scroll_px_resolution = 2
-
-
 class PageManager:
+    SCROLL_PX_RESOLUTION = 2
+
     def __init__(self, miniscreen, page_redraw_speed, scroll_speed, skip_speed):
         self._ms = miniscreen
 
@@ -29,70 +24,37 @@ class PageManager:
         self._ms.select_button.when_released = self.handle_select_btn
         self._ms.cancel_button.when_released = self.handle_cancel_btn
 
-        self.hud_viewport = ViewportManager(
-            "hud",
-            miniscreen,
-            [
-                hud.PageFactory.get_page(hud_page_type)(
-                    interval=page_redraw_speed,
-                    size=miniscreen.size,
-                    mode=miniscreen.mode,
-                )
-                for hud_page_type in hud.Page
-            ],
-        )
+        self.viewports = {
+            "hud": hud.get_viewport(miniscreen, page_redraw_speed),
+            "menu": menu.get_viewport(
+                miniscreen,
+                page_redraw_speed,
+            ),
+        }
 
-        def menu_overlay(image):
-            title_overlay_h = 19
-            asst = MiniscreenAssistant(self._ms.mode, self._ms.size)
-            ImageDraw.Draw(image).rectangle(
-                ((0, 0), (self._ms.size[0], title_overlay_h)), fill=1
-            )
-            ImageDraw.Draw(image).rectangle(
-                ((0, title_overlay_h), (self._ms.size[0], title_overlay_h)), fill=0
-            )
-            asst.render_text(
-                image,
-                xy=(self._ms.size[0] / 2, self._ms.size[1] / 6),
-                text="M E N U",
-                wrap=False,
-                font=asst.get_mono_font_path(bold=True),
-                fill=0,
-            )
-
-        self.menu_viewport = ViewportManager(
-            "menu",
-            miniscreen,
-            [
-                menu.PageFactory.get_page(menu_page_type)(
-                    interval=page_redraw_speed,
-                    size=miniscreen.size,
-                    mode=miniscreen.mode,
-                )
-                for menu_page_type in menu.Page
-            ],
-            overlay_render_func=menu_overlay,
-        )
-
-        self.active_viewport = self.hud_viewport
+        self.active_viewport_id = "hud"
         self.page_has_changed = Event()
 
         self.setup_event_triggers()
 
+    @property
+    def active_viewport(self):
+        return self.viewports[self.active_viewport_id]
+
     def setup_event_triggers(self):
         def soft_transition_to_last_page(_):
-            if self.active_viewport != self.hud_viewport:
+            if self.active_viewport_id != "hud":
                 return
 
             last_page_index = len(self.active_viewport.pages) - 1
             # Only do automatic update if on previous page
-            if self.hud_viewport.page_index == last_page_index - 1:
-                self.hud_viewport.page_index = last_page_index
+            if self.viewports["hud"].page_index == last_page_index - 1:
+                self.viewports["hud"].page_index = last_page_index
 
         subscribe(AppEvents.READY_TO_BE_A_MAKER, soft_transition_to_last_page)
 
         def hard_transition_to_connect_page(_):
-            self.active_viewport = self.hud_viewport
+            self.active_viewport_id = "hud"
             self.active_viewport.page_index = len(self.active_viewport.pages) - 2
             self.is_skipping = True
 
@@ -101,7 +63,7 @@ class PageManager:
         )
 
     def handle_select_btn(self):
-        if self.active_viewport == self.hud_viewport:
+        if self.active_viewport_id == "hud":
             self.set_page_to_next_page()
         else:
             self.active_viewport.current_page.on_select_press()
@@ -109,11 +71,11 @@ class PageManager:
         self.page_has_changed.set()
 
     def handle_cancel_btn(self):
-        if self.active_viewport == self.hud_viewport:
-            self.active_viewport = self.menu_viewport
+        if self.active_viewport_id == "hud":
+            self.active_viewport_id = "menu"
             self.active_viewport.move_to_page(0)
         else:
-            self.active_viewport = self.hud_viewport
+            self.active_viewport_id = "hud"
 
         self.page_has_changed.set()
 
@@ -135,7 +97,7 @@ class PageManager:
         if self.needs_to_scroll:
             return
 
-        if self.active_viewport == self.hud_viewport:
+        if self.active_viewport_id == "hud":
             factory = hud.PageFactory
         else:
             factory = menu.PageFactory
@@ -203,4 +165,6 @@ class PageManager:
         correct_y_pos = self.active_viewport.page_index * self._ms.size[1]
         move_down = correct_y_pos > self.active_viewport.y_pos
 
-        self.active_viewport.y_pos += scroll_px_resolution * (1 if move_down else -1)
+        self.active_viewport.y_pos += self.SCROLL_PX_RESOLUTION * (
+            1 if move_down else -1
+        )
