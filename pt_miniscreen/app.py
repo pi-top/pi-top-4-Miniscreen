@@ -4,7 +4,7 @@ from threading import Event, Thread
 from pitop import Pitop
 
 from .bootsplash import Bootsplash
-from .button_press_manager import ButtonPressManager
+from .event import AppEvents, post_event
 from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
@@ -50,35 +50,27 @@ class App:
         )
 
         self.screensaver = StarfieldScreensaver(self.miniscreen)
-
         self.state_manager = DisplayStateManager()
-        self.button_press_manager = ButtonPressManager(self.state_manager)
 
-        self.miniscreen.up_button.when_released = (
-            self.button_press_manager.on_up_button_press
-        )
-        self.miniscreen.down_button.when_released = (
-            self.button_press_manager.on_down_button_press
-        )
-        self.miniscreen.select_button.when_released = (
-            self.button_press_manager.on_select_button_press
-        )
-        self.miniscreen.cancel_button.when_released = (
-            self.button_press_manager.on_cancel_button_press
-        )
+        def callback_handler(callback):
+            self.state_manager.user_activity_timer.reset()
+            if self.state_manager.state in [DisplayState.DIM, DisplayState.SCREENSAVER]:
+                self.state_manager.state = DisplayState.WAKING
+                self.__wake_oled()
+            elif callable(callback):
+                callback()
 
-        self.button_press_manager.wake_function = self.__wake_oled
-        self.button_press_manager.up_button_callback = (
-            self.menu_manager.set_page_to_previous
+        self.miniscreen.up_button.when_released = lambda: post_event(
+            AppEvents.UP_BUTTON_PRESS, callback_handler
         )
-        self.button_press_manager.down_button_callback = (
-            self.menu_manager.set_page_to_next
+        self.miniscreen.down_button.when_released = lambda: post_event(
+            AppEvents.DOWN_BUTTON_PRESS, callback_handler
         )
-        self.button_press_manager.select_button_callback = (
-            self.menu_manager.handle_select_btn
+        self.miniscreen.select_button.when_released = lambda: post_event(
+            AppEvents.SELECT_BUTTON_PRESS, callback_handler
         )
-        self.button_press_manager.cancel_button_callback = (
-            self.menu_manager.handle_cancel_btn
+        self.miniscreen.cancel_button.when_released = lambda: post_event(
+            AppEvents.CANCEL_BUTTON_PRESS, callback_handler
         )
 
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)

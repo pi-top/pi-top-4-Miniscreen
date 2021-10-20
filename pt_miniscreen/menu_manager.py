@@ -35,6 +35,23 @@ class MenuManager:
 
         self.setup_event_triggers()
 
+        subscribe(
+            AppEvents.UP_BUTTON_PRESS,
+            lambda callback_handler: callback_handler(self.set_page_to_previous),
+        )
+        subscribe(
+            AppEvents.DOWN_BUTTON_PRESS,
+            lambda callback_handler: callback_handler(self.set_page_to_next),
+        )
+        subscribe(
+            AppEvents.SELECT_BUTTON_PRESS,
+            lambda callback_handler: callback_handler(self.handle_select_btn),
+        )
+        subscribe(
+            AppEvents.CANCEL_BUTTON_PRESS,
+            lambda callback_handler: callback_handler(self.handle_cancel_btn),
+        )
+
     @property
     def active_menu(self):
         return self.menus[self.active_menu_id]

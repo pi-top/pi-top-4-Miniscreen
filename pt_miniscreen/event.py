@@ -15,6 +15,10 @@ class AppEvents(Enum):
     IS_CONNECTED_TO_INTERNET = auto()  # bool
     RESTARTING_WEB_PORTAL = auto()  # bool
     USER_SKIPPED_CONNECTION_GUIDE = auto()  # bool
+    SELECT_BUTTON_PRESS = auto()  # callable
+    CANCEL_BUTTON_PRESS = auto()  # callable
+    UP_BUTTON_PRESS = auto()  # callable
+    DOWN_BUTTON_PRESS = auto()  # callable
 
 
 subscribers: Dict[AppEvents, List] = dict()
