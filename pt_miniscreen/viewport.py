@@ -161,9 +161,6 @@ class ViewportManager:
         page_redraw_speed,
         overlay_render_func=None,
     ):
-        print(page_factory)
-        print([e.value for e in page_enum])
-
         self.pages = [
             page_factory.get_page(page_type)(
                 interval=page_redraw_speed,

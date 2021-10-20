@@ -33,10 +33,6 @@ class PageFactory:
         return PageFactory.pages[page_type]
 
 
-def get_viewport(miniscreen, page_redraw_speed):
-    return ViewportManager(
-        miniscreen,
-        PageFactory,
-        Page,
-        page_redraw_speed,
-    )
+class Viewport(ViewportManager):
+    def __init__(self, miniscreen, page_redraw_speed):
+        super().__init__(miniscreen, PageFactory, Page, page_redraw_speed)
