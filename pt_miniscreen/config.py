@@ -26,7 +26,11 @@ class PageConfig:
 
 @dataclass
 class ViewportConfig:
-    viewport_cls: Union[Type[hud.base.Viewport], Type[settings.base.Viewport]]
+    viewport_cls: Union[
+        Type[hud.base.Viewport],
+        Type[settings.base.Viewport],
+        Type[settings_connection.base.Viewport],
+    ]
     children: Dict[str, PageConfig] = field(default_factory=dict)
 
 
