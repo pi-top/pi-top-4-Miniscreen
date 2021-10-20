@@ -7,7 +7,7 @@ from .event import AppEvents, subscribe
 logger = logging.getLogger(__name__)
 
 
-class PageManager:
+class MenuManager:
     SCROLL_PX_RESOLUTION = 2
 
     def __init__(self, miniscreen, page_redraw_speed, scroll_speed, skip_speed):

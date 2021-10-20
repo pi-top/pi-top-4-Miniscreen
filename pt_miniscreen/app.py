@@ -4,7 +4,7 @@ from threading import Event, Thread
 from pitop import Pitop
 
 from .bootsplash import Bootsplash
-from .page_manager import PageManager
+from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import MenuState, MenuStateManager, Speeds
@@ -37,7 +37,7 @@ class App:
             False
         )
 
-        self.manager = PageManager(
+        self.menu_manager = MenuManager(
             self.miniscreen,
             page_redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
             scroll_speed=Speeds.SCROLL.value,
@@ -126,11 +126,11 @@ class App:
             self.__wake_oled()
 
             logger.debug("Updating scroll position...")
-            self.manager.update_scroll_position()
+            self.menu_manager.update_scroll_position()
             logger.debug("Displaying current viewport image...")
-            self.manager.display_current_viewport_image()
+            self.menu_manager.display_current_viewport_image()
             logger.debug("Waiting until timeout or until page has changed...")
-            self.manager.wait_until_timeout_or_page_has_changed()
+            self.menu_manager.wait_until_timeout_or_page_has_changed()
             logger.debug("Done waiting!")
 
     def _main(self):
