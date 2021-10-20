@@ -3,11 +3,11 @@ from __future__ import (
 )
 
 from dataclasses import dataclass, field
-from types import ModuleType
 from typing import Dict, List, Optional, Type
 
 from .menu_base import MenuBase
 from .pages import hud, settings, settings_connection  # , guide
+from .pages.base import PageBase
 
 
 @dataclass
@@ -20,7 +20,7 @@ class ActionConfig:
 
 @dataclass
 class PageConfig:
-    page: ModuleType
+    page_cls: Type[PageBase]
     children: Dict[str, MenuConfig] = field(default_factory=dict)
     action: Optional[ActionConfig] = None
 
@@ -39,12 +39,12 @@ menu_config = dict(
                 menu_cls=hud.Menu,
                 children=dict(
                     [
-                        ("battery", PageConfig(page=hud.battery)),
-                        ("cpu", PageConfig(page=hud.cpu)),
-                        ("wifi", PageConfig(page=hud.wifi)),
-                        ("ethernet", PageConfig(page=hud.ethernet)),
-                        ("ap", PageConfig(page=hud.ap)),
-                        ("usb", PageConfig(page=hud.usb)),
+                        ("battery", PageConfig(page_cls=hud.battery.Page)),
+                        ("cpu", PageConfig(page_cls=hud.cpu.Page)),
+                        ("wifi", PageConfig(page_cls=hud.wifi.Page)),
+                        ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
+                        ("ap", PageConfig(page_cls=hud.ap.Page)),
+                        ("usb", PageConfig(page_cls=hud.usb.Page)),
                     ]
                 ),
             ),
@@ -58,7 +58,7 @@ menu_config = dict(
                         (
                             "settings.connection",
                             PageConfig(
-                                page=settings.connection,
+                                page_cls=settings.connection.Page,
                                 children=dict(
                                     [
                                         (
@@ -70,7 +70,7 @@ menu_config = dict(
                                                         (
                                                             "settings.connection.ssh.page",
                                                             PageConfig(
-                                                                page=settings_connection.ssh,
+                                                                page_cls=settings_connection.ssh.Page,
                                                                 action=ActionConfig(
                                                                     type="systemd_service",
                                                                     icon="ssh",
@@ -85,7 +85,7 @@ menu_config = dict(
                                         #                 (
                                         #                     "settings.connection.vnc",
                                         #                     PageConfig(
-                                        #                         page=settings.vnc,
+                                        #                         page_cls=settings.vnc.Page,
                                         #                         action=ActionConfig(
                                         #                             type="systemd_service",
                                         #                             icon="vnc",
@@ -96,7 +96,7 @@ menu_config = dict(
                                         #                 (
                                         #                     "settings.connection.further_link",
                                         #                     PageConfig(
-                                        #                         page=settings.further_link,
+                                        #                         page_cls=settings.further_link.Page,
                                         #                         action=ActionConfig(
                                         #                             type="systemd_service",
                                         #                             icon="further_link",
@@ -107,7 +107,7 @@ menu_config = dict(
                                         #                 (
                                         #                     "settings.connection.further_link",
                                         #                     PageConfig(
-                                        #                         page=settings.further_link,
+                                        #                         page_cls=settings.further_link.Page,
                                         #                         action=ActionConfig(
                                         #                             type="systemd_service",
                                         #                             icon="further_link",
@@ -122,13 +122,13 @@ menu_config = dict(
                                         # (
                                         #     "settings.display",
                                         #     PageConfig(
-                                        #         page=settings.display,
+                                        #         page_cls=settings.display.Page,
                                         #         children=dict(
                                         #             [
                                         #                 (
                                         #                     "settings.display.hdmi_reset",
                                         #                     PageConfig(
-                                        #                         page=settings.ssh,
+                                        #                         page_cls=settings.ssh.Page,
                                         #                         action=ActionConfig(
                                         #                             type="commands",
                                         #                             icon="hdmi_reset",
