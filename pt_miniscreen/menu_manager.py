@@ -11,18 +11,13 @@ class MenuManager:
     SCROLL_PX_RESOLUTION = 2
 
     def __init__(self, miniscreen, page_redraw_speed, scroll_speed, skip_speed):
-        self._ms = miniscreen
+        self.size = miniscreen.size
 
         self.page_redraw_speed = page_redraw_speed
         self.scroll_speed = scroll_speed
         self.skip_speed = skip_speed
 
         self.is_skipping = False
-
-        # self._ms.up_button.when_released = self.set_page_to_previous
-        # self._ms.down_button.when_released = self.set_page_to_next
-        # self._ms.select_button.when_released = self.handle_select_btn
-        # self._ms.cancel_button.when_released = self.handle_cancel_btn
 
         def get_menu_cls(menu_cls_id):
             return menu_config[menu_cls_id].menu_cls
@@ -116,9 +111,6 @@ class MenuManager:
 
         self.page_has_changed.set()
 
-    def display_current_menu_image(self):
-        self._ms.device.display(self.active_menu.image)
-
     def wait_until_timeout_or_page_has_changed(self):
         if self.needs_to_scroll:
             if self.is_skipping:
@@ -137,7 +129,7 @@ class MenuManager:
             self.is_skipping = False
             return
 
-        correct_y_pos = self.active_menu.page_index * self._ms.size[1]
+        correct_y_pos = self.active_menu.page_index * self.size[1]
         move_down = correct_y_pos > self.active_menu.y_pos
 
         self.active_menu.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)
