@@ -3,7 +3,7 @@ from enum import Enum, auto
 import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ...viewport import ViewportManager
+from ...menu_base import MenuBase
 
 # from .ap import Page as ApPage
 # from .further_link import Page as FurtherLinkPage
@@ -40,7 +40,7 @@ class PageFactory:
         return PageFactory.pages[page_type]
 
 
-class Viewport(ViewportManager):
+class Menu(MenuBase):
     def __init__(self, miniscreen, page_redraw_speed):
         def overlay(miniscreen, image):
             title_overlay_h = 19

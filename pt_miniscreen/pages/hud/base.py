@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from ...viewport import ViewportManager
+from ...menu_base import MenuBase
 from .ap import Page as ApPage
 from .battery import Page as BatteryPage
 from .cpu import Page as CpuPage
@@ -33,6 +33,6 @@ class PageFactory:
         return PageFactory.pages[page_type]
 
 
-class Viewport(ViewportManager):
+class Menu(MenuBase):
     def __init__(self, miniscreen, page_redraw_speed):
         super().__init__(miniscreen, PageFactory, Page, page_redraw_speed)

@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from types import ModuleType
 from typing import Dict, List, Optional, Type
 
+from .menu_base import MenuBase
 from .pages import hud, settings, settings_connection  # , guide
-from .viewport import ViewportManager
 
 
 @dataclass
@@ -21,13 +21,13 @@ class ActionConfig:
 @dataclass
 class PageConfig:
     page: ModuleType
-    children: Dict[str, ViewportConfig] = field(default_factory=dict)
+    children: Dict[str, MenuConfig] = field(default_factory=dict)
     action: Optional[ActionConfig] = None
 
 
 @dataclass
-class ViewportConfig:
-    viewport_cls: Type[ViewportManager]
+class MenuConfig:
+    menu_cls: Type[MenuBase]
     children: Dict[str, PageConfig] = field(default_factory=dict)
 
 
@@ -35,8 +35,8 @@ menu_config = dict(
     [
         (
             "hud",
-            ViewportConfig(
-                viewport_cls=hud.Viewport,
+            MenuConfig(
+                menu_cls=hud.Menu,
                 children=dict(
                     [
                         ("battery", PageConfig(page=hud.battery)),
@@ -51,8 +51,8 @@ menu_config = dict(
         ),
         (
             "settings",
-            ViewportConfig(
-                viewport_cls=settings.Viewport,
+            MenuConfig(
+                menu_cls=settings.Menu,
                 children=dict(
                     [
                         (
@@ -63,8 +63,8 @@ menu_config = dict(
                                     [
                                         (
                                             "settings.connection.ssh",
-                                            ViewportConfig(
-                                                viewport_cls=settings_connection.Viewport,
+                                            MenuConfig(
+                                                menu_cls=settings_connection.Menu,
                                                 children=dict(
                                                     [
                                                         (

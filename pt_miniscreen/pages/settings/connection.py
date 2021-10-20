@@ -22,8 +22,8 @@ class Page(PageBase):
         assistant.render_text(
             image,
             text="Connection",
-            font_size=18,
-            xy=(45, 19),
+            font_size=14,
+            xy=(45, self.size[1] / 2),
             align="left",
             anchor="lm",
             wrap=False,

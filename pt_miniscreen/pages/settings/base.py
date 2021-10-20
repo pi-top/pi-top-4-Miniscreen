@@ -3,7 +3,7 @@ from enum import Enum, auto
 import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ...viewport import ViewportManager
+from ...menu_base import MenuBase
 from .connection import Page as ConnectionPage
 
 
@@ -21,25 +21,25 @@ class PageFactory:
         return PageFactory.pages[page_type]
 
 
-class Viewport(ViewportManager):
+class Menu(MenuBase):
     def __init__(self, miniscreen, page_redraw_speed):
-        def overlay(miniscreen, image):
+        def overlay(image):
             title_overlay_h = 19
 
             # Empty the top of the image
             PIL.ImageDraw.Draw(image).rectangle(
-                ((0, 0), (miniscreen.size[0], title_overlay_h)), fill=1
+                ((0, 0), (image.size[0], title_overlay_h)), fill=1
             )
 
             # 1px overlay separator
             PIL.ImageDraw.Draw(image).rectangle(
-                ((0, title_overlay_h), (miniscreen.size[0], title_overlay_h)), fill=0
+                ((0, title_overlay_h), (image.size[0], title_overlay_h)), fill=0
             )
 
-            asst = MiniscreenAssistant(miniscreen.mode, miniscreen.size)
+            asst = MiniscreenAssistant(image.mode, image.size)
             asst.render_text(
                 image,
-                xy=(miniscreen.size[0] / 2, miniscreen.size[1] / 6),
+                xy=(image.size[0] / 2, image.size[1] / 6),
                 text="M E N U",
                 wrap=False,
                 font=asst.get_mono_font_path(bold=True),
