@@ -4,25 +4,14 @@ import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...menu_base import MenuBase
-from .connection import Page as ConnectionPage
 
 
 class Page(Enum):
     CONNECTION = auto()
 
 
-class PageFactory:
-    pages = {
-        Page.CONNECTION: ConnectionPage,
-    }
-
-    @staticmethod
-    def get_page(page_type: Page):
-        return PageFactory.pages[page_type]
-
-
 class Menu(MenuBase):
-    def __init__(self, miniscreen, page_redraw_speed):
+    def __init__(self, size, mode, page_redraw_speed, children):
         def overlay(image):
             title_overlay_h = 19
 
@@ -47,9 +36,9 @@ class Menu(MenuBase):
             )
 
         super().__init__(
-            miniscreen,
-            PageFactory,
-            Page,
+            size,
+            mode,
             page_redraw_speed,
             overlay_render_func=overlay,
+            children=children,
         )

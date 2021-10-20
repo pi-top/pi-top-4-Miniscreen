@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Type
 
 from .menu_base import MenuBase
-from .pages import hud, settings  # settings_connection, guide
+from .pages import hud, settings, settings_connection  # , guide
 from .pages.base import PageBase
 
 
@@ -37,118 +37,118 @@ menu_config = dict(
             "hud",
             MenuConfig(
                 menu_cls=hud.Menu,
-                # children=dict(
-                #     [
-                #         ("battery", PageConfig(page_cls=hud.battery.Page)),
-                #         ("cpu", PageConfig(page_cls=hud.cpu.Page)),
-                #         ("wifi", PageConfig(page_cls=hud.wifi.Page)),
-                #         ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
-                #         ("ap", PageConfig(page_cls=hud.ap.Page)),
-                #         ("usb", PageConfig(page_cls=hud.usb.Page)),
-                #     ]
-                # ),
+                children=dict(
+                    [
+                        ("battery", PageConfig(page_cls=hud.battery.Page)),
+                        ("cpu", PageConfig(page_cls=hud.cpu.Page)),
+                        ("wifi", PageConfig(page_cls=hud.wifi.Page)),
+                        ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
+                        ("ap", PageConfig(page_cls=hud.ap.Page)),
+                        ("usb", PageConfig(page_cls=hud.usb.Page)),
+                    ]
+                ),
             ),
         ),
         (
             "settings",
             MenuConfig(
                 menu_cls=settings.Menu,
-                # children=dict(
-                #     [
-                #         (
-                #             "settings.connection",
-                #             PageConfig(
-                #                 page_cls=settings.connection.Page,
-                #                 children=dict(
-                #                     [
-                #                         (
-                #                             "settings.connection.ssh",
-                #                             MenuConfig(
-                #                                 menu_cls=settings_connection.Menu,
-                #                                 children=dict(
-                #                                     [
-                #                                         (
-                #                                             "settings.connection.ssh.page",
-                #                                             PageConfig(
-                #                                                 page_cls=settings_connection.ssh.Page,
-                #                                                 action=ActionConfig(
-                #                                                     type="systemd_service",
-                #                                                     icon="ssh",
-                #                                                     systemd_service="ssh",
-                #                                                 ),
-                #                                             ),
-                #                                         ),
-                #                                     ],
-                #                                 ),
-                #                             ),
-                #                         ),
-                #                         #                 (
-                #                         #                     "settings.connection.vnc",
-                #                         #                     PageConfig(
-                #                         #                         page_cls=settings.vnc.Page,
-                #                         #                         action=ActionConfig(
-                #                         #                             type="systemd_service",
-                #                         #                             icon="vnc",
-                #                         #                             systemd_service="vnc",
-                #                         #                         ),
-                #                         #                     ),
-                #                         #                 ),
-                #                         #                 (
-                #                         #                     "settings.connection.further_link",
-                #                         #                     PageConfig(
-                #                         #                         page_cls=settings.further_link.Page,
-                #                         #                         action=ActionConfig(
-                #                         #                             type="systemd_service",
-                #                         #                             icon="further_link",
-                #                         #                             systemd_service="further-link",
-                #                         #                         ),
-                #                         #                     ),
-                #                         #                 ),
-                #                         #                 (
-                #                         #                     "settings.connection.further_link",
-                #                         #                     PageConfig(
-                #                         #                         page_cls=settings.further_link.Page,
-                #                         #                         action=ActionConfig(
-                #                         #                             type="systemd_service",
-                #                         #                             icon="further_link",
-                #                         #                             systemd_service="further-link",
-                #                         #                         ),
-                #                         #                     ),
-                #                         #                 ),
-                #                         #             ]
-                #                         #         ),
-                #                         #     ),
-                #                         # ),
-                #                         # (
-                #                         #     "settings.display",
-                #                         #     PageConfig(
-                #                         #         page_cls=settings.display.Page,
-                #                         #         children=dict(
-                #                         #             [
-                #                         #                 (
-                #                         #                     "settings.display.hdmi_reset",
-                #                         #                     PageConfig(
-                #                         #                         page_cls=settings.ssh.Page,
-                #                         #                         action=ActionConfig(
-                #                         #                             type="commands",
-                #                         #                             icon="hdmi_reset",
-                #                         #                             commands=[
-                #                         #                                 # Close 'Screen Layout Editor'
-                #                         #                                 'DISPLAY=:0 wmctrl -c "Screen Layout Editor"',
-                #                         #                                 # Reset all HDMI outputs to lowest common resolution
-                #                         #                                 "DISPLAY=:0 autorandr -c common",
-                #                         #                                 # Reset DPMS - show display if they were blanked
-                #                         #                                 "DISPLAY=:0 xset dpms force on",
-                #                         #                             ],
-                #                         #                         ),
-                #                         #                     ),
-                #                         #                 )
-                #                     ]
-                #                 ),
-                #             ),
-                #         ),
-                #     ]
-                # ),
+                children=dict(
+                    [
+                        (
+                            "settings.connection",
+                            PageConfig(
+                                page_cls=settings.connection.Page,
+                                children=dict(
+                                    [
+                                        (
+                                            "settings.connection.ssh",
+                                            MenuConfig(
+                                                menu_cls=settings_connection.Menu,
+                                                children=dict(
+                                                    [
+                                                        (
+                                                            "settings.connection.ssh.page",
+                                                            PageConfig(
+                                                                page_cls=settings_connection.ssh.Page,
+                                                                action=ActionConfig(
+                                                                    type="systemd_service",
+                                                                    icon="ssh",
+                                                                    systemd_service="ssh",
+                                                                ),
+                                                            ),
+                                                        ),
+                                                    ],
+                                                ),
+                                            ),
+                                        ),
+                                        #                 (
+                                        #                     "settings.connection.vnc",
+                                        #                     PageConfig(
+                                        #                         page_cls=settings.vnc.Page,
+                                        #                         action=ActionConfig(
+                                        #                             type="systemd_service",
+                                        #                             icon="vnc",
+                                        #                             systemd_service="vnc",
+                                        #                         ),
+                                        #                     ),
+                                        #                 ),
+                                        #                 (
+                                        #                     "settings.connection.further_link",
+                                        #                     PageConfig(
+                                        #                         page_cls=settings.further_link.Page,
+                                        #                         action=ActionConfig(
+                                        #                             type="systemd_service",
+                                        #                             icon="further_link",
+                                        #                             systemd_service="further-link",
+                                        #                         ),
+                                        #                     ),
+                                        #                 ),
+                                        #                 (
+                                        #                     "settings.connection.further_link",
+                                        #                     PageConfig(
+                                        #                         page_cls=settings.further_link.Page,
+                                        #                         action=ActionConfig(
+                                        #                             type="systemd_service",
+                                        #                             icon="further_link",
+                                        #                             systemd_service="further-link",
+                                        #                         ),
+                                        #                     ),
+                                        #                 ),
+                                        #             ]
+                                        #         ),
+                                        #     ),
+                                        # ),
+                                        # (
+                                        #     "settings.display",
+                                        #     PageConfig(
+                                        #         page_cls=settings.display.Page,
+                                        #         children=dict(
+                                        #             [
+                                        #                 (
+                                        #                     "settings.display.hdmi_reset",
+                                        #                     PageConfig(
+                                        #                         page_cls=settings.ssh.Page,
+                                        #                         action=ActionConfig(
+                                        #                             type="commands",
+                                        #                             icon="hdmi_reset",
+                                        #                             commands=[
+                                        #                                 # Close 'Screen Layout Editor'
+                                        #                                 'DISPLAY=:0 wmctrl -c "Screen Layout Editor"',
+                                        #                                 # Reset all HDMI outputs to lowest common resolution
+                                        #                                 "DISPLAY=:0 autorandr -c common",
+                                        #                                 # Reset DPMS - show display if they were blanked
+                                        #                                 "DISPLAY=:0 xset dpms force on",
+                                        #                             ],
+                                        #                         ),
+                                        #                     ),
+                                        #                 )
+                                    ]
+                                ),
+                            ),
+                        ),
+                    ]
+                ),
             ),
         ),
     ]

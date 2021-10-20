@@ -3,10 +3,12 @@ from time import perf_counter
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ..state import Speeds
+
 
 # Based on luma.core hotspots/snapshots
 class PageBase:
-    def __init__(self, interval, size, mode):
+    def __init__(self, interval, size, mode, children):
         self.interval = interval
         self.size = size
         self.mode = mode
@@ -18,6 +20,15 @@ class PageBase:
         self.visible = True
         self.font_size = 14
         self.wrap = True
+
+        self.menus = {}
+        for name, config in children.items():
+            self.menus[name] = config.menu_cls(
+                size,
+                mode,
+                page_redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
+                children=config.children,
+            )
 
     def should_redraw(self):
         """Only requests a redraw after ``interval`` seconds have elapsed."""

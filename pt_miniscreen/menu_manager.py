@@ -19,16 +19,15 @@ class MenuManager:
 
         self.is_skipping = False
 
-        def get_menu_cls(menu_cls_id):
-            return menu_config[menu_cls_id].menu_cls
-
-        self.menus = {
-            "hud": get_menu_cls("hud")(miniscreen, page_redraw_speed),
-            "settings": get_menu_cls("settings")(
-                miniscreen,
+        self.menus = {}
+        for menu_name, config in menu_config.items():
+            logger.info(f"Loading menu {menu_name}")
+            self.menus[menu_name] = config.menu_cls(
+                miniscreen.size,
+                miniscreen.mode,
                 page_redraw_speed,
-            ),
-        }
+                children=config.children,
+            )
 
         self.active_menu_id = "hud"
         self.page_has_changed = Event()

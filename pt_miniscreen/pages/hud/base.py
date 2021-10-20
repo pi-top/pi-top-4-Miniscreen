@@ -1,12 +1,6 @@
 from enum import Enum, auto
 
 from ...menu_base import MenuBase
-from .ap import Page as ApPage
-from .battery import Page as BatteryPage
-from .cpu import Page as CpuPage
-from .ethernet import Page as EthernetPage
-from .usb import Page as UsbPage
-from .wifi import Page as WifiPage
 
 
 class Page(Enum):
@@ -18,21 +12,6 @@ class Page(Enum):
     USB = auto()
 
 
-class PageFactory:
-    pages = {
-        Page.BATTERY: BatteryPage,
-        Page.CPU: CpuPage,
-        Page.WIFI: WifiPage,
-        Page.ETHERNET: EthernetPage,
-        Page.AP: ApPage,
-        Page.USB: UsbPage,
-    }
-
-    @staticmethod
-    def get_page(page_type: Page):
-        return PageFactory.pages[page_type]
-
-
 class Menu(MenuBase):
-    def __init__(self, miniscreen, page_redraw_speed):
-        super().__init__(miniscreen, PageFactory, Page, page_redraw_speed)
+    def __init__(self, size, mode, page_redraw_speed, children):
+        super().__init__(size, mode, page_redraw_speed, children=children)

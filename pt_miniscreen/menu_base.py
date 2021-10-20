@@ -3,34 +3,31 @@ from .viewport import Viewport
 
 class MenuBase:
     def __init__(
-        self,
-        miniscreen,
-        page_factory,
-        page_enum,
-        page_redraw_speed,
-        overlay_render_func=None,
+        self, size, mode, page_redraw_speed, overlay_render_func=None, children={}
     ):
-        self.page_factory = page_factory
-        self.pages = [
-            page_factory.get_page(page_type)(
-                interval=page_redraw_speed,
-                size=miniscreen.size,
-                mode=miniscreen.mode,
+
+        self.pages = []
+        for name, config in children.items():
+            self.pages.append(
+                config.page_cls(
+                    interval=page_redraw_speed,
+                    size=size,
+                    mode=mode,
+                    children=config.children,
+                )
             )
-            for page_type in page_enum
-        ]
         self.page_index = 0
 
         self.viewport = Viewport(
-            display_size=(miniscreen.size[0], miniscreen.size[1] * len(self.pages)),
-            window_size=miniscreen.size,
-            mode=miniscreen.mode,
+            display_size=(size[0], size[1] * len(self.pages)),
+            window_size=size,
+            mode=mode,
         )
 
         self.overlay_render_func = overlay_render_func
 
         for i, page in enumerate(self.pages):
-            self.viewport.add_hotspot(page, (0, i * miniscreen.size[1]))
+            self.viewport.add_hotspot(page, (0, i * size[1]))
 
     @property
     def current_page(self):

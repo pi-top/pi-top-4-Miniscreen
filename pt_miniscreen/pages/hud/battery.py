@@ -8,8 +8,8 @@ from ..base import PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, children):
+        super().__init__(interval=interval, size=size, mode=mode, children=children)
         self.empty_battery_image = PIL.Image.open(
             get_image_file_path("sys_info/battery_shell_empty.png")
         )

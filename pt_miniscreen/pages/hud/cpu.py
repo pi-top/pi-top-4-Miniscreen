@@ -12,8 +12,8 @@ def vertical_bar(draw, x1, y1, x2, y2, yh):
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, children):
+        super().__init__(interval=interval, size=size, mode=mode, children=children)
         self.cpu_image = PIL.Image.open(get_image_file_path("sys_info/cpu.png"))
 
     def render(self, image):
