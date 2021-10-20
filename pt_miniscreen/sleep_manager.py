@@ -1,24 +1,24 @@
-from .state import MenuState
+from .state import DisplayState
 
 
 class SleepManager:
-    def __init__(self, state_manager, miniscreen):
-        self.state_manager = state_manager
+    def __init__(self, display_state_manager, miniscreen):
+        self.display_state_manager = display_state_manager
         self.miniscreen = miniscreen
 
     @property
     def is_sleeping(self):
-        return self.state_manager.state not in [
-            MenuState.ACTIVE,
-            MenuState.RUNNING_ACTION,
+        return self.display_state_manager.state not in [
+            DisplayState.ACTIVE,
+            DisplayState.RUNNING_ACTION,
         ]
 
     def sleep(self):
         self.miniscreen.contrast(0)
-        self.state_manager.state = MenuState.DIM
+        self.display_state_manager.state = DisplayState.DIM
 
     def wake(self):
         self.miniscreen.contrast(255)
 
-        self.state_manager.user_activity_timer.reset()
-        self.state_manager.state = MenuState.WAKING
+        self.display_state_manager.user_activity_timer.reset()
+        self.display_state_manager.state = DisplayState.WAKING

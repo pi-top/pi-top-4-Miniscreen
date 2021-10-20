@@ -4,20 +4,23 @@ from threading import Event, Thread
 from pitop import Pitop
 
 from .bootsplash import Bootsplash
+from .button_press_manager import ButtonPressManager
 from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
-from .state import MenuState, MenuStateManager, Speeds
+from .state import DisplayState, DisplayStateManager, Speeds
 
 logger = logging.getLogger(__name__)
 
 
 class App:
     TIMEOUTS = {
-        MenuState.DIM: 20,
-        MenuState.SCREENSAVER: 60,
-        MenuState.WAKING: 0.6,
-        MenuState.RUNNING_ACTION: 30,
+        # DisplayState.DIM: 20,
+        # DisplayState.SCREENSAVER: 60,
+        DisplayState.DIM: 2,
+        DisplayState.SCREENSAVER: 5,
+        DisplayState.WAKING: 0.6,
+        DisplayState.RUNNING_ACTION: 30,
     }
 
     def __init__(self):
@@ -37,6 +40,8 @@ class App:
             False
         )
 
+        self.splash = Bootsplash(self.miniscreen)
+
         self.menu_manager = MenuManager(
             self.miniscreen,
             page_redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
@@ -44,10 +49,11 @@ class App:
             skip_speed=Speeds.SKIP.value,
         )
 
-        self.splash = Bootsplash(self.miniscreen)
         self.screensaver = StarfieldScreensaver(self.miniscreen)
 
-        self.state_manager = MenuStateManager()
+        self.state_manager = DisplayStateManager()
+        self.button_press_manager = ButtonPressManager(self.state_manager)
+
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
 
     def start(self):
@@ -83,16 +89,16 @@ class App:
             logger.debug("Action not yet completed")
             return
 
-        if time_since_action_started > self.TIMEOUTS[MenuState.RUNNING_ACTION]:
+        if time_since_action_started > self.TIMEOUTS[DisplayState.RUNNING_ACTION]:
             logger.info("Action timed out - setting state to WAKING")
-            self.state_manager.state = MenuState.WAKING
+            self.state_manager.state = DisplayState.WAKING
 
             logger.info("Notifying renderer to display 'unknown' action state")
             self.current_menu.page.set_unknown_state()
             return
 
         logger.info("Action completed - setting state to WAKING")
-        self.state_manager.state = MenuState.WAKING
+        self.state_manager.state = DisplayState.WAKING
         logger.info("Resetting state of hotspot to re-renderer current state")
         self.current_menu.page.hotspot.reset()
 
@@ -103,24 +109,24 @@ class App:
     def handle_active_time(self):
         logger.debug("Checking for state change based on inactive time...")
 
-        if self.state_manager.state == MenuState.WAKING:
-            if self.time_since_last_active < self.TIMEOUTS[MenuState.WAKING]:
+        if self.state_manager.state == DisplayState.WAKING:
+            if self.time_since_last_active < self.TIMEOUTS[DisplayState.WAKING]:
                 return
 
-            self.state_manager.state = MenuState.ACTIVE
+            self.state_manager.state = DisplayState.ACTIVE
 
-        if self.time_since_last_active < self.TIMEOUTS[MenuState.DIM]:
+        if self.time_since_last_active < self.TIMEOUTS[DisplayState.DIM]:
             return
 
-        if self.state_manager.state == MenuState.ACTIVE:
+        if self.state_manager.state == DisplayState.ACTIVE:
             logger.info("Going to sleep...")
             self.__sleep_oled()
             return
 
     def do_display_frame(self):
         if self.state_manager.state in [
-            MenuState.ACTIVE,
-            MenuState.RUNNING_ACTION,
+            DisplayState.ACTIVE,
+            DisplayState.RUNNING_ACTION,
         ]:
             logger.debug("Waking OLED...")
             self.__wake_oled()
@@ -149,20 +155,20 @@ class App:
 
             self.do_display_frame()
 
-            if self.state_manager.state == MenuState.RUNNING_ACTION:
+            if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()
                 continue
 
             self.handle_active_time()
 
-            if self.time_since_last_active < self.TIMEOUTS[MenuState.SCREENSAVER]:
+            if self.time_since_last_active < self.TIMEOUTS[DisplayState.SCREENSAVER]:
                 continue
 
-            if self.state_manager.state == MenuState.DIM:
+            if self.state_manager.state == DisplayState.DIM:
                 logger.info("Starting screensaver...")
-                self.state_manager.state = MenuState.SCREENSAVER
+                self.state_manager.state = DisplayState.SCREENSAVER
 
-            if self.state_manager.state == MenuState.SCREENSAVER:
+            if self.state_manager.state == DisplayState.SCREENSAVER:
                 self.show_screensaver_frame()
 
     def show_screensaver_frame(self):
@@ -190,7 +196,7 @@ class App:
 
     def start_current_menu_action(self):
         logger.debug("Setting state to RUNNING_ACTION")
-        self.state = MenuState.RUNNING_ACTION
+        self.state = DisplayState.RUNNING_ACTION
 
         logger.debug("Taking note of current time for start of action")
         self.state_manager.action_timer.reset()

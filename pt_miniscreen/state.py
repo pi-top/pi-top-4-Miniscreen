@@ -14,7 +14,7 @@ class ActivityTimer:
         return perf_counter() - self.last_active_time
 
 
-class MenuState(Enum):
+class DisplayState(Enum):
     ACTIVE = 1
     DIM = 2
     SCREENSAVER = 3
@@ -28,8 +28,8 @@ class Speeds(Enum):
     SKIP = 0.001
 
 
-class MenuStateManager:
+class DisplayStateManager:
     def __init__(self):
         self.user_activity_timer = ActivityTimer()
         self.action_timer = ActivityTimer()
-        self.state = MenuState.ACTIVE
+        self.state = DisplayState.ACTIVE
