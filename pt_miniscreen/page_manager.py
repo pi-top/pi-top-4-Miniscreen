@@ -19,8 +19,8 @@ class PageManager:
 
         self.is_skipping = False
 
-        self._ms.up_button.when_released = self.set_page_to_previous_page
-        self._ms.down_button.when_released = self.set_page_to_next_page
+        self._ms.up_button.when_released = self.set_page_to_previous
+        self._ms.down_button.when_released = self.set_page_to_next
         self._ms.select_button.when_released = self.handle_select_btn
         self._ms.cancel_button.when_released = self.handle_cancel_btn
 
@@ -67,7 +67,7 @@ class PageManager:
 
     def handle_select_btn(self):
         if self.active_viewport_id == "hud":
-            self.set_page_to_next_page()
+            self.set_page_to_next()
         else:
             self.active_viewport.current_page.on_select_press()
 
@@ -96,50 +96,29 @@ class PageManager:
 
         return y_pos != correct_y_pos
 
-    def set_page_to(self, page):
+    def set_page_to_previous(self):
         if self.needs_to_scroll:
             return
 
-        factory = self.active_viewport_cls.PageFactory
-
-        new_page = list(factory.pages.keys())[
-            list(factory.pages.values()).index(type(page))
-        ]
-
-        new_page_index = new_page.value - 1
-        if self.active_viewport.page_index == new_page_index:
-            logger.debug(
-                f"Miniscreen onboarding: Already on page '{new_page.name}' - nothing to do"
-            )
-            return
-
+        previous_index = self.active_viewport.page_index
+        self.active_viewport.set_page_to_previous()
         logger.debug(
-            f"Page index: {self.active_viewport.page_index} -> {new_page_index}"
+            f"Page index: {previous_index} -> {self.active_viewport.page_index}"
         )
-        self.active_viewport.page_index = new_page_index
+
         self.page_has_changed.set()
 
-    def set_page_to_previous_page(self):
-        self.set_page_to(self.get_previous_page())
+    def set_page_to_next(self):
+        if self.needs_to_scroll:
+            return
 
-    def set_page_to_next_page(self):
-        self.set_page_to(self.get_next_page())
+        previous_index = self.active_viewport.page_index
+        self.active_viewport.set_page_to_next()
+        logger.debug(
+            f"Page index: {previous_index} -> {self.active_viewport.page_index}"
+        )
 
-    def get_previous_page(self):
-        # Return next page if at top
-        if self.active_viewport.page_index == 0:
-            return self.get_next_page()
-
-        candidate = self.get_page(self.active_viewport.page_index - 1)
-        return candidate if candidate.visible else self.page
-
-    def get_next_page(self):
-        # Return current page if at end
-        if self.active_viewport.page_index + 1 >= len(self.active_viewport.pages):
-            return self.page
-
-        candidate = self.get_page(self.active_viewport.page_index + 1)
-        return candidate if candidate.visible else self.page
+        self.page_has_changed.set()
 
     def display_current_viewport_image(self):
         self._ms.device.display(self.active_viewport.image)

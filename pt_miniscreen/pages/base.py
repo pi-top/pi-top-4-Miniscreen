@@ -34,3 +34,6 @@ class PageBase:
 
     def render(self, image):
         raise NotImplementedError
+
+    def on_select_press(self):
+        pass

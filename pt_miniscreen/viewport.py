@@ -161,6 +161,7 @@ class ViewportManager:
         page_redraw_speed,
         overlay_render_func=None,
     ):
+        self.page_factory = page_factory
         self.pages = [
             page_factory.get_page(page_type)(
                 interval=page_redraw_speed,
@@ -206,3 +207,30 @@ class ViewportManager:
             self.overlay_render_func(im)
 
         return im
+
+    def set_page_index_to(self, page_index):
+        self.page_index = page_index
+
+    def set_page_to_previous(self):
+        self.set_page_index_to(self.get_previous_page_index())
+
+    def set_page_to_next(self):
+        self.set_page_index_to(self.get_next_page_index())
+
+    def get_previous_page_index1(self):
+        # Return next page if at top
+        if self.page_index == 0:
+            return self.get_next_page_index()
+
+        idx = self.page_index - 1
+        candidate = self.pages[idx]
+        return idx if candidate.visible else self.page_index
+
+    def get_next_page_index(self):
+        # Return current page if at end
+        if self.page_index + 1 >= len(self.pages):
+            return self.page
+
+        idx = self.page_index + 1
+        candidate = self.pages[idx]
+        return idx if candidate.visible else self.page_index

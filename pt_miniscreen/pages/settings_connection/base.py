@@ -4,17 +4,36 @@ import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...viewport import ViewportManager
-from .connection import Page as ConnectionPage
+
+# from .ap import Page as ApPage
+# from .further_link import Page as FurtherLinkPage
+# from .hdmi_reset import Page as HdmiResetPage
+from .ssh import Page as SshPage
+
+# Not yet implemented
+
+# from .vnc import Page as VncPage
 
 
 class Page(Enum):
-    CONNECTION = auto()
+    SSH = auto()
+    # VNC = auto()
+    # FURTHER_LINK = auto()
+    # AP = auto()
+    # HDMI_RESET = auto()
 
 
 class PageFactory:
     pages = {
-        Page.CONNECTION: ConnectionPage,
+        Page.SSH: SshPage,
     }
+    # pages = {
+    #     Page.SSH: SshPage,
+    #     Page.VNC: VncPage,
+    #     Page.FURTHER_LINK: FurtherLinkPage,
+    #     Page.AP: ApPage,
+    #     Page.HDMI_RESET: HdmiResetPage,
+    # }
 
     @staticmethod
     def get_page(page_type: Page):

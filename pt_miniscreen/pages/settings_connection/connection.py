@@ -21,7 +21,7 @@ class Page(PageBase):
         assistant = MiniscreenAssistant(self.mode, self.size)
         assistant.render_text(
             image,
-            text="SSH",
+            text="Connection",
             font_size=18,
             xy=(45, 19),
             align="left",

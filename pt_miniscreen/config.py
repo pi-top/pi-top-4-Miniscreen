@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from types import ModuleType
 from typing import Dict, List, Optional, Type, Union
 
-from .pages import hud, settings  # , guide
+from .pages import hud, settings, settings_connection  # , guide
 
 
 @dataclass
@@ -20,7 +20,7 @@ class ActionConfig:
 @dataclass
 class PageConfig:
     page: ModuleType
-    children: Dict[str, PageConfig] = field(default_factory=dict)
+    children: Dict[str, ViewportConfig] = field(default_factory=dict)
     action: Optional[ActionConfig] = None
 
 
@@ -62,12 +62,22 @@ menu_config = dict(
                                     [
                                         (
                                             "settings.connection.ssh",
-                                            PageConfig(
-                                                page=settings.ssh,
-                                                action=ActionConfig(
-                                                    type="systemd_service",
-                                                    icon="ssh",
-                                                    systemd_service="ssh",
+                                            ViewportConfig(
+                                                viewport_cls=settings_connection.Viewport,
+                                                children=dict(
+                                                    [
+                                                        (
+                                                            "settings.connection.ssh.page",
+                                                            PageConfig(
+                                                                page=settings_connection.ssh,
+                                                                action=ActionConfig(
+                                                                    type="systemd_service",
+                                                                    icon="ssh",
+                                                                    systemd_service="ssh",
+                                                                ),
+                                                            ),
+                                                        ),
+                                                    ],
                                                 ),
                                             ),
                                         ),
