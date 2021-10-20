@@ -4,9 +4,10 @@ from __future__ import (
 
 from dataclasses import dataclass, field
 from types import ModuleType
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Type
 
 from .pages import hud, settings, settings_connection  # , guide
+from .viewport import ViewportManager
 
 
 @dataclass
@@ -26,11 +27,7 @@ class PageConfig:
 
 @dataclass
 class ViewportConfig:
-    viewport_cls: Union[
-        Type[hud.base.Viewport],
-        Type[settings.base.Viewport],
-        Type[settings_connection.base.Viewport],
-    ]
+    viewport_cls: Type[ViewportManager]
     children: Dict[str, PageConfig] = field(default_factory=dict)
 
 
