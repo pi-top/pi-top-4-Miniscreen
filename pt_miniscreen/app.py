@@ -54,6 +54,33 @@ class App:
         self.state_manager = DisplayStateManager()
         self.button_press_manager = ButtonPressManager(self.state_manager)
 
+        self.miniscreen.up_button.when_released = (
+            self.button_press_manager.handle_up_button_press
+        )
+        self.miniscreen.down_button.when_released = (
+            self.button_press_manager.handle_down_button_press
+        )
+        self.miniscreen.select_button.when_released = (
+            self.button_press_manager.handle_select_button_press
+        )
+        self.miniscreen.cancel_button.when_released = (
+            self.button_press_manager.handle_cancel_button_press
+        )
+
+        self.button_press_manager.wake_callback = self.handle_action
+        self.button_press_manager.up_button_callback = (
+            self.menu_manager.set_page_to_previous
+        )
+        self.button_press_manager.down_button_callback = (
+            self.menu_manager.set_page_to_next
+        )
+        self.button_press_manager.select_button_callback = (
+            self.menu_manager.handle_select_btn
+        )
+        self.button_press_manager.cancel_button_callback = (
+            self.menu_manager.handle_cancel_btn
+        )
+
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
 
     def start(self):
@@ -152,7 +179,6 @@ class App:
                 self.reset()
 
             logger.debug(f"Current state: {self.state_manager.state}")
-
             self.do_display_frame()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:

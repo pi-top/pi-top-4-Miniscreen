@@ -19,10 +19,10 @@ class MenuManager:
 
         self.is_skipping = False
 
-        self._ms.up_button.when_released = self.set_page_to_previous
-        self._ms.down_button.when_released = self.set_page_to_next
-        self._ms.select_button.when_released = self.handle_select_btn
-        self._ms.cancel_button.when_released = self.handle_cancel_btn
+        # self._ms.up_button.when_released = self.set_page_to_previous
+        # self._ms.down_button.when_released = self.set_page_to_next
+        # self._ms.select_button.when_released = self.handle_select_btn
+        # self._ms.cancel_button.when_released = self.handle_cancel_btn
 
         def get_menu_cls(menu_cls_id):
             return menu_config[menu_cls_id].menu_cls
