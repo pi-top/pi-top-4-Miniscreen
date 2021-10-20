@@ -14,7 +14,7 @@ class Page(PageBase):
     def render(self, image):
         PIL.ImageDraw.Draw(image).bitmap(
             xy=(0, 0),
-            bitmap=self.title_image,
+            bitmap=self.title_image.convert(self.mode),
             fill="white",
         )
 
