@@ -55,19 +55,19 @@ class App:
         self.button_press_manager = ButtonPressManager(self.state_manager)
 
         self.miniscreen.up_button.when_released = (
-            self.button_press_manager.handle_up_button_press
+            self.button_press_manager.on_up_button_press
         )
         self.miniscreen.down_button.when_released = (
-            self.button_press_manager.handle_down_button_press
+            self.button_press_manager.on_down_button_press
         )
         self.miniscreen.select_button.when_released = (
-            self.button_press_manager.handle_select_button_press
+            self.button_press_manager.on_select_button_press
         )
         self.miniscreen.cancel_button.when_released = (
-            self.button_press_manager.handle_cancel_button_press
+            self.button_press_manager.on_cancel_button_press
         )
 
-        self.button_press_manager.wake_callback = self.handle_action
+        self.button_press_manager.wake_function = self.__wake_oled
         self.button_press_manager.up_button_callback = (
             self.menu_manager.set_page_to_previous
         )
@@ -112,7 +112,7 @@ class App:
 
         logger.debug(f"Time since action started: {time_since_action_started}")
 
-        if self.current_menu.page.action_process.is_alive():
+        if self.menu_manager.active_menu.current_page.action_process.is_alive():
             logger.debug("Action not yet completed")
             return
 
@@ -121,13 +121,14 @@ class App:
             self.state_manager.state = DisplayState.WAKING
 
             logger.info("Notifying renderer to display 'unknown' action state")
-            self.current_menu.page.set_unknown_state()
+            self.menu_manager.active_menu.current_page.set_unknown_state()
             return
 
         logger.info("Action completed - setting state to WAKING")
         self.state_manager.state = DisplayState.WAKING
         logger.info("Resetting state of hotspot to re-renderer current state")
-        self.current_menu.page.hotspot.reset()
+
+        self.menu_manager.active_menu.current_page.hotspot.reset()
 
     @property
     def time_since_last_active(self):
@@ -230,7 +231,7 @@ class App:
         # If page is a settings page with an action state,
         # tell the renderer to display 'in progress'
         logger.info("Notifying renderer to display 'in progress' action state")
-        self.current_menu.page.hotspot.set_as_processing()
+        self.menu_manager.active_menu.current_page.hotspot.set_as_processing()
 
     def redraw_last_image_to_display(self):
         if self.last_shown_image is not None:
