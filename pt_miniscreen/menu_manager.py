@@ -29,7 +29,7 @@ class MenuManager:
                 children=config.children,
             )
 
-        self.active_menu_id = "hud"
+        self.current_menu_id = "hud"
         self.page_has_changed = Event()
 
         self.setup_event_triggers()
@@ -52,15 +52,15 @@ class MenuManager:
         )
 
     @property
-    def active_menu(self):
-        return self.menus[self.active_menu_id]
+    def current_menu(self):
+        return self.menus[self.current_menu_id]
 
     def setup_event_triggers(self):
         def soft_transition_to_last_page(_):
-            if self.active_menu_id != "hud":
+            if self.current_menu_id != "hud":
                 return
 
-            last_page_index = len(self.active_menu.pages) - 1
+            last_page_index = len(self.current_menu.pages) - 1
             # Only do automatic update if on previous page
             if self.menus["hud"].page_index == last_page_index - 1:
                 self.menus["hud"].page_index = last_page_index
@@ -68,8 +68,8 @@ class MenuManager:
         subscribe(AppEvents.READY_TO_BE_A_MAKER, soft_transition_to_last_page)
 
         def hard_transition_to_connect_page(_):
-            self.active_menu_id = "hud"
-            self.active_menu.page_index = len(self.active_menu.pages) - 2
+            self.current_menu_id = "hud"
+            self.current_menu.page_index = len(self.current_menu.pages) - 2
             self.is_skipping = True
 
         subscribe(
@@ -77,33 +77,33 @@ class MenuManager:
         )
 
     def handle_select_btn(self):
-        if self.active_menu_id == "hud":
+        if self.current_menu_id == "hud":
             self.set_page_to_next()
         else:
-            self.active_menu.current_page.on_select_press()
+            self.current_menu.current_page.on_select_press()
 
         self.page_has_changed.set()
 
     def handle_cancel_btn(self):
-        if self.active_menu_id == "hud":
-            self.active_menu_id = "settings"
-            self.active_menu.move_to_page(0)
+        if self.current_menu_id == "hud":
+            self.current_menu_id = "settings"
+            self.current_menu.move_to_page(0)
         else:
-            self.active_menu_id = "hud"
+            self.current_menu_id = "hud"
 
         self.page_has_changed.set()
 
     def get_page(self, index):
-        return self.active_menu.pages[index]
+        return self.current_menu.pages[index]
 
     @property
     def page(self):
-        return self.get_page(self.active_menu.page_index)
+        return self.get_page(self.current_menu.page_index)
 
     @property
     def needs_to_scroll(self):
-        y_pos = self.active_menu.y_pos
-        correct_y_pos = self.active_menu.page_index * self.page.height
+        y_pos = self.current_menu.y_pos
+        correct_y_pos = self.current_menu.page_index * self.page.height
 
         return y_pos != correct_y_pos
 
@@ -111,9 +111,9 @@ class MenuManager:
         if self.needs_to_scroll:
             return
 
-        previous_index = self.active_menu.page_index
-        self.active_menu.set_page_to_previous()
-        logger.debug(f"Page index: {previous_index} -> {self.active_menu.page_index}")
+        previous_index = self.current_menu.page_index
+        self.current_menu.set_page_to_previous()
+        logger.debug(f"Page index: {previous_index} -> {self.current_menu.page_index}")
 
         self.page_has_changed.set()
 
@@ -121,9 +121,9 @@ class MenuManager:
         if self.needs_to_scroll:
             return
 
-        previous_index = self.active_menu.page_index
-        self.active_menu.set_page_to_next()
-        logger.debug(f"Page index: {previous_index} -> {self.active_menu.page_index}")
+        previous_index = self.current_menu.page_index
+        self.current_menu.set_page_to_next()
+        logger.debug(f"Page index: {previous_index} -> {self.current_menu.page_index}")
 
         self.page_has_changed.set()
 
@@ -145,7 +145,7 @@ class MenuManager:
             self.is_skipping = False
             return
 
-        correct_y_pos = self.active_menu.page_index * self.size[1]
-        move_down = correct_y_pos > self.active_menu.y_pos
+        correct_y_pos = self.current_menu.page_index * self.size[1]
+        move_down = correct_y_pos > self.current_menu.y_pos
 
-        self.active_menu.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)
+        self.current_menu.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)

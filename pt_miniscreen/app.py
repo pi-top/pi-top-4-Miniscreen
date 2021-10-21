@@ -110,7 +110,7 @@ class App:
 
         logger.debug(f"Time since action started: {time_since_action_started}")
 
-        if self.menu_manager.active_menu.current_page.action_process.is_alive():
+        if self.menu_manager.current_menu.current_page.action_process.is_alive():
             logger.debug("Action not yet completed")
             return
 
@@ -119,14 +119,14 @@ class App:
             self.state_manager.state = DisplayState.WAKING
 
             logger.info("Notifying renderer to display 'unknown' action state")
-            self.menu_manager.active_menu.current_page.set_unknown_state()
+            self.menu_manager.current_menu.current_page.set_unknown_state()
             return
 
         logger.info("Action completed - setting state to WAKING")
         self.state_manager.state = DisplayState.WAKING
         logger.info("Resetting state of hotspot to re-renderer current state")
 
-        self.menu_manager.active_menu.current_page.hotspot.reset()
+        self.menu_manager.current_menu.current_page.hotspot.reset()
 
     @property
     def time_since_last_active(self):
@@ -149,11 +149,11 @@ class App:
             self.sleep_manager.sleep()
             return
 
-    def display_active_menu_image(self):
+    def display_current_menu_image(self):
         logger.debug("Updating scroll position...")
         self.menu_manager.update_scroll_position()
         logger.debug("Displaying current viewport image...")
-        self.display(self.menu_manager.active_menu.image)
+        self.display(self.menu_manager.current_menu.image)
         logger.debug("Waiting until timeout or until page has changed...")
         self.menu_manager.wait_until_timeout_or_page_has_changed()
         logger.debug("Done waiting!")
@@ -176,7 +176,7 @@ class App:
                 DisplayState.RUNNING_ACTION,
                 DisplayState.WAKING,
             ]:
-                self.display_active_menu_image()
+                self.display_current_menu_image()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()
@@ -219,12 +219,7 @@ class App:
         # If page is a settings page with an action state,
         # tell the renderer to display 'in progress'
         logger.info("Notifying renderer to display 'in progress' action state")
-        self.menu_manager.active_menu.current_page.hotspot.set_as_processing()
-
-    def redraw_last_image_to_display(self):
-        # Useful when display has been taken by user
-        if self.last_shown_image is not None:
-            self.display(self.last_shown_image)
+        self.menu_manager.current_menu.current_page.hotspot.set_as_processing()
 
     def display(self, image, wake=True):
         if wake:
@@ -236,5 +231,6 @@ class App:
         logger.info("Forcing full state refresh...")
         self.sleep_manager.wake()
         self.miniscreen.reset()
-        self.redraw_last_image_to_display()
+        if self.last_shown_image is not None:
+            self.display(self.last_shown_image)
         logger.info("OLED control restored")
