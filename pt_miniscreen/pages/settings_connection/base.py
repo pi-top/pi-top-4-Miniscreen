@@ -16,7 +16,7 @@ class Page(Enum):
 
 class Menu(MenuBase):
     def __init__(self, size, mode, redraw_speed, config):
-        def overlay(size, mode, image):
+        def overlay(image):
             title_overlay_h = 19
 
             # Empty the top of the image

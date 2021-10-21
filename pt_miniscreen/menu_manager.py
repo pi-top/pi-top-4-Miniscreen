@@ -1,7 +1,7 @@
 import logging
 from threading import Event
 
-from .config import menu_config
+from .config import menu_app_config
 from .config_factory import ConfigFactory
 from .event import AppEvents, subscribe
 
@@ -22,7 +22,7 @@ class MenuManager:
 
         menu_factory = ConfigFactory(miniscreen.size, miniscreen.mode, redraw_speed)
         self.menus = {}
-        for menu_name, config in menu_config.items():
+        for menu_name, config in menu_app_config.children.items():
             self.menus[menu_name] = menu_factory.get(config)
 
         self.current_menu_id = "hud"
@@ -44,6 +44,12 @@ class MenuManager:
             AppEvents.CANCEL_BUTTON_PRESS,
             lambda callback_handler: callback_handler(self.handle_cancel_btn),
         )
+
+        def set_menu(new_menu):
+            self.menus = new_menu
+            self.current_menu_id = list(new_menu.keys())[0]
+
+        subscribe(AppEvents.MENU_CHANGE, set_menu)
 
     @property
     def current_menu(self):
