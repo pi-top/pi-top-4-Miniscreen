@@ -28,8 +28,6 @@ class MenuManager:
         self.current_menu_id = "hud"
         self.page_has_changed = Event()
 
-        self.setup_event_triggers()
-
         subscribe(
             AppEvents.UP_BUTTON_PRESS,
             lambda callback_handler: callback_handler(self.set_page_to_previous),
@@ -51,43 +49,21 @@ class MenuManager:
     def current_menu(self):
         return self.menus[self.current_menu_id]
 
-    def setup_event_triggers(self):
-        def soft_transition_to_last_page(_):
-            if self.current_menu_id != "hud":
-                return
+    def go_to_next_menu(self):
+        keys = list(self.menus.keys())
+        current_index = keys.index(self.current_menu_id)
+        next_index = 0 if current_index + 1 >= len(self.menus) else current_index + 1
+        self.current_menu_id = keys[next_index]
 
-            last_page_index = len(self.current_menu.pages) - 1
-            # Only do automatic update if on previous page
-            if self.menus["hud"].page_index == last_page_index - 1:
-                self.menus["hud"].page_index = last_page_index
-
-        subscribe(AppEvents.READY_TO_BE_A_MAKER, soft_transition_to_last_page)
-
-        def hard_transition_to_connect_page(_):
-            self.current_menu_id = "hud"
-            self.current_menu.page_index = len(self.current_menu.pages) - 2
-            self.is_skipping = True
-
-        subscribe(
-            AppEvents.USER_SKIPPED_CONNECTION_GUIDE, hard_transition_to_connect_page
-        )
+        if self.current_menu.go_to_first:
+            self.current_menu.move_to_page(0)
+        self.page_has_changed.set()
 
     def handle_select_btn(self):
-        if self.current_menu_id == "hud":
-            self.set_page_to_next()
-        else:
-            self.current_menu.current_page.on_select_press()
-
-        self.page_has_changed.set()
+        self.current_menu.current_page.on_select_press()
 
     def handle_cancel_btn(self):
-        if self.current_menu_id == "hud":
-            self.current_menu_id = "settings"
-            self.current_menu.move_to_page(0)
-        else:
-            self.current_menu_id = "hud"
-
-        self.page_has_changed.set()
+        self.go_to_next_menu()
 
     def get_page(self, index):
         return self.current_menu.pages[index]
