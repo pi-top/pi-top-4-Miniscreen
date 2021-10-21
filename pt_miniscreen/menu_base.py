@@ -2,15 +2,13 @@ from .viewport import Viewport
 
 
 class MenuBase:
-    def __init__(
-        self, size, mode, page_redraw_speed, overlay_render_func=None, children={}
-    ):
+    def __init__(self, size, mode, redraw_speed, overlay_render_func=None, children={}):
 
         self.pages = []
         for name, config in children.items():
             self.pages.append(
                 config.page_cls(
-                    interval=page_redraw_speed,
+                    interval=redraw_speed,
                     size=size,
                     mode=mode,
                     children=config.children,

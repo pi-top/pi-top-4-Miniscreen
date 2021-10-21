@@ -10,10 +10,10 @@ logger = logging.getLogger(__name__)
 class MenuManager:
     SCROLL_PX_RESOLUTION = 2
 
-    def __init__(self, miniscreen, page_redraw_speed, scroll_speed, skip_speed):
+    def __init__(self, miniscreen, redraw_speed, scroll_speed, skip_speed):
         self.size = miniscreen.size
 
-        self.page_redraw_speed = page_redraw_speed
+        self.redraw_speed = redraw_speed
         self.scroll_speed = scroll_speed
         self.skip_speed = skip_speed
 
@@ -25,7 +25,7 @@ class MenuManager:
             self.menus[menu_name] = config.menu_cls(
                 miniscreen.size,
                 miniscreen.mode,
-                page_redraw_speed,
+                redraw_speed,
                 children=config.children,
             )
 
@@ -134,7 +134,7 @@ class MenuManager:
             else:
                 interval = self.scroll_speed
         else:
-            interval = self.page_redraw_speed
+            interval = self.redraw_speed
 
         self.page_has_changed.wait(interval)
         if self.page_has_changed.is_set():

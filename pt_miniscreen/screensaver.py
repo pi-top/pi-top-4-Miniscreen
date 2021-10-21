@@ -16,9 +16,9 @@ class StarfieldScreensaver:
     SCREENSAVER_MAX_NO_OF_STARS = 512
     Z_MOVE = 0.19
 
-    def __init__(self, miniscreen):
-        self.mode = miniscreen.mode
-        self.size = miniscreen.size
+    def __init__(self, mode, size):
+        self.mode = mode
+        self.size = size
 
         self.screensaver_stars = [
             Star(

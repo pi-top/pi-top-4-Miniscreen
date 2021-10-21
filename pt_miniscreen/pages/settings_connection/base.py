@@ -15,7 +15,7 @@ class Page(Enum):
 
 
 class Menu(MenuBase):
-    def __init__(self, size, mode, page_redraw_speed, children):
+    def __init__(self, size, mode, redraw_speed, children):
         def overlay(size, mode, image):
             title_overlay_h = 19
 
@@ -42,7 +42,7 @@ class Menu(MenuBase):
         super().__init__(
             size,
             mode,
-            page_redraw_speed,
+            redraw_speed,
             overlay_render_func=overlay,
             children=children,
         )

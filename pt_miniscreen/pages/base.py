@@ -26,7 +26,7 @@ class PageBase:
             self.menus[name] = config.menu_cls(
                 size,
                 mode,
-                page_redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
+                redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
                 children=config.children,
             )
 

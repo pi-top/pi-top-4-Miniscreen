@@ -13,5 +13,5 @@ class Page(Enum):
 
 
 class Menu(MenuBase):
-    def __init__(self, size, mode, page_redraw_speed, children):
-        super().__init__(size, mode, page_redraw_speed, children=children)
+    def __init__(self, size, mode, redraw_speed, children):
+        super().__init__(size, mode, redraw_speed, children=children)

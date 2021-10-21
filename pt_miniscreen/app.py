@@ -44,21 +44,32 @@ class App:
 
         self.menu_manager = MenuManager(
             self.miniscreen,
-            page_redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
+            redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
             scroll_speed=Speeds.SCROLL.value,
             skip_speed=Speeds.SKIP.value,
         )
 
-        self.screensaver = StarfieldScreensaver(self.miniscreen)
+        self.screensaver = StarfieldScreensaver(
+            self.miniscreen.mode, self.miniscreen.size
+        )
         self.state_manager = DisplayStateManager()
 
         def callback_handler(callback):
             self.state_manager.user_activity_timer.reset()
-            if self.state_manager.state in [DisplayState.DIM, DisplayState.SCREENSAVER]:
-                self.state_manager.state = DisplayState.WAKING
-                self.__wake_oled()
-            elif callable(callback):
-                callback()
+            if self.state_manager.state not in [
+                DisplayState.DIM,
+                DisplayState.SCREENSAVER,
+            ]:
+                if callable(callback):
+                    callback()
+                return
+
+            if self.state_manager.state == DisplayState.SCREENSAVER:
+                self.display_active_menu_image()
+
+            self.__wake_oled()
+
+            self.state_manager.state = DisplayState.WAKING
 
         self.miniscreen.up_button.when_released = lambda: post_event(
             AppEvents.UP_BUTTON_PRESS, callback_handler
@@ -143,21 +154,14 @@ class App:
             self.__sleep_oled()
             return
 
-    def do_display_frame(self):
-        if self.state_manager.state in [
-            DisplayState.ACTIVE,
-            DisplayState.RUNNING_ACTION,
-        ]:
-            logger.debug("Waking OLED...")
-            self.__wake_oled()
-
-            logger.debug("Updating scroll position...")
-            self.menu_manager.update_scroll_position()
-            logger.debug("Displaying current viewport image...")
-            self.display(self.menu_manager.active_menu.image)
-            logger.debug("Waiting until timeout or until page has changed...")
-            self.menu_manager.wait_until_timeout_or_page_has_changed()
-            logger.debug("Done waiting!")
+    def display_active_menu_image(self):
+        logger.debug("Updating scroll position...")
+        self.menu_manager.update_scroll_position()
+        logger.debug("Displaying current viewport image...")
+        self.display(self.menu_manager.active_menu.image)
+        logger.debug("Waiting until timeout or until page has changed...")
+        self.menu_manager.wait_until_timeout_or_page_has_changed()
+        logger.debug("Done waiting!")
 
     def _main(self):
         self.handle_startup_animation()
@@ -172,7 +176,11 @@ class App:
                 self.reset()
 
             logger.debug(f"Current state: {self.state_manager.state}")
-            self.do_display_frame()
+            if self.state_manager.state in [
+                DisplayState.ACTIVE,
+                DisplayState.RUNNING_ACTION,
+            ]:
+                self.display_active_menu_image()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()
@@ -226,6 +234,7 @@ class App:
         self.menu_manager.active_menu.current_page.hotspot.set_as_processing()
 
     def redraw_last_image_to_display(self):
+        # Useful when display has been taken by user
         if self.last_shown_image is not None:
             self.display(self.last_shown_image)
 
@@ -239,6 +248,5 @@ class App:
         logger.info("Forcing full state refresh...")
         self.__wake_oled()
         self.miniscreen.reset()
-        self.current_menu.refresh(force=True)
         self.redraw_last_image_to_display()
         logger.info("OLED control restored")
