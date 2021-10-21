@@ -7,8 +7,8 @@ from ..base import PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, children):
-        super().__init__(interval=interval, size=size, mode=mode, children=children)
+    def __init__(self, interval, size, mode, config):
+        super().__init__(interval=interval, size=size, mode=mode, config=config)
         self.title_image = PIL.Image.open(get_image_file_path("menu/settings.gif"))
 
     def render(self, image):

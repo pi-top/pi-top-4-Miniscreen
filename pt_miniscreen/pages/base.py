@@ -8,7 +8,7 @@ from ..config_factory import ConfigFactory
 
 # Based on luma.core hotspots/snapshots
 class PageBase:
-    def __init__(self, interval, size, mode, children):
+    def __init__(self, interval, size, mode, config):
         self.interval = interval
         self.size = size
         self.mode = mode
@@ -23,8 +23,8 @@ class PageBase:
 
         self.menus = {}
         menu_factory = ConfigFactory(size, mode, interval)
-        for name, config in children.items():
-            self.menus[name] = menu_factory.get(config)
+        for name, children in config.children.items():
+            self.menus[name] = menu_factory.get(children)
 
     def should_redraw(self):
         """Only requests a redraw after ``interval`` seconds have elapsed."""

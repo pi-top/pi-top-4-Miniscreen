@@ -7,11 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class MenuBase:
-    def __init__(self, size, mode, redraw_speed, overlay_render_func=None, children={}):
+    def __init__(self, size, mode, redraw_speed, config, overlay_render_func=None):
+
+        self.go_to_first = config.go_to_first
 
         self.pages = []
         menu_factory = ConfigFactory(size, mode, redraw_speed)
-        for name, config in children.items():
+        for name, config in config.children.items():
             self.pages.append(menu_factory.get(config))
 
         self.page_index = 0

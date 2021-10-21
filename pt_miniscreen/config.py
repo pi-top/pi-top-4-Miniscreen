@@ -29,6 +29,7 @@ class PageConfig:
 class MenuConfig:
     menu_cls: Type[MenuBase]
     children: Dict[str, PageConfig] = field(default_factory=dict)
+    go_to_first: bool = False
 
 
 menu_config = dict(
@@ -46,29 +47,30 @@ menu_config = dict(
                         ("ap", PageConfig(page_cls=hud.ap.Page)),
                         ("usb", PageConfig(page_cls=hud.usb.Page)),
                     ]
-                ),
+                )
             ),
         ),
         (
             "settings",
             MenuConfig(
                 menu_cls=settings.Menu,
+                go_to_first=True,
                 children=dict(
                     [
                         (
-                            "settings.connection",
+                            "connection",
                             PageConfig(
                                 page_cls=settings.connection.Page,
                                 children=dict(
                                     [
                                         (
-                                            "settings.connection.ssh",
+                                            "ssh",
                                             MenuConfig(
                                                 menu_cls=settings_connection.Menu,
                                                 children=dict(
                                                     [
                                                         (
-                                                            "settings.connection.ssh.page",
+                                                            "page",
                                                             PageConfig(
                                                                 page_cls=settings_connection.ssh.Page,
                                                                 action=ActionConfig(
