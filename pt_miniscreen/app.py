@@ -55,21 +55,16 @@ class App:
         self.state_manager = DisplayStateManager()
 
         def callback_handler(callback):
-            self.state_manager.user_activity_timer.reset()
-            if self.state_manager.state not in [
-                DisplayState.DIM,
-                DisplayState.SCREENSAVER,
-            ]:
+            if self.state_manager.state != DisplayState.WAKING:
+                self.state_manager.user_activity_timer.reset()
+
+            if self.state_manager.state == DisplayState.ACTIVE:
                 if callable(callback):
+                    logger.info("callback_handler - Executing callback")
                     callback()
                 return
 
-            if self.state_manager.state == DisplayState.SCREENSAVER:
-                self.display_active_menu_image()
-
-            self.__wake_oled()
-
-            self.state_manager.state = DisplayState.WAKING
+            self.sleep_manager.wake()
 
         self.miniscreen.up_button.when_released = lambda: post_event(
             AppEvents.UP_BUTTON_PRESS, callback_handler
@@ -151,7 +146,7 @@ class App:
 
         if self.state_manager.state == DisplayState.ACTIVE:
             logger.info("Going to sleep...")
-            self.__sleep_oled()
+            self.sleep_manager.sleep()
             return
 
     def display_active_menu_image(self):
@@ -179,6 +174,7 @@ class App:
             if self.state_manager.state in [
                 DisplayState.ACTIVE,
                 DisplayState.RUNNING_ACTION,
+                DisplayState.WAKING,
             ]:
                 self.display_active_menu_image()
 
@@ -213,14 +209,6 @@ class App:
         logger.info("User has control. Waiting for user to give control back...")
         self.user_gave_back_control_event.wait()
 
-    def __sleep_oled(self):
-        if not self.sleep_manager.is_sleeping:
-            self.sleep_manager.sleep()
-
-    def __wake_oled(self):
-        if self.sleep_manager.is_sleeping:
-            self.sleep_manager.wake()
-
     def start_current_menu_action(self):
         logger.debug("Setting state to RUNNING_ACTION")
         self.state = DisplayState.RUNNING_ACTION
@@ -240,13 +228,13 @@ class App:
 
     def display(self, image, wake=True):
         if wake:
-            self.__wake_oled()
+            self.sleep_manager.wake()
         self.miniscreen.device.display(image)
         self.last_shown_image = image
 
     def reset(self):
         logger.info("Forcing full state refresh...")
-        self.__wake_oled()
+        self.sleep_manager.wake()
         self.miniscreen.reset()
         self.redraw_last_image_to_display()
         logger.info("OLED control restored")
