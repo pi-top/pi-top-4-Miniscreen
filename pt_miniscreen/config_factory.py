@@ -13,12 +13,12 @@ class ConfigFactory:
                 size=self.size,
                 mode=self.mode,
                 redraw_speed=self.redraw_speed,
-                config=config
+                config=config,
             )
         elif isinstance(config, PageConfig):
             return config.page_cls(
                 interval=self.redraw_speed,
                 size=self.size,
                 mode=self.mode,
-                config=config
+                config=config,
             )
