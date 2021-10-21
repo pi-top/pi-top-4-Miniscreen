@@ -46,7 +46,8 @@ class MenuManager:
         )
 
         def set_menu(new_menu):
-            self.menus = new_menu
+            for k, v in new_menu.items():
+                self.menus[k] = v
             self.current_menu_id = list(new_menu.keys())[0]
 
         subscribe(AppEvents.MENU_CHANGE, set_menu)
@@ -56,11 +57,37 @@ class MenuManager:
         return self.menus[self.current_menu_id]
 
     def go_to_next_menu(self):
-        keys = list(self.menus.keys())
+        fields = self.current_menu_id.split(".")
+        if len(fields) == 1:
+            # we're at a top level menu - filter out children
+            keys = [
+                key
+                for key in self.menus
+                if not (self.current_menu_id in key and self.current_menu_id != key)
+            ]
+        else:
+            # we're in a node - filter out non-related menus
+            lookup = ".".join(fields[:-1])
+            keys = [key for key in self.menus if (lookup in key and lookup != key)]
+
+        candidate_menus = {key: self.menus[key] for key in keys}
         current_index = keys.index(self.current_menu_id)
-        next_index = 0 if current_index + 1 >= len(self.menus) else current_index + 1
+        next_index = (
+            0 if current_index + 1 >= len(candidate_menus) else current_index + 1
+        )
         self.current_menu_id = keys[next_index]
 
+        if self.current_menu.go_to_first:
+            self.current_menu.move_to_page(0)
+        self.page_has_changed.set()
+
+    def go_to_parent_menu(self):
+        fields = self.current_menu_id.split(".")
+        if len(fields) == 1:
+            # already at parent
+            return
+
+        self.current_menu_id = ".".join(fields[:-1])
         if self.current_menu.go_to_first:
             self.current_menu.move_to_page(0)
         self.page_has_changed.set()
@@ -69,7 +96,15 @@ class MenuManager:
         self.current_menu.current_page.on_select_press()
 
     def handle_cancel_btn(self):
-        self.go_to_next_menu()
+        fields = self.current_menu_id.split(".")
+        lookup = ".".join(fields[:-1])
+        keys = [key for key in self.menus if (lookup in key and lookup != key)]
+
+        if len(fields) == 0 or len(keys) > 1:
+            # go to next menu if available at the same level
+            self.go_to_next_menu()
+        else:
+            self.go_to_parent_menu()
 
     def get_page(self, index):
         return self.current_menu.pages[index]

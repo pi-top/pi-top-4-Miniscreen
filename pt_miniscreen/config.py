@@ -65,19 +65,19 @@ menu_app_config = MenuAppConfig(
                     children=dict(
                         [
                             (
-                                "settings.connection",
+                                "connection",
                                 PageConfig(
                                     page_cls=settings.connection.Page,
                                     child_menu=dict(
                                         [
                                             (
-                                                "settings.connection.settings_connection",
+                                                "settings.connection",
                                                 MenuConfig(
                                                     menu_cls=settings_connection.Menu,
                                                     children=dict(
                                                         [
                                                             (
-                                                                "settings.connection.settings_connection.ssh",
+                                                                "settings_connection.ssh",
                                                                 PageConfig(
                                                                     page_cls=settings_connection.ssh.Page,
                                                                     action=ActionConfig(

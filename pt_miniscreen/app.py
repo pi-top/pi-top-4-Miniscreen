@@ -17,8 +17,8 @@ class App:
     TIMEOUTS = {
         # DisplayState.DIM: 20,
         # DisplayState.SCREENSAVER: 60,
-        DisplayState.DIM: 2,
-        DisplayState.SCREENSAVER: 5,
+        DisplayState.DIM: 20,
+        DisplayState.SCREENSAVER: 25,
         DisplayState.WAKING: 0.6,
         DisplayState.RUNNING_ACTION: 30,
     }
