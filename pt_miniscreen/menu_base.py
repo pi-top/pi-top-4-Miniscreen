@@ -1,3 +1,4 @@
+from .config_factory import ConfigFactory
 from .viewport import Viewport
 
 
@@ -5,15 +6,10 @@ class MenuBase:
     def __init__(self, size, mode, redraw_speed, overlay_render_func=None, children={}):
 
         self.pages = []
+        menu_factory = ConfigFactory(size, mode, redraw_speed)
         for name, config in children.items():
-            self.pages.append(
-                config.page_cls(
-                    interval=redraw_speed,
-                    size=size,
-                    mode=mode,
-                    children=config.children,
-                )
-            )
+            self.pages.append(menu_factory.get(config))
+
         self.page_index = 0
 
         self.viewport = Viewport(

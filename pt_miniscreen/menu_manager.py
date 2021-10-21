@@ -2,6 +2,7 @@ import logging
 from threading import Event
 
 from .config import menu_config
+from .config_factory import ConfigFactory
 from .event import AppEvents, subscribe
 
 logger = logging.getLogger(__name__)
@@ -19,15 +20,10 @@ class MenuManager:
 
         self.is_skipping = False
 
+        menu_factory = ConfigFactory(miniscreen.size, miniscreen.mode, redraw_speed)
         self.menus = {}
         for menu_name, config in menu_config.items():
-            logger.info(f"Loading menu {menu_name}")
-            self.menus[menu_name] = config.menu_cls(
-                miniscreen.size,
-                miniscreen.mode,
-                redraw_speed,
-                children=config.children,
-            )
+            self.menus[menu_name] = menu_factory.get(config)
 
         self.current_menu_id = "hud"
         self.page_has_changed = Event()

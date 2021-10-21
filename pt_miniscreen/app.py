@@ -60,7 +60,7 @@ class App:
 
             if self.state_manager.state == DisplayState.ACTIVE:
                 if callable(callback):
-                    logger.info("callback_handler - Executing callback")
+                    logger.debug("callback_handler - Executing callback")
                     callback()
                 return
 
