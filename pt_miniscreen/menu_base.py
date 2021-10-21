@@ -1,5 +1,9 @@
+import logging
+
 from .config_factory import ConfigFactory
 from .viewport import Viewport
+
+logger = logging.getLogger(__name__)
 
 
 class MenuBase:
@@ -52,10 +56,20 @@ class MenuBase:
         self.page_index = page_index
 
     def set_page_to_previous(self):
+        if self.needs_to_scroll:
+            return
+
+        previous_index = self.page_index
         self.set_page_index_to(self.get_previous_page_index())
+        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
 
     def set_page_to_next(self):
+        if self.needs_to_scroll:
+            return
+
+        previous_index = self.page_index
         self.set_page_index_to(self.get_next_page_index())
+        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
 
     def get_previous_page_index(self):
         # Return next page if at top
@@ -74,3 +88,8 @@ class MenuBase:
         idx = self.page_index + 1
         candidate = self.pages[idx]
         return idx if candidate.visible else self.page_index
+
+    @property
+    def needs_to_scroll(self):
+        correct_y_pos = self.page_index * self.current_page.height
+        return self.y_pos != correct_y_pos

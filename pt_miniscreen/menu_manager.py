@@ -96,35 +96,18 @@ class MenuManager:
     def page(self):
         return self.get_page(self.current_menu.page_index)
 
-    @property
-    def needs_to_scroll(self):
-        y_pos = self.current_menu.y_pos
-        correct_y_pos = self.current_menu.page_index * self.page.height
-
-        return y_pos != correct_y_pos
-
     def set_page_to_previous(self):
-        if self.needs_to_scroll:
-            return
-
-        previous_index = self.current_menu.page_index
         self.current_menu.set_page_to_previous()
-        logger.debug(f"Page index: {previous_index} -> {self.current_menu.page_index}")
-
-        self.page_has_changed.set()
+        if self.current_menu.needs_to_scroll:
+            self.page_has_changed.set()
 
     def set_page_to_next(self):
-        if self.needs_to_scroll:
-            return
-
-        previous_index = self.current_menu.page_index
         self.current_menu.set_page_to_next()
-        logger.debug(f"Page index: {previous_index} -> {self.current_menu.page_index}")
-
-        self.page_has_changed.set()
+        if self.current_menu.needs_to_scroll:
+            self.page_has_changed.set()
 
     def wait_until_timeout_or_page_has_changed(self):
-        if self.needs_to_scroll:
+        if self.current_menu.needs_to_scroll:
             if self.is_skipping:
                 interval = self.skip_speed
             else:
@@ -137,7 +120,7 @@ class MenuManager:
             self.page_has_changed.clear()
 
     def update_scroll_position(self):
-        if not self.needs_to_scroll:
+        if not self.current_menu.needs_to_scroll:
             self.is_skipping = False
             return
 
