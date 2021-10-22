@@ -8,7 +8,7 @@ from .event import AppEvents, post_event
 from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
-from .state import DisplayState, DisplayStateManager, Speeds
+from .state import DisplayState, DisplayStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +43,8 @@ class App:
         self.splash = Bootsplash(self.miniscreen)
 
         self.menu_manager = MenuManager(
-            self.miniscreen,
-            redraw_speed=Speeds.DYNAMIC_PAGE_REDRAW.value,
-            scroll_speed=Speeds.SCROLL.value,
-            skip_speed=Speeds.SKIP.value,
+            self.miniscreen.size,
+            self.miniscreen.mode,
         )
 
         self.screensaver = StarfieldScreensaver(
@@ -151,9 +149,11 @@ class App:
 
     def display_current_menu_image(self):
         logger.debug("Updating scroll position...")
-        self.menu_manager.update_scroll_position()
-        logger.debug("Displaying current viewport image...")
+        self.menu_manager.update_current_menu_scroll_position()
+
+        logger.debug("Displaying current menu's image...")
         self.display(self.menu_manager.current_menu.image)
+
         logger.debug("Waiting until timeout or until page has changed...")
         self.menu_manager.wait_until_timeout_or_page_has_changed()
         logger.debug("Done waiting!")

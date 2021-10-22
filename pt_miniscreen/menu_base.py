@@ -1,12 +1,14 @@
 import logging
 
-from .config_factory import ConfigFactory
+from .config import ConfigFactory
 from .viewport import Viewport
 
 logger = logging.getLogger(__name__)
 
 
 class MenuBase:
+    SCROLL_PX_RESOLUTION = 2
+
     def __init__(self, size, mode, redraw_speed, config, overlay_render_func=None):
 
         self.go_to_first = config.go_to_first
@@ -95,3 +97,12 @@ class MenuBase:
     def needs_to_scroll(self):
         correct_y_pos = self.page_index * self.current_page.height
         return self.y_pos != correct_y_pos
+
+    def update_scroll_position(self):
+        if not self.needs_to_scroll:
+            return
+
+        correct_y_pos = self.page_index * self.viewport.height
+        move_down = correct_y_pos > self.y_pos
+
+        self.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)

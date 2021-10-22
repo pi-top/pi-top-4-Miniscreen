@@ -3,7 +3,7 @@ from time import perf_counter
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..config_factory import ConfigFactory
+from ..config import ConfigFactory
 from ..event import AppEvents, post_event
 
 
