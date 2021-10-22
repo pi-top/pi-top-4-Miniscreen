@@ -21,8 +21,8 @@ def firmware_version():
 
 
 class PageBase(_PageBase):
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, config):
+        super().__init__(interval=interval, size=size, mode=mode, config=config)
         self.invert = True
 
     def on_select_press(self):
