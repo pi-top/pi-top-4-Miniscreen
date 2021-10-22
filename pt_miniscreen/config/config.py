@@ -1,5 +1,7 @@
 from ..pages import hud, settings, settings_connection  # , guide
-from .classes import MenuAppConfig, MenuConfig, PageConfig
+from .classes.menu import MenuConfig
+from .classes.menu_app import MenuAppConfig
+from .classes.page import PageConfig
 
 menu_app_config = MenuAppConfig(
     children=dict(

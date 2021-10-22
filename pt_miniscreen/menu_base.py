@@ -1,7 +1,7 @@
 import logging
 
-from .config.classes import MenuEdgeBehaviour
 from .config import ConfigFactory
+from .config.classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .viewport import Viewport
 
 logger = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class MenuBase:
             elif self.top_edge == MenuEdgeBehaviour.LOOP:
                 return len(self.pages) - 1
 
-        return self.pages[self.page_index - 1]
+        return self.page_index - 1
 
     def get_next_page_index(self):
         if self.page_index == len(self.pages) - 1:
@@ -102,7 +102,7 @@ class MenuBase:
             elif self.bottom_edge == MenuEdgeBehaviour.LOOP:
                 return 0
 
-        return self.pages[self.page_index + 1]
+        return self.page_index + 1
 
     @property
     def needs_to_scroll(self):
