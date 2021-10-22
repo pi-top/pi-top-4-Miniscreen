@@ -47,16 +47,16 @@ class PageBase(_PageBase):
 class SkipToEndPage(PageBase):
     """Skip pi-top connection guide?"""
 
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, config):
+        super().__init__(interval=interval, size=size, mode=mode, config=config)
         self.text = "Skip pi-top connection guide?"
 
 
 class BuildInfoPage(PageBase):
     """pi-topOS v3.0 experimental 2021-09-29."""
 
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, config):
+        super().__init__(interval=interval, size=size, mode=mode, config=config)
         self.wrap = False
 
         self.text = (
@@ -72,8 +72,8 @@ class AdditionalBuildInfoPage(PageBase):
     #: b2da89ff
     """
 
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, config):
+        super().__init__(interval=interval, size=size, mode=mode, config=config)
         self.wrap = False
         self.font_size = 12
 
@@ -89,8 +89,8 @@ class AdditionalIPAddressesPage(PageBase):
     """Wi-Fi (Network): 192.168.1.104 Wired (Network): 192.168.1.197 Wi-Fi
     (Direct): 192.168.90.1 Wired (Direct): 192.168.64.1."""
 
-    def __init__(self, interval, size, mode):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, interval, size, mode, config):
+        super().__init__(interval=interval, size=size, mode=mode, config=config)
         self.wrap = False
         self.font_size = 12
 
