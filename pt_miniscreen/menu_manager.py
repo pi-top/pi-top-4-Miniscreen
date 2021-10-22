@@ -2,7 +2,7 @@ import logging
 from threading import Event
 
 from .config import MenuConfigManager
-from .event import AppEvents, subscribe
+from .event import AppEvents, post_event, subscribe
 from .state import Speeds
 
 logger = logging.getLogger(__name__)
@@ -49,6 +49,10 @@ class MenuManager:
     def current_menu(self):
         return self.menus[self.current_menu_id]
 
+    @property
+    def current_menu_page(self):
+        return self.current_menu.current_page
+
     def _go_to_next_menu(self):
         self.current_menu_id = MenuConfigManager.get_next_menu_id(
             self.menus, self.current_menu_id
@@ -59,6 +63,10 @@ class MenuManager:
 
         self.page_has_changed.set()
 
+    def _go_to_child_menu(self):
+        if self.current_menu_page.child_menu:
+            post_event(AppEvents.MENU_CHANGE, self.current_menu_page.child_menu)
+
     def _go_to_parent_menu(self):
         self.current_menu_id = MenuConfigManager.get_parent_menu_id(
             self.menus, self.current_menu_id
@@ -67,7 +75,10 @@ class MenuManager:
         self.page_has_changed.set()
 
     def _handle_select_btn(self):
-        self.current_menu.current_page.on_select_press()
+        if self.current_menu_page.child_menu:
+            self._go_to_child_menu()
+        else:
+            self.current_menu_page.on_select_press()
 
     def _handle_cancel_btn(self):
         if MenuConfigManager.menu_id_has_parent(self.menus, self.current_menu_id):
@@ -99,7 +110,7 @@ class MenuManager:
             else:
                 interval = Speeds.SCROLL.value
         else:
-            interval = self.current_menu.current_page.interval
+            interval = self.current_menu_page.interval
 
         self.page_has_changed.wait(interval)
         if self.page_has_changed.is_set():

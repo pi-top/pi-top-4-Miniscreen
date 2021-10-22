@@ -4,7 +4,6 @@ from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..config import ConfigFactory
-from ..event import AppEvents, post_event
 
 
 # Based on luma.core hotspots/snapshots
@@ -45,5 +44,5 @@ class PageBase:
         raise NotImplementedError
 
     def on_select_press(self):
-        if self.child_menu:
-            post_event(AppEvents.MENU_CHANGE, self.child_menu)
+        # Only invoked if there is no child menu in config
+        pass
