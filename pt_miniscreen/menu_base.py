@@ -1,5 +1,6 @@
 import logging
 
+from .config.classes import MenuEdgeBehaviour
 from .config import ConfigFactory
 from .viewport import Viewport
 
@@ -11,7 +12,9 @@ class MenuBase:
 
     def __init__(self, size, mode, redraw_speed, config, overlay_render_func=None):
 
-        self.go_to_first = config.go_to_first
+        self.parent_goes_to_first_page = config.parent_goes_to_first_page
+        self.top_edge = config.top_edge
+        self.bottom_edge = config.bottom_edge
 
         self.pages = []
         menu_factory = ConfigFactory(size, mode, redraw_speed)
@@ -76,22 +79,30 @@ class MenuBase:
         logger.debug(f"Page index: {previous_index} -> {self.page_index}")
 
     def get_previous_page_index(self):
-        # Return next page if at top
         if self.page_index == 0:
-            return self.get_next_page_index()
+            if self.top_edge == MenuEdgeBehaviour.NONE:
+                return self.page_index
 
-        idx = self.page_index - 1
-        candidate = self.pages[idx]
-        return idx if candidate.visible else self.page_index
+            elif self.top_edge == MenuEdgeBehaviour.BOUNCE:
+                return self.get_next_page_index()
+
+            elif self.top_edge == MenuEdgeBehaviour.LOOP:
+                return len(self.pages) - 1
+
+        return self.pages[self.page_index - 1]
 
     def get_next_page_index(self):
-        # Return current page if at end
-        if self.page_index + 1 >= len(self.pages):
-            return self.page_index
+        if self.page_index == len(self.pages) - 1:
+            if self.bottom_edge == MenuEdgeBehaviour.NONE:
+                return self.page_index
 
-        idx = self.page_index + 1
-        candidate = self.pages[idx]
-        return idx if candidate.visible else self.page_index
+            elif self.bottom_edge == MenuEdgeBehaviour.BOUNCE:
+                return self.get_previous_page_index()
+
+            elif self.bottom_edge == MenuEdgeBehaviour.LOOP:
+                return 0
+
+        return self.pages[self.page_index + 1]
 
     @property
     def needs_to_scroll(self):

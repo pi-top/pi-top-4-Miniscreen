@@ -51,7 +51,7 @@ class MenuManager:
             self.menus, self.current_menu_id
         )
 
-        if self.current_menu.go_to_first:
+        if self.current_menu.parent_goes_to_first_page:
             self.current_menu.move_to_page(0)
 
         self.should_redraw.set()

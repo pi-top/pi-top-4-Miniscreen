@@ -24,7 +24,7 @@ menu_app_config = MenuAppConfig(
                 "settings",
                 MenuConfig(
                     menu_cls=settings.Menu,
-                    go_to_first=True,
+                    parent_goes_to_first_page=True,
                     children=dict(
                         [
                             (
@@ -37,7 +37,7 @@ menu_app_config = MenuAppConfig(
                                                 "settings.connection",
                                                 MenuConfig(
                                                     menu_cls=settings_connection.Menu,
-                                                    go_to_first=True,
+                                                    parent_goes_to_first_page=True,
                                                     children=dict(
                                                         [
                                                             (
