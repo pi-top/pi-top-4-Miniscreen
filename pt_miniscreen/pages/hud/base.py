@@ -1,5 +1,3 @@
-from enum import Enum, auto
-
 from ...menu_base import MenuBase
 
 default_margin_x = 29
@@ -9,15 +7,6 @@ default_margin_x = 29
 common_first_line_y = 16
 common_second_line_y = common_first_line_y + 16
 common_third_line_y = common_second_line_y + 16
-
-
-class Page(Enum):
-    BATTERY = auto()
-    CPU = auto()
-    WIFI = auto()
-    ETHERNET = auto()
-    AP = auto()
-    USB = auto()
 
 
 class Menu(MenuBase):

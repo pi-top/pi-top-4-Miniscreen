@@ -1,13 +1,7 @@
-from enum import Enum, auto
-
 import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...menu_base import MenuBase
-
-
-class Page(Enum):
-    CONNECTION = auto()
 
 
 class Menu(MenuBase):

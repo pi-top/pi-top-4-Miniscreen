@@ -1,17 +1,7 @@
-from enum import Enum, auto
-
 import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...menu_base import MenuBase
-
-
-class Page(Enum):
-    SSH = auto()
-    # VNC = auto()
-    # FURTHER_LINK = auto()
-    # AP = auto()
-    # HDMI_RESET = auto()
 
 
 class Menu(MenuBase):
