@@ -11,7 +11,7 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...utils import get_image_file_path
 from ..base import PageBase
-from .values import common_second_line_y, common_third_line_y, default_margin_x
+from .base import common_second_line_y, common_third_line_y, default_margin_x
 
 wifi_images = {
     "no": PIL.Image.open(

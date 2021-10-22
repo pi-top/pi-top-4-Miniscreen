@@ -5,7 +5,7 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...utils import get_image_file_path
 from ..base import PageBase
-from .values import (
+from .base import (
     common_first_line_y,
     common_second_line_y,
     common_third_line_y,
