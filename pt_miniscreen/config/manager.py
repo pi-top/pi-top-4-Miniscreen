@@ -1,6 +1,10 @@
+import logging
+
 from ..state import Speeds
 from .config import menu_app_config
 from .factory import ConfigFactory
+
+logger = logging.getLogger(__name__)
 
 
 class MenuConfigManager:
@@ -47,7 +51,13 @@ class MenuConfigManager:
     @staticmethod
     def menu_id_has_parent(menus, menu_id):
         menu_config_id_fields = menu_id.split(".")
+
+        # Only one field means there's no parent
+        if len(menu_config_id_fields) == 1:
+            return False
+
         lookup = ".".join(menu_config_id_fields[:-1])
+
         keys = [key for key in menus if (lookup in key and lookup != key)]
 
         return len(keys) > 0

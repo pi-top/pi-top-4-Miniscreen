@@ -15,10 +15,8 @@ logger = logging.getLogger(__name__)
 
 class App:
     TIMEOUTS = {
-        # DisplayState.DIM: 20,
-        # DisplayState.SCREENSAVER: 60,
         DisplayState.DIM: 20,
-        DisplayState.SCREENSAVER: 25,
+        DisplayState.SCREENSAVER: 60,
         DisplayState.WAKING: 0.6,
         DisplayState.RUNNING_ACTION: 30,
     }
@@ -155,7 +153,7 @@ class App:
         self.display(self.menu_manager.current_menu.image)
 
         logger.debug("Waiting until timeout or until page has changed...")
-        self.menu_manager.wait_until_timeout_or_page_has_changed()
+        self.menu_manager.wait_until_timeout_or_should_redraw()
         logger.debug("Done waiting!")
 
     def _main(self):
@@ -171,11 +169,7 @@ class App:
                 self.reset()
 
             logger.debug(f"Current state: {self.state_manager.state}")
-            if self.state_manager.state in [
-                DisplayState.ACTIVE,
-                DisplayState.RUNNING_ACTION,
-                DisplayState.WAKING,
-            ]:
+            if self.state_manager.state != DisplayState.SCREENSAVER:
                 self.display_current_menu_image()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:

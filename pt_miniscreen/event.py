@@ -19,7 +19,6 @@ class AppEvents(Enum):
     CANCEL_BUTTON_PRESS = auto()  # callable
     UP_BUTTON_PRESS = auto()  # callable
     DOWN_BUTTON_PRESS = auto()  # callable
-    MENU_CHANGE = auto()  # dict
 
 
 subscribers: Dict[AppEvents, List] = dict()
