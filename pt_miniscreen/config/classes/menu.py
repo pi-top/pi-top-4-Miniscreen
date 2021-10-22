@@ -10,6 +10,6 @@ from .page import PageConfig
 class MenuConfig:
     menu_cls: Type[MenuBase]
     children: Dict[str, PageConfig] = field(default_factory=dict)
-    parent_goes_to_first_page: bool = False
+    parent_goes_to_first_page: bool = True
     top_edge: MenuEdgeBehaviour = MenuEdgeBehaviour.NONE
     bottom_edge: MenuEdgeBehaviour = MenuEdgeBehaviour.NONE

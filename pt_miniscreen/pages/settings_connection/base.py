@@ -33,7 +33,7 @@ class Menu(MenuBase):
             asst.render_text(
                 image,
                 xy=(size[0] / 2, size[1] / 6),
-                text="M E N U",
+                text="C O N N E C T I O N",
                 wrap=False,
                 font=asst.get_mono_font_path(bold=True),
                 fill=0,

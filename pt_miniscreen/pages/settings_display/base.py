@@ -7,7 +7,11 @@ from ...menu_base import MenuBase
 
 
 class Page(Enum):
-    CONNECTION = auto()
+    SSH = auto()
+    # VNC = auto()
+    # FURTHER_LINK = auto()
+    # AP = auto()
+    # HDMI_RESET = auto()
 
 
 class Menu(MenuBase):
@@ -17,19 +21,19 @@ class Menu(MenuBase):
 
             # Empty the top of the image
             PIL.ImageDraw.Draw(image).rectangle(
-                ((0, 0), (image.size[0], title_overlay_h)), fill=1
+                ((0, 0), (size[0], title_overlay_h)), fill=1
             )
 
             # 1px overlay separator
             PIL.ImageDraw.Draw(image).rectangle(
-                ((0, title_overlay_h), (image.size[0], title_overlay_h)), fill=0
+                ((0, title_overlay_h), (size[0], title_overlay_h)), fill=0
             )
 
-            asst = MiniscreenAssistant(image.mode, image.size)
+            asst = MiniscreenAssistant(mode, size)
             asst.render_text(
                 image,
-                xy=(image.size[0] / 2, image.size[1] / 6),
-                text="S E T T I N G S",
+                xy=(size[0] / 2, size[1] / 6),
+                text="D I S P L A Y",
                 wrap=False,
                 font=asst.get_mono_font_path(bold=True),
                 fill=0,

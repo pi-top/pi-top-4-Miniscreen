@@ -1,2 +1,2 @@
-from . import connection, ssh
+from . import connection, display
 from .base import Menu

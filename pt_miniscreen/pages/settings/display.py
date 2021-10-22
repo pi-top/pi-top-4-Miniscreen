@@ -14,16 +14,16 @@ class Page(PageBase):
     def render(self, image):
         PIL.ImageDraw.Draw(image).bitmap(
             xy=(0, 0),
-            bitmap=self.info_image,
+            bitmap=self.title_image.convert(self.mode),
             fill="white",
         )
 
         assistant = MiniscreenAssistant(self.mode, self.size)
         assistant.render_text(
             image,
-            text="SSH",
-            font_size=18,
-            xy=(45, 19),
+            text="Display",
+            font_size=14,
+            xy=(45, self.size[1] / 2),
             align="left",
             anchor="lm",
             wrap=False,

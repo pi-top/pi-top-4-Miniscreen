@@ -1,4 +1,4 @@
-from ..pages import hud, settings, settings_connection  # , guide
+from ..pages import hud, settings, settings_connection, settings_display  # , guide
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
 from .classes.menu_edge_behaviour import MenuEdgeBehaviour
@@ -29,7 +29,6 @@ menu_app_config = MenuAppConfig(
                 "settings",
                 MenuConfig(
                     menu_cls=settings.Menu,
-                    parent_goes_to_first_page=True,
                     top_edge=MenuEdgeBehaviour.NONE,
                     bottom_edge=MenuEdgeBehaviour.NONE,
                     children=dict(
@@ -44,7 +43,6 @@ menu_app_config = MenuAppConfig(
                                                 "settings.connection",
                                                 MenuConfig(
                                                     menu_cls=settings_connection.Menu,
-                                                    parent_goes_to_first_page=True,
                                                     top_edge=MenuEdgeBehaviour.NONE,
                                                     bottom_edge=MenuEdgeBehaviour.NONE,
                                                     children=dict(
@@ -71,34 +69,34 @@ menu_app_config = MenuAppConfig(
                                                     ),
                                                 ),
                                             ),
-                                            #             ]
-                                            #         ),
-                                            #     ),
-                                            # ),
-                                            # (
-                                            #     "settings.display",
-                                            #     PageConfig(
-                                            #         page_cls=settings.display.Page,
-                                            #         children=dict(
-                                            #             [
-                                            #                 (
-                                            #                     "settings.display.hdmi_reset",
-                                            #                     PageConfig(
-                                            #                         page_cls=settings.ssh.Page,
-                                            #                         action=ActionConfig(
-                                            #                             type="commands",
-                                            #                             icon="hdmi_reset",
-                                            #                             commands=[
-                                            #                                 # Close 'Screen Layout Editor'
-                                            #                                 'DISPLAY=:0 wmctrl -c "Screen Layout Editor"',
-                                            #                                 # Reset all HDMI outputs to lowest common resolution
-                                            #                                 "DISPLAY=:0 autorandr -c common",
-                                            #                                 # Reset DPMS - show display if they were blanked
-                                            #                                 "DISPLAY=:0 xset dpms force on",
-                                            #                             ],
-                                            #                         ),
-                                            #                     ),
-                                            #                 )
+                                        ]
+                                    ),
+                                ),
+                            ),
+                            (
+                                "display",
+                                PageConfig(
+                                    page_cls=settings.display.Page,
+                                    child_menu=dict(
+                                        [
+                                            (
+                                                "settings.display",
+                                                MenuConfig(
+                                                    menu_cls=settings_display.Menu,
+                                                    top_edge=MenuEdgeBehaviour.NONE,
+                                                    bottom_edge=MenuEdgeBehaviour.NONE,
+                                                    children=dict(
+                                                        [
+                                                            (
+                                                                "settings_display.hdmi_reset",
+                                                                PageConfig(
+                                                                    page_cls=settings_display.hdmi_reset.Page,
+                                                                ),
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ),
+                                            ),
                                         ]
                                     ),
                                 ),

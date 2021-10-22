@@ -36,9 +36,6 @@ class Hotspot(BaseSnapshot):
     def is_status_type(self):
         return callable(self.get_state_method)
 
-    def set_as_processing(self):
-        self.action_state = ActionState.PROCESSING
-
     def reset(self):
         self.action_state = ActionState.UNKNOWN
         self.initialised = False
