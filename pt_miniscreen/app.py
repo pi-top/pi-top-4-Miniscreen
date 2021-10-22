@@ -147,15 +147,12 @@ class App:
             return
 
     def display_current_menu_image(self):
-        logger.debug("Updating scroll position...")
+        logger.debug("Updating scroll position and displaying current menus' image...")
         self.menu_manager.update_current_menu_scroll_position()
-
-        logger.debug("Displaying current menu's image...")
         self.display(self.menu_manager.current_menu.image)
 
         logger.debug("Waiting until timeout or until page has changed...")
         self.menu_manager.wait_until_timeout_or_should_redraw()
-        logger.debug("Done waiting!")
 
     def _main(self):
         self.handle_startup_animation()
@@ -170,7 +167,10 @@ class App:
                 self.reset()
 
             logger.debug(f"Current state: {self.state_manager.state}")
-            if self.state_manager.state != DisplayState.SCREENSAVER:
+
+            if self.state_manager.state == DisplayState.SCREENSAVER:
+                self.show_screensaver_frame()
+            else:
                 self.display_current_menu_image()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
@@ -186,11 +186,8 @@ class App:
                 logger.info("Starting screensaver...")
                 self.state_manager.state = DisplayState.SCREENSAVER
 
-            if self.state_manager.state == DisplayState.SCREENSAVER:
-                self.show_screensaver_frame()
-
     def show_screensaver_frame(self):
-        self.display(self.screensaver.image.convert("1"), wake=False)
+        self.display(self.screensaver.image.convert("1"))
 
     def set_is_user_controlled(self, user_has_control):
         if self.user_has_control and not user_has_control:
@@ -211,9 +208,10 @@ class App:
         logger.debug("Taking note of current time for start of action")
         self.state_manager.action_timer.reset()
 
-    def display(self, image, wake=True):
+    def display(self, image, wake=False):
         if wake:
             self.sleep_manager.wake()
+
         self.miniscreen.device.display(image)
         self.last_shown_image = image
 

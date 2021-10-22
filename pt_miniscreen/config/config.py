@@ -1,6 +1,7 @@
 from ..pages import hud, settings, settings_connection  # , guide
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
+from .classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .classes.page import PageConfig
 
 menu_app_config = MenuAppConfig(
@@ -10,6 +11,8 @@ menu_app_config = MenuAppConfig(
                 "hud",
                 MenuConfig(
                     menu_cls=hud.Menu,
+                    top_edge=MenuEdgeBehaviour.NONE,
+                    bottom_edge=MenuEdgeBehaviour.NONE,
                     children=dict(
                         [
                             ("battery", PageConfig(page_cls=hud.battery.Page)),
@@ -27,6 +30,8 @@ menu_app_config = MenuAppConfig(
                 MenuConfig(
                     menu_cls=settings.Menu,
                     parent_goes_to_first_page=True,
+                    top_edge=MenuEdgeBehaviour.NONE,
+                    bottom_edge=MenuEdgeBehaviour.NONE,
                     children=dict(
                         [
                             (
@@ -40,6 +45,8 @@ menu_app_config = MenuAppConfig(
                                                 MenuConfig(
                                                     menu_cls=settings_connection.Menu,
                                                     parent_goes_to_first_page=True,
+                                                    top_edge=MenuEdgeBehaviour.NONE,
+                                                    bottom_edge=MenuEdgeBehaviour.NONE,
                                                     children=dict(
                                                         [
                                                             (

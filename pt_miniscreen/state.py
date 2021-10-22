@@ -1,5 +1,8 @@
+import logging
 from enum import Enum
 from time import perf_counter
+
+logger = logging.getLogger(__name__)
 
 
 class ActivityTimer:
@@ -32,4 +35,16 @@ class DisplayStateManager:
     def __init__(self):
         self.user_activity_timer = ActivityTimer()
         self.action_timer = ActivityTimer()
-        self.state = DisplayState.ACTIVE
+        self._state = DisplayState.ACTIVE
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, new_state):
+        if self._state != new_state:
+            logger.debug(f"New display state: {new_state}")
+            self.user_activity_timer.reset()
+
+        self._state = new_state
