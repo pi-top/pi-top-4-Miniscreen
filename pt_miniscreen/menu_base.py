@@ -49,7 +49,7 @@ class MenuBase:
 
     @property
     def image(self):
-        im = self.viewport.image.copy()
+        im = self.viewport.image
 
         if callable(self.overlay_render_func):
             self.overlay_render_func(im)
@@ -102,7 +102,6 @@ class MenuBase:
         if not self.needs_to_scroll:
             return
 
-        correct_y_pos = self.page_index * self.viewport.height
+        correct_y_pos = self.page_index * self.viewport.window_height
         move_down = correct_y_pos > self.y_pos
-
         self.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)
