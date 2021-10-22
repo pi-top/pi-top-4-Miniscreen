@@ -2,7 +2,7 @@ import logging
 from threading import Event
 
 from .config import MenuConfigManager
-from .event import AppEvents, subscribe
+from .event import AppEvents, post_event, subscribe
 from .state import Speeds
 
 logger = logging.getLogger(__name__)
@@ -80,6 +80,7 @@ class MenuManager:
         if self.current_menu_page.child_menu:
             self._go_to_child_menu()
         else:
+            post_event(AppEvents.BUTTON_ACTION_START)
             self.current_menu_page.on_select_press()
 
     def _handle_cancel_btn(self):

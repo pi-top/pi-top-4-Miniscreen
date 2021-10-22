@@ -4,7 +4,7 @@ from threading import Event, Thread
 from pitop import Pitop
 
 from .bootsplash import Bootsplash
-from .event import AppEvents, post_event
+from .event import AppEvents, post_event, subscribe
 from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
@@ -75,6 +75,7 @@ class App:
             AppEvents.CANCEL_BUTTON_PRESS, callback_handler
         )
 
+        subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
 
     def start(self):
@@ -203,17 +204,12 @@ class App:
         logger.info("User has control. Waiting for user to give control back...")
         self.user_gave_back_control_event.wait()
 
-    def start_current_menu_action(self):
+    def start_current_menu_action(self, _):
         logger.debug("Setting state to RUNNING_ACTION")
         self.state = DisplayState.RUNNING_ACTION
 
         logger.debug("Taking note of current time for start of action")
         self.state_manager.action_timer.reset()
-
-        # If page is a settings page with an action state,
-        # tell the renderer to display 'in progress'
-        logger.info("Notifying renderer to display 'in progress' action state")
-        self.menu_manager.current_menu.current_page.hotspot.set_as_processing()
 
     def display(self, image, wake=True):
         if wake:

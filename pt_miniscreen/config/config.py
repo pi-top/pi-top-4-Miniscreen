@@ -1,5 +1,5 @@
 from ..pages import hud, settings, settings_connection  # , guide
-from .classes import ActionConfig, MenuAppConfig, MenuConfig, PageConfig
+from .classes import MenuAppConfig, MenuConfig, PageConfig
 
 menu_app_config = MenuAppConfig(
     children=dict(
@@ -44,50 +44,24 @@ menu_app_config = MenuAppConfig(
                                                                 "settings_connection.ssh",
                                                                 PageConfig(
                                                                     page_cls=settings_connection.ssh.Page,
-                                                                    action=ActionConfig(
-                                                                        type="systemd_service",
-                                                                        icon="ssh",
-                                                                        systemd_service="ssh",
-                                                                    ),
+                                                                ),
+                                                            ),
+                                                            (
+                                                                "settings.connection.vnc",
+                                                                PageConfig(
+                                                                    page_cls=settings_connection.vnc.Page,
+                                                                ),
+                                                            ),
+                                                            (
+                                                                "settings.connection.further_link",
+                                                                PageConfig(
+                                                                    page_cls=settings_connection.further_link.Page,
                                                                 ),
                                                             ),
                                                         ],
                                                     ),
                                                 ),
                                             ),
-                                            #                 (
-                                            #                     "settings.connection.vnc",
-                                            #                     PageConfig(
-                                            #                         page_cls=settings.vnc.Page,
-                                            #                         action=ActionConfig(
-                                            #                             type="systemd_service",
-                                            #                             icon="vnc",
-                                            #                             systemd_service="vnc",
-                                            #                         ),
-                                            #                     ),
-                                            #                 ),
-                                            #                 (
-                                            #                     "settings.connection.further_link",
-                                            #                     PageConfig(
-                                            #                         page_cls=settings.further_link.Page,
-                                            #                         action=ActionConfig(
-                                            #                             type="systemd_service",
-                                            #                             icon="further_link",
-                                            #                             systemd_service="further-link",
-                                            #                         ),
-                                            #                     ),
-                                            #                 ),
-                                            #                 (
-                                            #                     "settings.connection.further_link",
-                                            #                     PageConfig(
-                                            #                         page_cls=settings.further_link.Page,
-                                            #                         action=ActionConfig(
-                                            #                             type="systemd_service",
-                                            #                             icon="further_link",
-                                            #                             systemd_service="further-link",
-                                            #                         ),
-                                            #                     ),
-                                            #                 ),
                                             #             ]
                                             #         ),
                                             #     ),
