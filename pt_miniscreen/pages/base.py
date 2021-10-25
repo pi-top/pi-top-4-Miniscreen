@@ -1,8 +1,3 @@
-from time import perf_counter
-
-from PIL import Image
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
-
 from ..config import ConfigFactory
 
 
@@ -26,22 +21,6 @@ class PageBase:
         if config.child_menu:
             for name, config in config.child_menu.items():
                 self.child_menu[name] = menu_factory.get(config)
-
-    def should_redraw(self):
-        """Only requests a redraw after ``interval`` seconds have elapsed."""
-        return perf_counter() - self.last_updated > self.interval
-
-    def paste_into(self, image, xy):
-        im = Image.new(image.mode, self.size)
-        self.render(im)
-        if self.invert:
-            im = MiniscreenAssistant(self.mode, self.size).invert(im)
-        image.paste(im, xy)
-        del im
-        self.last_updated = perf_counter()
-
-    def render(self, image):
-        raise NotImplementedError
 
     def on_select_press(self):
         # Only invoked if there is no child menu in config

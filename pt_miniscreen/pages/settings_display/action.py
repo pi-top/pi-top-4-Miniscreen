@@ -21,10 +21,11 @@ class Page(PageBase):
         self.icon_img_path = get_image_file_path(f"settings/icons/full/{icon}.png")
         self.icon_image = PIL.Image.open(self.icon_img_path)
 
+        self.processing_icon_frame = 0
         self.action_state = ActionState.IDLE
         self.status_img_path = self.get_status_image_path()
         self.status_image = PIL.Image.open(self.status_img_path)
-        self.processing_icon_frame = 0
+
         self.initialised = False
 
     def reset(self):
@@ -48,13 +49,9 @@ class Page(PageBase):
         self.initialised = True
 
     def get_status_image_path(self):
-        if self.action_state == ActionState.PROCESSING:
-            img_file = f"processing-{self.processing_icon_frame + 1}"
-
-        elif self.action_state == ActionState.IDLE:
-            img_file = "unknown"
-
-        return get_image_file_path(f"settings/status/{img_file}.png")
+        return get_image_file_path(
+            f"settings/status/processing-{self.processing_icon_frame + 1}.png"
+        )
 
     def update_status_image(self):
         current_status_img_path = self.get_status_image_path()
@@ -71,8 +68,15 @@ class Page(PageBase):
             bitmap=self.icon_image,
             fill="white",
         )
+        if self.action_state == ActionState.PROCESSING:
+            PIL.ImageDraw.Draw(image).bitmap(
+                xy=(0, 0),
+                bitmap=self.status_image,
+                fill="white",
+            )
 
     def on_select_press(self):
         if callable(self.set_state_method):
             self.action_state = ActionState.PROCESSING
             self.set_state_method()
+            self.action_state = ActionState.IDLE
