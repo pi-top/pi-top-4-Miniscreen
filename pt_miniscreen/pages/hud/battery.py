@@ -27,27 +27,19 @@ class Page(PageBase):
         except Exception:
             pass
 
-        golden_ratio = (1 + 5 ** 0.5) / 2
-        long_section_width = int(size[0] / golden_ratio)
-
-        text_hotspot_pos = (long_section_width, 0)
-        text_hotspot_size = (
-            size[0] - text_hotspot_pos[0],
-            size[1] - text_hotspot_pos[1],
-        )
         self.text_hotspot = TextHotspot(
             interval=interval,
             mode=mode,
-            size=text_hotspot_size,
+            size=(self.long_section_width, size[1]),
             text=f"{self.capacity}%",
             font_size=19,
-            xy=(int(text_hotspot_size[0]) / 2, int(text_hotspot_size[1]) / 2),
+            xy=(self.short_section_width, size[1] / 2),
         )
 
         self.battery_base_hotspot = ImageHotspot(
             interval=interval,
             mode=mode,
-            size=(long_section_width, size[1]),
+            size=(self.short_section_width, size[1]),
             image_path=None,
         )
 
@@ -55,11 +47,18 @@ class Page(PageBase):
             interval=interval, mode=mode, size=(37, 14), bounding_box=(0, 0, 0, 0)
         )
 
+        battery_left_margin = 15
+        capacity_rectangle_left_margin = 4
+        capacity_rectangle_top_margin = 25
+
         # self.hotspots: Dict[Tuple, List[Hotspot]] = {
         self.hotspots: Dict = {
-            (0, 0): [self.battery_base_hotspot],
-            (19, 25): [self.rectangle_hotspot],
-            text_hotspot_pos: [self.text_hotspot],
+            (battery_left_margin, 0): [self.battery_base_hotspot],
+            (
+                battery_left_margin + capacity_rectangle_left_margin,
+                capacity_rectangle_top_margin,
+            ): [self.rectangle_hotspot],
+            (self.short_section_width, 0): [self.text_hotspot],
         }
 
         self.update_hotspots_properties()

@@ -10,28 +10,20 @@ class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
 
-        golden_ratio = (1 + 5 ** 0.5) / 2
-        long_section_width = int(size[0] / golden_ratio)
-
-        y_margin = 20
-        cpu_bars_hotspot_pos = (long_section_width, int(y_margin / 2))
-        cpu_bars_hotspot_size = (
-            size[0] - cpu_bars_hotspot_pos[0],
-            size[1] - y_margin,
-        )
-
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
                     interval=interval,
                     mode=mode,
-                    size=(long_section_width, size[1]),
+                    size=(self.short_section_width, size[1]),
                     image_path=get_image_file_path("sys_info/cpu.png"),
                 ),
             ],
-            cpu_bars_hotspot_pos: [
+            (self.short_section_width, 0): [
                 CpuBarsHotspot(
-                    interval=interval, mode=mode, size=cpu_bars_hotspot_size
+                    interval=interval,
+                    mode=mode,
+                    size=(self.long_section_width, size[1]),
                 ),
             ],
         }

@@ -16,6 +16,10 @@ class PageBase:
         self.font_size = 14
         self.wrap = True
 
+        golden_ratio = (1 + 5 ** 0.5) / 2
+        self.long_section_width = int(size[0] / golden_ratio)
+        self.short_section_width = size[0] - self.long_section_width
+
         menu_factory = ConfigFactory(size, mode, interval)
         self.child_menu = {}
         if config.child_menu:
