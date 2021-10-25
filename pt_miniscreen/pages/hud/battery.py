@@ -39,8 +39,8 @@ class Page(PageBase):
             interval=interval,
             mode=mode,
             size=text_hotspot_size,
-            text=f"{self.capacity} %",
-            font_size=20,
+            text=f"{self.capacity}%",
+            font_size=19,
             xy=(int(text_hotspot_size[0]) / 2, int(text_hotspot_size[1]) / 2),
         )
 
@@ -68,7 +68,7 @@ class Page(PageBase):
     def update_hotspots_properties(self):
         text = "Unknown"
         if self.capacity is not None:
-            text = f"{self.capacity} %"
+            text = f"{self.capacity}%"
         self.text_hotspot.text = text
 
         image_path = get_image_file_path("sys_info/battery_shell_empty.png")
