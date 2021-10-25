@@ -28,22 +28,26 @@ class Page(PageBase):
             pass
 
         font_size = 20
-        text_hotspot_pos = (int(1 / 2 * self.size[0]), int((self.size[1]) / 2))
+        text_hotspot_pos = (int(1 / 2 * self.size[0]), 0)
+        text_hotspot_size = (
+            size[0] - text_hotspot_pos[0],
+            size[1] - text_hotspot_pos[1],
+        )
         self.text_hotspot = TextHotspot(
             interval=interval,
             mode=mode,
-            size=(size[0] - text_hotspot_pos[0], size[1] - text_hotspot_pos[1]),
+            size=text_hotspot_size,
             text=f"{self.capacity} %",
             font_size=font_size,
-            xy=(0, 0),
+            xy=(int(text_hotspot_size[0]) / 2, int(text_hotspot_size[1]) / 2),
         )
 
         self.battery_base_hotspot = ImageHotspot(
-            interval=interval, mode=mode, size=(40, 45), image_path=None, xy=(0, 0)
+            interval=interval, mode=mode, size=size, image_path=None, xy=(0, 0)
         )
 
         self.rectangle_hotspot = RectangleHotspot(
-            interval=interval, mode=mode, size=(50, 50), bounding_box=(0, 0, 0, 0)
+            interval=interval, mode=mode, size=size, bounding_box=(0, 0, 0, 0)
         )
 
         # self.hotspots: Dict[Tuple, List[Hotspot]] = {
@@ -70,9 +74,9 @@ class Page(PageBase):
         if not self.cable_connected:
             top_margin = 25
             bottom_margin = 38
-            left_margin = 18
-            max_bar_width = 32
-            bar_width = max_bar_width * int(self.capacity / 100)
+            left_margin = 14
+            max_bar_width = 36
+            bar_width = int(max_bar_width * self.capacity / 100)
             bar_end = left_margin + bar_width
             bounding_box = (left_margin, top_margin) + (bar_end, bottom_margin)
         self.rectangle_hotspot.bounding_box = bounding_box

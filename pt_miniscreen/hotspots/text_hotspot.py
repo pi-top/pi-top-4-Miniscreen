@@ -24,8 +24,6 @@ class Hotspot(HotspotBase):
             text=self.text,
             xy=self.xy,
             font_size=self.font_size,
-            # anchor="la",
-            # align="left"
         )
 
     @property

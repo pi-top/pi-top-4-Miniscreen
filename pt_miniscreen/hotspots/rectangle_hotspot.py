@@ -12,5 +12,10 @@ class Hotspot(HotspotBase):
         self.bounding_box = bounding_box
 
     def render(self, image):
+        if (
+            self.bounding_box[0] == self.bounding_box[2]
+            or self.bounding_box[1] == self.bounding_box[3]
+        ):
+            return
         if image:
             PIL.ImageDraw.Draw(image).rectangle(self.bounding_box, "white", "white")
