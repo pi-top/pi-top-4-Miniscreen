@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 class Hotspot(HotspotBase):
     def __init__(self, interval, size, mode, image_path, xy=None):
         super().__init__(interval, size, mode)
+        self.xy = xy
         self.image = None
         self.image_path = image_path
-        self.xy = xy
 
     def render(self, image):
         if self.image:

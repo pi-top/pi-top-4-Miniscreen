@@ -33,15 +33,12 @@ class MenuBase:
 
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
-                logger.info(f"bbox - {upperleft_xy}")
                 for hotspot in hotspots:
-                    logger.info(f"hotspot - {hotspot}")
                     # Adjust page's xy to match position in viewport
                     pos = (
                         upperleft_xy[0],
                         upperleft_xy[1] + i * size[1],
                     )
-                    logger.info(f"hotspot - pos: {pos}")
                     self.viewport.add_hotspot(hotspot, pos)
 
     @property
