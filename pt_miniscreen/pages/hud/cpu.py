@@ -9,7 +9,7 @@ from ..base import PageBase
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
-
+        cpu_bars_y_margin = 20
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
@@ -19,11 +19,11 @@ class Page(PageBase):
                     image_path=get_image_file_path("sys_info/cpu.png"),
                 ),
             ],
-            (self.short_section_width, 0): [
+            (self.short_section_width, int(cpu_bars_y_margin / 2)): [
                 CpuBarsHotspot(
                     interval=interval,
                     mode=mode,
-                    size=(self.long_section_width, size[1]),
+                    size=(self.long_section_width, size[1] - cpu_bars_y_margin),
                 ),
             ],
         }
