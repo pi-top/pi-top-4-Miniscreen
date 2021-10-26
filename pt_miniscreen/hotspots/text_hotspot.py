@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode, text, font_size=20, xy=None):
+    def __init__(
+        self, interval, size, mode, text, font_size=20, xy=None, font=None, fill=1
+    ):
         super().__init__(interval, size, mode)
 
         self.assistant = MiniscreenAssistant(self.mode, self.size)
@@ -17,6 +19,8 @@ class Hotspot(HotspotBase):
         if xy is None:
             xy = (0, 0)
         self.xy = xy
+        self.font = font
+        self.fill = fill
 
     def render(self, image):
         self.assistant.render_text(
@@ -24,6 +28,8 @@ class Hotspot(HotspotBase):
             text=self.text,
             xy=self.xy,
             font_size=self.font_size,
+            font=self.font,
+            fill=self.fill,
         )
 
     @property

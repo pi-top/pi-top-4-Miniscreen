@@ -23,7 +23,7 @@ class PageBase:
         config_factory = ConfigFactory(size, mode, interval)
 
         self.child_menu = dict()
-        if config.child_menu:
+        if config and config.child_menu:
             for menu_name, menu_config in config.child_menu.items():
                 self.child_menu[menu_name] = config_factory.get(menu_config)
 
