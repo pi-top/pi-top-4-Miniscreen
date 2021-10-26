@@ -1,6 +1,6 @@
 import PIL.Image
 
-from .base import HotspotBase
+from .base import Hotspot as HotspotBase
 
 
 class Hotspot(HotspotBase):

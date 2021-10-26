@@ -4,8 +4,7 @@ from PIL import Image, ImageOps
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 
-# Based on luma.core hotspots/snapshots
-class HotspotBase:
+class Hotspot:
     def __init__(self, interval, size, mode):
         self.interval = interval
         self.size = size

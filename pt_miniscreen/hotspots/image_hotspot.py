@@ -2,7 +2,7 @@ import logging
 
 import PIL.Image
 
-from .base import HotspotBase
+from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
 

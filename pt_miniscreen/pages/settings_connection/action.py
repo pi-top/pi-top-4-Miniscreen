@@ -4,7 +4,7 @@ import PIL.Image
 import PIL.ImageDraw
 
 from ...utils import get_image_file_path
-from ..base import PageBase
+from ..base import Page as PageBase
 
 
 class ActionState(Enum):

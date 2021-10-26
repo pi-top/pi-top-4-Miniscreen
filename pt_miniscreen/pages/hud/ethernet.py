@@ -6,7 +6,7 @@ from pitop.common.sys_info import get_internal_ip
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...utils import get_image_file_path
-from ..base import PageBase
+from ..base import Page as PageBase
 from .base import common_second_line_y, default_margin_x
 
 

@@ -3,7 +3,7 @@ from typing import Dict
 from ...hotspots.cpu_bars_hotspot import Hotspot as CpuBarsHotspot
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...utils import get_image_file_path
-from ..base import PageBase
+from ..base import Page as PageBase
 
 
 class Page(PageBase):

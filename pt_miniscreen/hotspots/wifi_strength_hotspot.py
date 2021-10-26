@@ -1,7 +1,7 @@
 import PIL.ImageDraw
 from pitop.common.sys_info import get_network_strength
 
-from .base import HotspotBase
+from .base import Hotspot as HotspotBase
 
 
 class Hotspot(HotspotBase):

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Type
 
-from ...pages.base import PageBase
+from ...pages.base import Page as PageBase
 
 
 @dataclass

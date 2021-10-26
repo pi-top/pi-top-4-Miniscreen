@@ -1,8 +1,7 @@
 from ..config import ConfigFactory
 
 
-# Based on luma.core hotspots/snapshots
-class PageBase:
+class Page:
     def __init__(self, interval, size, mode, config):
         self.interval = interval
         self.size = size

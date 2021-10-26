@@ -7,7 +7,7 @@ from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
 from ...hotspots.text_hotspot import Hotspot as TextHotspot
 from ...utils import get_image_file_path
-from ..base import PageBase
+from ..base import Page as PageBase
 
 logger = logging.getLogger(__name__)
 

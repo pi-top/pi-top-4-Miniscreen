@@ -3,7 +3,7 @@ import PIL.ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...utils import get_image_file_path
-from ..base import PageBase
+from ..base import Page as PageBase
 
 
 class Page(PageBase):

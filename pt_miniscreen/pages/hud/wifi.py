@@ -7,7 +7,7 @@ from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.text_hotspot import Hotspot as TextHotspot
 from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
 from ...utils import get_image_file_path
-from ..base import PageBase
+from ..base import Page as PageBase
 
 default_margin_x = 29
 

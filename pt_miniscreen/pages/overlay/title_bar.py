@@ -5,7 +5,7 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
 from ...hotspots.text_hotspot import Hotspot as TextHotspot
-from ..base import PageBase
+from ..base import Page as PageBase
 
 logger = logging.getLogger(__name__)
 
