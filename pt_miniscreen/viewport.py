@@ -107,6 +107,7 @@ class Viewport:
                     continue
 
                 collections_to_redraw.append(hotspot_collection)
+                break
 
         if len(collections_to_redraw) > 0:
             for hotspot_collection in collections_to_redraw:
