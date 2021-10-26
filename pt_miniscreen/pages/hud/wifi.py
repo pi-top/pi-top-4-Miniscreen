@@ -17,7 +17,7 @@ class Page(PageBase):
         self.ssid = ""
         self.ip = ""
 
-        self.ssid_hotspot = TextHotspot(
+        ssid_hotspot = TextHotspot(
             interval=interval,
             mode=mode,
             size=size,
@@ -25,16 +25,13 @@ class Page(PageBase):
             font_size=12,
             xy=(default_margin_x, common_second_line_y),
         )
-        self.ip_address_hotspot = TextHotspot(
+        ip_address_hotspot = TextHotspot(
             interval=interval,
             mode=mode,
             size=size,
             text=self.get_ip_address,
             font_size=12,
             xy=(default_margin_x, common_third_line_y),
-        )
-        self.wifi_strength = WifiStrengthHotspot(
-            interval=interval, size=size, mode=mode, image_path=None, xy=(0, 0)
         )
 
         self.hotspots: Dict = {
@@ -45,10 +42,16 @@ class Page(PageBase):
                     size=size,
                     image_path=get_image_file_path("sys_info/networking/wifi_info.png"),
                 ),
-                self.ssid_hotspot,
-                self.ip_address_hotspot,
-                self.wifi_strength,
-            ]
+                ssid_hotspot,
+                ip_address_hotspot,
+            ],
+            (default_margin_x, 0): [
+                WifiStrengthHotspot(
+                    interval=interval,
+                    size=(int(size[0] / 2), int(size[1] / 3)),
+                    mode=mode,
+                )
+            ],
         }
 
     def get_ip_address(self):

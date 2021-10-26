@@ -17,7 +17,7 @@ menu_app_config = MenuAppConfig(
                         [
                             ("battery", PageConfig(page_cls=hud.battery.Page)),
                             ("cpu", PageConfig(page_cls=hud.cpu.Page)),
-                            # ("wifi", PageConfig(page_cls=hud.wifi.Page)),
+                            ("wifi", PageConfig(page_cls=hud.wifi.Page)),
                             # ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
                             # ("ap", PageConfig(page_cls=hud.ap.Page)),
                             # ("usb", PageConfig(page_cls=hud.usb.Page)),

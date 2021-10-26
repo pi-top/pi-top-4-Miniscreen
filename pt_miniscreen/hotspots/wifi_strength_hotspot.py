@@ -1,52 +1,38 @@
-import PIL.Image
 import PIL.ImageDraw
 from pitop.common.sys_info import get_network_strength
 
-from ..utils import get_image_file_path
-from .image_hotspot import Hotspot as ImageHotspot
-
-wifi_images = {
-    "no": PIL.Image.open(
-        get_image_file_path("sys_info/networking/wifi_strength_bars/wifi_no_signal.png")
-    ),
-    "weak": PIL.Image.open(
-        get_image_file_path(
-            "sys_info/networking/wifi_strength_bars/wifi_weak_signal.png"
-        )
-    ),
-    "okay": PIL.Image.open(
-        get_image_file_path(
-            "sys_info/networking/wifi_strength_bars/wifi_okay_signal.png"
-        )
-    ),
-    "good": PIL.Image.open(
-        get_image_file_path(
-            "sys_info/networking/wifi_strength_bars/wifi_good_signal.png"
-        )
-    ),
-    "excellent": PIL.Image.open(
-        get_image_file_path(
-            "sys_info/networking/wifi_strength_bars/wifi_excellent_signal.png"
-        )
-    ),
-}
+from .base import HotspotBase
 
 
-class Hotspot(ImageHotspot):
-    def __init__(self, interval, size, mode, image_path, xy=None):
-        super().__init__(interval, size, mode, image_path, xy)
+class Hotspot(HotspotBase):
+    def __init__(self, interval, size, mode):
+        super().__init__(interval, size, mode)
 
     def render(self, image):
         wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
-        if wifi_strength <= 0:
-            self.image = wifi_images["no"]
-        elif wifi_strength <= 0.25:
-            self.image = wifi_images["weak"]
-        elif wifi_strength <= 0.5:
-            self.image = wifi_images["okay"]
-        elif wifi_strength <= 0.75:
-            self.image = wifi_images["good"]
-        else:
-            self.image = wifi_images["excellent"]
 
-        super().render(image)
+        number_of_bars = 4
+        filled_bars = 4
+        if wifi_strength <= 0:
+            filled_bars = 0
+        elif wifi_strength <= 0.25:
+            filled_bars = 1
+        elif wifi_strength <= 0.5:
+            filled_bars = 2
+        elif wifi_strength <= 0.75:
+            filled_bars = 3
+
+        space_between_bars = 4
+        width_cpu = self.size[0] / number_of_bars
+        bar_width = width_cpu - space_between_bars
+
+        x = 0
+        draw = PIL.ImageDraw.Draw(image)
+        for i in range(number_of_bars):
+            draw.rectangle(
+                (x, self.size[1] * (1 - (i + 1) / number_of_bars))
+                + (x + bar_width, self.size[1]),
+                "white" if i + 1 <= filled_bars else "black",
+                "white",
+            )
+            x += width_cpu
