@@ -21,15 +21,20 @@ class Menu:
         self.top_edge = config.top_edge
         self.bottom_edge = config.bottom_edge
         self.title_bar = config.title_bar
+        self.title_bar_height = 0
 
-        self.title_bar_page = config.title_bar.page_cls(
-            interval=1,
-            size=(size[0], self.title_bar.height),
-            mode=mode,
-            config=None,
-        )
+        if self.title_bar is not None:
+            self.title_bar_height = self.title_bar_height
 
-        window_height = size[1] - self.title_bar.height
+        if self.title_bar is not None:
+            self.title_bar_page = config.title_bar.page_cls(
+                interval=1,
+                size=(size[0], self.title_bar_height),
+                mode=mode,
+                config=None,
+            )
+
+        window_height = size[1] - self.title_bar_height
         window_size = (size[0], window_height)
         display_size = (size[0], window_height * len(config.children))
 
@@ -74,8 +79,9 @@ class Menu:
     @property
     def image(self):
         im = Image.new(self.mode, self.size)
-        self.title_bar_page.render(im)
-        im.paste(self.viewport.image, (0, self.title_bar.height) + self.size)
+        if self.title_bar is not None:
+            self.title_bar_page.render(im)
+        im.paste(self.viewport.image, (0, self.title_bar_height) + self.size)
 
         return im
 

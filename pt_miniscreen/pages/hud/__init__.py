@@ -1,1 +1,1 @@
-from . import battery, cpu, title_bar, wifi
+from . import battery, cpu, wifi
