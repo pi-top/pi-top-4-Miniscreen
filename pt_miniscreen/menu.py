@@ -126,15 +126,23 @@ class Menu:
 
     @property
     def needs_to_scroll(self):
-        correct_y_pos = self.page_index * self.current_page.height
-        return self.y_pos != correct_y_pos
+        final_y_pos = self.page_index * self.current_page.height
+        return self.y_pos != final_y_pos
 
     def update_scroll_position(self):
         if not self.needs_to_scroll:
             return
 
-        correct_y_pos = self.page_index * self.viewport.window_height
-        move_down = correct_y_pos > self.y_pos
+        final_y_pos = self.page_index * self.viewport.window_height
+        moving_down = final_y_pos > self.y_pos
+        remaining_distance = (
+            final_y_pos - self.y_pos if moving_down else self.y_pos - final_y_pos
+        )
 
-        # TODO: check if this will scroll past
-        self.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)
+        new_y_pos = (
+            final_y_pos
+            if remaining_distance < self.SCROLL_PX_RESOLUTION
+            else self.y_pos + self.SCROLL_PX_RESOLUTION * (1 if moving_down else -1)
+        )
+
+        self.y_pos = new_y_pos
