@@ -1,10 +1,13 @@
 from ..menu import Menu
-from ..pages import hud  # , settings, settings_connection, settings_display  # , guide
+from ..pages import (
+    hud,  # , overlay, settings, settings_connection, settings_display, guide
+)
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
 from .classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .classes.page import PageConfig
-from .classes.title_bar import TitleBarConfig
+
+# from .classes.title_bar import TitleBarConfig
 
 menu_app_config = MenuAppConfig(
     children=dict(
@@ -15,7 +18,6 @@ menu_app_config = MenuAppConfig(
                     menu_cls=Menu,
                     top_edge=MenuEdgeBehaviour.NONE,
                     bottom_edge=MenuEdgeBehaviour.NONE,
-                    title_bar=TitleBarConfig(page_cls=hud.title_bar.Page, height=19),
                     children=dict(
                         [
                             ("battery", PageConfig(page_cls=hud.battery.Page)),
@@ -34,6 +36,7 @@ menu_app_config = MenuAppConfig(
             #         menu_cls=Menu,
             #         top_edge=MenuEdgeBehaviour.NONE,
             #         bottom_edge=MenuEdgeBehaviour.NONE,
+            #         title_bar=TitleBarConfig(page_cls=overlay.title_bar.Page, height=19),
             #         children=dict(
             #             [
             #                 (
