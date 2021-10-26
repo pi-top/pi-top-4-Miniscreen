@@ -13,7 +13,7 @@ class MenuManager:
 
         self.menus = MenuConfigManager.get_menus_dict(size, mode)
 
-        self.current_menu_id = "hud"
+        self.current_menu_id = list(self.menus.keys())[0]
         self.should_redraw_event = Event()
 
         subscribe(

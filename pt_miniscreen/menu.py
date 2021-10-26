@@ -45,10 +45,10 @@ class Menu:
             mode=mode,
         )
 
+        # Adjust each hotspot's xy to match position in viewport
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:
-                    # Adjust page's xy to match position in viewport
                     pos = (
                         upperleft_xy[0],
                         upperleft_xy[1] + i * window_height,
