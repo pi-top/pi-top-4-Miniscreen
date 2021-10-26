@@ -34,8 +34,10 @@ class Hotspot(HotspotBase):
 
     @property
     def text(self):
+        if callable(self._text):
+            return self._text()
         return self._text
 
     @text.setter
-    def text(self, value):
-        self._text = value
+    def text(self, value_or_callback):
+        self._text = value_or_callback
