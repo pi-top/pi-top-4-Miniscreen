@@ -24,7 +24,7 @@ class Menu:
         self.title_bar_height = 0
 
         if self.title_bar is not None:
-            self.title_bar_height = self.title_bar_height
+            self.title_bar_height = self.title_bar.height
 
         if self.title_bar is not None:
             self.title_bar_page = config.title_bar.page_cls(
@@ -79,8 +79,12 @@ class Menu:
     @property
     def image(self):
         im = Image.new(self.mode, self.size)
+
         if self.title_bar is not None:
-            self.title_bar_page.render(im)
+            title_bar_im = Image.new(self.mode, (self.size[0], self.title_bar_height))
+            self.title_bar_page.render(title_bar_im)
+            im.paste(title_bar_im, (0, 0) + (self.size[0], self.title_bar_height))
+
         im.paste(self.viewport.image, (0, self.title_bar_height) + self.size)
 
         return im

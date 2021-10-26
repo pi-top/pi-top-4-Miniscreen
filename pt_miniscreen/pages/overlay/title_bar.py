@@ -22,11 +22,10 @@ class Page(PageBase):
                     interval=interval,
                     mode=mode,
                     size=size,
-                    text="This is a title bar",
+                    text="Title Bar",
                     font=asst.get_mono_font_path(bold=True),
-                    font_size=19,
-                    fill=1,
-                    xy=(size[0] / 2, size[1] / 2),
+                    font_size=14,
+                    fill="white",
                 )
             ],
             (0, size[1] - 1): [
@@ -38,8 +37,3 @@ class Page(PageBase):
                 )
             ],
         }
-
-    def render(self, image):
-        for position, hotspot_list in self.hotspots.items():
-            for hotspot in hotspot_list:
-                hotspot.paste_into(image, position)

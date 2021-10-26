@@ -29,3 +29,8 @@ class Page:
     def on_select_press(self):
         # Only invoked if there is no child menu in config
         pass
+
+    def render(self, image):
+        for position, hotspot_list in self.hotspots.items():
+            for hotspot in hotspot_list:
+                hotspot.paste_into(image, position)

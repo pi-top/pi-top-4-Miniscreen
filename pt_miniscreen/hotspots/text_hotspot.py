@@ -16,9 +16,11 @@ class Hotspot(HotspotBase):
         self.assistant = MiniscreenAssistant(self.mode, self.size)
         self._text = text
         self.font_size = font_size
+
         if xy is None:
-            xy = (0, 0)
+            xy = (size[0] / 2, size[1] / 2)
         self.xy = xy
+
         self.font = font
         self.fill = fill
 

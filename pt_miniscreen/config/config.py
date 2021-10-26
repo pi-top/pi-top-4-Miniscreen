@@ -1,13 +1,10 @@
 from ..menu import Menu
-from ..pages import (
-    hud,  # , overlay, settings, settings_connection, settings_display, guide
-)
+from ..pages import hud, overlay, settings
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
 from .classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .classes.page import PageConfig
-
-# from .classes.title_bar import TitleBarConfig
+from .classes.title_bar import TitleBarConfig
 
 menu_app_config = MenuAppConfig(
     children=dict(
@@ -30,87 +27,89 @@ menu_app_config = MenuAppConfig(
                     ),
                 ),
             ),
-            # (
-            #     "settings",
-            #     MenuConfig(
-            #         menu_cls=Menu,
-            #         top_edge=MenuEdgeBehaviour.NONE,
-            #         bottom_edge=MenuEdgeBehaviour.NONE,
-            #         title_bar=TitleBarConfig(page_cls=overlay.title_bar.Page, height=19),
-            #         children=dict(
-            #             [
-            #                 (
-            #                     "connection",
-            #                     PageConfig(
-            #                         page_cls=settings.connection.Page,
-            #                         child_menu=dict(
-            #                             [
-            #                                 (
-            #                                     "settings.connection",
-            #                                     MenuConfig(
-            #                                         menu_cls=Menu,
-            #                                         top_edge=MenuEdgeBehaviour.NONE,
-            #                                         bottom_edge=MenuEdgeBehaviour.NONE,
-            #                                         children=dict(
-            #                                             [
-            #                                                 (
-            #                                                     "settings_connection.ssh",
-            #                                                     PageConfig(
-            #                                                         page_cls=settings_connection.ssh.Page,
-            #                                                     ),
-            #                                                 ),
-            #                                                 (
-            #                                                     "settings.connection.vnc",
-            #                                                     PageConfig(
-            #                                                         page_cls=settings_connection.vnc.Page,
-            #                                                     ),
-            #                                                 ),
-            #                                                 (
-            #                                                     "settings.connection.further_link",
-            #                                                     PageConfig(
-            #                                                         page_cls=settings_connection.further_link.Page,
-            #                                                     ),
-            #                                                 ),
-            #                                             ],
-            #                                         ),
-            #                                     ),
-            #                                 ),
-            #                             ]
-            #                         ),
-            #                     ),
-            #                 ),
-            #                 (
-            #                     "display",
-            #                     PageConfig(
-            #                         page_cls=settings.display.Page,
-            #                         child_menu=dict(
-            #                             [
-            #                                 (
-            #                                     "settings.display",
-            #                                     MenuConfig(
-            #                                         menu_cls=Menu,
-            #                                         top_edge=MenuEdgeBehaviour.NONE,
-            #                                         bottom_edge=MenuEdgeBehaviour.NONE,
-            #                                         children=dict(
-            #                                             [
-            #                                                 (
-            #                                                     "settings_display.hdmi_reset",
-            #                                                     PageConfig(
-            #                                                         page_cls=settings_display.hdmi_reset.Page,
-            #                                                     ),
-            #                                                 ),
-            #                                             ],
-            #                                         ),
-            #                                     ),
-            #                                 ),
-            #                             ]
-            #                         ),
-            #                     ),
-            #                 ),
-            #             ]
-            #         ),
-            #     ),
-            # ),
+            (
+                "settings",
+                MenuConfig(
+                    menu_cls=Menu,
+                    top_edge=MenuEdgeBehaviour.NONE,
+                    bottom_edge=MenuEdgeBehaviour.NONE,
+                    title_bar=TitleBarConfig(
+                        page_cls=overlay.title_bar.Page, height=19
+                    ),
+                    children=dict(
+                        [
+                            (
+                                "connection",
+                                PageConfig(
+                                    page_cls=settings.connection.Page,
+                                    child_menu=dict(
+                                        [
+                                            (
+                                                "settings.connection",
+                                                MenuConfig(
+                                                    menu_cls=Menu,
+                                                    top_edge=MenuEdgeBehaviour.NONE,
+                                                    bottom_edge=MenuEdgeBehaviour.NONE,
+                                                    children=dict(
+                                                        [
+                                                            # (
+                                                            #     "settings_connection.ssh",
+                                                            #     PageConfig(
+                                                            #         page_cls=settings_connection.ssh.Page,
+                                                            #     ),
+                                                            # ),
+                                                            #                                                 (
+                                                            #                                                     "settings.connection.vnc",
+                                                            #                                                     PageConfig(
+                                                            #                                                         page_cls=settings_connection.vnc.Page,
+                                                            #                                                     ),
+                                                            #                                                 ),
+                                                            #                                                 (
+                                                            #                                                     "settings.connection.further_link",
+                                                            #                                                     PageConfig(
+                                                            #                                                         page_cls=settings_connection.further_link.Page,
+                                                            #                                                     ),
+                                                            #                                                 ),
+                                                        ],
+                                                    ),
+                                                ),
+                                            ),
+                                        ]
+                                    ),
+                                ),
+                            ),
+                            #                 (
+                            #                     "display",
+                            #                     PageConfig(
+                            #                         page_cls=settings.display.Page,
+                            #                         child_menu=dict(
+                            #                             [
+                            #                                 (
+                            #                                     "settings.display",
+                            #                                     MenuConfig(
+                            #                                         menu_cls=Menu,
+                            #                                         top_edge=MenuEdgeBehaviour.NONE,
+                            #                                         bottom_edge=MenuEdgeBehaviour.NONE,
+                            #                                         children=dict(
+                            #                                             [
+                            #                                                 (
+                            #                                                     "settings_display.hdmi_reset",
+                            #                                                     PageConfig(
+                            #                                                         page_cls=settings_display.hdmi_reset.Page,
+                            #                                                     ),
+                            #                                                 ),
+                            #                                             ],
+                            #                                         ),
+                            #                                     ),
+                            #                                 ),
+                            #                             ]
+                            #                         ),
+                            #                     ),
+                            #                 ),
+                        ]
+                    ),
+                ),
+            ),
         ]
     )
 )
