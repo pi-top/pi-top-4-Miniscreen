@@ -1,47 +1,6 @@
-from threading import Thread
+from typing import List, Tuple
 
 from PIL import Image
-
-
-class Worker(Thread):
-    """Thread executing tasks from a given tasks queue."""
-
-    def __init__(self, tasks):
-        Thread.__init__(self)
-        self.tasks = tasks
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        while True:
-            func, args, kargs = self.tasks.get()
-            func(*args, **kargs)
-            self.tasks.task_done()
-
-
-class Threadpool:
-    """Pool of threads consuming tasks from a queue."""
-
-    def __init__(self, num_threads):
-        try:
-            from Queue import Queue
-        except ImportError:
-            from queue import Queue
-
-        self.tasks = Queue(num_threads)
-        for _ in range(num_threads):
-            Worker(self.tasks)
-
-    def add_task(self, func, *args, **kargs):
-        """Add a task to the queue."""
-        self.tasks.put((func, args, kargs))
-
-    def wait_completion(self):
-        """Wait for completion of all the tasks in the queue."""
-        self.tasks.join()
-
-
-pool = Threadpool(4)
 
 
 def calc_bounds(xy, width, height):
@@ -129,18 +88,16 @@ class Viewport:
 
     @property
     def image(self):
-        should_wait = False
+        hotspots_to_redraw: List[Tuple] = list()
         for hotspot, xy in self.heightotspots:
             if hotspot.should_redraw() and self.is_overlapping_viewport(hotspot, xy):
-                # Clear part of backing image that is to be redrawn
-                eraser = Image.new("1", hotspot.size)
-                self._backing_image.paste(eraser, xy)
+                hotspots_to_redraw.append((hotspot, xy))
 
-                pool.add_task(hotspot.paste_into, self._backing_image, xy)
-                should_wait = True
+        if len(hotspots_to_redraw) > 0:
+            self._backing_image.paste(Image.new("1", hotspot.size), xy)
 
-        if should_wait:
-            pool.wait_completion()
+            for hotspot, xy in hotspots_to_redraw:
+                hotspot.paste_into(self._backing_image, xy)
 
         return self._backing_image.crop(box=self._crop_box())
 
