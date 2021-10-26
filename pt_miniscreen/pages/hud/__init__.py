@@ -1,2 +1,1 @@
-from . import ap, battery, cpu, ethernet, usb, wifi
-from .base import Menu
+from . import battery, cpu, title_bar, wifi

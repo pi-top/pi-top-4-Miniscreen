@@ -13,7 +13,12 @@ from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.text_hotspot import Hotspot as TextHotspot
 from ...utils import get_image_file_path
 from ..base import PageBase
-from .base import common_second_line_y, common_third_line_y, default_margin_x
+
+default_margin_x = 29
+
+common_first_line_y = 16
+common_second_line_y = common_first_line_y + 16
+common_third_line_y = common_second_line_y + 16
 
 wifi_images = {
     "no": PIL.Image.open(

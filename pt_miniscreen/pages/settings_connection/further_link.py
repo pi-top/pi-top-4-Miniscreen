@@ -1,6 +1,6 @@
 from pitop.common.sys_info import get_pt_further_link_enabled_state
 
-from ...menu_page_actions import change_further_link_enabled_state
+from ...actions import change_further_link_enabled_state
 from .action import Page as PageBase
 
 

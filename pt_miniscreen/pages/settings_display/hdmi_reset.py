@@ -1,4 +1,4 @@
-from ...menu_page_actions import reset_hdmi_configuration
+from ...actions import reset_hdmi_configuration
 from .action import Page as PageBase
 
 

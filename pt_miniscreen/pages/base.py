@@ -20,11 +20,12 @@ class PageBase:
         self.long_section_width = int(size[0] / golden_ratio)
         self.short_section_width = size[0] - self.long_section_width
 
-        menu_factory = ConfigFactory(size, mode, interval)
-        self.child_menu = {}
+        config_factory = ConfigFactory(size, mode, interval)
+
+        self.child_menu = dict()
         if config.child_menu:
-            for name, config in config.child_menu.items():
-                self.child_menu[name] = menu_factory.get(config)
+            for menu_name, menu_config in config.child_menu.items():
+                self.child_menu[menu_name] = config_factory.get(menu_config)
 
     def on_select_press(self):
         # Only invoked if there is no child menu in config

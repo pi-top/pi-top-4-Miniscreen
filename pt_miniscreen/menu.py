@@ -1,5 +1,7 @@
 import logging
 
+from PIL import Image
+
 from .config import ConfigFactory
 from .config.classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .viewport import Viewport
@@ -7,29 +9,34 @@ from .viewport import Viewport
 logger = logging.getLogger(__name__)
 
 
-class MenuBase:
+class Menu:
     SCROLL_PX_RESOLUTION = 2
 
-    def __init__(self, size, mode, redraw_speed, config, overlay_render_func=None):
+    def __init__(self, size, mode, redraw_speed, config):
+        self.mode = mode
+        self.size = size
+        self.page_index = 0
 
         self.parent_goes_to_first_page = config.parent_goes_to_first_page
         self.top_edge = config.top_edge
         self.bottom_edge = config.bottom_edge
+        self.title_bar = config.title_bar
 
-        self.pages = []
-        menu_factory = ConfigFactory(size, mode, redraw_speed)
-        for name, config in config.children.items():
-            self.pages.append(menu_factory.get(config))
+        window_height = size[1] - self.title_bar.height
+        window_size = (size[0], window_height)
+        display_size = (size[0], window_height * len(config.children))
 
-        self.page_index = 0
+        config_factory = ConfigFactory(window_size, mode, redraw_speed)
+
+        self.pages = list()
+        for page_name, page_config in config.children.items():
+            self.pages.append(config_factory.get(page_config))
 
         self.viewport = Viewport(
-            display_size=(size[0], size[1] * len(self.pages)),
-            window_size=size,
+            window_size=window_size,
+            display_size=display_size,
             mode=mode,
         )
-
-        self.overlay_render_func = overlay_render_func
 
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
@@ -37,8 +44,10 @@ class MenuBase:
                     # Adjust page's xy to match position in viewport
                     pos = (
                         upperleft_xy[0],
-                        upperleft_xy[1] + i * size[1],
+                        upperleft_xy[1] + i * window_height,
                     )
+                    print(pos)
+                    print(hotspot.size)
                     self.viewport.add_hotspot(hotspot, pos, collection_id=page)
 
     @property
@@ -59,10 +68,9 @@ class MenuBase:
 
     @property
     def image(self):
-        im = self.viewport.image
-
-        if callable(self.overlay_render_func):
-            self.overlay_render_func(im)
+        im = Image.new(self.mode, self.size)
+        im.paste(self.title_bar, (0, 0) + (self.size[1], self.title_bar.height - 1))
+        im.paste(self.viewport.image, (0, self.title_bar.height) + self.size)
 
         return im
 
