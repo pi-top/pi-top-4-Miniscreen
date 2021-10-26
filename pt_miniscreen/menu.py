@@ -46,8 +46,6 @@ class Menu:
                         upperleft_xy[0],
                         upperleft_xy[1] + i * window_height,
                     )
-                    print(pos)
-                    print(hotspot.size)
                     self.viewport.add_hotspot(hotspot, pos, collection_id=page)
 
     @property
