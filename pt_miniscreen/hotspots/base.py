@@ -11,7 +11,7 @@ class HotspotBase:
         self.size = size
         self.mode = mode
 
-        self.overlay = False
+        self.overlay = True
 
         self.last_updated = -self.interval
         self.invert = False

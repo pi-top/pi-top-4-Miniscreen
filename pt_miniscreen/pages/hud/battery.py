@@ -35,7 +35,6 @@ class Page(PageBase):
             font_size=19,
             xy=(self.short_section_width, size[1] / 2),
         )
-        self.text_hotspot.overlay = True
 
         self.battery_base_hotspot = ImageHotspot(
             interval=interval,
@@ -47,7 +46,6 @@ class Page(PageBase):
         self.rectangle_hotspot = RectangleHotspot(
             interval=interval, mode=mode, size=(37, 14), bounding_box=(0, 0, 0, 0)
         )
-        self.rectangle_hotspot.overlay = True
 
         battery_left_margin = 15
         capacity_rectangle_left_offset = 4
