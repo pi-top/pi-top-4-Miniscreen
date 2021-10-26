@@ -1,4 +1,5 @@
 from ipaddress import ip_address
+from typing import Dict
 
 import PIL.Image
 import PIL.ImageDraw
@@ -7,8 +8,9 @@ from pitop.common.sys_info import (
     get_network_strength,
     get_wifi_network_ssid,
 )
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ...hotspots.image_hotspot import Hotspot as ImageHotspot
+from ...hotspots.text_hotspot import Hotspot as TextHotspot
 from ...utils import get_image_file_path
 from ..base import PageBase
 from .base import common_second_line_y, common_third_line_y, default_margin_x
@@ -43,6 +45,37 @@ wifi_images = {
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
+
+        self.ssid_hotspot = TextHotspot(
+            interval=interval,
+            mode=mode,
+            size=size,
+            text="ssid",
+            font_size=12,
+            xy=(default_margin_x, common_second_line_y),
+        )
+        self.ip_address_hotspot = TextHotspot(
+            interval=interval,
+            mode=mode,
+            size=size,
+            text="pi-top.local",
+            font_size=12,
+            xy=(default_margin_x, common_third_line_y),
+        )
+
+        self.hotspots: Dict = {
+            (0, 0): [
+                ImageHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    image_path=get_image_file_path("sys_info/networking/wifi_info.png"),
+                ),
+                self.ssid_hotspot,
+                self.ip_address_hotspot,
+            ]
+        }
+
         self.wifi_bars_image = wifi_images["no"]
         self.info_image = PIL.Image.open(
             get_image_file_path("sys_info/networking/wifi_info.png")
@@ -78,16 +111,7 @@ class Page(PageBase):
         )
 
     def draw_info_text(self, image):
-        assistant = MiniscreenAssistant("1", (128, 64))
-        assistant.render_text(
-            image,
-            text=get_wifi_network_ssid(),
-            font_size=12,
-            xy=(default_margin_x, common_second_line_y),
-            align="left",
-            anchor="lm",
-            wrap=False,
-        )
+        self.ssid_hotspot.text = get_wifi_network_ssid()
 
         network_ip = ""
         try:
@@ -98,15 +122,7 @@ class Page(PageBase):
         except ValueError:
             pass
 
-        assistant.render_text(
-            image,
-            text=network_ip,
-            font_size=12,
-            xy=(default_margin_x, common_third_line_y),
-            align="left",
-            anchor="lm",
-            wrap=False,
-        )
+        self.ip_address_hotspot.text = network_ip
 
     def render(self, image):
         self.draw_info_image(image)
