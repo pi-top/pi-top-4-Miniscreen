@@ -15,9 +15,9 @@ class HotspotBase:
         self.invert = False
         self.width = size[0]
         self.height = size[1]
-        self.visible = True
-        self.font_size = 14
-        self.wrap = True
+        # self.visible = True
+        # self.font_size = 14
+        # self.wrap = True
 
     def should_redraw(self):
         """Only requests a redraw after ``interval`` seconds have elapsed."""

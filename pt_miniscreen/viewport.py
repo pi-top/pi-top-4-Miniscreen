@@ -129,22 +129,20 @@ class Viewport:
 
     @property
     def image(self):
-        # should_wait = False
-        has_cleared = False
+        should_wait = False
         for hotspot, xy in self.heightotspots:
             if hotspot.should_redraw() and self.is_overlapping_viewport(hotspot, xy):
-                if not has_cleared:
-                    self.clear()
-                    has_cleared = True
-                hotspot.paste_into(self._backing_image, xy)
-                # pool.add_task(hotspot.paste_into, self._backing_image, xy)
-                # should_wait = True
+                # Clear part of backing image that is to be redrawn
+                eraser = Image.new("1", hotspot.size)
+                self._backing_image.paste(eraser, xy)
 
-        # if should_wait:
-        #     pool.wait_completion()
+                pool.add_task(hotspot.paste_into, self._backing_image, xy)
+                should_wait = True
 
-        im = self._backing_image.crop(box=self._crop_box())
-        return im
+        if should_wait:
+            pool.wait_completion()
+
+        return self._backing_image.crop(box=self._crop_box())
 
     def _crop_box(self):
         (left, top) = self._position
