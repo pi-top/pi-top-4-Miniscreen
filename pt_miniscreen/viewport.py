@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from PIL import Image
 
@@ -42,7 +42,7 @@ class Viewport:
 
         self._backing_image = Image.new(self.mode, self.size)
         self._position = (0, 0)
-        self.heightotspots = []
+        self._hotspots: Dict[Any, List[Tuple]] = dict()
 
     def clear(self):
         """Initializes the device memory with an empty (blank) image."""
@@ -51,7 +51,7 @@ class Viewport:
     def set_position(self, xy):
         self._position = xy
 
-    def add_hotspot(self, hotspot, xy):
+    def add_hotspot(self, hotspot, xy, collection_id=None):
         """Add the hotspot at ``(x, y)``.
 
         The hotspot must fit inside the bounds of the virtual device. If
@@ -63,7 +63,9 @@ class Viewport:
 
         # TODO: should it check to see whether hotspots overlap each other?
         # Is sensible to _allow_ them to overlap?
-        self.heightotspots.append((hotspot, xy))
+        current_collection = self._hotspots.get(collection_id, list())
+        current_collection.append((hotspot, xy))
+        self._hotspots[collection_id] = current_collection
 
     def remove_hotspot(self, hotspot, xy):
         """Remove the hotspot at ``(x, y)``: Any previously rendered image
@@ -73,7 +75,14 @@ class Viewport:
         If the specified hotspot is not found for ``(x, y)``, a
         ``ValueError`` is raised.
         """
-        self.heightotspots.remove((hotspot, xy))
+        hotspot_instance = [(hotspot, xy)]
+
+        for collection_id, collection in self._hotspots:
+            if hotspot_instance in collection:
+                self._hotspots[collection_id].remove(hotspot_instance)
+                if len(self._hotspots[collection_id]) == 0:
+                    self._hotspot.remove(collection_id)
+
         eraser = Image.new(self.mode, hotspot.size)
         self._backing_image.paste(eraser, xy)
 
@@ -88,16 +97,24 @@ class Viewport:
 
     @property
     def image(self):
-        hotspots_to_redraw: List[Tuple] = list()
-        for hotspot, xy in self.heightotspots:
-            if hotspot.should_redraw() and self.is_overlapping_viewport(hotspot, xy):
-                hotspots_to_redraw.append((hotspot, xy))
+        collections_to_redraw: List[Tuple] = list()
+        for collection_id, hotspot_collection in self._hotspots.items():
+            for hotspot, xy in hotspot_collection:
+                if not hotspot.should_redraw():
+                    continue
 
-        if len(hotspots_to_redraw) > 0:
-            self._backing_image.paste(Image.new("1", hotspot.size), xy)
+                if not self.is_overlapping_viewport(hotspot, xy):
+                    continue
 
-            for hotspot, xy in hotspots_to_redraw:
-                hotspot.paste_into(self._backing_image, xy)
+                collections_to_redraw.append(hotspot_collection)
+
+        if len(collections_to_redraw) > 0:
+            for hotspot_collection in collections_to_redraw:
+                for hotspot, xy in hotspot_collection:
+                    self._backing_image.paste(Image.new("1", hotspot.size), xy)
+
+                for hotspot, xy in hotspot_collection:
+                    hotspot.paste_into(self._backing_image, xy)
 
         return self._backing_image.crop(box=self._crop_box())
 

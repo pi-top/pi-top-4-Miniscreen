@@ -39,7 +39,7 @@ class MenuBase:
                         upperleft_xy[0],
                         upperleft_xy[1] + i * size[1],
                     )
-                    self.viewport.add_hotspot(hotspot, pos)
+                    self.viewport.add_hotspot(hotspot, pos, collection_id=page)
 
     @property
     def current_page(self):
