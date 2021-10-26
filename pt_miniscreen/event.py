@@ -20,8 +20,6 @@ class AppEvents(Enum):
     UP_BUTTON_PRESS = auto()  # callable
     DOWN_BUTTON_PRESS = auto()  # callable
     BUTTON_ACTION_START = auto()
-    WIFI_SSID_CHANGED = auto()
-    WIFI_IP_CHANGED = auto()
 
 
 subscribers: Dict[AppEvents, List] = dict()
