@@ -1,6 +1,10 @@
+import logging
+import time
 from typing import Any, Dict, List, Tuple
 
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 
 def calc_bounds(xy, width, height):
@@ -31,18 +35,51 @@ class Viewport:
     """
 
     def __init__(self, display_size, window_size, mode):
-        self.mode = mode
-        self.width = display_size[0]
-        self.height = display_size[1]
+        self.size = display_size
+        self.width = self.size[0]
+        self.height = self.size[1]
+
         self.window_width = window_size[0]
         self.window_height = window_size[1]
-        self.size = (self.width, self.height)
+
+        self.mode = mode
+
         self.bounding_box = (0, 0, self.width - 1, self.height - 1)
-        self.persist = False
 
         self._backing_image = Image.new(self.mode, self.size)
         self._position = (0, 0)
         self._hotspots: Dict[Any, List[Tuple]] = dict()
+
+    @property
+    def image(self):
+        collections_to_redraw: List[Tuple] = list()
+        for collection_id, hotspot_collection in self._hotspots.items():
+            for hotspot, xy in hotspot_collection:
+                if not hotspot.should_redraw():
+                    continue
+
+                if not self._is_hotspot_overlapping(hotspot, xy):
+                    continue
+
+                collections_to_redraw.append(hotspot_collection)
+                break
+
+        start = time.time()
+
+        if len(collections_to_redraw) > 0:
+            for hotspot_collection in collections_to_redraw:
+                for hotspot, xy in hotspot_collection:
+                    self._backing_image.paste(Image.new("1", hotspot.size), xy)
+
+                for hotspot, xy in hotspot_collection:
+                    hotspot.paste_into(self._backing_image, xy)
+
+        im = self._backing_image.crop(box=self._crop_box())
+
+        end = time.time()
+        logger.debug(f"Time generating image: {end - start}")
+
+        return im
 
     def clear(self):
         """Initializes the device memory with an empty (blank) image."""
@@ -86,7 +123,7 @@ class Viewport:
         eraser = Image.new(self.mode, hotspot.size)
         self._backing_image.paste(eraser, xy)
 
-    def is_overlapping_viewport(self, hotspot, xy):
+    def _is_hotspot_overlapping(self, hotspot, xy):
         """Checks to see if the hotspot at position ``(x, y)`` is (at least
         partially) visible according to the position of the viewport."""
         l1, t1, r1, b1 = calc_bounds(xy, hotspot.width, hotspot.height)
@@ -94,30 +131,6 @@ class Viewport:
             self._position, self.window_width, self.window_height
         )
         return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
-
-    @property
-    def image(self):
-        collections_to_redraw: List[Tuple] = list()
-        for collection_id, hotspot_collection in self._hotspots.items():
-            for hotspot, xy in hotspot_collection:
-                if not hotspot.should_redraw():
-                    continue
-
-                if not self.is_overlapping_viewport(hotspot, xy):
-                    continue
-
-                collections_to_redraw.append(hotspot_collection)
-                break
-
-        if len(collections_to_redraw) > 0:
-            for hotspot_collection in collections_to_redraw:
-                for hotspot, xy in hotspot_collection:
-                    self._backing_image.paste(Image.new("1", hotspot.size), xy)
-
-                for hotspot, xy in hotspot_collection:
-                    hotspot.paste_into(self._backing_image, xy)
-
-        return self._backing_image.crop(box=self._crop_box())
 
     def _crop_box(self):
         (left, top) = self._position
