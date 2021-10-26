@@ -171,7 +171,7 @@ class App:
             else:
                 self.display_current_menu_image()
                 if self.menu_manager.current_menu.needs_to_scroll:
-                    if self.is_skipping:
+                    if self.menu_manager.is_skipping:
                         interval = Speeds.SKIP.value
                     else:
                         interval = Speeds.SCROLL.value
