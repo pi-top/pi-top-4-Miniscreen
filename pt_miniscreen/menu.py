@@ -22,8 +22,11 @@ class Menu:
         self.bottom_edge = config.bottom_edge
         self.title_bar = config.title_bar
 
-        self.title_bar_obj = config.title_bar.page_cls(
-            1, (size[0], self.title_bar.height), mode, None
+        self.title_bar_page = config.title_bar.page_cls(
+            interval=1,
+            size=(size[0], self.title_bar.height),
+            mode=mode,
+            config=None,
         )
 
         window_height = size[1] - self.title_bar.height
@@ -71,7 +74,7 @@ class Menu:
     @property
     def image(self):
         im = Image.new(self.mode, self.size)
-        self.title_bar_obj.render(im)
+        self.title_bar_page.render(im)
         im.paste(self.viewport.image, (0, self.title_bar.height) + self.size)
 
         return im
@@ -132,4 +135,6 @@ class Menu:
 
         correct_y_pos = self.page_index * self.viewport.window_height
         move_down = correct_y_pos > self.y_pos
+
+        # TODO: check if this will scroll past
         self.y_pos += self.SCROLL_PX_RESOLUTION * (1 if move_down else -1)
