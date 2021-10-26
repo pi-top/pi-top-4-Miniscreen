@@ -29,6 +29,7 @@ class Speeds(Enum):
     DYNAMIC_PAGE_REDRAW = 1
     SCROLL = 0.004
     SKIP = 0.001
+    SCREENSAVER = 0.05
 
 
 class DisplayStateManager:

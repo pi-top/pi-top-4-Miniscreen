@@ -3,7 +3,6 @@ from threading import Event
 
 from .config import MenuConfigManager
 from .event import AppEvents, post_event, subscribe
-from .state import Speeds
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ class MenuManager:
         self.menus = MenuConfigManager.get_menus_dict(size, mode)
 
         self.current_menu_id = "hud"
-        self.should_redraw = Event()
+        self.should_redraw_event = Event()
 
         subscribe(
             AppEvents.UP_BUTTON_PRESS,
@@ -54,7 +53,7 @@ class MenuManager:
         if self.current_menu.parent_goes_to_first_page:
             self.current_menu.move_to_page(0)
 
-        self.should_redraw.set()
+        self.should_redraw_event.set()
 
     def _go_to_child_menu(self):
         new_menu = self.current_menu_page.child_menu
@@ -67,14 +66,14 @@ class MenuManager:
             self.menus[k] = v
 
         self.current_menu_id = list(new_menu.keys())[0]
-        self.should_redraw.set()
+        self.should_redraw_event.set()
 
     def _go_to_parent_menu(self):
         self.current_menu_id = MenuConfigManager.get_parent_menu_id(
             self.current_menu_id
         )
 
-        self.should_redraw.set()
+        self.should_redraw_event.set()
 
     def _handle_select_btn(self):
         if self.current_menu_page.child_menu:
@@ -92,12 +91,12 @@ class MenuManager:
     def _set_current_menu_page_to_previous(self):
         self.current_menu.set_page_to_previous()
         if self.current_menu.needs_to_scroll:
-            self.should_redraw.set()
+            self.should_redraw_event.set()
 
     def _set_current_menu_page_to_next(self):
         self.current_menu.set_page_to_next()
         if self.current_menu.needs_to_scroll:
-            self.should_redraw.set()
+            self.should_redraw_event.set()
 
     def update_current_menu_scroll_position(self):
         if not self.current_menu.needs_to_scroll:
@@ -106,15 +105,7 @@ class MenuManager:
 
         self.current_menu.update_scroll_position()
 
-    def wait_until_timeout_or_should_redraw(self):
-        if self.current_menu.needs_to_scroll:
-            if self.is_skipping:
-                interval = Speeds.SKIP.value
-            else:
-                interval = Speeds.SCROLL.value
-        else:
-            interval = self.current_menu_page.interval
-
-        self.should_redraw.wait(interval)
-        if self.should_redraw.is_set():
-            self.should_redraw.clear()
+    def wait_until_timeout_or_should_redraw_event(self, timeout):
+        self.should_redraw_event.wait(timeout)
+        if self.should_redraw_event.is_set():
+            self.should_redraw_event.clear()

@@ -8,7 +8,7 @@ from .event import AppEvents, post_event, subscribe
 from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
-from .state import DisplayState, DisplayStateManager
+from .state import DisplayState, DisplayStateManager, Speeds
 
 logger = logging.getLogger(__name__)
 
@@ -151,9 +151,6 @@ class App:
         self.menu_manager.update_current_menu_scroll_position()
         self.display(self.menu_manager.current_menu.image)
 
-        logger.debug("Waiting until timeout or until page has changed...")
-        self.menu_manager.wait_until_timeout_or_should_redraw()
-
     def _main(self):
         self.handle_startup_animation()
 
@@ -170,8 +167,19 @@ class App:
 
             if self.state_manager.state == DisplayState.SCREENSAVER:
                 self.show_screensaver_frame()
+                interval = Speeds.SCREENSAVER.value
             else:
                 self.display_current_menu_image()
+                if self.menu_manager.current_menu.needs_to_scroll:
+                    if self.is_skipping:
+                        interval = Speeds.SKIP.value
+                    else:
+                        interval = Speeds.SCROLL.value
+                else:
+                    interval = self.menu_manager.current_menu_page.interval
+
+            logger.debug("Waiting until timeout or until page has changed...")
+            self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()
