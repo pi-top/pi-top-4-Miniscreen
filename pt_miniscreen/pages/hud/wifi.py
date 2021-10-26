@@ -19,6 +19,7 @@ from .base import (
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
+        icon_height = 12
 
         self.hotspots: Dict = {
             (0, 0): [
@@ -26,7 +27,24 @@ class Page(PageBase):
                     interval=interval,
                     mode=mode,
                     size=size,
-                    image_path=get_image_file_path("sys_info/networking/wifi_info.png"),
+                    image_path=get_image_file_path(
+                        "sys_info/networking/wifi_strength_bar.png"
+                    ),
+                    xy=(default_margin_x / 3, common_first_line_y - icon_height / 2),
+                ),
+                ImageHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    image_path=get_image_file_path("sys_info/networking/wifi_ssid.png"),
+                    xy=(default_margin_x / 3, common_second_line_y - icon_height / 2),
+                ),
+                ImageHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    image_path=get_image_file_path("sys_info/networking/wifi_ip.png"),
+                    xy=(default_margin_x / 3, common_third_line_y - icon_height / 2),
                 ),
                 TextHotspot(
                     interval=interval,
@@ -49,7 +67,7 @@ class Page(PageBase):
                     align="left",
                 ),
             ],
-            (default_margin_x, common_first_line_y - 6): [
+            (default_margin_x, int(common_first_line_y - icon_height / 2)): [
                 WifiStrengthHotspot(
                     interval=interval,
                     size=(int(size[0] / 3), 12),
