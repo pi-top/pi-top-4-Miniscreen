@@ -35,6 +35,7 @@ class Page(PageBase):
             font_size=19,
             xy=(self.short_section_width, size[1] / 2),
         )
+        self.text_hotspot.overlay = True
 
         self.battery_base_hotspot = ImageHotspot(
             interval=interval,
@@ -46,18 +47,21 @@ class Page(PageBase):
         self.rectangle_hotspot = RectangleHotspot(
             interval=interval, mode=mode, size=(37, 14), bounding_box=(0, 0, 0, 0)
         )
+        self.rectangle_hotspot.overlay = True
 
         battery_left_margin = 15
-        capacity_rectangle_left_margin = 4
+        capacity_rectangle_left_offset = 4
+        capacity_rectangle_left_margin = (
+            battery_left_margin + capacity_rectangle_left_offset
+        )
         capacity_rectangle_top_margin = 25
 
         # self.hotspots: Dict[Tuple, List[Hotspot]] = {
         self.hotspots: Dict = {
             (battery_left_margin, 0): [self.battery_base_hotspot],
-            (
-                battery_left_margin + capacity_rectangle_left_margin,
-                capacity_rectangle_top_margin,
-            ): [self.rectangle_hotspot],
+            (capacity_rectangle_left_margin, capacity_rectangle_top_margin): [
+                self.rectangle_hotspot
+            ],
             (self.short_section_width, 0): [self.text_hotspot],
         }
 
