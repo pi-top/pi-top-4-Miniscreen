@@ -19,25 +19,7 @@ common_third_line_y = common_second_line_y + 16
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
-        self.ssid = ""
-        self.ip = ""
-
-        ssid_hotspot = TextHotspot(
-            interval=interval,
-            mode=mode,
-            size=size,
-            text=get_wifi_network_ssid,
-            font_size=12,
-            xy=(default_margin_x, common_second_line_y),
-        )
-        ip_address_hotspot = TextHotspot(
-            interval=interval,
-            mode=mode,
-            size=size,
-            text=self.get_ip_address,
-            font_size=12,
-            xy=(default_margin_x, common_third_line_y),
-        )
+        icon_height = 12
 
         self.hotspots: Dict = {
             (0, 0): [
@@ -45,15 +27,50 @@ class Page(PageBase):
                     interval=interval,
                     mode=mode,
                     size=size,
-                    image_path=get_image_file_path("sys_info/networking/wifi_info.png"),
+                    image_path=get_image_file_path(
+                        "sys_info/networking/wifi_strength_bar.png"
+                    ),
+                    xy=(default_margin_x / 3, common_first_line_y - icon_height / 2),
                 ),
-                ssid_hotspot,
-                ip_address_hotspot,
+                ImageHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    image_path=get_image_file_path("sys_info/networking/wifi_ssid.png"),
+                    xy=(default_margin_x / 3, common_second_line_y - icon_height / 2),
+                ),
+                ImageHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    image_path=get_image_file_path("sys_info/networking/wifi_ip.png"),
+                    xy=(default_margin_x / 3, common_third_line_y - icon_height / 2),
+                ),
+                TextHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    text=get_wifi_network_ssid,
+                    font_size=12,
+                    xy=(default_margin_x, common_second_line_y),
+                    anchor="lm",
+                    align="left",
+                ),
+                TextHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=size,
+                    text=self.get_ip_address,
+                    font_size=12,
+                    xy=(default_margin_x, common_third_line_y),
+                    anchor="lm",
+                    align="left",
+                ),
             ],
-            (default_margin_x, 0): [
+            (default_margin_x, int(common_first_line_y - icon_height / 2)): [
                 WifiStrengthHotspot(
                     interval=interval,
-                    size=(int(size[0] / 2), int(size[1] / 3)),
+                    size=(int(size[0] / 3), 12),
                     mode=mode,
                 )
             ],

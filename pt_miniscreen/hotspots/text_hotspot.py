@@ -9,7 +9,17 @@ logger = logging.getLogger(__name__)
 
 class Hotspot(HotspotBase):
     def __init__(
-        self, interval, size, mode, text, font_size=20, xy=None, font=None, fill=1
+        self,
+        interval,
+        size,
+        mode,
+        text,
+        font_size=20,
+        xy=None,
+        font=None,
+        fill=1,
+        anchor=None,
+        align=None,
     ):
         super().__init__(interval, size, mode)
 
@@ -20,6 +30,8 @@ class Hotspot(HotspotBase):
         if xy is None:
             xy = (size[0] / 2, size[1] / 2)
         self.xy = xy
+        self.anchor = anchor
+        self.align = align
 
         self.font = font
         self.fill = fill
@@ -32,6 +44,8 @@ class Hotspot(HotspotBase):
             font_size=self.font_size,
             font=self.font,
             fill=self.fill,
+            anchor=self.anchor,
+            align=self.align,
         )
 
     @property
