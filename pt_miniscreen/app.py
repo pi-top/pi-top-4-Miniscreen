@@ -88,8 +88,8 @@ class App:
             return
 
         logger.debug("Configuring interrupt signals...")
-        signal(SIGINT, lambda signal, frame: self.stop)
-        signal(SIGTERM, lambda signal, frame: self.stop)
+        signal(SIGINT, lambda signal, frame: self.stop())
+        signal(SIGTERM, lambda signal, frame: self.stop())
 
         logger.debug("Starting main app thread...")
         self.__thread = Thread(target=self._main, args=())
@@ -100,7 +100,7 @@ class App:
         if self.__stop:
             return
 
-        logger.debug("Stopping app...")
+        logger.info("Stopping app...")
 
         self.__stop = True
         if self.__thread and self.__thread.is_alive():
@@ -247,7 +247,12 @@ class App:
         if wake:
             self.sleep_manager.wake()
 
-        self.miniscreen.device.display(image)
+        try:
+            self.miniscreen.device.display(image)
+        except RuntimeError:
+            if not self.__stop:
+                raise
+
         self.last_shown_image = image
 
     def reset(self):
