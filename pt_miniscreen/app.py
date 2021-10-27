@@ -161,7 +161,6 @@ class App:
             return
 
         if self.state_manager.state == DisplayState.ACTIVE:
-            logger.info("Going to sleep...")
             self.sleep_manager.sleep()
             return
 

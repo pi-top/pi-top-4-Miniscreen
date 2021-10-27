@@ -1,4 +1,8 @@
+import logging
+
 from .state import DisplayState
+
+logger = logging.getLogger(__name__)
 
 
 class SleepManager:
@@ -16,10 +20,12 @@ class SleepManager:
 
     def sleep(self):
         if not self.is_sleeping:
+            logger.info("Going to sleep...")
             self.miniscreen.contrast(0)
             self.display_state_manager.state = DisplayState.DIM
 
     def wake(self):
         if self.is_sleeping:
+            logger.info("Waking up...")
             self.miniscreen.contrast(255)
             self.display_state_manager.state = DisplayState.WAKING
