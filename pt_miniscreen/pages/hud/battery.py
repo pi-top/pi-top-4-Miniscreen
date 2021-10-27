@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval, size, mode, config)
-        self.interval = interval
-        self.size = size
-        self.mode = mode
 
         self.battery = Battery()
         self.cable_connected = self.battery.is_charging or self.battery.is_full
