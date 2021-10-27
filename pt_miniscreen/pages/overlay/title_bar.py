@@ -16,13 +16,15 @@ class Page(PageBase):
 
         asst = MiniscreenAssistant(mode, size)
 
+        self.text = "Settings"
+
         self.hotspots: Dict = {
             (0, 0): [
                 TextHotspot(
                     interval=interval,
                     mode=mode,
                     size=size,
-                    text="Title Bar",
+                    text=self.text,
                     font=asst.get_mono_font_path(bold=True),
                     font_size=14,
                     fill="white",

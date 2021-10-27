@@ -33,6 +33,7 @@ class Menu:
                 mode=mode,
                 config=None,
             )
+            # self.title_bar_page.text = config
 
         window_height = size[1] - self.title_bar_height
         window_size = (size[0], window_height)

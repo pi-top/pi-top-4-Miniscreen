@@ -32,7 +32,6 @@ class Hotspot(HotspotBase):
         if self._im.is_animated:
             embedded_frame_speed_s = float(self._im.info["duration"] / 1000)
             self.interval = float(embedded_frame_speed_s / self.playback_speed)
-            print(self.interval)
 
         PIL.ImageDraw.Draw(image).bitmap(
             xy=self.xy,
