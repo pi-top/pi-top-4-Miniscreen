@@ -1,5 +1,4 @@
 import logging
-import time
 from typing import Any, Dict, List, Tuple
 
 from PIL import Image
@@ -64,8 +63,6 @@ class Viewport:
                 collections_to_redraw.append(hotspot_collection)
                 break
 
-        start = time.time()
-
         if len(collections_to_redraw) > 0:
             for hotspot_collection in collections_to_redraw:
                 for hotspot, xy in hotspot_collection:
@@ -75,9 +72,6 @@ class Viewport:
                     hotspot.paste_into(self._backing_image, xy)
 
         im = self._backing_image.crop(box=self._crop_box())
-
-        end = time.time()
-        logger.debug(f"Time generating image: {end - start}")
 
         return im
 

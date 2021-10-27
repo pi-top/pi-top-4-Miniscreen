@@ -23,18 +23,13 @@ class Hotspot(BaseSnapshot):
         self.type = data.get("type")
         self.get_state_method = data.get("get_state_method")
 
-        icon_image_dir = "status" if self.is_status_type else "full"
         self.icon_image = Image.open(
-            get_image_file_path(f"settings/icons/{icon_image_dir}/{self.type}.png")
+            get_image_file_path(f"settings/icons/status/{self.type}.png")
         )
 
         self.action_state = ActionState.UNKNOWN
         self.processing_icon_frame = 0
         self.initialised = False
-
-    @property
-    def is_status_type(self):
-        return callable(self.get_state_method)
 
     def reset(self):
         self.action_state = ActionState.UNKNOWN
@@ -42,9 +37,6 @@ class Hotspot(BaseSnapshot):
         self.processing_icon_frame = 0
 
     def update_state(self):
-        if not self.is_status_type:
-            return
-
         if self.action_state == ActionState.PROCESSING:
             self.processing_icon_frame = (self.processing_icon_frame + 1) % 3
             return
@@ -86,10 +78,3 @@ class Hotspot(BaseSnapshot):
             bitmap=self.icon_image,
             fill="white",
         )
-
-        if self.is_status_type:
-            draw.bitmap(
-                xy=(0, 0),
-                bitmap=self.status_image,
-                fill="white",
-            )

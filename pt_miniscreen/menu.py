@@ -1,4 +1,5 @@
 import logging
+import time
 
 from PIL import Image
 
@@ -79,7 +80,10 @@ class Menu:
 
     @property
     def image(self):
+        start = time.time()
+
         im = Image.new(self.mode, self.size)
+        logger.debug(f"Image size: {im.size}")
 
         if self.title_bar is not None:
             title_bar_im = Image.new(self.mode, (self.size[0], self.title_bar_height))
@@ -87,6 +91,9 @@ class Menu:
             im.paste(title_bar_im, (0, 0) + (self.size[0], self.title_bar_height))
 
         im.paste(self.viewport.image, (0, self.title_bar_height) + self.size)
+
+        end = time.time()
+        logger.debug(f"Time generating image: {end - start}")
 
         return im
 
