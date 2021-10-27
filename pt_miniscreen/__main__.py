@@ -1,44 +1,21 @@
 import logging
-from os import environ
-from signal import SIGINT, SIGTERM, pause, signal
+from signal import pause
 
 import click
 import click_logging
 
 from .app import App
 
-# Always run as system
-environ["PT_MINISCREEN_SYSTEM"] = "1"
-
 logger = logging.getLogger()
 click_logging.basic_config(logger)
-
-
-def configure_interrupt_signals(app):
-    logger.info("Configuring interrupt signals...")
-
-    def signal_handler(signal, frame):
-        logger.debug("Stopping...")
-        app.stop()
-        logger.debug("Stopped!")
-
-    signal(SIGINT, signal_handler)
-    signal(SIGTERM, signal_handler)
 
 
 @click.command()
 @click_logging.simple_verbosity_option(logger)
 @click.version_option()
 def main() -> None:
-    # Ignore PIL debug messages
-    logging.getLogger("PIL").setLevel(logging.ERROR)
-
-    logger.debug("Creating app...")
     app = App()
-    configure_interrupt_signals(app)
-    logger.info("Starting app...")
     app.start()
-    logger.info("App is now running...")
     pause()
 
 

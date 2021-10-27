@@ -1,4 +1,6 @@
 import logging
+from os import environ
+from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
 
 from pitop import Pitop
@@ -23,6 +25,9 @@ class App:
 
     def __init__(self):
         logger.debug("Initialising app...")
+
+        logger.debug("Setting ENV VAR to use miniscreen as system...")
+        environ["PT_MINISCREEN_SYSTEM"] = "1"
 
         self.__thread = Thread(target=self._main, args=())
         self.__stop = False
@@ -79,15 +84,29 @@ class App:
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
 
     def start(self):
+        if self.__stop:
+            return
+
+        logger.debug("Configuring interrupt signals...")
+        signal(SIGINT, lambda signal, frame: self.stop)
+        signal(SIGTERM, lambda signal, frame: self.stop)
+
+        logger.debug("Starting main app thread...")
         self.__thread = Thread(target=self._main, args=())
         self.__thread.daemon = True
         self.__thread.start()
 
     def stop(self):
+        if self.__stop:
+            return
+
+        logger.debug("Stopping app...")
+
         self.__stop = True
         if self.__thread and self.__thread.is_alive():
             self.__thread.join()
-        logger.info("Stopped miniscreen app")
+
+        logger.debug("Stopped app")
 
     def handle_startup_animation(self):
         if not self.splash.has_played():
@@ -152,6 +171,15 @@ class App:
         self.display(self.menu_manager.current_menu.image)
 
     def _main(self):
+        # Ignore PIL debug messages -
+        # STREAM b'IHDR' 16 13
+        # STREAM b'IDAT' 41 107
+        # STREAM b'IHDR' 16 13
+        # STREAM b'IDAT' 41 114
+        # STREAM b'IHDR' 16 13
+        # STREAM b'IDAT' 41 121
+        logging.getLogger("PIL").setLevel(logging.INFO)
+
         self.handle_startup_animation()
 
         logger.info("Starting main loop...")
