@@ -11,10 +11,12 @@ from ..base import Page as PageBase
 
 MARGIN_X_LEFT = 29
 MARGIN_X_RIGHT = 10
-COMMON_FIRST_LINE_Y = 16
+COMMON_FIRST_LINE_Y = 10
 COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + 16
 COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + 16
 ICON_HEIGHT = 12
+ICON_X_POS = int(MARGIN_X_LEFT / 3)
+DEFAULT_FONT_SIZE = 12
 
 
 class Page(PageBase):
@@ -30,46 +32,46 @@ class Page(PageBase):
                     image_path=get_image_file_path(
                         "sys_info/networking/wifi_strength_bar.png"
                     ),
-                    xy=(MARGIN_X_LEFT / 3, int(COMMON_FIRST_LINE_Y - ICON_HEIGHT / 2)),
+                    xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
                 ImageHotspot(
                     interval=interval,
                     mode=mode,
                     size=size,
                     image_path=get_image_file_path("sys_info/networking/wifi_ssid.png"),
-                    xy=(MARGIN_X_LEFT / 3, int(COMMON_SECOND_LINE_Y - ICON_HEIGHT / 2)),
+                    xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
                 ImageHotspot(
                     interval=interval,
                     mode=mode,
                     size=size,
                     image_path=get_image_file_path("sys_info/networking/wifi_ip.png"),
-                    xy=(MARGIN_X_LEFT / 3, int(COMMON_THIRD_LINE_Y - ICON_HEIGHT / 2)),
+                    xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
             ],
-            (MARGIN_X_LEFT, int(COMMON_FIRST_LINE_Y - ICON_HEIGHT / 2)): [
+            (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y): [
                 WifiStrengthHotspot(
                     interval=interval,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     mode=mode,
                 )
             ],
-            (MARGIN_X_LEFT, int(COMMON_SECOND_LINE_Y - ICON_HEIGHT / 2)): [
+            (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y): [
                 MarqueeTextHotspot(
                     interval=interval,
                     mode=mode,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     text=get_wifi_network_ssid,
-                    font_size=12,
+                    font_size=DEFAULT_FONT_SIZE,
                 ),
             ],
-            (MARGIN_X_LEFT, int(COMMON_THIRD_LINE_Y - ICON_HEIGHT / 2)): [
+            (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y): [
                 MarqueeTextHotspot(
                     interval=interval,
                     mode=mode,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     text=self.get_ip_address,
-                    font_size=12,
+                    font_size=DEFAULT_FONT_SIZE,
                 ),
             ],
         }
