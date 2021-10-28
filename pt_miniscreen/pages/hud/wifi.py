@@ -9,13 +9,13 @@ from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
-MARGIN_X_LEFT = 29
+MARGIN_X_LEFT = 30
 MARGIN_X_RIGHT = 10
 COMMON_FIRST_LINE_Y = 10
 COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + 16
 COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + 16
 ICON_HEIGHT = 12
-ICON_X_POS = int(MARGIN_X_LEFT / 3)
+ICON_X_POS = 10
 DEFAULT_FONT_SIZE = 12
 
 
