@@ -4,6 +4,7 @@ from typing import Dict
 from pitop.common.sys_info import get_internal_ip, get_wifi_network_ssid
 
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
+from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.text_hotspot import Hotspot as TextHotspot
 from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
 from ...utils import get_image_file_path
@@ -50,16 +51,6 @@ class Page(PageBase):
                     interval=interval,
                     mode=mode,
                     size=size,
-                    text=get_wifi_network_ssid,
-                    font_size=12,
-                    xy=(default_margin_x, common_second_line_y),
-                    anchor="lm",
-                    align="left",
-                ),
-                TextHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=size,
                     text=self.get_ip_address,
                     font_size=12,
                     xy=(default_margin_x, common_third_line_y),
@@ -73,6 +64,20 @@ class Page(PageBase):
                     size=(int(size[0] / 3), 12),
                     mode=mode,
                 )
+            ],
+            (default_margin_x, int(common_second_line_y - icon_height / 2)): [
+                MarqueeTextHotspot(
+                    interval=interval,
+                    mode=mode,
+                    size=(
+                        size[0] - default_margin_x,
+                        size[1] - int(common_second_line_y - icon_height / 2),
+                    ),
+                    text=get_wifi_network_ssid,
+                    # text="a super long ssid that doesn't fit in the miniscreen!",
+                    font_size=12,
+                    xy=(0, 0),
+                ),
             ],
         }
 
