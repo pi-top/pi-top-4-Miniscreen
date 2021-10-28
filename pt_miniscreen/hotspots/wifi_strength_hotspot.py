@@ -31,7 +31,7 @@ class Hotspot(HotspotBase):
         for i in range(number_of_bars):
             draw.rectangle(
                 (x, self.size[1] * (1 - (i + 1) / number_of_bars))
-                + (x + bar_width, self.size[1]),
+                + (x + bar_width, self.size[1] - 1),
                 "white" if i + 1 <= filled_bars else "black",
                 "white",
             )
