@@ -65,5 +65,5 @@ class Hotspot(HotspotBase):
                 max_value=self.text_image.width - self.size[0],
                 resolution=2,
             ),
-            sleep_for=10,
+            sleep_for=7,
         )

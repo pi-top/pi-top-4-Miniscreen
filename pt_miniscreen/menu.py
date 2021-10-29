@@ -99,15 +99,12 @@ class Menu:
         return im
 
     def set_page_index_to(self, page_index):
-        if self.page_index != page_index:
-            self.page_index = page_index
-            self.update_generator()
-
-    def update_generator(self):
-        final_y_pos = self.page_index * self.viewport.window_height
+        if self.page_index == page_index:
+            return
+        self.page_index = page_index
         self.scroll_coordinate_generator = scroll_generator(
             min_value=self.y_pos,
-            max_value=final_y_pos,
+            max_value=self.page_index * self.viewport.window_height,
             resolution=self.SCROLL_PX_RESOLUTION,
         )
 
