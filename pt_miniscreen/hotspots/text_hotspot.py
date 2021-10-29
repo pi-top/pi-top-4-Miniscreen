@@ -28,7 +28,7 @@ class Hotspot(HotspotBase):
         self.font_size = font_size
 
         if xy is None:
-            xy = (size[0] / 2, size[1] / 2)
+            xy = (int(size[0] / 2), int(size[1] / 2))
         self.xy = xy
         self.anchor = anchor
         self.align = align
