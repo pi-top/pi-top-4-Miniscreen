@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def position_generator(max_value):
-    DELTA_WIDTH_PX = 15
+    DELTA_WIDTH_PX = 3
     while True:
         if max_value <= 0:
             yield 0
@@ -32,7 +32,7 @@ def pause_every(interval, generator, sleep_for):
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode, text, font=None, font_size=20, fill=1):
+    def __init__(self, interval, size, mode, text, font=None, font_size=20):
         super().__init__(interval, size, mode)
         self.assistant = MiniscreenAssistant(self.mode, self.size)
 
@@ -82,5 +82,5 @@ class Hotspot(HotspotBase):
         self.coordinate_generator = pause_every(
             interval=self.text_image.width - self.size[0],
             generator=position_generator(self.text_image.width - self.size[0]),
-            sleep_for=2,
+            sleep_for=4,
         )

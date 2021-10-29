@@ -17,6 +17,7 @@ COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + 16
 ICON_HEIGHT = 12
 ICON_X_POS = 10
 DEFAULT_FONT_SIZE = 12
+MARQUEE_HOTSPOT_INTERVAL = 0.3
 
 
 class Page(PageBase):
@@ -58,7 +59,7 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y): [
                 MarqueeTextHotspot(
-                    interval=interval,
+                    interval=MARQUEE_HOTSPOT_INTERVAL,
                     mode=mode,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     text=get_wifi_network_ssid,
@@ -67,7 +68,7 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y): [
                 MarqueeTextHotspot(
-                    interval=interval,
+                    interval=MARQUEE_HOTSPOT_INTERVAL,
                     mode=mode,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     text=self.get_ip_address,
