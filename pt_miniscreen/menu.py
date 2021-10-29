@@ -5,6 +5,7 @@ from PIL import Image
 
 from .config import ConfigFactory
 from .config.classes.menu_edge_behaviour import MenuEdgeBehaviour
+from .scroll import scroll_generator
 from .viewport import Viewport
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,17 @@ class Menu:
         return im
 
     def set_page_index_to(self, page_index):
-        self.page_index = page_index
+        if self.page_index != page_index:
+            self.page_index = page_index
+            self.update_generator()
+
+    def update_generator(self):
+        final_y_pos = self.page_index * self.viewport.window_height
+        self.scroll_coordinate_generator = scroll_generator(
+            min_value=self.y_pos,
+            max_value=final_y_pos,
+            resolution=self.SCROLL_PX_RESOLUTION,
+        )
 
     def set_page_to_previous(self):
         if self.needs_to_scroll:
@@ -151,16 +162,8 @@ class Menu:
         if not self.needs_to_scroll:
             return
 
-        final_y_pos = self.page_index * self.viewport.window_height
-        moving_down = final_y_pos > self.y_pos
-        remaining_distance = (
-            final_y_pos - self.y_pos if moving_down else self.y_pos - final_y_pos
-        )
-
-        new_y_pos = (
-            final_y_pos
-            if remaining_distance < self.SCROLL_PX_RESOLUTION
-            else self.y_pos + self.SCROLL_PX_RESOLUTION * (1 if moving_down else -1)
-        )
-
-        self.y_pos = new_y_pos
+        try:
+            value = next(self.scroll_coordinate_generator)
+            self.y_pos = value
+        except StopIteration:
+            pass

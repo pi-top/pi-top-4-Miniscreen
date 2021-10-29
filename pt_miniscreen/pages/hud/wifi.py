@@ -3,6 +3,8 @@ from typing import Dict
 
 from pitop.common.sys_info import get_internal_ip, get_wifi_network_ssid
 
+from pt_miniscreen.state import Speeds
+
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
@@ -17,7 +19,6 @@ COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + 16
 ICON_HEIGHT = 12
 ICON_X_POS = 10
 DEFAULT_FONT_SIZE = 12
-MARQUEE_HOTSPOT_INTERVAL = 0.3
 
 
 class Page(PageBase):
@@ -59,7 +60,7 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y): [
                 MarqueeTextHotspot(
-                    interval=MARQUEE_HOTSPOT_INTERVAL,
+                    interval=Speeds.MARQUEE.value,
                     mode=mode,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     text=get_wifi_network_ssid,
@@ -68,7 +69,7 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y): [
                 MarqueeTextHotspot(
-                    interval=MARQUEE_HOTSPOT_INTERVAL,
+                    interval=Speeds.MARQUEE.value,
                     mode=mode,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     text=self.get_ip_address,

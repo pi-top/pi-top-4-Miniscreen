@@ -4,31 +4,10 @@ import PIL.ImageDraw
 import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ..scroll import marquee_generator, pause_every
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
-
-
-def position_generator(max_value):
-    DELTA_WIDTH_PX = 3
-    while True:
-        if max_value <= 0:
-            yield 0
-        else:
-            for x in range(0, max_value, DELTA_WIDTH_PX):
-                yield x
-            for x in range(max_value, 0, -DELTA_WIDTH_PX):
-                yield x
-
-
-def pause_every(interval, generator, sleep_for):
-    while True:
-        x = next(generator)
-        if x % interval == 0:
-            for _ in range(sleep_for):
-                yield x
-        else:
-            yield x
 
 
 class Hotspot(HotspotBase):
@@ -81,6 +60,10 @@ class Hotspot(HotspotBase):
         # update coordinate generator maximum values for the new image
         self.coordinate_generator = pause_every(
             interval=self.text_image.width - self.size[0],
-            generator=position_generator(self.text_image.width - self.size[0]),
-            sleep_for=4,
+            generator=marquee_generator(
+                min_value=0,
+                max_value=self.text_image.width - self.size[0],
+                resolution=2,
+            ),
+            sleep_for=10,
         )
