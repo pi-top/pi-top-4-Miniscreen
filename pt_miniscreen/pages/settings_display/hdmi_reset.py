@@ -11,4 +11,5 @@ class Page(PageBase):
             config=config,
             set_state_method=reset_hdmi_configuration,
             icon="hdmi_reset",
+            offset=offset,
         )
