@@ -1,8 +1,9 @@
 class ConfigFactory:
-    def __init__(self, size, mode, redraw_speed):
+    def __init__(self, size, mode, redraw_speed, offset):
         self.size = size
         self.mode = mode
         self.redraw_speed = redraw_speed
+        self.offset = offset
 
     def get(self, config):
         # avoid circular import
@@ -21,4 +22,5 @@ class ConfigFactory:
                 size=self.size,
                 mode=self.mode,
                 config=config,
+                offset=self.offset,
             )

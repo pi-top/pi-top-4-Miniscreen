@@ -18,8 +18,10 @@ from .base import (
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+    def __init__(self, interval, size, mode, config, offset):
+        super().__init__(
+            interval=interval, size=size, mode=mode, config=config, offset=offset
+        )
         self.info_image = PIL.Image.open(
             get_image_file_path("sys_info/networking/usb_info.png")
         )

@@ -13,8 +13,10 @@ class ActionState(Enum):
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config, set_state_method, icon):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+    def __init__(self, interval, size, mode, config, set_state_method, icon, offset):
+        super().__init__(
+            interval=interval, size=size, mode=mode, config=config, offset=offset
+        )
 
         self.set_state_method = set_state_method
 

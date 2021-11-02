@@ -3,7 +3,7 @@ from .action import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, interval, size, mode, config, offset):
         super().__init__(
             interval=interval,
             size=size,

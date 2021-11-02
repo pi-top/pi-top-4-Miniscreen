@@ -7,8 +7,10 @@ from ..base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+    def __init__(self, interval, size, mode, config, offset):
+        super().__init__(
+            interval=interval, size=size, mode=mode, config=config, offset=offset
+        )
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(

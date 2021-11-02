@@ -11,7 +11,9 @@ class MenuConfigManager:
     @staticmethod
     def get_menus_dict(size, mode):
         menus = dict()
-        menu_factory = ConfigFactory(size, mode, Speeds.DYNAMIC_PAGE_REDRAW.value)
+        menu_factory = ConfigFactory(
+            size, mode, Speeds.DYNAMIC_PAGE_REDRAW.value, offset=(0, 0)
+        )
         for menu_name, config in menu_app_config.children.items():
             menus[menu_name] = menu_factory.get(config)
         return menus

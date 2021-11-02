@@ -41,7 +41,9 @@ class Menu:
         window_size = (size[0], window_height)
         display_size = (size[0], window_height * len(config.children))
 
-        config_factory = ConfigFactory(window_size, mode, redraw_speed)
+        config_factory = ConfigFactory(
+            window_size, mode, redraw_speed, offset=(0, self.title_bar_height)
+        )
 
         self.pages = list()
         for page_name, page_config in config.children.items():

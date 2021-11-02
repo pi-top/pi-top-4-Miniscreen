@@ -13,9 +13,19 @@ from .action_state import ActionState
 
 class Page(PageBase):
     def __init__(
-        self, interval, size, mode, config, get_state_method, set_state_method, icon
+        self,
+        interval,
+        size,
+        mode,
+        config,
+        get_state_method,
+        set_state_method,
+        icon,
+        offset,
     ):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+        super().__init__(
+            interval=interval, size=size, mode=mode, config=config, offset=offset
+        )
 
         self.get_state_method = get_state_method
         self.set_state_method = set_state_method

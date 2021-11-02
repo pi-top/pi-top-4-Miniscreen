@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
-        super().__init__(interval, size, mode, config)
+    def __init__(self, interval, size, mode, config, offset):
+        super().__init__(interval, size, mode, config, offset)
 
         self.battery = Battery()
         self.cable_connected = self.battery.is_charging or self.battery.is_full

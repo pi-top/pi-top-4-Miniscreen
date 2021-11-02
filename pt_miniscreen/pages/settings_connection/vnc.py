@@ -5,7 +5,7 @@ from .action import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, interval, size, mode, config, offset):
         super().__init__(
             interval=interval,
             size=size,
@@ -14,4 +14,5 @@ class Page(PageBase):
             get_state_method=get_vnc_enabled_state,
             set_state_method=change_vnc_enabled_state,
             icon="vnc",
+            offset=offset,
         )
