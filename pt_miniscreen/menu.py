@@ -3,6 +3,8 @@ import time
 
 from PIL import Image
 
+from pt_miniscreen.state import Speeds
+
 from .config import ConfigFactory
 from .config.classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .scroll import scroll_generator
@@ -27,15 +29,13 @@ class Menu:
 
         if self.title_bar is not None:
             self.title_bar_height = self.title_bar.height
-
-        if self.title_bar is not None:
             self.title_bar_page = config.title_bar.page_cls(
-                interval=1,
+                interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
                 size=(size[0], self.title_bar_height),
                 mode=mode,
                 config=None,
+                text=self.title_bar.text,
             )
-            # self.title_bar_page.text = config
 
         window_height = size[1] - self.title_bar_height
         window_size = (size[0], window_height)

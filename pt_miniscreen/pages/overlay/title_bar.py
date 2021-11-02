@@ -11,12 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, interval, size, mode, config, text=""):
         super().__init__(interval, size, mode, config)
-
         asst = MiniscreenAssistant(mode, size)
-
-        self.text = "Settings"
 
         self.hotspots: Dict = {
             (0, 0): [
@@ -24,7 +21,7 @@ class Page(PageBase):
                     interval=interval,
                     mode=mode,
                     size=size,
-                    text=self.text,
+                    text=text,
                     font=asst.get_mono_font_path(bold=True),
                     font_size=14,
                     fill="white",

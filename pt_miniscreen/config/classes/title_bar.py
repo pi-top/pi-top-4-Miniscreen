@@ -8,3 +8,4 @@ from ...pages.base import Page as PageBase
 class TitleBarConfig:
     page_cls: Type[PageBase]
     height: int
+    text: str
