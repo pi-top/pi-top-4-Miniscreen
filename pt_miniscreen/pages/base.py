@@ -3,7 +3,7 @@ from ..config import ConfigFactory
 
 class Page:
     def __init__(self, interval, size, mode, config, offset=(0, 0)):
-        self.size = (size[0] + offset[0], size[1] + offset[1])
+        self.size = size
         self.mode = mode
 
         self.invert = False
@@ -17,7 +17,9 @@ class Page:
         self.long_section_width = int(self.width / golden_ratio)
         self.short_section_width = self.width - self.long_section_width
 
-        config_factory = ConfigFactory(self.size, mode, interval, offset=(0, 0))
+        config_factory = ConfigFactory(
+            (size[0] + offset[0], size[1] + offset[1]), mode, interval, offset=(0, 0)
+        )
         self.child_menu = dict()
         if config and config.child_menu:
             for menu_name, menu_config in config.child_menu.items():
