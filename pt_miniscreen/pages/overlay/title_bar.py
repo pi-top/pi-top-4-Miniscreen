@@ -53,20 +53,26 @@ class Page(PageBase):
 
         if self.height != 0:
             asst = MiniscreenAssistant(self.mode, self.size)
+            marquee_text_hotspot = MarqueeTextHotspot(
+                interval=Speeds.MARQUEE.value,
+                mode=self.mode,
+                size=self.size,
+                text=self.behaviour.text,
+                font=asst.get_mono_font(
+                    size=self.font_size,
+                    bold=True,
+                ),
+                font_size=14,
+            )
+            marquee_hotspot_x_pos = 0
+            if not marquee_text_hotspot.needs_scrolling:
+                # if no scroll is needed, center text in screen
+                marquee_hotspot_x_pos = int(
+                    (self.width - marquee_text_hotspot.text_image.width) / 2
+                )
+
             self.hotspots: Dict = {
-                (0, 0): [
-                    MarqueeTextHotspot(
-                        interval=Speeds.MARQUEE.value,
-                        mode=self.mode,
-                        size=self.size,
-                        text=self.behaviour.text,
-                        font=asst.get_mono_font(
-                            size=self.font_size,
-                            bold=True,
-                        ),
-                        font_size=14,
-                    )
-                ],
+                (marquee_hotspot_x_pos, 0): [marquee_text_hotspot],
                 (0, self.height - 1): [
                     RectangleHotspot(
                         interval=self.interval,
