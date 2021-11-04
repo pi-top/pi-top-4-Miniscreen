@@ -13,10 +13,18 @@ from .action_state import ActionState
 
 class Page(PageBase):
     def __init__(
-        self, interval, size, mode, config, get_state_method, set_state_method, icon
+        self,
+        interval,
+        size,
+        mode,
+        config,
+        get_state_method,
+        set_state_method,
+        icon,
     ):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
 
+        self.icon = icon
         self.get_state_method = get_state_method
         self.set_state_method = set_state_method
 
@@ -31,23 +39,26 @@ class Page(PageBase):
         else:
             self.action_state = ActionState.DISABLED
 
+        self.setup_hotspots()
+
+    def setup_hotspots(self):
         self.hotspots: Dict = {
-            (self.size[0] - 24, int((self.size[1] - 24) / 2)): [
-                self.status_icon_hotspot
-            ],
+            (self.width - 24, int((self.height - 24) / 2)): [self.status_icon_hotspot],
             (1, 0): [
                 ImageHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=(self.short_section_width, size[1]),
-                    image_path=get_image_file_path(f"settings/icons/status/{icon}.png"),
+                    interval=self.interval,
+                    mode=self.mode,
+                    size=(self.short_section_width, self.height),
+                    image_path=get_image_file_path(
+                        f"settings/icons/status/{self.icon}.png"
+                    ),
                 ),
             ],
             (int(self.width / 4), 0): [
                 TextHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=(self.width - int(self.width / 4), size[1]),
+                    interval=self.interval,
+                    mode=self.mode,
+                    size=(self.width - int(self.width / 4), self.height),
                     text="SSH",
                     font_size=14,
                 )

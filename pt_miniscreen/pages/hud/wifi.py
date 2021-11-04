@@ -11,19 +11,20 @@ from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
-MARGIN_X_LEFT = 30
-MARGIN_X_RIGHT = 10
-COMMON_FIRST_LINE_Y = 10
-COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + 16
-COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + 16
-ICON_HEIGHT = 12
-ICON_X_POS = 10
-DEFAULT_FONT_SIZE = 12
-
 
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
+        MARGIN_X_LEFT = 30
+        MARGIN_X_RIGHT = 10
+        SCALE = self.height / 64.0
+        DELTA_Y = int(16 * SCALE)
+        COMMON_FIRST_LINE_Y = int(10 * SCALE)
+        COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + DELTA_Y
+        COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + DELTA_Y
+        ICON_HEIGHT = 12
+        ICON_X_POS = 10
+        DEFAULT_FONT_SIZE = 12
 
         self.hotspots: Dict = {
             (0, 0): [

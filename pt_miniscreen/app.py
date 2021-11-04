@@ -167,7 +167,7 @@ class App:
     def display_current_menu_image(self):
         logger.debug("Updating scroll position and displaying current menus' image...")
         self.menu_manager.update_current_menu_scroll_position()
-        self.display(self.menu_manager.current_menu.image)
+        self.display(self.menu_manager.image)
 
     def _main(self):
         # Ignore PIL debug messages -

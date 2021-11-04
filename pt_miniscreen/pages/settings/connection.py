@@ -9,22 +9,25 @@ from ..base import Page as PageBase
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
+        self.setup_hotspots()
+
+    def setup_hotspots(self):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=interval,
-                    mode=mode,
+                    interval=self.interval,
+                    mode=self.mode,
                     # TODO: crop settings icon and re-position
                     # size=(self.short_section_width, size[1]),
-                    size=size,
+                    size=self.size,
                     image_path=get_image_file_path("menu/settings.gif"),
                 ),
             ],
             (int(self.width / 4), 0): [
                 TextHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=(self.width - int(self.width / 4), size[1]),
+                    interval=self.interval,
+                    mode=self.mode,
+                    size=(self.width - int(self.width / 4), self.height),
                     text="Connection",
                     font_size=14,
                 )

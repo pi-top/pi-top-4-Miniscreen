@@ -16,52 +16,81 @@ class Menu:
 
     def __init__(self, size, mode, redraw_speed, config):
         self.mode = mode
-        self.size = size
+        self._size = size
+        self.redraw_speed = redraw_speed
         self.page_index = 0
+        self.config = config
 
         self.parent_goes_to_first_page = config.parent_goes_to_first_page
         self.top_edge = config.top_edge
         self.bottom_edge = config.bottom_edge
         self.title_bar = config.title_bar
-        self.title_bar_height = 0
 
-        if self.title_bar is not None:
-            self.title_bar_height = self.title_bar.height
-
-        if self.title_bar is not None:
-            self.title_bar_page = config.title_bar.page_cls(
-                interval=1,
-                size=(size[0], self.title_bar_height),
-                mode=mode,
-                config=None,
-            )
-            # self.title_bar_page.text = config
-
-        window_height = size[1] - self.title_bar_height
-        window_size = (size[0], window_height)
-        display_size = (size[0], window_height * len(config.children))
-
-        config_factory = ConfigFactory(window_size, mode, redraw_speed)
+        config_factory = ConfigFactory(self.size, self.mode, self.redraw_speed)
 
         self.pages = list()
-        for page_name, page_config in config.children.items():
+        for page_name, page_config in self.config.children.items():
             self.pages.append(config_factory.get(page_config))
 
         self.viewport = Viewport(
-            window_size=window_size,
-            display_size=display_size,
-            mode=mode,
+            window_size=self.size,
+            display_size=self.display_size,
+            mode=self.mode,
         )
 
-        # Adjust each hotspot's xy to match position in viewport
+        self.setup_hotspots()
+
+    # Adjust each hotspot's xy to match position in viewport
+    def setup_hotspots(self):
+        self.viewport._hotspots = {}
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:
                     pos = (
                         upperleft_xy[0],
-                        upperleft_xy[1] + i * window_height,
+                        upperleft_xy[1] + i * self.window_height,
                     )
                     self.viewport.add_hotspot(hotspot, pos, collection_id=page)
+
+    def resize_page_hotspots(self):
+        for page in self.pages:
+            page.size = self.size
+
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, value):
+        self._size = value
+
+        # Resize viewport
+        self.viewport.size = self.display_size
+        self.viewport.window_size = self.size
+
+        # Resize hotspots and update their positions
+        self.resize_page_hotspots()
+        self.setup_hotspots()
+
+    @property
+    def window_width(self):
+        return self.size[0]
+
+    @window_width.setter
+    def window_width(self, value):
+        self.size = (value, self.window_height)
+
+    @property
+    def window_height(self):
+        return self.size[1]
+
+    @window_height.setter
+    def window_height(self, value):
+        self.size = (self.window_width, value)
+
+    @property
+    def display_size(self):
+        return (self.window_width, self.window_height * len(self.config.children))
 
     @property
     def current_page(self):
@@ -83,15 +112,10 @@ class Menu:
     def image(self):
         start = time.time()
 
-        im = Image.new(self.mode, self.size)
-        logger.debug(f"Image size: {im.size}")
+        im = Image.new(self.current_page.mode, self.current_page.size)
+        logger.debug(f"Menu Image size: {im.size}")
 
-        if self.title_bar is not None:
-            title_bar_im = Image.new(self.mode, (self.size[0], self.title_bar_height))
-            self.title_bar_page.render(title_bar_im)
-            im.paste(title_bar_im, (0, 0) + (self.size[0], self.title_bar_height))
-
-        im.paste(self.viewport.image, (0, self.title_bar_height) + self.size)
+        im.paste(self.viewport.image, (0, 0) + self.current_page.size)
 
         end = time.time()
         logger.debug(f"Time generating image: {end - start}")

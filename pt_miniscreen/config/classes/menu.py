@@ -4,7 +4,7 @@ from typing import Dict, Optional, Type
 from ...menu import Menu
 from .menu_edge_behaviour import MenuEdgeBehaviour
 from .page import PageConfig
-from .title_bar import TitleBarConfig
+from .title_bar import TitleBarBehaviour
 
 
 @dataclass
@@ -14,4 +14,4 @@ class MenuConfig:
     parent_goes_to_first_page: bool = True
     top_edge: MenuEdgeBehaviour = MenuEdgeBehaviour.NONE
     bottom_edge: MenuEdgeBehaviour = MenuEdgeBehaviour.NONE
-    title_bar: Optional[TitleBarConfig] = None
+    title_bar: Optional[TitleBarBehaviour] = None
