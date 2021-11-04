@@ -15,4 +15,4 @@ class TitleBarBehaviour:
 @dataclass
 class TitleBarConfig:
     page_cls: Type[PageBase]
-    props: TitleBarBehaviour
+    behaviour: TitleBarBehaviour

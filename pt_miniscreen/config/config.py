@@ -9,7 +9,7 @@ from .classes.title_bar import TitleBarBehaviour, TitleBarConfig
 menu_app_config = MenuAppConfig(
     title_bar=TitleBarConfig(
         page_cls=overlay.title_bar.Page,
-        props=TitleBarBehaviour(height=19),
+        behaviour=TitleBarBehaviour(height=19),
     ),
     children=dict(
         [

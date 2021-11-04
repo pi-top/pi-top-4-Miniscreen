@@ -67,8 +67,8 @@ class MenuConfigManager:
         if menu_app_config.title_bar:
             return menu_app_config.title_bar.page_cls(
                 interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
-                size=(size[0], menu_app_config.title_bar.props.height),
+                size=(size[0], menu_app_config.title_bar.behaviour.height),
                 mode=mode,
                 config=None,
-                title_bar_behaviour=menu_app_config.title_bar.props,
+                title_bar_behaviour=menu_app_config.title_bar.behaviour,
             )
