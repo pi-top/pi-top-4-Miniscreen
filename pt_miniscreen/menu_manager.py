@@ -66,7 +66,7 @@ class MenuManager:
     @current_menu_id.setter
     def current_menu_id(self, menu_id):
         self._current_menu_id = menu_id
-        self.title_bar.update(self.current_menu.title_bar)
+        self.title_bar.behaviour = self.current_menu.title_bar
         self.should_redraw_event.set()
 
     @property

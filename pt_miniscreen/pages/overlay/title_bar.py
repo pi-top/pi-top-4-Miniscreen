@@ -16,38 +16,38 @@ logger = logging.getLogger(__name__)
 class Page(PageBase):
     def __init__(self, interval, size, mode, config, title_bar_behaviour):
         super().__init__(interval, size, mode, config)
-        self.current_behaviour = title_bar_behaviour
-        self.update(title_bar_behaviour)
+        self._behaviour = title_bar_behaviour
 
     def should_draw(self):
         return (
-            self.current_behaviour.height != 0
-            and self.current_behaviour.text != ""
-            and self.current_behaviour.visible is True
+            self.behaviour.height != 0
+            and self.behaviour.text != ""
+            and self.behaviour.visible is True
         )
 
-    def update(self, title_bar_behaviour):
-        if self.current_behaviour == title_bar_behaviour or title_bar_behaviour is None:
+    @property
+    def behaviour(self):
+        return self._behaviour
+
+    @behaviour.setter
+    def behaviour(self, title_bar_behaviour):
+        if self.behaviour == title_bar_behaviour or title_bar_behaviour is None:
             return
 
         if title_bar_behaviour.append_title:
-            self.current_behaviour.text = (
-                f"{self.current_behaviour.text} / {title_bar_behaviour.text}"
-            )
+            self.behaviour.text = f"{self.behaviour.text} / {title_bar_behaviour.text}"
         else:
-            self.current_behaviour.text = title_bar_behaviour.text
-        self.current_behaviour.visible = title_bar_behaviour.visible
-        if title_bar_behaviour.height is not None:
-            self.current_behaviour.height = title_bar_behaviour.height
+            self.behaviour.text = title_bar_behaviour.text
 
-        if title_bar_behaviour.visible is False or title_bar_behaviour.text == "":
+        self.behaviour.visible = title_bar_behaviour.visible
+        if title_bar_behaviour.height is not None:
+            self.behaviour.height = title_bar_behaviour.height
+
+        self.height = self.behaviour.height
+        if not title_bar_behaviour.visible or title_bar_behaviour.text == "":
             self.height = 0
-        else:
-            self.height = (
-                title_bar_behaviour.height
-                if title_bar_behaviour.height
-                else self.current_behaviour.height
-            )
+        elif title_bar_behaviour.height:
+            self.height = title_bar_behaviour.height
 
         post_event(AppEvents.TITLE_BAR_HEIGHT_CHANGED, self.height)
 
@@ -59,7 +59,7 @@ class Page(PageBase):
                         interval=Speeds.MARQUEE.value,
                         mode=self.mode,
                         size=self.size,
-                        text=self.current_behaviour.text,
+                        text=self.behaviour.text,
                         font=asst.get_mono_font(
                             size=self.font_size
                         ),  # bold=True, TODO: provide support in SDK
