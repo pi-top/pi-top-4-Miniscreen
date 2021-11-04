@@ -5,6 +5,7 @@ import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..scroll import marquee_generator, pause_every
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,9 @@ class Hotspot(HotspotBase):
     def __init__(self, interval, size, mode, text, font=None, font_size=20):
         super().__init__(interval, size, mode)
         self.assistant = MiniscreenAssistant(self.mode, self.size)
+        self.text_image = PIL.Image.new(self.mode, self.size, color="black")
 
+        self._interval = interval
         self.font_size = font_size
 
         if font is None:
@@ -67,3 +70,20 @@ class Hotspot(HotspotBase):
             ),
             sleep_for=7,
         )
+
+    @property
+    def needs_scrolling(self):
+        try:
+            return self.width <= self.text_image.width
+        except Exception:
+            return False
+
+    @property
+    def interval(self):
+        if not self.needs_scrolling:
+            return Speeds.DYNAMIC_PAGE_REDRAW.value
+        return self._interval
+
+    @interval.setter
+    def interval(self, value):
+        self._interval = value
