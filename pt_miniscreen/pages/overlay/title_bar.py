@@ -61,8 +61,9 @@ class Page(PageBase):
                         size=self.size,
                         text=self.behaviour.text,
                         font=asst.get_mono_font(
-                            size=self.font_size
-                        ),  # bold=True, TODO: provide support in SDK
+                            size=self.font_size,
+                            bold=True,
+                        ),
                         font_size=14,
                     )
                 ],
