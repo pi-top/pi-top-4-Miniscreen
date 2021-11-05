@@ -47,8 +47,8 @@ class Menu:
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:
                     pos = (
-                        upperleft_xy[0],
-                        upperleft_xy[1] + i * self.window_height,
+                        int(upperleft_xy[0]),
+                        int(upperleft_xy[1] + i * self.window_height),
                     )
                     self.viewport.add_hotspot(hotspot, pos, collection_id=page)
 

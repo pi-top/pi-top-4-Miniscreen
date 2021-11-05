@@ -14,4 +14,5 @@ class Page(PageBase):
             get_state_method=get_ssh_enabled_state,
             set_state_method=change_ssh_enabled_state,
             icon="ssh",
+            text="SSH",
         )

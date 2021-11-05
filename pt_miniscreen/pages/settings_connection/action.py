@@ -1,14 +1,13 @@
 from typing import Dict
 
+from pt_miniscreen.state import Speeds
+
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
+from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
-from ...hotspots.text_hotspot import Hotspot as TextHotspot
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 from .action_state import ActionState
-
-# import PIL.Image
-# import PIL.ImageDraw
 
 
 class Page(PageBase):
@@ -21,17 +20,35 @@ class Page(PageBase):
         get_state_method,
         set_state_method,
         icon,
+        text,
     ):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
-
+        self.text = text
         self.icon = icon
         self.get_state_method = get_state_method
         self.set_state_method = set_state_method
 
+        self.setup_hotspots()
+
+    def setup_hotspots(self):
+        SPACING = 4
+        FONT_SIZE = 14
+        STATUS_ICON_SIZE = 24
+        ICON_WIDTH = 44
+
+        FIRST_COLUMN_POS = 1
+        FIRST_COLUMN_WIDTH = ICON_WIDTH + FIRST_COLUMN_POS
+
+        THIRD_COLUMN_WIDTH = STATUS_ICON_SIZE
+        THIRD_COLUMN_POS = self.width - THIRD_COLUMN_WIDTH - SPACING
+
+        SECOND_COLUMN_POS = FIRST_COLUMN_WIDTH + SPACING
+        SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
+
         self.status_icon_hotspot = StatusIconHotspot(
-            interval=0.5,
-            mode=mode,
-            size=(24, 24),
+            interval=Speeds.ACTION_STATE_UPDATE.value,
+            mode=self.mode,
+            size=(THIRD_COLUMN_WIDTH, STATUS_ICON_SIZE),
         )
 
         if self.get_state_method() == "Enabled":
@@ -39,29 +56,28 @@ class Page(PageBase):
         else:
             self.action_state = ActionState.DISABLED
 
-        self.setup_hotspots()
-
-    def setup_hotspots(self):
         self.hotspots: Dict = {
-            (self.width - 24, int((self.height - 24) / 2)): [self.status_icon_hotspot],
-            (1, 0): [
+            (FIRST_COLUMN_POS, 0): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
-                    size=(self.short_section_width, self.height),
+                    size=(ICON_WIDTH, self.height),
                     image_path=get_image_file_path(
                         f"settings/icons/status/{self.icon}.png"
                     ),
                 ),
             ],
-            (int(self.width / 4), 0): [
-                TextHotspot(
-                    interval=self.interval,
+            (SECOND_COLUMN_POS, (self.height - FONT_SIZE) / 2): [
+                MarqueeTextHotspot(
+                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
-                    size=(self.width - int(self.width / 4), self.height),
-                    text="SSH",
-                    font_size=14,
+                    size=(SECOND_COLUMN_WIDTH, FONT_SIZE),
+                    text=self.text,
+                    font_size=FONT_SIZE,
                 )
+            ],
+            (THIRD_COLUMN_POS, (self.height - STATUS_ICON_SIZE) / 2): [
+                self.status_icon_hotspot
             ],
         }
 

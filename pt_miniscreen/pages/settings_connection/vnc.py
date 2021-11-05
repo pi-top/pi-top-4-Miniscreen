@@ -14,4 +14,5 @@ class Page(PageBase):
             get_state_method=get_vnc_enabled_state,
             set_state_method=change_vnc_enabled_state,
             icon="vnc",
+            text="VNC",
         )
