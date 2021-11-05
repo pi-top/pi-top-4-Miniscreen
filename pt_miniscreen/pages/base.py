@@ -1,4 +1,5 @@
 from ..config import ConfigFactory
+from ..state import Speeds
 
 
 class Page:
@@ -66,7 +67,7 @@ class Page:
 
     @property
     def interval(self):
-        _interval = 1
+        _interval = Speeds.DYNAMIC_PAGE_REDRAW.value
         for _, hotspot_list in self.hotspots.items():
             for hotspot in hotspot_list:
                 if hotspot.interval < _interval:
