@@ -1,10 +1,9 @@
 from typing import Dict
 
-from pt_miniscreen.state import Speeds
-
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
+from ...state import Speeds
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 from .action_state import ActionState
