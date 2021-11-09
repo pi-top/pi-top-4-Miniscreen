@@ -167,7 +167,7 @@ class App:
     def display_current_menu_image(self):
         logger.debug("Updating scroll position and displaying current menus' image...")
         self.menu_manager.update_current_menu_scroll_position()
-        self.display(self.menu_manager.current_menu.image)
+        self.display(self.menu_manager.image)
 
     def _main(self):
         # Ignore PIL debug messages -
@@ -203,7 +203,10 @@ class App:
                     else:
                         interval = Speeds.SCROLL.value
                 else:
-                    interval = self.menu_manager.current_menu_page.interval
+                    interval = min(
+                        self.menu_manager.current_menu_page.interval,
+                        self.menu_manager.title_bar.interval,
+                    )
 
             logger.debug("Waiting until timeout or until page has changed...")
             self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)

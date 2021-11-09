@@ -1,6 +1,8 @@
 import logging
 from threading import Event
 
+import PIL.Image
+
 from .config import MenuConfigManager
 from .event import AppEvents, post_event, subscribe
 
@@ -9,12 +11,20 @@ logger = logging.getLogger(__name__)
 
 class MenuManager:
     def __init__(self, size, mode):
+        self.size = size
+        self.mode = mode
         self.is_skipping = False
 
-        self.menus = MenuConfigManager.get_menus_dict(size, mode)
+        self.title_bar = MenuConfigManager.get_title_bar(size, mode)
+        self.menus = MenuConfigManager.get_menus_dict((size[0], size[1]), mode)
+        self.should_redraw_event = Event()
+
+        def update_current_menu_height(_):
+            self.current_menu.window_height = self.size[1] - self.title_bar.height
+
+        subscribe(AppEvents.TITLE_BAR_HEIGHT_CHANGED, update_current_menu_height)
 
         self.current_menu_id = list(self.menus.keys())[0]
-        self.should_redraw_event = Event()
 
         subscribe(
             AppEvents.UP_BUTTON_PRESS,
@@ -36,6 +46,28 @@ class MenuManager:
             AppEvents.CANCEL_BUTTON_PRESS,
             lambda callback_handler: callback_handler(self._handle_cancel_btn),
         )
+
+    @property
+    def image(self):
+        im = PIL.Image.new(self.mode, self.size)
+        title_bar_height = 0
+        if self.title_bar is not None and self.title_bar.should_draw():
+            title_bar_height = self.title_bar.height
+            title_bar_im = PIL.Image.new(self.mode, (self.size[0], title_bar_height))
+            self.title_bar.render(title_bar_im)
+            im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
+        im.paste(self.current_menu.image, (0, title_bar_height) + self.size)
+        return im
+
+    @property
+    def current_menu_id(self):
+        return self._current_menu_id
+
+    @current_menu_id.setter
+    def current_menu_id(self, menu_id):
+        self._current_menu_id = menu_id
+        self.title_bar.behaviour = self.current_menu.title_bar
+        self.should_redraw_event.set()
 
     @property
     def current_menu(self):
@@ -69,6 +101,7 @@ class MenuManager:
         self.should_redraw_event.set()
 
     def _go_to_parent_menu(self):
+
         self.current_menu_id = MenuConfigManager.get_parent_menu_id(
             self.current_menu_id
         )

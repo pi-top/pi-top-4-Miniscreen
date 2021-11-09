@@ -1,20 +1,23 @@
 from ..menu import Menu
-from ..pages import hud, settings, settings_connection
+from ..pages import hud, overlay, settings, settings_connection
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
 from .classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .classes.page import PageConfig
-
-# from ..pages import overlay
-# from .classes.title_bar import TitleBarConfig
+from .classes.title_bar import TitleBarBehaviour, TitleBarConfig
 
 menu_app_config = MenuAppConfig(
+    title_bar=TitleBarConfig(
+        page_cls=overlay.title_bar.Page,
+        behaviour=TitleBarBehaviour(height=19),
+    ),
     children=dict(
         [
             (
                 "hud",
                 MenuConfig(
                     menu_cls=Menu,
+                    title_bar=TitleBarBehaviour(visible=False),
                     top_edge=MenuEdgeBehaviour.NONE,
                     bottom_edge=MenuEdgeBehaviour.NONE,
                     children=dict(
@@ -35,9 +38,10 @@ menu_app_config = MenuAppConfig(
                     menu_cls=Menu,
                     top_edge=MenuEdgeBehaviour.NONE,
                     bottom_edge=MenuEdgeBehaviour.NONE,
-                    # title_bar=TitleBarConfig(
-                    #     page_cls=overlay.title_bar.Page, height=19
-                    # ),
+                    title_bar=TitleBarBehaviour(
+                        visible=True,
+                        text="Settings",
+                    ),
                     children=dict(
                         [
                             (
@@ -52,9 +56,10 @@ menu_app_config = MenuAppConfig(
                                                     menu_cls=Menu,
                                                     top_edge=MenuEdgeBehaviour.NONE,
                                                     bottom_edge=MenuEdgeBehaviour.NONE,
-                                                    # title_bar=TitleBarConfig(
-                                                    #     page_cls=overlay.title_bar.Page, height=19
-                                                    # ),
+                                                    title_bar=TitleBarBehaviour(
+                                                        text="Connection",
+                                                        append_title=True,
+                                                    ),
                                                     children=dict(
                                                         [
                                                             (
@@ -116,5 +121,5 @@ menu_app_config = MenuAppConfig(
                 ),
             ),
         ]
-    )
+    ),
 )

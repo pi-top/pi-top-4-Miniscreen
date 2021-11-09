@@ -34,20 +34,42 @@ class Viewport:
     """
 
     def __init__(self, display_size, window_size, mode):
-        self.size = display_size
-        self.width = self.size[0]
-        self.height = self.size[1]
-
-        self.window_width = window_size[0]
-        self.window_height = window_size[1]
-
+        self._size = display_size
+        self.window_size = window_size
         self.mode = mode
-
-        self.bounding_box = (0, 0, self.width - 1, self.height - 1)
 
         self._backing_image = Image.new(self.mode, self.size)
         self._position = (0, 0)
         self._hotspots: Dict[Any, List[Tuple]] = dict()
+
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, value):
+        self._size = value
+        self.clear()
+
+    @property
+    def bounding_box(self):
+        return (0, 0, self.width - 1, self.height - 1)
+
+    @property
+    def width(self):
+        return self.size[0]
+
+    @property
+    def height(self):
+        return self.size[1]
+
+    @property
+    def window_width(self):
+        return self.window_size[0]
+
+    @property
+    def window_height(self):
+        return self.window_size[1]
 
     @property
     def image(self):
@@ -72,7 +94,6 @@ class Viewport:
                     hotspot.paste_into(self._backing_image, xy)
 
         im = self._backing_image.crop(box=self._crop_box())
-
         return im
 
     def clear(self):

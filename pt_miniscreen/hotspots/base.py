@@ -18,6 +18,22 @@ class Hotspot:
         self.width = size[0]
         self.height = size[1]
 
+    @property
+    def width(self):
+        return self.size[0]
+
+    @width.setter
+    def width(self, value):
+        self.size = (value, self.height)
+
+    @property
+    def height(self):
+        return self.size[1]
+
+    @height.setter
+    def height(self, value):
+        self.size = (self.width, value)
+
     def should_redraw(self):
         if not self.draw_white and not self.draw_black:
             return False

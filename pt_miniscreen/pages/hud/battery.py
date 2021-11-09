@@ -1,5 +1,4 @@
 import logging
-from typing import Dict  # , List, Tuple
 
 from pitop.battery import Battery
 
@@ -10,6 +9,12 @@ from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
 logger = logging.getLogger(__name__)
+
+
+RECTANGLE_HOTSPOT_SIZE = (37, 14)
+BATTERY_LEFT_MARGIN = 15
+CAPACITY_RECTANGLE_LEFT_OFFSET = 4
+CAPACITY_RECTANGLE_LEFT_MARGIN = BATTERY_LEFT_MARGIN + CAPACITY_RECTANGLE_LEFT_OFFSET
 
 
 class Page(PageBase):
@@ -24,37 +29,39 @@ class Page(PageBase):
         except Exception:
             pass
 
+        self.setup_hotspots()
+
+    def setup_hotspots(self):
         self.text_hotspot = TextHotspot(
-            interval=interval,
-            mode=mode,
-            size=(self.long_section_width, size[1]),
+            interval=self.interval,
+            mode=self.mode,
+            size=(self.long_section_width, self.height),
             text=f"{self.capacity}%",
             font_size=19,
-            xy=(self.short_section_width, size[1] / 2),
+            xy=(self.short_section_width, self.height / 2),
         )
 
         self.battery_base_hotspot = ImageHotspot(
-            interval=interval,
-            mode=mode,
-            size=(self.short_section_width, size[1]),
+            interval=self.interval,
+            mode=self.mode,
+            size=(self.short_section_width, self.height),
             image_path=None,
         )
 
         self.rectangle_hotspot = RectangleHotspot(
-            interval=interval, mode=mode, size=(37, 14), bounding_box=(0, 0, 0, 0)
+            interval=self.interval,
+            mode=self.mode,
+            size=RECTANGLE_HOTSPOT_SIZE,
+            bounding_box=(0, 0, 0, 0),
         )
 
-        battery_left_margin = 15
-        capacity_rectangle_left_offset = 4
-        capacity_rectangle_left_margin = (
-            battery_left_margin + capacity_rectangle_left_offset
+        capacity_rectangle_top_margin = int(
+            (self.height - RECTANGLE_HOTSPOT_SIZE[1]) / 2
         )
-        capacity_rectangle_top_margin = 25
 
-        # self.hotspots: Dict[Tuple, List[Hotspot]] = {
-        self.hotspots: Dict = {
-            (battery_left_margin, 0): [self.battery_base_hotspot],
-            (capacity_rectangle_left_margin, capacity_rectangle_top_margin): [
+        self.hotspots = {
+            (BATTERY_LEFT_MARGIN, 0): [self.battery_base_hotspot],
+            (CAPACITY_RECTANGLE_LEFT_MARGIN, capacity_rectangle_top_margin): [
                 self.rectangle_hotspot
             ],
             (self.short_section_width, 0): [self.text_hotspot],
