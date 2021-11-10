@@ -1,3 +1,15 @@
+pi-top-4-miniscreen (5.0.1-1) bullseye; urgency=medium
+
+  * Drop unused override_dh_installsystemd
+  * Use updated functions
+  * Only reset last active timer on state change
+  * Use short link
+  * No reloading of images (#176)
+  * Use logging instead of PTLogger
+  * [pre-commit.ci] pre-commit autoupdate (#175, #180, #184)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 10 Nov 2021 14:27:05 +0000
+
 pi-top-4-miniscreen (5.0.0-1) bullseye; urgency=medium
 
   * Add journal input
