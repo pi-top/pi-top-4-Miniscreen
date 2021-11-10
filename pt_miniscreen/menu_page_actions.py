@@ -1,10 +1,12 @@
+import logging
 import signal
 from os import kill, path, system
 from subprocess import Popen, check_output
 
 from pitop.common.command_runner import run_command
-from pitop.common.logger import PTLogger
 from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
+
+logger = logging.getLogger(__name__)
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -71,7 +73,7 @@ def start_stop_project(path_to_project):
         start_script = path_to_project + "/start.sh"
         stop_script = path_to_project + "/stop.sh"
 
-        PTLogger.debug("Checking if process is already running...")
+        logger.debug("Checking if process is already running...")
 
         cmd = 'pgrep -f "' + path_to_project + '" || true'
         output = check_output(cmd, shell=True).decode("ascii", "ignore")
@@ -79,7 +81,7 @@ def start_stop_project(path_to_project):
 
         try:
             if len(pids) > 1:
-                PTLogger.info(
+                logger.info(
                     f"Project already running: {path_to_project}. Attempting to stop..."
                 )
 
@@ -92,17 +94,15 @@ def start_stop_project(path_to_project):
                         except ValueError:
                             pass
             else:
-                PTLogger.info("Starting project: " + str(path_to_project))
+                logger.info("Starting project: " + str(path_to_project))
 
                 if path.exists(start_script):
-                    PTLogger.debug(
-                        "Code file found at " + start_script + ". Running..."
-                    )
+                    logger.debug("Code file found at " + start_script + ". Running...")
                     Popen([start_script])
                 else:
-                    PTLogger.info("No code file found at " + start_script)
+                    logger.info("No code file found at " + start_script)
 
         except Exception as e:
-            PTLogger.warning("Error starting/stopping process: " + str(e))
+            logger.warning("Error starting/stopping process: " + str(e))
 
     return run

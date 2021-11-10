@@ -1,9 +1,11 @@
+import logging
 from os.path import isfile
 
 from PIL import Image
-from pitop.common.logger import PTLogger
 
 from pt_miniscreen.widgets.common import BaseSnapshot, draw_text
+
+logger = logging.getLogger(__name__)
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -66,7 +68,7 @@ class Hotspot(BaseSnapshot):
             self._error = True
 
         if self._error:
-            PTLogger.error(self._error_text)
+            logger.error(self._error_text)
 
     def _seek_next_frame_in_image(self):
         if self._image.is_animated:

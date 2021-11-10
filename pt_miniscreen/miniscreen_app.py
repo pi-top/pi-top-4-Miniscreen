@@ -1,14 +1,16 @@
+import logging
 from enum import Enum
 from random import randrange
 from time import perf_counter, sleep
 
 from PIL import Image, ImageDraw
-from pitop.common.logger import PTLogger
 
 # TODO: move logic to button press handler
 from .button_press import ButtonPress
 from .menu import Menu
 from .page_manager import Menus
+
+logger = logging.getLogger(__name__)
 
 
 class MenuState(Enum):
@@ -100,15 +102,15 @@ class MiniscreenApp:
         self.action_timeout = 30
 
     def start_current_menu_action(self):
-        PTLogger.debug("Setting state to RUNNING_ACTION")
+        logger.debug("Setting state to RUNNING_ACTION")
         self.state = MenuState.RUNNING_ACTION
 
-        PTLogger.debug("Taking note of current time for start of action")
+        logger.debug("Taking note of current time for start of action")
         self.action_start_time = perf_counter()
 
         # If page is a settings page with an action state,
         # tell the renderer to display 'in progress'
-        PTLogger.info("Notifying renderer to display 'in progress' action state")
+        logger.info("Notifying renderer to display 'in progress' action state")
         self.current_menu.page.hotspot.set_as_processing()
 
     @property
@@ -144,7 +146,7 @@ class MiniscreenApp:
         return image
 
     def wait_for_user_control_release(self):
-        PTLogger.info("User has control. Waiting for user to give control back...")
+        logger.info("User has control. Waiting for user to give control back...")
         while self.user_has_control:
             sleep(0.2)
 
@@ -153,12 +155,12 @@ class MiniscreenApp:
             self.display(self.last_shown_image)
 
     def reset(self):
-        PTLogger.info("Forcing full state refresh...")
+        logger.info("Forcing full state refresh...")
         self.__wake_oled()
         self.__miniscreen.reset()
         self.current_menu.refresh(force=True)
         self.redraw_last_image_to_display()
-        PTLogger.info("OLED control restored")
+        logger.info("OLED control restored")
 
     def main_loop(self):
         try:
@@ -172,11 +174,11 @@ class MiniscreenApp:
                     self.reset()
 
                 else:
-                    PTLogger.debug(f"Sleeping for {self.__frame_sleep_time}")
+                    logger.debug(f"Sleeping for {self.__frame_sleep_time}")
                     sleep(self.__frame_sleep_time)
 
         except SystemExit:
-            PTLogger.info("Program exited")
+            logger.info("Program exited")
 
     def stop(self):
         self.__continue = False
@@ -187,7 +189,7 @@ class MiniscreenApp:
             current_menu_name = (
                 "<not set>" if self.current_menu is None else self.current_menu.name
             )
-            PTLogger.info(
+            logger.info(
                 f"Changing menu from {current_menu_name} to {self.__menus[menu_to_go_to].name}"
             )
             self.current_menu = self.__menus[menu_to_go_to]
@@ -203,16 +205,16 @@ class MiniscreenApp:
 
     def __add_button_press_to_stack(self, button_press_event):
         if self.__miniscreen.is_active:
-            PTLogger.info(
+            logger.info(
                 f"Miniscreen is currently active - skipping button press: {str(button_press_event.event_type)}"
             )
             return
 
         if button_press_event.event_type == ButtonPress.ButtonType.NONE:
-            PTLogger.info("NONE button type - skipping button press")
+            logger.info("NONE button type - skipping button press")
             return
 
-        PTLogger.debug(
+        logger.debug(
             "Queueing " + str(button_press_event.event_type) + " event for processing"
         )
         self.__button_press_stack.append(button_press_event)
@@ -224,7 +226,7 @@ class MiniscreenApp:
     def __wake_oled(self):
         self.__miniscreen.contrast(255)
         if self.state not in [MenuState.ACTIVE, MenuState.RUNNING_ACTION]:
-            PTLogger.info("Waking up...")
+            logger.info("Waking up...")
             self.last_active_time = perf_counter()
             self.state = MenuState.WAKING
             self.__miniscreen.device.display(self.current_menu.image)
@@ -304,30 +306,30 @@ class MiniscreenApp:
 
         time_since_last_active = perf_counter() - self.last_active_time
 
-        PTLogger.debug(f"Sleep timer: {time_since_last_active}")
+        logger.debug(f"Sleep timer: {time_since_last_active}")
 
         if self.state == MenuState.RUNNING_ACTION:
             # Prevent dimming while running action
             self.last_active_time = perf_counter()
 
             time_since_action_started = perf_counter() - self.action_start_time
-            PTLogger.debug(f"Time since action started: {time_since_action_started}")
+            logger.debug(f"Time since action started: {time_since_action_started}")
 
             if self.current_menu.page.action_process.is_alive():
-                PTLogger.debug("Action not yet completed")
+                logger.debug("Action not yet completed")
                 return
 
             if time_since_action_started > self.action_timeout:
-                PTLogger.info("Action timed out - setting state to WAKING")
+                logger.info("Action timed out - setting state to WAKING")
                 self.state = MenuState.WAKING
 
-                PTLogger.info("Notifying renderer to display 'unknown' action state")
+                logger.info("Notifying renderer to display 'unknown' action state")
                 self.current_menu.page.set_unknown_state()
                 return
 
-            PTLogger.info("Action completed - setting state to WAKING")
+            logger.info("Action completed - setting state to WAKING")
             self.state = MenuState.WAKING
-            PTLogger.info("Resetting state of hotspot to re-renderer current state")
+            logger.info("Resetting state of hotspot to re-renderer current state")
             self.current_menu.page.hotspot.reset()
 
             return
@@ -342,7 +344,7 @@ class MiniscreenApp:
             return
 
         if self.state == MenuState.ACTIVE:
-            PTLogger.info("Going to sleep...")
+            logger.info("Going to sleep...")
             self.__sleep_oled()
             return
 
@@ -350,7 +352,7 @@ class MiniscreenApp:
             return
 
         if self.state == MenuState.DIM:
-            PTLogger.info("Starting screensaver...")
+            logger.info("Starting screensaver...")
             self.state = MenuState.SCREENSAVER
 
         self.current_menu.refresh()
@@ -360,6 +362,6 @@ class MiniscreenApp:
 
     def set_is_user_controlled(self, user_has_control):
         self.user_has_control = user_has_control
-        PTLogger.info(
+        logger.info(
             f"User has {'taken' if user_has_control else 'given back'} control of the OLED"
         )

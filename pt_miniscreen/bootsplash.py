@@ -1,7 +1,8 @@
+import logging
 from os import path
 from pathlib import Path
 
-from pitop.common.logger import PTLogger
+logger = logging.getLogger(__name__)
 
 
 class Bootsplash:
@@ -20,6 +21,6 @@ class Bootsplash:
                 self.path, background=False, loop=False
             )
         except Exception as e:
-            PTLogger.warning(f"Unable to play miniscreen startup animation: {e}")
+            logger.warning(f"Unable to play miniscreen startup animation: {e}")
 
         Path(self.has_played_breadcrumb).touch()

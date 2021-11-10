@@ -1,7 +1,10 @@
+import logging
+
 from PIL import Image
-from pitop.common.logger import PTLogger
 
 from .page_manager import Menus, PageManager
+
+logger = logging.getLogger(__name__)
 
 
 class Menu:
@@ -49,7 +52,7 @@ class Menu:
     @page_number.setter
     def page_number(self, page_index):
         self.__page_index = page_index
-        PTLogger.info(f"{self.name}: Moved to page: {self.page.name}")
+        logger.info(f"{self.name}: Moved to page: {self.page.name}")
         self.refresh(force=True)
 
     @property
@@ -62,11 +65,11 @@ class Menu:
 
     def __render_current_hotspot_to_image(self, force=False):
         if force:
-            PTLogger.debug(f"{self.name}: Forcing redraw of {self.page.name} to image")
+            logger.debug(f"{self.name}: Forcing redraw of {self.page.name} to image")
 
         redraw = self.hotspot.should_redraw()
         if redraw:
-            PTLogger.debug(
+            logger.debug(
                 f"{self.name}: Hotspot {self.page.name} requested a redraw to image"
             )
 
@@ -85,14 +88,14 @@ class Menu:
 
     def should_redraw(self):
         if self.__last_displayed_image is None:
-            PTLogger.debug(f"{self.name}: Not yet drawn image")
+            logger.debug(f"{self.name}: Not yet drawn image")
             return True
 
         if self.__image_updated():
-            PTLogger.debug(f"{self.name}: Image updated")
+            logger.debug(f"{self.name}: Image updated")
             return True
 
-        PTLogger.debug(f"{self.name}: Nothing to redraw")
+        logger.debug(f"{self.name}: Nothing to redraw")
         return False
 
     def refresh(self, force=False):

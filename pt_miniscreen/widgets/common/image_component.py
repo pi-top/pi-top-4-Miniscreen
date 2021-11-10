@@ -1,7 +1,9 @@
+import logging
 from os.path import isfile
 
 from PIL import Image
-from pitop.common.logger import PTLogger
+
+logger = logging.getLogger(__name__)
 
 
 def _create_bitmap_to_render(image, width, height):
@@ -61,7 +63,7 @@ class ImageComponent:
             self._error = True
 
         if self._error:
-            PTLogger.error(self._error_text)
+            logger.error(self._error_text)
 
     def _set_frame_duration(self):
         if hasattr(self._image, "is_animated") and self._image.is_animated:
