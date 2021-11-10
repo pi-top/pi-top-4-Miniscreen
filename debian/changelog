@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (5.0.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (5.0.1-1) bullseye; urgency=medium
 
   * Drop unused override_dh_installsystemd
   * Use updated functions
