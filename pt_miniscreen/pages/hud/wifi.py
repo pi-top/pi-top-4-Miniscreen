@@ -18,11 +18,13 @@ class Page(PageBase):
         MARGIN_X_LEFT = 30
         MARGIN_X_RIGHT = 10
         SCALE = self.height / 64.0
-        DELTA_Y = int(16 * SCALE)
+        ICON_HEIGHT = 12
+        VERTICAL_SPACING = 4
+        ROW_HEIGHT = ICON_HEIGHT + VERTICAL_SPACING
+        DELTA_Y = int(ROW_HEIGHT * SCALE)
         COMMON_FIRST_LINE_Y = int(10 * SCALE)
         COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + DELTA_Y
         COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + DELTA_Y
-        ICON_HEIGHT = 12
         ICON_X_POS = 10
         DEFAULT_FONT_SIZE = 12
 
@@ -52,27 +54,27 @@ class Page(PageBase):
                     xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
             ],
-            (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y): [
+            (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
                 WifiStrengthHotspot(
                     interval=interval,
                     size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     mode=mode,
                 )
             ],
-            (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y): [
+            (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1): [
                 MarqueeTextHotspot(
                     interval=Speeds.MARQUEE.value,
                     mode=mode,
-                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
+                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=get_wifi_network_ssid,
                     font_size=DEFAULT_FONT_SIZE,
                 ),
             ],
-            (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y): [
+            (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1): [
                 MarqueeTextHotspot(
                     interval=Speeds.MARQUEE.value,
                     mode=mode,
-                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
+                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=self.get_ip_address,
                     font_size=DEFAULT_FONT_SIZE,
                 ),
