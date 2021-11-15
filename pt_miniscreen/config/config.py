@@ -68,18 +68,18 @@ menu_app_config = MenuAppConfig(
                                                                     page_cls=settings_connection.ssh.Page,
                                                                 ),
                                                             ),
-                                                            #                                                 (
-                                                            #                                                     "settings.connection.vnc",
-                                                            #                                                     PageConfig(
-                                                            #                                                         page_cls=settings_connection.vnc.Page,
-                                                            #                                                     ),
-                                                            #                                                 ),
-                                                            #                                                 (
-                                                            #                                                     "settings.connection.further_link",
-                                                            #                                                     PageConfig(
-                                                            #                                                         page_cls=settings_connection.further_link.Page,
-                                                            #                                                     ),
-                                                            #                                                 ),
+                                                            (
+                                                                "settings.connection.vnc",
+                                                                PageConfig(
+                                                                    page_cls=settings_connection.vnc.Page,
+                                                                ),
+                                                            ),
+                                                            (
+                                                                "settings.connection.further_link",
+                                                                PageConfig(
+                                                                    page_cls=settings_connection.further_link.Page,
+                                                                ),
+                                                            ),
                                                         ],
                                                     ),
                                                 ),

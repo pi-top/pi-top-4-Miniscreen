@@ -14,4 +14,5 @@ class Page(PageBase):
             get_state_method=get_pt_further_link_enabled_state,
             set_state_method=change_further_link_enabled_state,
             icon="further_link",
+            text="Further Link",
         )
