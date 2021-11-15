@@ -1,5 +1,5 @@
 from ..menu import Menu
-from ..pages import hud, overlay, settings, settings_connection
+from ..pages import hud, overlay, settings, settings_connection, settings_display
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
 from .classes.menu_edge_behaviour import MenuEdgeBehaviour
@@ -25,9 +25,9 @@ menu_app_config = MenuAppConfig(
                             ("battery", PageConfig(page_cls=hud.battery.Page)),
                             ("cpu", PageConfig(page_cls=hud.cpu.Page)),
                             ("wifi", PageConfig(page_cls=hud.wifi.Page)),
-                            # ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
-                            # ("ap", PageConfig(page_cls=hud.ap.Page)),
-                            # ("usb", PageConfig(page_cls=hud.usb.Page)),
+                            ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
+                            ("ap", PageConfig(page_cls=hud.ap.Page)),
+                            ("usb", PageConfig(page_cls=hud.usb.Page)),
                         ]
                     ),
                 ),
@@ -88,34 +88,34 @@ menu_app_config = MenuAppConfig(
                                     ),
                                 ),
                             ),
-                            #                 (
-                            #                     "display",
-                            #                     PageConfig(
-                            #                         page_cls=settings.display.Page,
-                            #                         child_menu=dict(
-                            #                             [
-                            #                                 (
-                            #                                     "settings.display",
-                            #                                     MenuConfig(
-                            #                                         menu_cls=Menu,
-                            #                                         top_edge=MenuEdgeBehaviour.NONE,
-                            #                                         bottom_edge=MenuEdgeBehaviour.NONE,
-                            #                                         children=dict(
-                            #                                             [
-                            #                                                 (
-                            #                                                     "settings_display.hdmi_reset",
-                            #                                                     PageConfig(
-                            #                                                         page_cls=settings_display.hdmi_reset.Page,
-                            #                                                     ),
-                            #                                                 ),
-                            #                                             ],
-                            #                                         ),
-                            #                                     ),
-                            #                                 ),
-                            #                             ]
-                            #                         ),
-                            #                     ),
-                            #                 ),
+                            (
+                                "display",
+                                PageConfig(
+                                    page_cls=settings.display.Page,
+                                    child_menu=dict(
+                                        [
+                                            (
+                                                "settings.display",
+                                                MenuConfig(
+                                                    menu_cls=Menu,
+                                                    top_edge=MenuEdgeBehaviour.NONE,
+                                                    bottom_edge=MenuEdgeBehaviour.NONE,
+                                                    children=dict(
+                                                        [
+                                                            (
+                                                                "settings_display.hdmi_reset",
+                                                                PageConfig(
+                                                                    page_cls=settings_display.hdmi_reset.Page,
+                                                                ),
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ),
+                                            ),
+                                        ]
+                                    ),
+                                ),
+                            ),
                         ]
                     ),
                 ),

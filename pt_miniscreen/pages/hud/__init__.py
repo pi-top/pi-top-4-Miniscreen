@@ -1,1 +1,1 @@
-from . import battery, cpu, wifi
+from . import ap, battery, cpu, ethernet, usb, wifi

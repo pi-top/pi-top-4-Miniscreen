@@ -34,23 +34,21 @@ class Page(PageBase):
                     interval=interval,
                     mode=mode,
                     size=size,
-                    image_path=get_image_file_path(
-                        "sys_info/networking/wifi_strength_bar.png"
-                    ),
+                    image_path=get_image_file_path("sys_info/networking/antenna.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
                 ImageHotspot(
                     interval=interval,
                     mode=mode,
                     size=size,
-                    image_path=get_image_file_path("sys_info/networking/wifi_ssid.png"),
+                    image_path=get_image_file_path("sys_info/networking/wifi.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
                 ImageHotspot(
                     interval=interval,
                     mode=mode,
                     size=size,
-                    image_path=get_image_file_path("sys_info/networking/wifi_ip.png"),
+                    image_path=get_image_file_path("sys_info/networking/home.png"),
                     xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
             ],
