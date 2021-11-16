@@ -5,3 +5,4 @@ __pycache__
 .DS_Store
 venv/
 .mypy_cache
+pt_miniscreen.egg-info
