@@ -194,10 +194,7 @@ class App:
                     else:
                         interval = Speeds.SCROLL.value
                 else:
-                    interval = min(
-                        self.menu_manager.current_menu_page.interval,
-                        self.menu_manager.title_bar.interval,
-                    )
+                    interval = self.menu_manager.current_menu_page.interval
 
             logger.debug("Waiting until timeout or until page has changed...")
             self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)

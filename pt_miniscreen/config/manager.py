@@ -63,14 +63,13 @@ class MenuConfigManager:
         return len(keys) > 0
 
     @staticmethod
-    def get_title_bar(size, mode):
+    def get_title_bar(size):
         if not menu_app_config.title_bar:
             return
 
         return menu_app_config.title_bar.page_cls(
-            interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
-            size=(size[0], menu_app_config.title_bar.behaviour.height),
-            mode=mode,
-            config=None,
+            viewport_size=(size[0], menu_app_config.title_bar.behaviour.height),
+            window_size=(size[0], menu_app_config.title_bar.behaviour.height),
+            window_position=(0, 0),
             title_bar_behaviour=menu_app_config.title_bar.behaviour,
         )

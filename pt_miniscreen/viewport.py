@@ -73,12 +73,12 @@ class HotspotManager:
             mask = ImageOps.invert(hotspot_image)
 
         pos = hotspot_instance.xy
-        box = pos + (pos[0] + hotspot_image.size[0], pos[1] + hotspot_image.size[1])
+        # box = pos + (pos[0] + hotspot_image.size[0], pos[1] + hotspot_image.size[1])
         logger.debug(f"hotspot xy: {hotspot_instance.xy}")
         logger.debug(f"position: {pos}")
-        logger.debug(f"box: {box}")
+        # logger.debug(f"box: {box}")
         logger.debug(hotspot_image.size)
-        image.paste(hotspot_image, box, mask)
+        image.paste(hotspot_image, pos, mask)
 
     def get_image(self):
         from pprint import pformat

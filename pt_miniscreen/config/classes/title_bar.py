@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Type
 
-from ...pages.base import Page as PageBase
+from ...viewport import HotspotManager
 
 
 @dataclass(eq=True)
@@ -14,5 +14,5 @@ class TitleBarBehaviour:
 
 @dataclass
 class TitleBarConfig:
-    page_cls: Type[PageBase]
+    page_cls: Type[HotspotManager]
     behaviour: TitleBarBehaviour

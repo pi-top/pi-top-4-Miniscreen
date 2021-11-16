@@ -15,13 +15,14 @@ class MenuManager:
         self.mode = mode
         self.is_skipping = False
 
-        self.title_bar = MenuConfigManager.get_title_bar(size, mode)
+        self.title_bar = MenuConfigManager.get_title_bar(size)
         self.menus = MenuConfigManager.get_menus_dict(size, mode)
         self.should_redraw_event = Event()
 
-        def update_current_menu_height(_):
-            new_height = self.size[1] - self.title_bar.height
+        def update_current_menu_height(height):
+            new_height = self.size[1] - self.title_bar.window_size[1]
             if self.current_menu.window_height != new_height:
+                logger.debug(f"Updating Menu height to {new_height}")
                 self.current_menu.window_height = new_height
 
         subscribe(AppEvents.TITLE_BAR_HEIGHT_SET, update_current_menu_height)
@@ -54,12 +55,10 @@ class MenuManager:
         im = PIL.Image.new(self.mode, self.size)
         title_bar_height = 0
         if self.title_bar is not None and self.title_bar.should_draw():
-            title_bar_height = self.title_bar.height
-            title_bar_im = PIL.Image.new(self.mode, (self.size[0], title_bar_height))
-            # TODO: replace title bar page rendering logic with viewport
-            self.title_bar.render(title_bar_im)
+            title_bar_height = self.title_bar.viewport_size[1]
+            title_bar_im = self.title_bar.image
             im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
-        im.paste(self.current_menu.image, (0, title_bar_height) + self.size)
+        im.paste(self.current_menu.image, (0, title_bar_height))
         return im
 
     @property
