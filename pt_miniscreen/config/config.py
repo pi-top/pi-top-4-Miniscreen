@@ -2,9 +2,10 @@ from ..menu import Menu
 from ..pages import hud, overlay, settings, settings_connection, settings_display
 from .classes.menu import MenuConfig
 from .classes.menu_app import MenuAppConfig
-from .classes.menu_edge_behaviour import MenuEdgeBehaviour
 from .classes.page import PageConfig
 from .classes.title_bar import TitleBarBehaviour, TitleBarConfig
+
+# from .classes.menu_edge_behaviour import MenuEdgeBehaviour
 
 menu_app_config = MenuAppConfig(
     title_bar=TitleBarConfig(
@@ -18,8 +19,6 @@ menu_app_config = MenuAppConfig(
                 MenuConfig(
                     menu_cls=Menu,
                     title_bar=TitleBarBehaviour(visible=False),
-                    top_edge=MenuEdgeBehaviour.NONE,
-                    bottom_edge=MenuEdgeBehaviour.NONE,
                     children=dict(
                         [
                             ("battery", PageConfig(page_cls=hud.battery.Page)),
@@ -36,8 +35,6 @@ menu_app_config = MenuAppConfig(
                 "settings",
                 MenuConfig(
                     menu_cls=Menu,
-                    top_edge=MenuEdgeBehaviour.NONE,
-                    bottom_edge=MenuEdgeBehaviour.NONE,
                     title_bar=TitleBarBehaviour(
                         visible=True,
                         text="Settings",
@@ -54,8 +51,6 @@ menu_app_config = MenuAppConfig(
                                                 "settings.connection",
                                                 MenuConfig(
                                                     menu_cls=Menu,
-                                                    top_edge=MenuEdgeBehaviour.NONE,
-                                                    bottom_edge=MenuEdgeBehaviour.NONE,
                                                     title_bar=TitleBarBehaviour(
                                                         text="Connection",
                                                         append_title=True,
@@ -98,8 +93,10 @@ menu_app_config = MenuAppConfig(
                                                 "settings.display",
                                                 MenuConfig(
                                                     menu_cls=Menu,
-                                                    top_edge=MenuEdgeBehaviour.NONE,
-                                                    bottom_edge=MenuEdgeBehaviour.NONE,
+                                                    title_bar=TitleBarBehaviour(
+                                                        text="Display",
+                                                        append_title=True,
+                                                    ),
                                                     children=dict(
                                                         [
                                                             (

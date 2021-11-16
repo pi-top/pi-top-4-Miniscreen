@@ -29,7 +29,7 @@ class Page(PageBase):
                     interval=self.interval,
                     mode=self.mode,
                     size=(self.width - int(self.width / 4), self.height),
-                    text="Connection",
+                    text=self.text,
                     font_size=14,
                 )
             ],
