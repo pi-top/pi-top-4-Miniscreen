@@ -4,7 +4,7 @@ from math import floor
 import PIL.Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..pages.settings_connection.action_state import ActionState
+from ..pages.templates.action.state import ActionState
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)

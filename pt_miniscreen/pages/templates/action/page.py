@@ -1,12 +1,12 @@
 from typing import Dict
 
-from ...hotspots.image_hotspot import Hotspot as ImageHotspot
-from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
-from ...hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
-from ...state import Speeds
-from ...utils import get_image_file_path
-from ..base import Page as PageBase
-from .action_state import ActionState
+from ....hotspots.image_hotspot import Hotspot as ImageHotspot
+from ....hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
+from ....hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
+from ....state import Speeds
+from ....utils import get_image_file_path
+from ...base import Page as PageBase
+from .state import ActionState
 
 
 class Page(PageBase):
@@ -50,10 +50,11 @@ class Page(PageBase):
             size=(THIRD_COLUMN_WIDTH, STATUS_ICON_SIZE),
         )
 
-        if self.get_state_method() == "Enabled":
-            self.action_state = ActionState.ENABLED
-        else:
-            self.action_state = ActionState.DISABLED
+        self.action_state = ActionState.ENABLED
+
+        if callable(self.get_state_method):
+            if self.get_state_method() != "Enabled":
+                self.action_state = ActionState.DISABLED
 
         self.hotspots: Dict = {
             (FIRST_COLUMN_POS, 0): [
@@ -61,9 +62,7 @@ class Page(PageBase):
                     interval=self.interval,
                     mode=self.mode,
                     size=(ICON_WIDTH, self.height),
-                    image_path=get_image_file_path(
-                        f"settings/icons/status/{self.icon}.png"
-                    ),
+                    image_path=get_image_file_path(f"settings/{self.icon}.png"),
                 ),
             ],
             (SECOND_COLUMN_POS, (self.height - FONT_SIZE) / 2): [
@@ -98,10 +97,11 @@ class Page(PageBase):
         self.status_icon_hotspot.action_state = state
 
     def reset(self):
-        if self.get_state_method() == "Enabled":
-            self.action_state = ActionState.ENABLED
-        else:
-            self.action_state = ActionState.DISABLED
+        self.action_state = ActionState.ENABLED
+
+        if callable(self.get_state_method):
+            if self.get_state_method() != "Enabled":
+                self.action_state = ActionState.DISABLED
 
         # TODO: reset hotspots?
         # processing_icon_frame = 0

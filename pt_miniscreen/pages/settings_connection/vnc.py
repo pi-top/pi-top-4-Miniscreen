@@ -1,10 +1,10 @@
 from pitop.common.sys_info import get_vnc_enabled_state
 
 from ...actions import change_vnc_enabled_state
-from .action import Page as PageBase
+from ..templates.action import Page as ActionPage
 
 
-class Page(PageBase):
+class Page(ActionPage):
     def __init__(self, interval, size, mode, config):
         super().__init__(
             interval=interval,
