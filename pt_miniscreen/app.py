@@ -170,15 +170,6 @@ class App:
         self.display(self.menu_manager.image)
 
     def _main(self):
-        # Ignore PIL debug messages -
-        # STREAM b'IHDR' 16 13
-        # STREAM b'IDAT' 41 107
-        # STREAM b'IHDR' 16 13
-        # STREAM b'IDAT' 41 114
-        # STREAM b'IHDR' 16 13
-        # STREAM b'IDAT' 41 121
-        logging.getLogger("PIL").setLevel(logging.INFO)
-
         self.handle_startup_animation()
 
         logger.info("Starting main loop...")
