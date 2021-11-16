@@ -43,7 +43,7 @@ class Menu:
 
     # Adjust each hotspot's xy to match position in viewport
     def setup_hotspots(self):
-        self.viewport._hotspots = {}
+        self.viewport.remove_all_hotspots()
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:
@@ -105,7 +105,7 @@ class Menu:
 
     @y_pos.setter
     def y_pos(self, pos):
-        return self.viewport.set_position((0, pos))
+        self.viewport.position = (0, pos)
 
     def move_to_page(self, index):
         self.page_index = index

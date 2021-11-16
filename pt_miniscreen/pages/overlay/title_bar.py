@@ -49,7 +49,7 @@ class Page(PageBase):
         elif title_bar_behaviour.height:
             self.height = title_bar_behaviour.height
 
-        post_event(AppEvents.TITLE_BAR_HEIGHT_CHANGED, self.height)
+        post_event(AppEvents.TITLE_BAR_HEIGHT_SET, self.height)
 
         if self.height != 0:
             asst = MiniscreenAssistant(self.mode, self.size)

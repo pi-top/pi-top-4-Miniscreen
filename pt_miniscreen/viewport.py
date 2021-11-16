@@ -7,24 +7,56 @@ logger = logging.getLogger(__name__)
 
 
 class HotspotManager:
-    def __init__(self) -> None:
+    def __init__(self, window_size, window_position) -> None:
         self._hotspot_collections: Dict[Any, List[Tuple]] = dict()
+        self._window_size_func = window_size
+        self._window_position_func = window_position
 
-    def get_image(self, window_size, position):
-        image = Image.new("1", window_size)
+    @property
+    def window_size(self):
+        if callable(self._window_size_func):
+            return self._window_size_func()
+        return self._window_size_func
+
+    @property
+    def window_position(self):
+        if callable(self._window_position_func):
+            return self._window_position_func()
+        return self._window_position_func
+
+    def get_image(self):
+        image = Image.new("1", self.window_size)
+        updated = list()
         for _, hotspot_collection in self._hotspot_collections.items():
             for hotspot_instance in hotspot_collection:
-                if not self.is_hotspot_overlapping(
-                    hotspot_instance, position, window_size
-                ):
+                if not self.is_hotspot_overlapping(hotspot_instance):
                     continue
+
                 hotspot_instance.hotspot.paste_into(image, hotspot_instance.xy)
+                updated.append(hotspot_instance)
         return image
 
     def register(self, hotspot_instance, collection_id=None):
+        logger.debug(f"HotspotManager.register {hotspot_instance}")
         current_collection = self._hotspot_collections.get(collection_id, list())
+        if hotspot_instance in current_collection:
+            raise Exception(f"Hotspot instance {hotspot_instance} already registered")
         current_collection.append((hotspot_instance))
         self._hotspot_collections[collection_id] = current_collection
+
+        from threading import Thread
+        from time import sleep
+
+        def run():
+            image = Image.new("1", hotspot_instance.hotspot.size)
+            while True:
+                if self.is_hotspot_overlapping(hotspot_instance):
+                    hotspot_instance.hotspot.paste_into(image, (0, 0))
+
+                sleep(hotspot_instance.hotspot.interval)
+
+        t = Thread(target=run, args=(), daemon=True)
+        t.start()
 
     def unregister(self, hotspot_instance):
         for collection_id, collection in self._hotspot_collections:
@@ -33,7 +65,7 @@ class HotspotManager:
                 if len(self._hotspot_collections[collection_id]) == 0:
                     self._hotspot.remove(collection_id)
 
-    def is_hotspot_overlapping(self, hotspot_instance, position, window_size):
+    def is_hotspot_overlapping(self, hotspot_instance):
         def calc_bounds(xy, width, height):
             """For width and height attributes, determine the bounding box if
             were positioned at ``(x, y)``."""
@@ -50,7 +82,9 @@ class HotspotManager:
             hotspot_instance.hotspot.width,
             hotspot_instance.hotspot.height,
         )
-        l2, t2, r2, b2 = calc_bounds(position, window_size[0], window_size[1])
+        l2, t2, r2, b2 = calc_bounds(
+            self.window_position, self.window_size[0], self.window_size[1]
+        )
         return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
 
 
@@ -70,11 +104,29 @@ class Viewport:
 
     def __init__(self, display_size, window_size, mode):
         self._size = display_size
-        self.window_size = window_size
+        self._window_size = window_size
         self.mode = mode
 
         self._position = (0, 0)
-        self.hotspot_manager = HotspotManager()
+        self.hotspot_manager = HotspotManager(
+            window_size=lambda: self.window_size, window_position=lambda: self.position
+        )
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, xy):
+        self._position = xy
+
+    @property
+    def window_size(self):
+        return self._window_size
+
+    @window_size.setter
+    def window_size(self, xy):
+        self._window_size = xy
 
     @property
     def size(self):
@@ -125,9 +177,9 @@ class Viewport:
         """
         self.hotspot_manager.unregister(hotspot_instance)
 
+    def remove_all_hotspots(self):
+        self.hotspot_manager._hotspot_collections = {}
+
     @property
     def image(self):
-        return self.hotspot_manager.get_image(self.window_size, self._position)
-
-    def set_position(self, xy):
-        self._position = xy
+        return self.hotspot_manager.get_image()
