@@ -16,7 +16,7 @@ class MenuManager:
         self.is_skipping = False
 
         self.title_bar = MenuConfigManager.get_title_bar(size, mode)
-        self.menus = MenuConfigManager.get_menus_dict((size[0], size[1]), mode)
+        self.menus = MenuConfigManager.get_menus_dict(size, mode)
         self.should_redraw_event = Event()
 
         def update_current_menu_height(_):

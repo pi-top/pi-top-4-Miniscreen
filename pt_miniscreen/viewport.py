@@ -151,8 +151,12 @@ class HotspotManager:
         )
         return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
 
+    @property
+    def image(self):
+        return self.get_image()
 
-class Viewport:
+
+class Viewport(HotspotManager):
     """The viewport offers a positionable window into a larger resolution
     pseudo-display, that also supports the concept of hotspots (which act like
     live displays).
@@ -172,7 +176,7 @@ class Viewport:
         self.mode = mode
 
         self._position = (0, 0)
-        self.hotspot_manager = HotspotManager(
+        super().__init__(
             viewport_size=lambda: self.size,
             window_size=lambda: self.window_size,
             window_position=lambda: self.position,
@@ -231,7 +235,7 @@ class Viewport:
         (x, y) = hotspot_instance.xy
         assert 0 <= x <= self.width - hotspot_instance.hotspot.width
         assert 0 <= y <= self.height - hotspot_instance.hotspot.height
-        self.hotspot_manager.register(hotspot_instance, collection_id)
+        self.register(hotspot_instance, collection_id)
 
     def remove_hotspot(self, hotspot_instance):
         """Remove the hotspot at ``(x, y)``: Any previously rendered image
@@ -241,11 +245,7 @@ class Viewport:
         If the specified hotspot is not found for ``(x, y)``, a
         ``ValueError`` is raised.
         """
-        self.hotspot_manager.unregister(hotspot_instance)
+        self.unregister(hotspot_instance)
 
     def remove_all_hotspots(self):
-        self.hotspot_manager._hotspot_collections = {}
-
-    @property
-    def image(self):
-        return self.hotspot_manager.get_image()
+        self._hotspot_collections = {}
