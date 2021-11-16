@@ -19,6 +19,7 @@ click_logging.basic_config(logger)
 logging.getLogger("PIL").setLevel(logging.INFO)
 logging.getLogger("pitop").setLevel(logging.INFO)
 
+
 @click.command()
 @click_logging.simple_verbosity_option(logger)
 @click.version_option()
