@@ -5,6 +5,7 @@ from PIL import Image
 
 from .config import ConfigFactory
 from .config.classes.menu_edge_behaviour import MenuEdgeBehaviour
+from .hotspots.base import HotspotInstance
 from .scroll import scroll_generator
 from .viewport import Viewport
 
@@ -50,7 +51,9 @@ class Menu:
                         int(upperleft_xy[0]),
                         int(upperleft_xy[1] + i * self.window_height),
                     )
-                    self.viewport.add_hotspot(hotspot, pos, collection_id=page)
+                    self.viewport.add_hotspot(
+                        HotspotInstance(hotspot, pos), collection_id=page
+                    )
 
     def resize_page_hotspots(self):
         for page in self.pages:

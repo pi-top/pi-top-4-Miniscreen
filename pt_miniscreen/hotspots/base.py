@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from time import perf_counter
+from typing import Tuple
 
 from PIL import Image, ImageOps
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
@@ -67,3 +69,9 @@ class Hotspot:
 
     def render(self, image):
         raise NotImplementedError
+
+
+@dataclass
+class HotspotInstance:
+    hotspot: Hotspot
+    xy: Tuple[int, int]
