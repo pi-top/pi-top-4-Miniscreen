@@ -56,6 +56,7 @@ class MenuManager:
         if self.title_bar is not None and self.title_bar.should_draw():
             title_bar_height = self.title_bar.height
             title_bar_im = PIL.Image.new(self.mode, (self.size[0], title_bar_height))
+            # TODO: replace title bar page rendering logic with viewport
             self.title_bar.render(title_bar_im)
             im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
         im.paste(self.current_menu.image, (0, title_bar_height) + self.size)
@@ -83,10 +84,8 @@ class MenuManager:
         self.current_menu_id = MenuConfigManager.get_next_menu_id(
             self.menus, self.current_menu_id
         )
-
         if self.current_menu.parent_goes_to_first_page:
             self.current_menu.move_to_page(0)
-
         self.should_redraw_event.set()
 
     def _go_to_child_menu(self):
@@ -98,8 +97,11 @@ class MenuManager:
 
         for k, v in new_menu.items():
             self.menus[k] = v
-
         self.current_menu_id = list(new_menu.keys())[0]
+
+        if self.current_menu.parent_goes_to_first_page:
+            self.current_menu.move_to_page(0)
+
         self.should_redraw_event.set()
 
     def _go_to_parent_menu(self):

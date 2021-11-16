@@ -44,6 +44,7 @@ class Menu:
     # Adjust each hotspot's xy to match position in viewport
     def setup_hotspots(self):
         self.viewport.remove_all_hotspots()
+
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:

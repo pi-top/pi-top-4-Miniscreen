@@ -25,15 +25,20 @@ class HotspotManager:
         return self._window_position_func
 
     def get_image(self):
+        from pprint import pformat
+
         image = Image.new("1", self.window_size)
-        updated = list()
+        updated_hotspots = list()
         for _, hotspot_collection in self._hotspot_collections.items():
             for hotspot_instance in hotspot_collection:
                 if not self.is_hotspot_overlapping(hotspot_instance):
                     continue
 
                 hotspot_instance.hotspot.paste_into(image, hotspot_instance.xy)
-                updated.append(hotspot_instance)
+                updated_hotspots.append(hotspot_instance)
+
+        logger.debug("Updated hotspots:")
+        logger.debug(pformat(updated_hotspots))
         return image
 
     def register(self, hotspot_instance, collection_id=None):

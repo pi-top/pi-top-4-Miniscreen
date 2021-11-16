@@ -60,6 +60,7 @@ class Page:
     def setup_hotspots(self):
         pass
 
+    # TODO: remove this function in favour of using viewport directly
     def render(self, image):
         for position, hotspot_list in self.hotspots.items():
             for hotspot in hotspot_list:
