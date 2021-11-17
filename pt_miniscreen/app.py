@@ -183,6 +183,7 @@ class App:
 
             logger.debug(f"Current state: {self.state_manager.state}")
 
+            interval = None
             if self.state_manager.state == DisplayState.SCREENSAVER:
                 self.show_screensaver_frame()
                 interval = Speeds.SCREENSAVER.value
@@ -193,8 +194,6 @@ class App:
                         interval = Speeds.SKIP.value
                     else:
                         interval = Speeds.SCROLL.value
-                else:
-                    interval = self.menu_manager.current_menu_page.interval
 
             logger.debug("Waiting until timeout or until page has changed...")
             self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)

@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Tuple
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from .event import AppEvents, post_event
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +20,7 @@ class HotspotManager:
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = False
+        self.active = False
 
     @property
     def viewport_size(self):
@@ -123,6 +126,8 @@ class HotspotManager:
                     self.cached_images[
                         hotspot_instance.hotspot
                     ] = hotspot_instance.hotspot.image
+                    if self.active:
+                        post_event(AppEvents.REDRAWN_HOTSPOT, self)
 
                 sleep(hotspot_instance.hotspot.interval)
 

@@ -53,6 +53,11 @@ class MenuManager:
             lambda callback_handler: callback_handler(self._handle_cancel_btn),
         )
 
+        subscribe(
+            AppEvents.REDRAWN_HOTSPOT,
+            lambda _: self.should_redraw_event.set(),
+        )
+
     @property
     def image(self):
         im = PIL.Image.new(self.mode, self.size)
@@ -71,7 +76,10 @@ class MenuManager:
 
     @current_menu_id.setter
     def current_menu_id(self, menu_id):
+        if hasattr(self, "_current_menu_id"):
+            self.current_menu.active = False
         self._current_menu_id = menu_id
+        self.current_menu.active = True
         self.title_bar.behaviour = self.current_menu.title_bar
         logger.debug(
             f"current_menu_id.setter - title bar behaviour : {self.title_bar.behaviour}"
