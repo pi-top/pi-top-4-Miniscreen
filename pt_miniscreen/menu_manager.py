@@ -60,7 +60,8 @@ class MenuManager:
         if self.title_bar is not None and self.title_bar.should_draw():
             title_bar_height = self.title_bar.viewport_size[1]
             title_bar_im = self.title_bar.image
-            im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
+            if title_bar_im:
+                im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
         im.paste(self.current_menu.image, (0, title_bar_height))
         return im
 
@@ -71,7 +72,13 @@ class MenuManager:
     @current_menu_id.setter
     def current_menu_id(self, menu_id):
         self._current_menu_id = menu_id
+        logger.debug(
+            f"current_menu_id.setter - old title bar behaviour : {self.title_bar.behaviour}"
+        )
         self.title_bar.behaviour = self.current_menu.title_bar
+        logger.debug(
+            f"current_menu_id.setter - new title bar behaviour : {self.title_bar.behaviour}"
+        )
         self.should_redraw_event.set()
 
     @property

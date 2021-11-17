@@ -69,8 +69,16 @@ class Menu:
         self._size = value
 
         # Resize viewport
-        self.viewport.size = self.display_size
-        self.viewport.window_size = self.size
+        self.viewport.stop_threads()
+        # self.viewport.size = self.display_size
+        # self.viewport.window_size = self.size
+        logger.error(f"menu.size setter - {self.size}")
+
+        self.viewport = Viewport(
+            window_size=self.size,
+            display_size=self.display_size,
+            mode=self.mode,
+        )
 
         # Resize hotspots and update their positions
         self.resize_pages()
@@ -119,7 +127,10 @@ class Menu:
         im = Image.new(self.current_page.mode, self.current_page.size)
         logger.debug(f"Menu Image size: {im.size}")
 
-        im.paste(self.viewport.image, (0, 0) + self.current_page.size)
+        viewport_image = self.viewport.image
+        if viewport_image is None:
+            viewport_image = Image.new(self.current_page.mode, self.current_page.size)
+        im.paste(viewport_image, (0, 0) + self.current_page.size)
 
         end = time.time()
         logger.debug(f"Time generating image: {end - start}")

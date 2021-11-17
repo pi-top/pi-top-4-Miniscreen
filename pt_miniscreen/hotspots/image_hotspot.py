@@ -39,6 +39,10 @@ class Hotspot(HotspotBase):
             fill="white",
         )
 
+    def setup_hotspots(self):
+        self._setup_image()
+        super().setup_hotspots()
+
     @property
     def image(self):
         return self._im
@@ -50,15 +54,18 @@ class Hotspot(HotspotBase):
     @image_path.setter
     def image_path(self, path):
         self._im_path = path
-        if path is None:
+        self._setup_image()
+
+    def _setup_image(self):
+        if self.image_path is None:
             return
         try:
-            self._im = PIL.Image.open(path)
+            self._im = PIL.Image.open(self.image_path).convert(self.mode)
             if self.xy is None:
                 self.xy = (
                     self.size[0] / 2 - self._im.width / 2,
                     self.size[1] / 2 - self._im.height / 2,
                 )
         except Exception as e:
-            logger.warning(f"Couldn't open image {path} : {e}")
+            logger.warning(f"Couldn't open image {self.image_path} : {e}")
             raise
