@@ -72,12 +72,9 @@ class MenuManager:
     @current_menu_id.setter
     def current_menu_id(self, menu_id):
         self._current_menu_id = menu_id
-        logger.debug(
-            f"current_menu_id.setter - old title bar behaviour : {self.title_bar.behaviour}"
-        )
         self.title_bar.behaviour = self.current_menu.title_bar
         logger.debug(
-            f"current_menu_id.setter - new title bar behaviour : {self.title_bar.behaviour}"
+            f"current_menu_id.setter - title bar behaviour : {self.title_bar.behaviour}"
         )
         self.should_redraw_event.set()
 

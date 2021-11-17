@@ -74,6 +74,18 @@ class Hotspot:
 
         image.paste(hotspot_image, xy, mask)
 
+    def mask(self, hotspot_image):
+        mask = None
+        if self.draw_white and not self.draw_black:
+            mask = hotspot_image
+
+        elif not self.draw_white and self.draw_black:
+            mask = ImageOps.invert(hotspot_image)
+
+        elif self.draw_white and self.draw_black:
+            mask = Image.new("1", size=hotspot_image.size, fill="white")
+        return mask
+
 
 @dataclass
 class HotspotInstance:

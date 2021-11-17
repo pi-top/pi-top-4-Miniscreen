@@ -95,6 +95,3 @@ class Viewport(HotspotManager):
         ``ValueError`` is raised.
         """
         self.unregister(hotspot_instance)
-
-    def remove_all_hotspots(self):
-        self._hotspot_collections = {}

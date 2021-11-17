@@ -3,7 +3,7 @@ from threading import Thread
 from time import sleep
 from typing import Any, Dict, List, Tuple
 
-from PIL import Image, ImageOps
+from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 logger = logging.getLogger(__name__)
@@ -69,24 +69,7 @@ class HotspotManager:
                 hotspot_instance.hotspot.mode, hotspot_instance.hotspot.size
             ).invert(hotspot_image)
 
-        mask = None
-        if (
-            hotspot_instance.hotspot.draw_white
-            and not hotspot_instance.hotspot.draw_black
-        ):
-            mask = hotspot_image
-
-        elif (
-            not hotspot_instance.hotspot.draw_white
-            and hotspot_instance.hotspot.draw_black
-        ):
-            mask = ImageOps.invert(hotspot_image)
-
-        elif (
-            hotspot_instance.hotspot.draw_white and hotspot_instance.hotspot.draw_black
-        ):
-            mask = Image.new("1", size=hotspot_image.size)
-
+        mask = hotspot_instance.hotspot.mask(hotspot_image)
         pos = hotspot_instance.xy
         # box = pos + (pos[0] + hotspot_image.size[0], pos[1] + hotspot_image.size[1])
         logger.debug(
@@ -187,3 +170,6 @@ class HotspotManager:
     @property
     def image(self):
         return self.get_image()
+
+    def remove_all_hotspots(self):
+        self._hotspot_collections = {}

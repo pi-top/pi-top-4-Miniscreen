@@ -4,6 +4,7 @@ from typing import Dict
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...event import AppEvents, post_event
+from ...hotspots.base import HotspotInstance
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
 from ...state import Speeds
@@ -73,7 +74,7 @@ class TitleBar(HotspotManager):
                     (self.window_size[0] - marquee_text_hotspot.text_image.width) / 2
                 )
 
-            self.hotspots: Dict = {
+            hotspots: Dict = {
                 (marquee_hotspot_x_pos, 0): [marquee_text_hotspot],
                 (0, height - 1): [
                     RectangleHotspot(
@@ -84,3 +85,9 @@ class TitleBar(HotspotManager):
                     )
                 ],
             }
+
+            self.remove_all_hotspots()
+            self.stop_threads()
+            for xy, hotspots in hotspots.items():
+                for hotspot in hotspots:
+                    self.register(HotspotInstance(hotspot, xy))
