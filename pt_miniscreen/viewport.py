@@ -74,10 +74,17 @@ class HotspotManager:
 
         pos = hotspot_instance.xy
         # box = pos + (pos[0] + hotspot_image.size[0], pos[1] + hotspot_image.size[1])
-        logger.debug(f"hotspot xy: {hotspot_instance.xy}")
-        logger.debug(f"position: {pos}")
+        logger.debug(
+            f"viewport.paste_hotspot_into_image - hotspot image size: {hotspot_image.size}"
+        )
+        logger.debug(
+            f"viewport.paste_hotspot_into_image - base image size: {image.size}"
+        )
+        logger.debug(
+            f"viewport.paste_hotspot_into_image - hotspot xy: {hotspot_instance.xy}"
+        )
+        logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
         # logger.debug(f"box: {box}")
-        logger.debug(hotspot_image.size)
         image.paste(hotspot_image, pos, mask)
 
     def get_image(self):

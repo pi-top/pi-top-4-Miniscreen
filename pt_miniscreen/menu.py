@@ -39,10 +39,10 @@ class Menu:
             mode=self.mode,
         )
 
-        self.setup_hotspots()
+        self.setup_hotspot_position_in_viewport()
 
     # Adjust each hotspot's xy to match position in viewport
-    def setup_hotspots(self):
+    def setup_hotspot_position_in_viewport(self):
         self.viewport.remove_all_hotspots()
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
@@ -55,7 +55,7 @@ class Menu:
                         HotspotInstance(hotspot, pos), collection_id=page
                     )
 
-    def resize_page_hotspots(self):
+    def resize_pages(self):
         for page in self.pages:
             page.size = self.size
 
@@ -73,8 +73,8 @@ class Menu:
         self.viewport.window_size = self.size
 
         # Resize hotspots and update their positions
-        self.resize_page_hotspots()
-        self.setup_hotspots()
+        self.resize_pages()
+        self.setup_hotspot_position_in_viewport()
 
     @property
     def window_width(self):

@@ -20,10 +20,13 @@ class MenuManager:
         self.should_redraw_event = Event()
 
         def update_current_menu_height(height):
-            new_height = self.size[1] - self.title_bar.window_size[1]
-            if self.current_menu.window_height != new_height:
-                logger.debug(f"Updating Menu height to {new_height}")
-                self.current_menu.window_height = new_height
+            new_menu_height = self.size[1] - height
+            logger.debug(
+                f"Title bar new height: {height} / Menu height now is {new_menu_height}"
+            )
+            if self.current_menu.window_height != new_menu_height:
+                logger.debug(f"Updating Menu height to {new_menu_height}")
+                self.current_menu.window_height = new_menu_height
 
         subscribe(AppEvents.TITLE_BAR_HEIGHT_SET, update_current_menu_height)
 
