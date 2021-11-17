@@ -15,6 +15,9 @@ from ..base import Page as PageBase
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
         super().__init__(interval=interval, size=size, mode=mode, config=config)
+        self.setup_hotspots()
+
+    def setup_hotspots(self):
         MARGIN_X_LEFT = 30
         MARGIN_X_RIGHT = 10
         SCALE = self.height / 64.0
@@ -31,39 +34,39 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=size,
+                    interval=self.interval,
+                    mode=self.mode,
+                    size=self.size,
                     image_path=get_image_file_path("sys_info/networking/antenna.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
                 ImageHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=size,
+                    interval=self.interval,
+                    mode=self.mode,
+                    size=self.size,
                     image_path=get_image_file_path("sys_info/networking/wifi.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
                 ImageHotspot(
-                    interval=interval,
-                    mode=mode,
-                    size=size,
+                    interval=self.interval,
+                    mode=self.mode,
+                    size=self.size,
                     image_path=get_image_file_path("sys_info/networking/home.png"),
                     xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
             ],
             (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
                 WifiStrengthHotspot(
-                    interval=interval,
-                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
-                    mode=mode,
+                    interval=self.interval,
+                    size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
+                    mode=self.mode,
                 )
             ],
             (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1): [
                 MarqueeTextHotspot(
                     interval=Speeds.MARQUEE.value,
-                    mode=mode,
-                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
+                    mode=self.mode,
+                    size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=get_wifi_network_ssid,
                     font_size=DEFAULT_FONT_SIZE,
                 ),
@@ -71,8 +74,8 @@ class Page(PageBase):
             (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1): [
                 MarqueeTextHotspot(
                     interval=Speeds.MARQUEE.value,
-                    mode=mode,
-                    size=(size[0] - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
+                    mode=self.mode,
+                    size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=self.get_ip_address,
                     font_size=DEFAULT_FONT_SIZE,
                 ),

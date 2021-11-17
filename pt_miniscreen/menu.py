@@ -5,6 +5,7 @@ from PIL import Image
 
 from .config import ConfigFactory
 from .config.classes.menu_edge_behaviour import MenuEdgeBehaviour
+from .hotspots.base import HotspotInstance
 from .scroll import scroll_generator
 from .viewport import Viewport
 
@@ -38,11 +39,11 @@ class Menu:
             mode=self.mode,
         )
 
-        self.setup_hotspots()
+        self.setup_hotspot_position_in_viewport()
 
     # Adjust each hotspot's xy to match position in viewport
-    def setup_hotspots(self):
-        self.viewport._hotspots = {}
+    def setup_hotspot_position_in_viewport(self):
+        self.viewport.remove_all_hotspots()
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:
@@ -50,9 +51,11 @@ class Menu:
                         int(upperleft_xy[0]),
                         int(upperleft_xy[1] + i * self.window_height),
                     )
-                    self.viewport.add_hotspot(hotspot, pos, collection_id=page)
+                    self.viewport.add_hotspot(
+                        HotspotInstance(hotspot, pos), collection_id=page
+                    )
 
-    def resize_page_hotspots(self):
+    def resize_pages(self):
         for page in self.pages:
             page.size = self.size
 
@@ -62,15 +65,24 @@ class Menu:
 
     @size.setter
     def size(self, value):
+        logger.debug(f"Resizing menu from {self._size} to {value}")
         self._size = value
 
         # Resize viewport
-        self.viewport.size = self.display_size
-        self.viewport.window_size = self.size
+        self.viewport.stop_threads()
+        # self.viewport.size = self.display_size
+        # self.viewport.window_size = self.size
+        logger.error(f"menu.size setter - {self.size}")
+
+        self.viewport = Viewport(
+            window_size=self.size,
+            display_size=self.display_size,
+            mode=self.mode,
+        )
 
         # Resize hotspots and update their positions
-        self.resize_page_hotspots()
-        self.setup_hotspots()
+        self.resize_pages()
+        self.setup_hotspot_position_in_viewport()
 
     @property
     def window_width(self):
@@ -102,7 +114,7 @@ class Menu:
 
     @y_pos.setter
     def y_pos(self, pos):
-        return self.viewport.set_position((0, pos))
+        self.viewport.position = (0, pos)
 
     def move_to_page(self, index):
         self.page_index = index
@@ -115,7 +127,10 @@ class Menu:
         im = Image.new(self.current_page.mode, self.current_page.size)
         logger.debug(f"Menu Image size: {im.size}")
 
-        im.paste(self.viewport.image, (0, 0) + self.current_page.size)
+        viewport_image = self.viewport.image
+        if viewport_image is None:
+            viewport_image = Image.new(self.current_page.mode, self.current_page.size)
+        im.paste(viewport_image, (0, 0) + self.current_page.size)
 
         end = time.time()
         logger.debug(f"Time generating image: {end - start}")

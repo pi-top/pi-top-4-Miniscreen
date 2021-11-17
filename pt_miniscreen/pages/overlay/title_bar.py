@@ -3,19 +3,22 @@ from typing import Dict
 
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from pt_miniscreen.state import Speeds
-
 from ...event import AppEvents, post_event
+from ...hotspots.base import HotspotInstance
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
-from ..base import Page as PageBase
+from ...state import Speeds
+from ...viewport import HotspotManager
 
 logger = logging.getLogger(__name__)
 
 
-class Page(PageBase):
-    def __init__(self, interval, size, mode, config, title_bar_behaviour):
-        super().__init__(interval, size, mode, config)
+class TitleBar(HotspotManager):
+    def __init__(
+        self, viewport_size, window_size, window_position, title_bar_behaviour
+    ) -> None:
+        super().__init__(viewport_size, window_size, window_position)
+        self.mode = "1"
         self._behaviour = title_bar_behaviour
 
     def should_draw(self):
@@ -43,23 +46,23 @@ class Page(PageBase):
         if title_bar_behaviour.height is not None:
             self.behaviour.height = title_bar_behaviour.height
 
-        self.height = self.behaviour.height
+        height = self.behaviour.height
         if not title_bar_behaviour.visible or title_bar_behaviour.text == "":
-            self.height = 0
+            height = 0
         elif title_bar_behaviour.height:
-            self.height = title_bar_behaviour.height
+            height = title_bar_behaviour.height
 
-        post_event(AppEvents.TITLE_BAR_HEIGHT_CHANGED, self.height)
+        post_event(AppEvents.TITLE_BAR_HEIGHT_SET, height)
 
-        if self.height != 0:
-            asst = MiniscreenAssistant(self.mode, self.size)
+        if height != 0:
+            asst = MiniscreenAssistant(self.mode, self.viewport_size)
             marquee_text_hotspot = MarqueeTextHotspot(
                 interval=Speeds.MARQUEE.value,
                 mode=self.mode,
-                size=self.size,
+                size=self.viewport_size,
                 text=self.behaviour.text,
                 font=asst.get_mono_font(
-                    size=self.font_size,
+                    size=14,
                     bold=True,
                 ),
                 font_size=14,
@@ -68,17 +71,23 @@ class Page(PageBase):
             if not marquee_text_hotspot.needs_scrolling:
                 # if no scroll is needed, center text in screen
                 marquee_hotspot_x_pos = int(
-                    (self.width - marquee_text_hotspot.text_image.width) / 2
+                    (self.window_size[0] - marquee_text_hotspot.text_image.width) / 2
                 )
 
-            self.hotspots: Dict = {
+            hotspots: Dict = {
                 (marquee_hotspot_x_pos, 0): [marquee_text_hotspot],
-                (0, self.height - 1): [
+                (0, height - 1): [
                     RectangleHotspot(
-                        interval=self.interval,
+                        interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
                         mode=self.mode,
-                        size=(self.width, 1),
-                        bounding_box=(0, 0) + (self.width, 1),
+                        size=(self.viewport_size[0], 1),
+                        bounding_box=(0, 0) + (self.viewport_size[0], 1),
                     )
                 ],
             }
+
+            self.remove_all_hotspots()
+            self.stop_threads()
+            for xy, hotspots in hotspots.items():
+                for hotspot in hotspots:
+                    self.register(HotspotInstance(hotspot, xy))

@@ -9,7 +9,7 @@ from .title_bar import TitleBarBehaviour
 
 @dataclass
 class MenuConfig:
-    menu_cls: Type[Menu]
+    menu_cls: Type[Menu] = Menu
     children: Dict[str, PageConfig] = field(default_factory=dict)
     parent_goes_to_first_page: bool = True
     top_edge: MenuEdgeBehaviour = MenuEdgeBehaviour.NONE

@@ -170,15 +170,6 @@ class App:
         self.display(self.menu_manager.image)
 
     def _main(self):
-        # Ignore PIL debug messages -
-        # STREAM b'IHDR' 16 13
-        # STREAM b'IDAT' 41 107
-        # STREAM b'IHDR' 16 13
-        # STREAM b'IDAT' 41 114
-        # STREAM b'IHDR' 16 13
-        # STREAM b'IDAT' 41 121
-        logging.getLogger("PIL").setLevel(logging.INFO)
-
         self.handle_startup_animation()
 
         logger.info("Starting main loop...")
@@ -203,10 +194,7 @@ class App:
                     else:
                         interval = Speeds.SCROLL.value
                 else:
-                    interval = min(
-                        self.menu_manager.current_menu_page.interval,
-                        self.menu_manager.title_bar.interval,
-                    )
+                    interval = self.menu_manager.current_menu_page.interval
 
             logger.debug("Waiting until timeout or until page has changed...")
             self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)

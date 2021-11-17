@@ -1,5 +1,5 @@
 from ...utils import get_image_file_path
-from ..templates.menu import Page as PageBase
+from ..templates.menu.page import Page as PageBase
 
 
 class Page(PageBase):

@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from time import perf_counter
+from typing import Tuple
 
 from PIL import Image, ImageOps
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
@@ -41,6 +43,16 @@ class Hotspot:
         """Only requests a redraw after ``interval`` seconds have elapsed."""
         return perf_counter() - self.last_updated > self.interval
 
+    @property
+    def image(self):
+        hotspot_image = Image.new(self.mode, self.size)
+        self.render(hotspot_image)
+        self.last_updated = perf_counter()
+        return hotspot_image
+
+    def render(self, image):
+        raise NotImplementedError
+
     def paste_into(self, image, xy):
         if not self.draw_white and not self.draw_black:
             return
@@ -62,8 +74,20 @@ class Hotspot:
 
         image.paste(hotspot_image, xy, mask)
 
-        del hotspot_image
-        self.last_updated = perf_counter()
+    def mask(self, hotspot_image):
+        mask = None
+        if self.draw_white and not self.draw_black:
+            mask = hotspot_image
 
-    def render(self, image):
-        raise NotImplementedError
+        elif not self.draw_white and self.draw_black:
+            mask = ImageOps.invert(hotspot_image)
+
+        elif self.draw_white and self.draw_black:
+            mask = Image.new("1", size=hotspot_image.size, fill="white")
+        return mask
+
+
+@dataclass
+class HotspotInstance:
+    hotspot: Hotspot
+    xy: Tuple[int, int]

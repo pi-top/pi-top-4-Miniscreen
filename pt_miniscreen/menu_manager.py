@@ -15,14 +15,20 @@ class MenuManager:
         self.mode = mode
         self.is_skipping = False
 
-        self.title_bar = MenuConfigManager.get_title_bar(size, mode)
-        self.menus = MenuConfigManager.get_menus_dict((size[0], size[1]), mode)
+        self.title_bar = MenuConfigManager.get_title_bar(size)
+        self.menus = MenuConfigManager.get_menus_dict(size, mode)
         self.should_redraw_event = Event()
 
-        def update_current_menu_height(_):
-            self.current_menu.window_height = self.size[1] - self.title_bar.height
+        def update_current_menu_height(height):
+            new_menu_height = self.size[1] - height
+            logger.debug(
+                f"Title bar new height: {height} / Menu height now is {new_menu_height}"
+            )
+            if self.current_menu.window_height != new_menu_height:
+                logger.debug(f"Updating Menu height to {new_menu_height}")
+                self.current_menu.window_height = new_menu_height
 
-        subscribe(AppEvents.TITLE_BAR_HEIGHT_CHANGED, update_current_menu_height)
+        subscribe(AppEvents.TITLE_BAR_HEIGHT_SET, update_current_menu_height)
 
         self.current_menu_id = list(self.menus.keys())[0]
 
@@ -52,11 +58,11 @@ class MenuManager:
         im = PIL.Image.new(self.mode, self.size)
         title_bar_height = 0
         if self.title_bar is not None and self.title_bar.should_draw():
-            title_bar_height = self.title_bar.height
-            title_bar_im = PIL.Image.new(self.mode, (self.size[0], title_bar_height))
-            self.title_bar.render(title_bar_im)
-            im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
-        im.paste(self.current_menu.image, (0, title_bar_height) + self.size)
+            title_bar_height = self.title_bar.viewport_size[1]
+            title_bar_im = self.title_bar.image
+            if title_bar_im:
+                im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
+        im.paste(self.current_menu.image, (0, title_bar_height))
         return im
 
     @property
@@ -67,6 +73,9 @@ class MenuManager:
     def current_menu_id(self, menu_id):
         self._current_menu_id = menu_id
         self.title_bar.behaviour = self.current_menu.title_bar
+        logger.debug(
+            f"current_menu_id.setter - title bar behaviour : {self.title_bar.behaviour}"
+        )
         self.should_redraw_event.set()
 
     @property
@@ -81,10 +90,8 @@ class MenuManager:
         self.current_menu_id = MenuConfigManager.get_next_menu_id(
             self.menus, self.current_menu_id
         )
-
         if self.current_menu.parent_goes_to_first_page:
             self.current_menu.move_to_page(0)
-
         self.should_redraw_event.set()
 
     def _go_to_child_menu(self):
@@ -96,8 +103,11 @@ class MenuManager:
 
         for k, v in new_menu.items():
             self.menus[k] = v
-
         self.current_menu_id = list(new_menu.keys())[0]
+
+        if self.current_menu.parent_goes_to_first_page:
+            self.current_menu.move_to_page(0)
+
         self.should_redraw_event.set()
 
     def _go_to_parent_menu(self):
