@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class TitleBar(Tile):
-    def __init__(
-        self, tile_size, behaviour
-    ) -> None:
+    def __init__(self, tile_size, behaviour) -> None:
         super().__init__(tile_size)
         self.mode = "1"
         self._behaviour = behaviour

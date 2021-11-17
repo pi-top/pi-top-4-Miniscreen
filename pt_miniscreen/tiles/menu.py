@@ -2,8 +2,8 @@ import logging
 
 from ..config import ConfigFactory
 from ..config.classes.menu_edge_behaviour import MenuEdgeBehaviour
-from ..hotspots.base import HotspotInstance
 from ..generators import scroll_to
+from ..hotspots.base import HotspotInstance
 from ..tiles import ViewportTile
 
 logger = logging.getLogger(__name__)

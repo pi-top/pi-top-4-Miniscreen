@@ -105,7 +105,7 @@ class Tile:
     def remove_all_hotspots(self):
         self._hotspot_collections = {}
 
-    #-----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
 
     # TODO: create a base version of this function that always returns true
     # Move this to viewport
@@ -126,9 +126,7 @@ class Tile:
             hotspot_instance.hotspot.width,
             hotspot_instance.hotspot.height,
         )
-        l2, t2, r2, b2 = calc_bounds(
-            self.window_position, self.size[0], self.size[1]
-        )
+        l2, t2, r2, b2 = calc_bounds(self.window_position, self.size[0], self.size[1])
         return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
 
     # Create base version of this function which supports overriding
