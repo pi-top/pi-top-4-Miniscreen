@@ -1,11 +1,11 @@
 import logging
 
-from .hotspot_manager import HotspotManager
+from .base import Tile
 
 logger = logging.getLogger(__name__)
 
 
-class Viewport(HotspotManager):
+class ViewportTile(Tile):
     """The viewport offers a positionable window into a larger resolution
     pseudo-display, that also supports the concept of hotspots (which act like
     live displays).
@@ -19,17 +19,41 @@ class Viewport(HotspotManager):
     :type mode: str
     """
 
-    def __init__(self, display_size, window_size, mode):
-        self._size = display_size
-        self._window_size = window_size
+    def __init__(self, size, mode, viewport_size, window_position=(0, 0)):
         self.mode = mode
 
+        # TODO: move to viewport tile
+        self._viewport_size = viewport_size
+        self._window_position = window_position
+
         self._position = (0, 0)
-        super().__init__(
-            viewport_size=lambda: self.size,
-            window_size=lambda: self.window_size,
-            window_position=lambda: self.position,
-        )
+        super().__init__(size)
+
+    def _crop_box(self):
+        (left, top) = self.window_position
+        right = left + self.size[0]
+        bottom = top + self.size[1]
+
+        assert 0 <= left <= right <= self.viewport_size[0]
+        assert 0 <= top <= bottom <= self.viewport_size[1]
+
+        return (left, top, right, bottom)
+
+    @property
+    def viewport_size(self):
+        if callable(self._viewport_size):
+            return self._viewport_size()
+
+        if self._viewport_size is None:
+            return self.size
+
+        return self._viewport_size
+
+    @property
+    def window_position(self):
+        if callable(self._window_position):
+            return self._window_position()
+        return self._window_position
 
     @property
     def position(self):
@@ -40,12 +64,20 @@ class Viewport(HotspotManager):
         self._position = xy
 
     @property
-    def window_size(self):
-        return self._window_size
+    def y_pos(self):
+        return self._position[1]
 
-    @window_size.setter
-    def window_size(self, xy):
-        self._window_size = xy
+    @y_pos.setter
+    def y_pos(self, pos):
+        self.position = (0, pos)
+
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, xy):
+        self._size = xy
 
     @property
     def size(self):
@@ -69,11 +101,15 @@ class Viewport(HotspotManager):
 
     @property
     def window_width(self):
-        return self.window_size[0]
+        return self.size[0]
 
     @property
     def window_height(self):
-        return self.window_size[1]
+        return self.size[1]
+
+    @window_height.setter
+    def window_height(self, value):
+        self.size = (self.window_width, value)
 
     def add_hotspot(self, hotspot_instance, collection_id=None):
         """Add the hotspot at ``(x, y)``.

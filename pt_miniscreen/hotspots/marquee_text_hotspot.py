@@ -4,7 +4,7 @@ import PIL.ImageDraw
 import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..scroll import marquee_generator, pause_every
+from ..generators import carousel, pause_every
 from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
@@ -63,7 +63,7 @@ class Hotspot(HotspotBase):
         # update coordinate generator maximum values for the new image
         self.coordinate_generator = pause_every(
             interval=self.text_image.width - self.size[0],
-            generator=marquee_generator(
+            generator=carousel(
                 min_value=0,
                 max_value=self.text_image.width - self.size[0],
                 resolution=2,

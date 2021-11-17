@@ -13,7 +13,7 @@ def pause_every(interval, generator, sleep_for):
             yield x
 
 
-def scroll_generator(min_value, max_value, resolution):
+def scroll_to(min_value, max_value, resolution):
     if max_value < min_value:
         resolution = -resolution
     for value in range(min_value, max_value, resolution):
@@ -22,14 +22,14 @@ def scroll_generator(min_value, max_value, resolution):
         yield max_value
 
 
-def marquee_generator(min_value, max_value, resolution=1):
+def carousel(min_value, max_value, resolution=1):
     while True:
         if max_value <= 0:
             yield min_value
         else:
             for generator in [
-                scroll_generator(min_value, max_value, resolution),
-                scroll_generator(max_value, min_value, resolution),
+                scroll_to(min_value, max_value, resolution),
+                scroll_to(max_value, min_value, resolution),
             ]:
                 try:
                     for value in generator:

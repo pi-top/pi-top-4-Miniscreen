@@ -6,7 +6,7 @@ This application is built upon the Luma library for communicating to the OLED de
 
 In most cases, `pt-miniscreen` will play the startup animation once and then switch to a menu interface.
 
-The `MenuManager` deals with the core application functionality:
+The `TileManager` deals with the core application functionality:
 
 * handling miniscreen button presses
 * managing all menus

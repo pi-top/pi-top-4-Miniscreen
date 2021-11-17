@@ -7,10 +7,10 @@ from pitop import Pitop
 
 from .bootsplash import Bootsplash
 from .event import AppEvents, post_event, subscribe
-from .menu_manager import MenuManager
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
+from .tile_manager import TileManager
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class App:
 
         self.splash = Bootsplash(self.miniscreen)
 
-        self.menu_manager = MenuManager(
+        self.tile_manager = TileManager(
             self.miniscreen.size,
             self.miniscreen.mode,
         )
@@ -126,7 +126,7 @@ class App:
 
         logger.debug(f"Time since action started: {time_since_action_started}")
 
-        if self.menu_manager.current_menu.current_page.action_process.is_alive():
+        if self.tile_manager.current_menu.current_page.action_process.is_alive():
             logger.debug("Action not yet completed")
             return
 
@@ -135,14 +135,14 @@ class App:
             self.state_manager.state = DisplayState.WAKING
 
             logger.info("Notifying renderer to display 'unknown' action state")
-            self.menu_manager.current_menu.current_page.set_unknown_state()
+            self.tile_manager.current_menu.current_page.set_unknown_state()
             return
 
         logger.info("Action completed - setting state to WAKING")
         self.state_manager.state = DisplayState.WAKING
         logger.info("Resetting state of hotspot to re-renderer current state")
 
-        self.menu_manager.current_menu.current_page.hotspot.reset()
+        self.tile_manager.current_menu.current_page.hotspot.reset()
 
     @property
     def time_since_last_active(self):
@@ -166,8 +166,8 @@ class App:
 
     def display_current_menu_image(self):
         logger.debug("Updating scroll position and displaying current menus' image...")
-        self.menu_manager.update_current_menu_scroll_position()
-        self.display(self.menu_manager.image)
+        self.tile_manager.update_current_menu_scroll_position()
+        self.display(self.tile_manager.image)
 
     def _main(self):
         self.handle_startup_animation()
@@ -188,16 +188,16 @@ class App:
                 interval = Speeds.SCREENSAVER.value
             else:
                 self.display_current_menu_image()
-                if self.menu_manager.current_menu.needs_to_scroll:
-                    if self.menu_manager.is_skipping:
+                if self.tile_manager.current_menu.needs_to_scroll:
+                    if self.tile_manager.is_skipping:
                         interval = Speeds.SKIP.value
                     else:
                         interval = Speeds.SCROLL.value
                 else:
-                    interval = self.menu_manager.current_menu_page.interval
+                    interval = self.tile_manager.current_menu_page.interval
 
             logger.debug("Waiting until timeout or until page has changed...")
-            self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)
+            self.tile_manager.wait_until_timeout_or_should_redraw_event(interval)
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()

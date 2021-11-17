@@ -69,7 +69,5 @@ class MenuConfigManager:
 
         return menu_app_config.title_bar.page_cls(
             viewport_size=(size[0], menu_app_config.title_bar.behaviour.height),
-            window_size=(size[0], menu_app_config.title_bar.behaviour.height),
-            window_position=(0, 0),
-            title_bar_behaviour=menu_app_config.title_bar.behaviour,
+            behaviour=menu_app_config.title_bar.behaviour,
         )

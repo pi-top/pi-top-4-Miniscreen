@@ -8,18 +8,18 @@ from ...hotspots.base import HotspotInstance
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
 from ...state import Speeds
-from ...viewport import HotspotManager
+from ...tiles import Tile
 
 logger = logging.getLogger(__name__)
 
 
-class TitleBar(HotspotManager):
+class TitleBar(Tile):
     def __init__(
-        self, viewport_size, window_size, window_position, title_bar_behaviour
+        self, tile_size, behaviour
     ) -> None:
-        super().__init__(viewport_size, window_size, window_position)
+        super().__init__(tile_size)
         self.mode = "1"
-        self._behaviour = title_bar_behaviour
+        self._behaviour = behaviour
 
     def should_draw(self):
         return (
@@ -33,24 +33,24 @@ class TitleBar(HotspotManager):
         return self._behaviour
 
     @behaviour.setter
-    def behaviour(self, title_bar_behaviour):
-        if self.behaviour == title_bar_behaviour or title_bar_behaviour is None:
+    def behaviour(self, behaviour):
+        if self.behaviour == behaviour or behaviour is None:
             return
 
-        if title_bar_behaviour.append_title:
-            self.behaviour.text = f"{self.behaviour.text} / {title_bar_behaviour.text}"
+        if behaviour.append_title:
+            self.behaviour.text = f"{self.behaviour.text} / {behaviour.text}"
         else:
-            self.behaviour.text = title_bar_behaviour.text
+            self.behaviour.text = behaviour.text
 
-        self.behaviour.visible = title_bar_behaviour.visible
-        if title_bar_behaviour.height is not None:
-            self.behaviour.height = title_bar_behaviour.height
+        self.behaviour.visible = behaviour.visible
+        if behaviour.height is not None:
+            self.behaviour.height = behaviour.height
 
         height = self.behaviour.height
-        if not title_bar_behaviour.visible or title_bar_behaviour.text == "":
+        if not behaviour.visible or behaviour.text == "":
             height = 0
-        elif title_bar_behaviour.height:
-            height = title_bar_behaviour.height
+        elif behaviour.height:
+            height = behaviour.height
 
         post_event(AppEvents.TITLE_BAR_HEIGHT_SET, height)
 
@@ -71,7 +71,7 @@ class TitleBar(HotspotManager):
             if not marquee_text_hotspot.needs_scrolling:
                 # if no scroll is needed, center text in screen
                 marquee_hotspot_x_pos = int(
-                    (self.window_size[0] - marquee_text_hotspot.text_image.width) / 2
+                    (self.tile_size[0] - marquee_text_hotspot.text_image.width) / 2
                 )
 
             hotspots: Dict = {

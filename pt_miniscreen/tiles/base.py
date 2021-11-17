@@ -1,4 +1,5 @@
 import logging
+import time
 from threading import Thread
 from time import sleep
 from typing import Any, Dict, List, Tuple
@@ -9,45 +10,22 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 logger = logging.getLogger(__name__)
 
 
-class HotspotManager:
-    def __init__(self, viewport_size, window_size, window_position) -> None:
+class Tile:
+    def __init__(self, size=None) -> None:
         self._hotspot_collections: Dict[Any, List[Tuple]] = dict()
-        self._viewport_size_func = viewport_size
-        self._window_size_func = window_size
-        self._window_position_func = window_position
+        self._size = size
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = False
 
     @property
-    def viewport_size(self):
-        if callable(self._viewport_size_func):
-            return self._viewport_size_func()
-        return self._viewport_size_func
+    def size(self):
+        if callable(self._size):
+            return self._size()
 
-    @property
-    def window_size(self):
-        if callable(self._window_size_func):
-            return self._window_size_func()
-        return self._window_size_func
+        return self._size
 
-    @property
-    def window_position(self):
-        if callable(self._window_position_func):
-            return self._window_position_func()
-        return self._window_position_func
-
-    def _crop_box(self):
-        (left, top) = self.window_position
-        right = left + self.window_size[0]
-        bottom = top + self.window_size[1]
-
-        assert 0 <= left <= right <= self.viewport_size[0]
-        assert 0 <= top <= bottom <= self.viewport_size[1]
-
-        return (left, top, right, bottom)
-
-    def paste_hotspot_into_image(self, hotspot_instance, image):
+    def _paste_hotspot_into_image(self, hotspot_instance, image):
         if (
             not hotspot_instance.hotspot.draw_white
             and not hotspot_instance.hotspot.draw_black
@@ -84,29 +62,8 @@ class HotspotManager:
         logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
         image.paste(hotspot_image, pos, mask)
 
-    def get_image(self):
-        from pprint import pformat
-
-        if not self.update_cached_images:
-            logger.debug("Not caching images anymore - returning")
-            return
-
-        image = Image.new("1", self.viewport_size)
-        updated_hotspots = list()
-        for _, hotspot_collection in self._hotspot_collections.items():
-            for hotspot_instance in hotspot_collection:
-                if not self.is_hotspot_overlapping(hotspot_instance):
-                    continue
-                self.paste_hotspot_into_image(hotspot_instance, image)
-                updated_hotspots.append(hotspot_instance)
-
-        logger.debug("Updated hotspots:")
-        logger.debug(pformat(updated_hotspots))
-        im = image.crop(box=self._crop_box())
-        return im
-
     def register(self, hotspot_instance, collection_id=None):
-        logger.debug(f"HotspotManager.register {hotspot_instance}")
+        logger.debug(f"Tile.register {hotspot_instance}")
         current_collection = self._hotspot_collections.get(collection_id, list())
         if hotspot_instance in current_collection:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
@@ -115,6 +72,13 @@ class HotspotManager:
         self.cached_images[hotspot_instance.hotspot] = dict()
 
         self._register_thread(hotspot_instance)
+
+    def unregister(self, hotspot_instance):
+        for collection_id, collection in self._hotspot_collections:
+            if hotspot_instance in collection:
+                self._hotspot_collections[collection_id].remove(hotspot_instance)
+                if len(self._hotspot_collections[collection_id]) == 0:
+                    self._hotspot.remove(collection_id)
 
     def _register_thread(self, hotspot_instance):
         def run():
@@ -138,13 +102,13 @@ class HotspotManager:
             thread.join(0)
         logger.debug("stop_threads - stopped all threads")
 
-    def unregister(self, hotspot_instance):
-        for collection_id, collection in self._hotspot_collections:
-            if hotspot_instance in collection:
-                self._hotspot_collections[collection_id].remove(hotspot_instance)
-                if len(self._hotspot_collections[collection_id]) == 0:
-                    self._hotspot.remove(collection_id)
+    def remove_all_hotspots(self):
+        self._hotspot_collections = {}
 
+    #-----------------------------------------------------------------------------
+
+    # TODO: create a base version of this function that always returns true
+    # Move this to viewport
     def is_hotspot_overlapping(self, hotspot_instance):
         def calc_bounds(xy, width, height):
             """For width and height attributes, determine the bounding box if
@@ -163,13 +127,39 @@ class HotspotManager:
             hotspot_instance.hotspot.height,
         )
         l2, t2, r2, b2 = calc_bounds(
-            self.window_position, self.window_size[0], self.window_size[1]
+            self.window_position, self.size[0], self.size[1]
         )
         return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
 
+    # Create base version of this function which supports overriding
+    # Override for key viewport-specific functionality
+    #   - pre-processing: set size of total image
+    #   - processing: handle xy offsets
+    #   - post-processing: crop
     @property
     def image(self):
-        return self.get_image()
+        from pprint import pformat
 
-    def remove_all_hotspots(self):
-        self._hotspot_collections = {}
+        if not self.update_cached_images:
+            logger.debug("Not caching images anymore - returning")
+            return
+
+        start = time.time()
+
+        image = Image.new("1", self.viewport_size)
+        updated_hotspots = list()
+        for _, hotspot_collection in self._hotspot_collections.items():
+            for hotspot_instance in hotspot_collection:
+                if not self.is_hotspot_overlapping(hotspot_instance):
+                    continue
+                self._paste_hotspot_into_image(hotspot_instance, image)
+                updated_hotspots.append(hotspot_instance)
+
+        im = image.crop(box=self._crop_box())
+        end = time.time()
+        logger.debug(f"Time generating image: {end - start}")
+
+        logger.debug("Updated hotspots:")
+        logger.debug(pformat(updated_hotspots))
+
+        return im

@@ -9,7 +9,7 @@ from .event import AppEvents, post_event, subscribe
 logger = logging.getLogger(__name__)
 
 
-class MenuManager:
+class TileManager:
     def __init__(self, size, mode):
         self.size = size
         self.mode = mode
