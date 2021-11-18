@@ -128,7 +128,7 @@ class HotspotManager:
             while self.update_cached_images:
                 if self.active and self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
-                    post_event(AppEvents.REDRAWN_HOTSPOT)
+                    post_event(AppEvents.HOTSPOT_NEW_IMAGE)
                 sleep(hotspot.interval)
 
         hotspot = hotspot_instance.hotspot

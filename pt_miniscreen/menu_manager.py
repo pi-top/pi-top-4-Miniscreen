@@ -54,7 +54,7 @@ class MenuManager:
         )
 
         subscribe(
-            AppEvents.REDRAWN_HOTSPOT,
+            AppEvents.HOTSPOT_NEW_IMAGE,
             lambda _: self.should_redraw_event.set(),
         )
 
