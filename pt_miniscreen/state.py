@@ -31,7 +31,7 @@ class Speeds(Enum):
     SKIP = 0.001
     SCREENSAVER = 0.05
     ACTION_STATE_UPDATE = 0.5
-    MARQUEE = 0.05
+    MARQUEE = 0.2
 
 
 class DisplayStateManager:

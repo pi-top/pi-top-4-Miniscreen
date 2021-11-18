@@ -79,11 +79,11 @@ class MenuManager:
         if hasattr(self, "_current_menu_id"):
             self.current_menu.active = False
         self._current_menu_id = menu_id
-        self.current_menu.active = True
         self.title_bar.behaviour = self.current_menu.title_bar
         logger.debug(
             f"current_menu_id.setter - title bar behaviour : {self.title_bar.behaviour}"
         )
+        self.current_menu.active = True
         self.should_redraw_event.set()
 
     @property

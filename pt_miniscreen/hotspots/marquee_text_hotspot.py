@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class Hotspot(HotspotBase):
+    DELTA_PX = 2
+
     def __init__(self, interval, size, mode, text, font=None, font_size=20):
         super().__init__(interval, size, mode)
         self.assistant = MiniscreenAssistant(self.mode, self.size)
@@ -66,7 +68,7 @@ class Hotspot(HotspotBase):
             generator=marquee_generator(
                 min_value=0,
                 max_value=self.text_image.width - self.size[0],
-                resolution=2,
+                resolution=self.DELTA_PX,
             ),
             sleep_for=7,
         )
