@@ -24,9 +24,9 @@ class TileManager:
             logger.debug(
                 f"Title bar new height: {height} / Menu height now is {new_menu_height}"
             )
-            if self.current_menu.window_height != new_menu_height:
+            if self.current_menu.height != new_menu_height:
                 logger.debug(f"Updating Menu height to {new_menu_height}")
-                self.current_menu.window_height = new_menu_height
+                self.current_menu.height = new_menu_height
 
         subscribe(AppEvents.TITLE_BAR_HEIGHT_SET, update_current_menu_height)
 

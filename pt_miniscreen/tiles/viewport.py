@@ -1,5 +1,7 @@
 import logging
 
+from PIL import Image
+
 from .base import Tile
 
 logger = logging.getLogger(__name__)
@@ -28,6 +30,28 @@ class ViewportTile(Tile):
 
         self._position = (0, 0)
         super().__init__(size)
+
+    # TODO: create a base version of this function that always returns true
+    # Move this to viewport
+    def is_hotspot_overlapping(self, hotspot_instance):
+        def calc_bounds(xy, width, height):
+            """For width and height attributes, determine the bounding box if
+            were positioned at ``(x, y)``."""
+            left, top = xy
+            right, bottom = left + width, top + height
+            return [left, top, right, bottom]
+
+        def range_overlap(a_min, a_max, b_min, b_max):
+            """Neither range is completely greater than the other."""
+            return (a_min < b_max) and (b_min < a_max)
+
+        l1, t1, r1, b1 = calc_bounds(
+            hotspot_instance.xy,
+            hotspot_instance.hotspot.width,
+            hotspot_instance.hotspot.height,
+        )
+        l2, t2, r2, b2 = calc_bounds(self.window_position, self.size[0], self.size[1])
+        return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
 
     def _crop_box(self):
         (left, top) = self.window_position
@@ -99,17 +123,9 @@ class ViewportTile(Tile):
     def height(self):
         return self.size[1]
 
-    @property
-    def window_width(self):
-        return self.size[0]
-
-    @property
-    def window_height(self):
-        return self.size[1]
-
-    @window_height.setter
-    def window_height(self, value):
-        self.size = (self.window_width, value)
+    @height.setter
+    def height(self, value):
+        self.size = (self.width, value)
 
     def add_hotspot(self, hotspot_instance, collection_id=None):
         """Add the hotspot at ``(x, y)``.
@@ -131,3 +147,17 @@ class ViewportTile(Tile):
         ``ValueError`` is raised.
         """
         self.unregister(hotspot_instance)
+
+    def get_preprocess_image(self):
+        return Image.new("1", self.viewport_size)
+
+    def process_image(self, image):
+        for _, hotspot_collection in self._hotspot_collections.items():
+            for hotspot_instance in hotspot_collection:
+                if not self.is_hotspot_overlapping(hotspot_instance):
+                    continue
+                self._paste_hotspot_into_image(hotspot_instance, image)
+        return image
+
+    def post_process_image(self, image):
+        return image.crop(box=self._crop_box())

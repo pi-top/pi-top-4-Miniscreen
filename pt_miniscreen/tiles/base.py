@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Tuple
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ..hotspots.base import HotspotInstance
+
 logger = logging.getLogger(__name__)
 
 
@@ -17,6 +19,17 @@ class Tile:
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = False
+
+    def _add_hotspots_into_viewport(self):
+        self.remove_all_hotspots()
+        for i, page in enumerate(self.pages):
+            for upperleft_xy, hotspots in page.hotspots.items():
+                for hotspot in hotspots:
+                    pos = (
+                        int(upperleft_xy[0]),
+                        int(upperleft_xy[1] + i * self.height),
+                    )
+                    self.add_hotspot(HotspotInstance(hotspot, pos), collection_id=page)
 
     @property
     def size(self):
@@ -105,59 +118,34 @@ class Tile:
     def remove_all_hotspots(self):
         self._hotspot_collections = {}
 
-    # -----------------------------------------------------------------------------
-
-    # TODO: create a base version of this function that always returns true
-    # Move this to viewport
     def is_hotspot_overlapping(self, hotspot_instance):
-        def calc_bounds(xy, width, height):
-            """For width and height attributes, determine the bounding box if
-            were positioned at ``(x, y)``."""
-            left, top = xy
-            right, bottom = left + width, top + height
-            return [left, top, right, bottom]
+        return True
 
-        def range_overlap(a_min, a_max, b_min, b_max):
-            """Neither range is completely greater than the other."""
-            return (a_min < b_max) and (b_min < a_max)
+    def get_preprocess_image(self):
+        return Image.new("1", self.size)
 
-        l1, t1, r1, b1 = calc_bounds(
-            hotspot_instance.xy,
-            hotspot_instance.hotspot.width,
-            hotspot_instance.hotspot.height,
-        )
-        l2, t2, r2, b2 = calc_bounds(self.window_position, self.size[0], self.size[1])
-        return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
+    def process_image(self, image):
+        for _, hotspot_collection in self._hotspot_collections.items():
+            for hotspot_instance in hotspot_collection:
+                if not self.is_hotspot_overlapping(hotspot_instance):
+                    continue
+                self._paste_hotspot_into_image(hotspot_instance, image)
+        return image
 
-    # Create base version of this function which supports overriding
-    # Override for key viewport-specific functionality
-    #   - pre-processing: set size of total image
-    #   - processing: handle xy offsets
-    #   - post-processing: crop
+    def post_process_image(self, image):
+        return image
+
     @property
     def image(self):
-        from pprint import pformat
-
         if not self.update_cached_images:
             logger.debug("Not caching images anymore - returning")
             return
 
         start = time.time()
 
-        image = Image.new("1", self.viewport_size)
-        updated_hotspots = list()
-        for _, hotspot_collection in self._hotspot_collections.items():
-            for hotspot_instance in hotspot_collection:
-                if not self.is_hotspot_overlapping(hotspot_instance):
-                    continue
-                self._paste_hotspot_into_image(hotspot_instance, image)
-                updated_hotspots.append(hotspot_instance)
+        im = self.post_process_image(self.process_image(self.get_preprocess_image()))
 
-        im = image.crop(box=self._crop_box())
         end = time.time()
         logger.debug(f"Time generating image: {end - start}")
-
-        logger.debug("Updated hotspots:")
-        logger.debug(pformat(updated_hotspots))
 
         return im

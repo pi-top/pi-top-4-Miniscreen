@@ -36,26 +36,22 @@ class MenuTile(ViewportTile):
         for page_name, page_config in self.config.children.items():
             self.pages.append(config_factory.get(page_config))
 
-        self.add_page_hotspots_into_viewport()
+        self._add_hotspots_into_viewport()
 
-    def add_page_hotspots_into_viewport(self):
+    def _add_hotspots_into_viewport(self):
         self.remove_all_hotspots()
         for i, page in enumerate(self.pages):
             for upperleft_xy, hotspots in page.hotspots.items():
                 for hotspot in hotspots:
                     pos = (
                         int(upperleft_xy[0]),
-                        int(upperleft_xy[1] + i * self.window_height),
+                        int(upperleft_xy[1] + i * self.height),
                     )
                     self.add_hotspot(HotspotInstance(hotspot, pos), collection_id=page)
 
-    def resize_pages(self):
-        for page in self.pages:
-            page.size = self.size
-
     @property
     def display_size(self):
-        return (self.window_width, self.window_height * len(self.config.children))
+        return (self.width, self.height * len(self.config.children))
 
     @property
     def current_page(self):
@@ -71,7 +67,7 @@ class MenuTile(ViewportTile):
         self.page_index = page_index
         self.scroll_coordinate_generator = scroll_to(
             min_value=self.y_pos,
-            max_value=self.page_index * self.window_height,
+            max_value=self.page_index * self.height,
             resolution=self.SCROLL_PX_RESOLUTION,
         )
 

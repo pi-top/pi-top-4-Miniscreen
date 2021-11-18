@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class TitleBar(Tile):
-    def __init__(self, tile_size, behaviour) -> None:
-        super().__init__(tile_size)
+    def __init__(self, size, behaviour) -> None:
+        super().__init__(size)
         self.mode = "1"
         self._behaviour = behaviour
 
@@ -69,7 +69,7 @@ class TitleBar(Tile):
             if not marquee_text_hotspot.needs_scrolling:
                 # if no scroll is needed, center text in screen
                 marquee_hotspot_x_pos = int(
-                    (self.tile_size[0] - marquee_text_hotspot.text_image.width) / 2
+                    (self.size[0] - marquee_text_hotspot.text_image.width) / 2
                 )
 
             hotspots: Dict = {
