@@ -121,21 +121,22 @@ class HotspotManager:
 
     def _register_thread(self, hotspot_instance):
         def run():
+            def cache_new_image():
+                self.cached_images[hotspot] = hotspot.image
+
+            cache_new_image()
             while self.update_cached_images:
-                if self.is_hotspot_overlapping(hotspot_instance):
-                    self.cached_images[
-                        hotspot_instance.hotspot
-                    ] = hotspot_instance.hotspot.image
-                    if self.active:
-                        post_event(AppEvents.REDRAWN_HOTSPOT, self)
+                if self.active and self.is_hotspot_overlapping(hotspot_instance):
+                    cache_new_image()
+                    post_event(AppEvents.REDRAWN_HOTSPOT)
+                sleep(hotspot.interval)
 
-                sleep(hotspot_instance.hotspot.interval)
-
+        hotspot = hotspot_instance.hotspot
         self.update_cached_images = True
         thread = Thread(target=run, args=(), daemon=True)
-        thread.name = hotspot_instance.hotspot
+        thread.name = hotspot
         thread.start()
-        self.image_caching_threads[hotspot_instance.hotspot] = thread
+        self.image_caching_threads[hotspot] = thread
 
     def stop_threads(self):
         self.update_cached_images = False
