@@ -20,10 +20,16 @@ menu_app_config = MenuAppConfig(
                     title_bar=TitleBarBehaviour(visible=False),
                     children=dict(
                         [
-                            ("battery", PageConfig(page_cls=hud.battery.Page)),
+                            (
+                                "battery",
+                                PageConfig(page_cls=hud.battery.Page),
+                            ),
                             ("cpu", PageConfig(page_cls=hud.cpu.Page)),
                             ("wifi", PageConfig(page_cls=hud.wifi.Page)),
-                            ("ethernet", PageConfig(page_cls=hud.ethernet.Page)),
+                            (
+                                "ethernet",
+                                PageConfig(page_cls=hud.ethernet.Page),
+                            ),
                             ("ap", PageConfig(page_cls=hud.ap.Page)),
                             ("usb", PageConfig(page_cls=hud.usb.Page)),
                         ]

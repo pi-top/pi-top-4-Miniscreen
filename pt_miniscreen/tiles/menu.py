@@ -3,8 +3,7 @@ import logging
 from ..config import ConfigFactory
 from ..config.classes.menu_edge_behaviour import MenuEdgeBehaviour
 from ..generators import scroll_to
-from ..hotspots.base import HotspotInstance
-from ..tiles import ViewportTile
+from .viewport import ViewportTile
 
 logger = logging.getLogger(__name__)
 
@@ -12,16 +11,16 @@ logger = logging.getLogger(__name__)
 class MenuTile(ViewportTile):
     SCROLL_PX_RESOLUTION = 2
 
-    def __init__(self, size, mode, redraw_speed, config):
+    def __init__(self, size, mode, viewport_size, config):
         super().__init__(
-            display_size=lambda: self.size,
-            tile_size=lambda: self.tile_size,
+            size=lambda: self.tile_size,
+            viewport_size=viewport_size,
             mode=mode,
+            window_position=(0, 0),
         )
+
         self.mode = mode
-        self.tile_size = size
         self._size = size
-        self.redraw_speed = redraw_speed
         self.page_index = 0
         self.config = config
 
@@ -30,24 +29,11 @@ class MenuTile(ViewportTile):
         self.bottom_edge = config.bottom_edge
         self.title_bar = config.title_bar
 
-        config_factory = ConfigFactory(self.size, self.mode, self.redraw_speed)
+        config_factory = ConfigFactory(self.size, self.mode)
 
         self.pages = list()
         for page_name, page_config in self.config.children.items():
             self.pages.append(config_factory.get(page_config))
-
-        self._add_hotspots_into_viewport()
-
-    def _add_hotspots_into_viewport(self):
-        self.remove_all_hotspots()
-        for i, page in enumerate(self.pages):
-            for upperleft_xy, hotspots in page.hotspots.items():
-                for hotspot in hotspots:
-                    pos = (
-                        int(upperleft_xy[0]),
-                        int(upperleft_xy[1] + i * self.height),
-                    )
-                    self.add_hotspot(HotspotInstance(hotspot, pos), collection_id=page)
 
     @property
     def display_size(self):

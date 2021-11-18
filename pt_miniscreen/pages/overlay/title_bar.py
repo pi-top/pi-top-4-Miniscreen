@@ -53,11 +53,11 @@ class TitleBar(Tile):
         post_event(AppEvents.TITLE_BAR_HEIGHT_SET, height)
 
         if height != 0:
-            asst = MiniscreenAssistant(self.mode, self.viewport_size)
+            asst = MiniscreenAssistant(self.mode, self.size)
             marquee_text_hotspot = MarqueeTextHotspot(
                 interval=Speeds.MARQUEE.value,
                 mode=self.mode,
-                size=self.viewport_size,
+                size=self.size,
                 text=self.behaviour.text,
                 font=asst.get_mono_font(
                     size=14,
@@ -78,8 +78,8 @@ class TitleBar(Tile):
                     RectangleHotspot(
                         interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
                         mode=self.mode,
-                        size=(self.viewport_size[0], 1),
-                        bounding_box=(0, 0) + (self.viewport_size[0], 1),
+                        size=(self.width, 1),
+                        bounding_box=(0, 0) + (self.width, 1),
                     )
                 ],
             }

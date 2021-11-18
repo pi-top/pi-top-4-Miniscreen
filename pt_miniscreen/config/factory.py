@@ -1,8 +1,10 @@
+from ..state import Speeds
+
+
 class ConfigFactory:
-    def __init__(self, size, mode, redraw_speed):
+    def __init__(self, size, mode):
         self.size = size
         self.mode = mode
-        self.redraw_speed = redraw_speed
 
     def get(self, config):
         # avoid circular import
@@ -12,12 +14,11 @@ class ConfigFactory:
             return config.menu_cls(
                 size=self.size,
                 mode=self.mode,
-                redraw_speed=self.redraw_speed,
                 config=config,
             )
         elif isinstance(config, PageConfig):
             return config.page_cls(
-                interval=self.redraw_speed,
+                interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
                 size=self.size,
                 mode=self.mode,
                 config=config,

@@ -58,7 +58,7 @@ class TileManager:
         im = PIL.Image.new(self.mode, self.size)
         title_bar_height = 0
         if self.title_bar is not None and self.title_bar.should_draw():
-            title_bar_height = self.title_bar.viewport_size[1]
+            title_bar_height = self.title_bar.height
             title_bar_im = self.title_bar.image
             if title_bar_im:
                 im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))

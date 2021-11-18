@@ -28,11 +28,8 @@ class ViewportTile(Tile):
         self._viewport_size = viewport_size
         self._window_position = window_position
 
-        self._position = (0, 0)
         super().__init__(size)
 
-    # TODO: create a base version of this function that always returns true
-    # Move this to viewport
     def is_hotspot_overlapping(self, hotspot_instance):
         def calc_bounds(xy, width, height):
             """For width and height attributes, determine the bounding box if
@@ -73,6 +70,10 @@ class ViewportTile(Tile):
 
         return self._viewport_size
 
+    @viewport_size.setter
+    def viewport_size(self, value):
+        self._viewport_size = value
+
     @property
     def window_position(self):
         if callable(self._window_position):
@@ -80,73 +81,12 @@ class ViewportTile(Tile):
         return self._window_position
 
     @property
-    def position(self):
-        return self._position
-
-    @position.setter
-    def position(self, xy):
-        self._position = xy
-
-    @property
-    def y_pos(self):
+    def window_y_pos(self):
         return self._position[1]
 
-    @y_pos.setter
-    def y_pos(self, pos):
+    @window_y_pos.setter
+    def window_y_pos(self, pos):
         self.position = (0, pos)
-
-    @property
-    def size(self):
-        return self._size
-
-    @size.setter
-    def size(self, xy):
-        self._size = xy
-
-    @property
-    def size(self):
-        return self._size
-
-    @size.setter
-    def size(self, value):
-        self._size = value
-
-    @property
-    def bounding_box(self):
-        return (0, 0, self.width - 1, self.height - 1)
-
-    @property
-    def width(self):
-        return self.size[0]
-
-    @property
-    def height(self):
-        return self.size[1]
-
-    @height.setter
-    def height(self, value):
-        self.size = (self.width, value)
-
-    def add_hotspot(self, hotspot_instance, collection_id=None):
-        """Add the hotspot at ``(x, y)``.
-
-        The hotspot must fit inside the bounds of the virtual device. If
-        it does not then an ``AssertError`` is raised.
-        """
-        (x, y) = hotspot_instance.xy
-        assert 0 <= x <= self.width - hotspot_instance.hotspot.width
-        assert 0 <= y <= self.height - hotspot_instance.hotspot.height
-        self.register(hotspot_instance, collection_id)
-
-    def remove_hotspot(self, hotspot_instance):
-        """Remove the hotspot at ``(x, y)``: Any previously rendered image
-        where the hotspot was placed is erased from the backing image, and will
-        be "undrawn" the next time the virtual device is refreshed.
-
-        If the specified hotspot is not found for ``(x, y)``, a
-        ``ValueError`` is raised.
-        """
-        self.unregister(hotspot_instance)
 
     def get_preprocess_image(self):
         return Image.new("1", self.viewport_size)

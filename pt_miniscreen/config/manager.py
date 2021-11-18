@@ -1,6 +1,5 @@
 import logging
 
-from ..state import Speeds
 from .config import menu_app_config
 from .factory import ConfigFactory
 
@@ -11,7 +10,7 @@ class MenuConfigManager:
     @staticmethod
     def get_menus_dict(size, mode):
         menus = dict()
-        menu_factory = ConfigFactory(size, mode, Speeds.DYNAMIC_PAGE_REDRAW.value)
+        menu_factory = ConfigFactory(size, mode)
         for menu_name, config in menu_app_config.children.items():
             menus[menu_name] = menu_factory.get(config)
         return menus
@@ -68,6 +67,6 @@ class MenuConfigManager:
             return
 
         return menu_app_config.title_bar.page_cls(
-            viewport_size=(size[0], menu_app_config.title_bar.behaviour.height),
+            size=(size[0], menu_app_config.title_bar.behaviour.height),
             behaviour=menu_app_config.title_bar.behaviour,
         )

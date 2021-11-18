@@ -20,16 +20,19 @@ class Tile:
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = False
 
-    def _add_hotspots_into_viewport(self):
+    def _add_hotspots_into_(self):
         self.remove_all_hotspots()
-        for i, page in enumerate(self.pages):
-            for upperleft_xy, hotspots in page.hotspots.items():
+        for i, collection in enumerate(self._hotspot_collections):
+            # for upperleft_xy, hotspots in collection.hotspots.items():
+            for upperleft_xy, hotspots in self._hotspot_collection.items():
                 for hotspot in hotspots:
                     pos = (
                         int(upperleft_xy[0]),
                         int(upperleft_xy[1] + i * self.height),
                     )
-                    self.add_hotspot(HotspotInstance(hotspot, pos), collection_id=page)
+                    self.add_hotspot(
+                        HotspotInstance(hotspot, pos), collection_id=collection
+                    )
 
     @property
     def size(self):
@@ -37,6 +40,26 @@ class Tile:
             return self._size()
 
         return self._size
+
+    @size.setter
+    def size(self, xy):
+        self._size = xy
+
+    @property
+    def bounding_box(self):
+        return (0, 0, self.width - 1, self.height - 1)
+
+    @property
+    def width(self):
+        return self.size[0]
+
+    @property
+    def height(self):
+        return self.size[1]
+
+    @height.setter
+    def height(self, value):
+        self.size = (self.width, value)
 
     def _paste_hotspot_into_image(self, hotspot_instance, image):
         if (
@@ -76,6 +99,10 @@ class Tile:
         image.paste(hotspot_image, pos, mask)
 
     def register(self, hotspot_instance, collection_id=None):
+        (x, y) = hotspot_instance.xy
+        assert 0 <= x <= self.width - hotspot_instance.hotspot.width
+        assert 0 <= y <= self.height - hotspot_instance.hotspot.height
+
         logger.debug(f"Tile.register {hotspot_instance}")
         current_collection = self._hotspot_collections.get(collection_id, list())
         if hotspot_instance in current_collection:
