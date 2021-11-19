@@ -57,20 +57,17 @@ class Page(PageBase):
             bounding_box=(0, 0, 0, 0),
         )
 
-        def vertical_middle_position(hotspot_height):
-            return int((self.height - hotspot_height) / 2)
-
         text_hotspot_pos = (
             self.long_section_width,
-            vertical_middle_position(self.text_hotspot.text_size[1]),
+            self.vertical_middle_position(self.text_hotspot.text_size[1]),
         )
         battery_hotspot_pos = (
             BATTERY_LEFT_MARGIN,
-            vertical_middle_position(ICON_HEIGHT),
+            self.vertical_middle_position(ICON_HEIGHT),
         )
         rectangle_hotspot_pos = (
             CAPACITY_RECTANGLE_LEFT_MARGIN,
-            vertical_middle_position(RECTANGLE_HOTSPOT_SIZE[1]),
+            self.vertical_middle_position(RECTANGLE_HOTSPOT_SIZE[1]),
         )
 
         self.hotspots = {
