@@ -1,5 +1,7 @@
 import logging
 
+import PIL.ImageDraw
+import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from .base import Hotspot as HotspotBase
@@ -57,3 +59,15 @@ class Hotspot(HotspotBase):
     @text.setter
     def text(self, value_or_callback):
         self._text = value_or_callback
+
+    @property
+    def text_size(self):
+        font = self.font
+        if font is None:
+            font = self.assistant.get_recommended_font(self.font_size)
+        draw = PIL.ImageDraw.Draw(PIL.Image.new(self.mode, self.size, color="black"))
+        text_bounding_box = draw.textbbox((0, 0), text=self.text, font=font)
+        return (
+            text_bounding_box[2] - text_bounding_box[0],
+            min(text_bounding_box[3] - text_bounding_box[1], self.height),
+        )
