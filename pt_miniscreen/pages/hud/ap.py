@@ -19,9 +19,9 @@ class Page(PageBase):
         MARGIN_X_LEFT = 30
         MARGIN_X_RIGHT = 10
         SCALE = self.height / 64.0
-        ICON_HEIGHT = 12
+        ICON_SIZE = 12
         VERTICAL_SPACING = 4
-        ROW_HEIGHT = ICON_HEIGHT + VERTICAL_SPACING
+        ROW_HEIGHT = ICON_SIZE + VERTICAL_SPACING
         DELTA_Y = int(ROW_HEIGHT * SCALE)
         COMMON_FIRST_LINE_Y = int(10 * SCALE)
         COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + DELTA_Y
@@ -30,27 +30,28 @@ class Page(PageBase):
         DEFAULT_FONT_SIZE = 12
 
         self.hotspots: Dict = {
-            (0, 0): [
+            (ICON_X_POS, COMMON_FIRST_LINE_Y): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
-                    size=self.size,
+                    size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/networking/antenna.png"),
-                    xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
+            ],
+            (ICON_X_POS, COMMON_SECOND_LINE_Y): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
-                    size=self.size,
+                    size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/networking/padlock.png"),
-                    xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
+            ],
+            (ICON_X_POS, COMMON_THIRD_LINE_Y): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
-                    size=self.size,
+                    size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/networking/home.png"),
-                    xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
             ],
             (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
