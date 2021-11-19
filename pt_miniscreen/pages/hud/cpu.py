@@ -23,7 +23,6 @@ class Page(PageBase):
                     mode=self.mode,
                     size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/cpu.png"),
-                    xy=(0, 0),
                 ),
             ],
             (
