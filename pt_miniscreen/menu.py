@@ -72,7 +72,7 @@ class Menu:
         self.viewport.stop_threads()
         # self.viewport.size = self.display_size
         # self.viewport.window_size = self.size
-        logger.error(f"menu.size setter - {self.size}")
+        logger.debug(f"menu.size setter - {self.size}")
 
         self.viewport = Viewport(
             window_size=self.size,

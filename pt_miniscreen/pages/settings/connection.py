@@ -9,6 +9,6 @@ class Page(PageBase):
             size=size,
             mode=mode,
             config=config,
-            image_path=get_image_file_path("menu/settings.gif"),
+            image_path=get_image_file_path("menu/settings.png"),
             text="Connection",
         )
