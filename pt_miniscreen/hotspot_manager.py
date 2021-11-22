@@ -134,7 +134,6 @@ class HotspotManager:
         hotspot = hotspot_instance.hotspot
         self.update_cached_images = True
         thread = Thread(target=run, args=(), daemon=True, name=hotspot)
-        thread.name = hotspot
         thread.start()
         self.image_caching_threads[hotspot] = thread
 
