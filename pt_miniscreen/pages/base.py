@@ -75,5 +75,5 @@ class Page:
                     _interval = hotspot.interval
         return _interval
 
-    def vertical_middle_position(self, hotspot_height):
+    def offset_pos_for_vertical_center(self, hotspot_height):
         return int((self.height - hotspot_height) / 2)

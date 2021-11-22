@@ -17,7 +17,7 @@ class Page(PageBase):
         cpu_bar_hotspot_height = int(self.height * 0.7)
 
         self.hotspots: Dict = {
-            (0, self.vertical_middle_position(ICON_SIZE)): [
+            (0, self.offset_pos_for_vertical_center(ICON_SIZE)): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
@@ -27,7 +27,7 @@ class Page(PageBase):
             ],
             (
                 self.short_section_width,
-                self.vertical_middle_position(cpu_bar_hotspot_height),
+                self.offset_pos_for_vertical_center(cpu_bar_hotspot_height),
             ): [
                 CpuBarsHotspot(
                     interval=self.interval,

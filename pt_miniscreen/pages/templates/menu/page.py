@@ -19,7 +19,7 @@ class Page(PageBase):
         ICON_LEFT_MARGIN = (TEXT_LEFT_MARGIN - ICON_SIZE) / 2
 
         self.hotspots: Dict = {
-            (ICON_LEFT_MARGIN, self.vertical_middle_position(ICON_SIZE)): [
+            (ICON_LEFT_MARGIN, self.offset_pos_for_vertical_center(ICON_SIZE)): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
@@ -27,7 +27,7 @@ class Page(PageBase):
                     image_path=self.image_path,
                 ),
             ],
-            (TEXT_LEFT_MARGIN, self.vertical_middle_position(FONT_SIZE)): [
+            (TEXT_LEFT_MARGIN, self.offset_pos_for_vertical_center(FONT_SIZE)): [
                 TextHotspot(
                     interval=self.interval,
                     mode=self.mode,

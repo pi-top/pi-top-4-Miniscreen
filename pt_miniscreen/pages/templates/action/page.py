@@ -59,7 +59,7 @@ class Page(PageBase):
                 self.action_state = ActionState.DISABLED
 
         self.hotspots: Dict = {
-            (FIRST_COLUMN_POS, self.vertical_middle_position(ICON_HEIGHT)): [
+            (FIRST_COLUMN_POS, self.offset_pos_for_vertical_center(ICON_HEIGHT)): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
@@ -67,7 +67,7 @@ class Page(PageBase):
                     image_path=get_image_file_path(f"settings/{self.icon}.png"),
                 ),
             ],
-            (SECOND_COLUMN_POS, self.vertical_middle_position(FONT_SIZE)): [
+            (SECOND_COLUMN_POS, self.offset_pos_for_vertical_center(FONT_SIZE)): [
                 MarqueeTextHotspot(
                     interval=Speeds.MARQUEE.value,
                     mode=self.mode,
@@ -76,7 +76,7 @@ class Page(PageBase):
                     font_size=FONT_SIZE,
                 )
             ],
-            (THIRD_COLUMN_POS, self.vertical_middle_position(STATUS_ICON_SIZE)): [
+            (THIRD_COLUMN_POS, self.offset_pos_for_vertical_center(STATUS_ICON_SIZE)): [
                 self.status_icon_hotspot
             ],
         }
