@@ -1,9 +1,8 @@
 from ..config import ConfigFactory
-from ..state import Speeds
 
 
 class Page:
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, size, mode, config):
         self._size = size
         self.mode = mode
 
@@ -16,7 +15,7 @@ class Page:
         self.long_section_width = int(self.width / golden_ratio)
         self.short_section_width = self.width - self.long_section_width
 
-        config_factory = ConfigFactory(size, mode, interval)
+        config_factory = ConfigFactory(size, mode)
         self.child_menu = dict()
         if config and config.child_menu:
             for menu_name, menu_config in config.child_menu.items():
@@ -66,11 +65,5 @@ class Page:
             for hotspot in hotspot_list:
                 hotspot.paste_into(image, position)
 
-    @property
-    def interval(self):
-        _interval = Speeds.DYNAMIC_PAGE_REDRAW.value
-        for _, hotspot_list in self.hotspots.items():
-            for hotspot in hotspot_list:
-                if hotspot.interval < _interval:
-                    _interval = hotspot.interval
-        return _interval
+    def offset_pos_for_vertical_center(self, hotspot_height):
+        return int((self.height - hotspot_height) / 2)

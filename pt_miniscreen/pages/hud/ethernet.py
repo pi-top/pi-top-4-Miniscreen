@@ -11,8 +11,8 @@ from ..base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+    def __init__(self, size, mode, config):
+        super().__init__(size=size, mode=mode, config=config)
         self.setup_hotspots()
 
     def setup_hotspots(self):

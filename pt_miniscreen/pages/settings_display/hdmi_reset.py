@@ -3,9 +3,8 @@ from ..templates.action import Page as ActionPage
 
 
 class Page(ActionPage):
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, size, mode, config):
         super().__init__(
-            interval=interval,
             size=size,
             mode=mode,
             config=config,

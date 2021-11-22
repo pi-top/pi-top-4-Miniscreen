@@ -6,8 +6,8 @@ from ...base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config, image_path, text):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+    def __init__(self, size, mode, config, image_path, text):
+        super().__init__(size=size, mode=mode, config=config)
         self.image_path = image_path
         self.text = text
         self.setup_hotspots()

@@ -1,6 +1,3 @@
-from ..state import Speeds
-
-
 class ConfigFactory:
     def __init__(self, size, mode):
         self.size = size
@@ -18,7 +15,6 @@ class ConfigFactory:
             )
         elif isinstance(config, PageConfig):
             return config.page_cls(
-                interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
                 size=self.size,
                 mode=self.mode,
                 config=config,

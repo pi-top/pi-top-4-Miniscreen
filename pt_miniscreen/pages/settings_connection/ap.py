@@ -1,6 +1,4 @@
-from pitop.common.sys_info import get_ssh_enabled_state
-
-from ...actions import change_ssh_enabled_state
+from ...actions import change_wifi_mode, get_wifi_ap_state
 from ..templates.action import Page as ActionPage
 
 
@@ -10,8 +8,9 @@ class Page(ActionPage):
             size=size,
             mode=mode,
             config=config,
-            get_state_method=get_ssh_enabled_state,
-            set_state_method=change_ssh_enabled_state,
+            get_state_method=get_wifi_ap_state,
+            set_state_method=change_wifi_mode,
+            # TODO: use correct icon
             icon="ssh",
-            text="SSH",
+            text="Access Point",
         )
