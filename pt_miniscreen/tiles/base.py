@@ -19,7 +19,7 @@ class Tile:
         self._size = size
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
-        self.update_cached_images = False
+        self.update_cached_images = True
         self.active = False
 
     def _add_hotspots_into_(self):
@@ -143,7 +143,6 @@ class Tile:
                     post_event(AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE)
                 sleep(hotspot.interval)
 
-        self.update_cached_images = True
         thread = Thread(target=run, args=(), daemon=True, name=hotspot)
         thread.start()
         self.image_caching_threads[hotspot] = thread
