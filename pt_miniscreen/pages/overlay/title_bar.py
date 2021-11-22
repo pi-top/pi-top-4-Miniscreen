@@ -18,6 +18,7 @@ class TitleBar(Tile):
         super().__init__(size)
         self.mode = "1"
         self._behaviour = behaviour
+        self.active = True
 
     def should_draw(self):
         return (

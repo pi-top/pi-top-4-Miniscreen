@@ -8,6 +8,7 @@ from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..hotspots.base import HotspotInstance
+from .event import AppEvents, post_event
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ class Tile:
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = False
+        self.active = False
 
     def _add_hotspots_into_(self):
         self.remove_all_hotspots()
@@ -121,20 +123,30 @@ class Tile:
                     self._hotspot.remove(collection_id)
 
     def _register_thread(self, hotspot_instance):
-        def run():
-            while self.update_cached_images:
-                if self.is_hotspot_overlapping(hotspot_instance):
-                    self.cached_images[
-                        hotspot_instance.hotspot
-                    ] = hotspot_instance.hotspot.image
+        hotspot = hotspot_instance.hotspot
 
-                sleep(hotspot_instance.hotspot.interval)
+        def run():
+            def cache_new_image():
+                self.cached_images[hotspot] = hotspot.image
+
+            cache_new_image()
+            while self.update_cached_images:
+                # TODO: improve this "busy wait"
+                # if not active, there's no need to check - perhaps instead of sleeping,
+                # we should wait on an event triggered on active state change?
+                #
+                # another thing to consider would be to do something similar with 'is overlapping'
+                # - if we are not overlapping, and the position is not changing, then this is still
+                # busy waiting...
+                if self.active and self.is_hotspot_overlapping(hotspot_instance):
+                    cache_new_image()
+                    post_event(AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE)
+                sleep(hotspot.interval)
 
         self.update_cached_images = True
-        thread = Thread(target=run, args=(), daemon=True)
-        thread.name = hotspot_instance.hotspot
+        thread = Thread(target=run, args=(), daemon=True, name=hotspot)
         thread.start()
-        self.image_caching_threads[hotspot_instance.hotspot] = thread
+        self.image_caching_threads[hotspot] = thread
 
     def stop_threads(self):
         self.update_cached_images = False
