@@ -190,10 +190,7 @@ class App:
             else:
                 self.display_current_menu_image()
                 if self.menu_manager.current_menu.needs_to_scroll:
-                    if self.menu_manager.is_skipping:
-                        interval = Speeds.SKIP.value
-                    else:
-                        interval = Speeds.SCROLL.value
+                    interval = Speeds.SCROLL.value
 
             logger.debug("Waiting until timeout or until page has changed...")
             self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)

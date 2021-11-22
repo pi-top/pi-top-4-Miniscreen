@@ -13,7 +13,6 @@ class MenuManager:
     def __init__(self, size, mode):
         self.size = size
         self.mode = mode
-        self.is_skipping = False
 
         self.title_bar = MenuConfigManager.get_title_bar(size)
         self.menus = MenuConfigManager.get_menus_dict(size, mode)
@@ -151,7 +150,6 @@ class MenuManager:
 
     def update_current_menu_scroll_position(self):
         if not self.current_menu.needs_to_scroll:
-            self.is_skipping = False
             return
 
         self.current_menu.update_scroll_position()
