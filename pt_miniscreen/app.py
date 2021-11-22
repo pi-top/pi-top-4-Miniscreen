@@ -2,6 +2,7 @@ import logging
 from os import environ
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
+from time import sleep
 
 from pitop import Pitop
 
@@ -185,19 +186,11 @@ class App:
 
             if self.state_manager.state == DisplayState.SCREENSAVER:
                 self.show_screensaver_frame()
-                interval = Speeds.SCREENSAVER.value
+                sleep(Speeds.SCREENSAVER.value)
             else:
                 self.display_current_menu_image()
-                if self.menu_manager.current_menu.needs_to_scroll:
-                    if self.menu_manager.is_skipping:
-                        interval = Speeds.SKIP.value
-                    else:
-                        interval = Speeds.SCROLL.value
-                else:
-                    interval = self.menu_manager.current_menu_page.interval
-
-            logger.debug("Waiting until timeout or until page has changed...")
-            self.menu_manager.wait_until_timeout_or_should_redraw_event(interval)
+                logger.debug("Waiting until image to display has changed...")
+                self.menu_manager.wait_until_should_redraw()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()

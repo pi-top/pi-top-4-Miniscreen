@@ -1,10 +1,12 @@
 import logging
 from threading import Event
+from time import sleep
 
 import PIL.Image
 
 from .config import MenuConfigManager
 from .event import AppEvents, post_event, subscribe
+from .state import Speeds
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +15,6 @@ class MenuManager:
     def __init__(self, size, mode):
         self.size = size
         self.mode = mode
-        self.is_skipping = False
 
         self.title_bar = MenuConfigManager.get_title_bar(size)
         self.menus = MenuConfigManager.get_menus_dict(size, mode)
@@ -53,6 +54,11 @@ class MenuManager:
             lambda callback_handler: callback_handler(self._handle_cancel_btn),
         )
 
+        subscribe(
+            AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE,
+            lambda _: self.should_redraw_event.set(),
+        )
+
     @property
     def image(self):
         im = PIL.Image.new(self.mode, self.size)
@@ -71,11 +77,14 @@ class MenuManager:
 
     @current_menu_id.setter
     def current_menu_id(self, menu_id):
+        if hasattr(self, "_current_menu_id"):
+            self.current_menu.active = False
         self._current_menu_id = menu_id
         self.title_bar.behaviour = self.current_menu.title_bar
         logger.debug(
             f"current_menu_id.setter - title bar behaviour : {self.title_bar.behaviour}"
         )
+        self.current_menu.active = True
         self.should_redraw_event.set()
 
     @property
@@ -143,12 +152,15 @@ class MenuManager:
 
     def update_current_menu_scroll_position(self):
         if not self.current_menu.needs_to_scroll:
-            self.is_skipping = False
             return
 
         self.current_menu.update_scroll_position()
 
-    def wait_until_timeout_or_should_redraw_event(self, timeout):
-        self.should_redraw_event.wait(timeout)
+    def wait_until_should_redraw(self):
+        if self.current_menu.needs_to_scroll:
+            sleep(Speeds.SCROLL.value)
+        else:
+            self.should_redraw_event.wait()
+
         if self.should_redraw_event.is_set():
             self.should_redraw_event.clear()
