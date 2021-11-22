@@ -1,10 +1,12 @@
 import logging
 from threading import Event
+from time import sleep
 
 import PIL.Image
 
 from .config import MenuConfigManager
 from .event import AppEvents, post_event, subscribe
+from .state import Speeds
 
 logger = logging.getLogger(__name__)
 
@@ -154,7 +156,11 @@ class MenuManager:
 
         self.current_menu.update_scroll_position()
 
-    def wait_until_timeout_or_should_redraw_event(self, timeout):
-        self.should_redraw_event.wait(timeout)
+    def wait_until_should_redraw(self):
+        if self.current_menu.needs_to_scroll:
+            sleep(Speeds.SCROLL.value)
+        else:
+            self.should_redraw_event.wait()
+
         if self.should_redraw_event.is_set():
             self.should_redraw_event.clear()
