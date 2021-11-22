@@ -21,7 +21,7 @@ class AppEvents(Enum):
     DOWN_BUTTON_PRESS = auto()  # callable
     BUTTON_ACTION_START = auto()
     TITLE_BAR_HEIGHT_SET = auto()  # int
-    HOTSPOT_NEW_IMAGE = auto()
+    ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE = auto()
 
 
 subscribers: Dict[AppEvents, List] = dict()

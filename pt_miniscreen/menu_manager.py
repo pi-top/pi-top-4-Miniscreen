@@ -55,7 +55,7 @@ class MenuManager:
         )
 
         subscribe(
-            AppEvents.HOTSPOT_NEW_IMAGE,
+            AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE,
             lambda _: self.should_redraw_event.set(),
         )
 
