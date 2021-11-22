@@ -120,18 +120,26 @@ class HotspotManager:
         self._register_thread(hotspot_instance)
 
     def _register_thread(self, hotspot_instance):
+        hotspot = hotspot_instance.hotspot
+
         def run():
             def cache_new_image():
                 self.cached_images[hotspot] = hotspot.image
 
             cache_new_image()
             while self.update_cached_images:
+                # TODO: improve this "busy wait"
+                # if not active, there's no need to check - perhaps instead of sleeping,
+                # we should wait on an event triggered on active state change?
+                #
+                # another thing to consider would be to do something similar with 'is overlapping'
+                # - if we are not overlapping, and the position is not changing, then this is still
+                # busy waiting...
                 if self.active and self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
                     post_event(AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE)
                 sleep(hotspot.interval)
 
-        hotspot = hotspot_instance.hotspot
         self.update_cached_images = True
         thread = Thread(target=run, args=(), daemon=True, name=hotspot)
         thread.start()
