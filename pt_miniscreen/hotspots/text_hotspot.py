@@ -62,11 +62,10 @@ class Hotspot(HotspotBase):
 
     @property
     def text_size(self):
-        font = self.font
-        if font is None:
-            font = self.assistant.get_recommended_font(self.font_size)
+        if self.font is None:
+            self.font = self.assistant.get_recommended_font(self.font_size)
         draw = PIL.ImageDraw.Draw(PIL.Image.new(self.mode, self.size, color="black"))
-        text_bounding_box = draw.textbbox((0, 0), text=self.text, font=font)
+        text_bounding_box = draw.textbbox((0, 0), text=self.text, font=self.font)
         return (
             text_bounding_box[2] - text_bounding_box[0],
             min(text_bounding_box[3] - text_bounding_box[1], self.height),
