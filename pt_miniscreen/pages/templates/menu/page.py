@@ -16,7 +16,6 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=self.interval,
                     mode=self.mode,
                     # TODO: crop settings icon and re-position
                     # size=(self.short_section_width, size[1]),
@@ -26,7 +25,6 @@ class Page(PageBase):
             ],
             (int(self.width / 4), 0): [
                 TextHotspot(
-                    interval=self.interval,
                     mode=self.mode,
                     size=(self.width - int(self.width / 4), self.height),
                     text=self.text,

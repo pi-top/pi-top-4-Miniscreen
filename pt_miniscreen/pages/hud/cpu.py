@@ -16,7 +16,6 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=self.interval,
                     mode=self.mode,
                     size=(self.short_section_width, self.height),
                     image_path=get_image_file_path("sys_info/cpu.png"),
@@ -24,7 +23,6 @@ class Page(PageBase):
             ],
             (self.short_section_width, int(cpu_bars_y_margin / 2)): [
                 CpuBarsHotspot(
-                    interval=self.interval,
                     mode=self.mode,
                     size=(
                         self.long_section_width,

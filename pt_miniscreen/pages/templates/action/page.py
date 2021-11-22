@@ -3,7 +3,6 @@ from typing import Dict
 from ....hotspots.image_hotspot import Hotspot as ImageHotspot
 from ....hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ....hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
-from ....state import Speeds
 from ....utils import get_image_file_path
 from ...base import Page as PageBase
 from .state import ActionState
@@ -44,7 +43,6 @@ class Page(PageBase):
         SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
 
         self.status_icon_hotspot = StatusIconHotspot(
-            interval=Speeds.ACTION_STATE_UPDATE.value,
             mode=self.mode,
             size=(THIRD_COLUMN_WIDTH, STATUS_ICON_SIZE),
         )
@@ -58,7 +56,6 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (FIRST_COLUMN_POS, 0): [
                 ImageHotspot(
-                    interval=self.interval,
                     mode=self.mode,
                     size=(ICON_WIDTH, self.height),
                     image_path=get_image_file_path(f"settings/{self.icon}.png"),
@@ -66,7 +63,6 @@ class Page(PageBase):
             ],
             (SECOND_COLUMN_POS, (self.height - FONT_SIZE) / 2): [
                 MarqueeTextHotspot(
-                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
                     size=(SECOND_COLUMN_WIDTH, FONT_SIZE),
                     text=self.text,

@@ -2,8 +2,6 @@ from typing import Dict
 
 from pitop.common.sys_info import get_ap_mode_status
 
-from pt_miniscreen.state import Speeds
-
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...utils import get_image_file_path
@@ -32,21 +30,21 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=self.interval,
+                    interval=0,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/antenna.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
                 ImageHotspot(
-                    interval=self.interval,
+                    interval=0,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/padlock.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
                 ImageHotspot(
-                    interval=self.interval,
+                    interval=0,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/home.png"),
@@ -55,7 +53,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=lambda: get_ap_mode_status().get("ssid", ""),
@@ -64,7 +61,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=lambda: get_ap_mode_status().get("passphrase", ""),
@@ -73,7 +69,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=lambda: get_ap_mode_status().get("ip_address", ""),

@@ -5,6 +5,7 @@ import PIL.Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..pages.templates.action.state import ActionState
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
@@ -133,8 +134,9 @@ def processing_image(size, mode, frame_number):
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode):
-        super().__init__(interval, size, mode)
+    def __init__(self, size, mode, interval=Speeds.ACTION_STATE_UPDATE.value):
+        super().__init__(interval=interval, size=size, mode=mode)
+
         self.processing_frame_no = 0
 
         self.MAX_PROCESSING_STEPS = 3

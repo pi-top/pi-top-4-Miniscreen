@@ -1,12 +1,13 @@
 import PIL.ImageDraw
 from pitop.common.sys_info import get_network_strength
 
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode):
-        super().__init__(interval, size, mode)
+    def __init__(self, size, mode, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
+        super().__init__(interval=interval, size=size, mode=mode)
 
     def render(self, image):
         wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100

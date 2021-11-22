@@ -11,18 +11,16 @@ logger = logging.getLogger(__name__)
 class MenuTile(ViewportTile):
     SCROLL_PX_RESOLUTION = 2
 
-    def __init__(self, size, mode, viewport_size, config):
+    def __init__(self, size, mode, config):
         super().__init__(
-            size=lambda: self.tile_size,
-            viewport_size=viewport_size,
+            size=size,
+            viewport_size=(size[0], size[1] * len(config.children)),
             mode=mode,
             window_position=(0, 0),
         )
 
-        self.mode = mode
-        self._size = size
         self.page_index = 0
-        self.config = config
+        self.y_pos = 0
 
         self.parent_goes_to_first_page = config.parent_goes_to_first_page
         self.top_edge = config.top_edge
@@ -32,12 +30,8 @@ class MenuTile(ViewportTile):
         config_factory = ConfigFactory(self.size, self.mode)
 
         self.pages = list()
-        for page_name, page_config in self.config.children.items():
+        for page_name, page_config in config.children.items():
             self.pages.append(config_factory.get(page_config))
-
-    @property
-    def display_size(self):
-        return (self.width, self.height * len(self.config.children))
 
     @property
     def current_page(self):

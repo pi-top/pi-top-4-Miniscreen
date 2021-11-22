@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Tuple
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ..event import AppEvents, post_event
 from ..hotspots.base import HotspotInstance
-from .event import AppEvents, post_event
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,12 @@
 import PIL.ImageDraw
 import psutil
 
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode):
+    def __init__(self, size, mode, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
         super().__init__(interval, size, mode)
 
     def render(self, image):

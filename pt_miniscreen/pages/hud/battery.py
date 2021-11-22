@@ -33,7 +33,6 @@ class Page(PageBase):
 
     def setup_hotspots(self):
         self.text_hotspot = TextHotspot(
-            interval=self.interval,
             mode=self.mode,
             size=(self.long_section_width, self.height),
             text=f"{self.capacity}%",
@@ -42,14 +41,12 @@ class Page(PageBase):
         )
 
         self.battery_base_hotspot = ImageHotspot(
-            interval=self.interval,
             mode=self.mode,
             size=(self.short_section_width, self.height),
             image_path=None,
         )
 
         self.rectangle_hotspot = RectangleHotspot(
-            interval=self.interval,
             mode=self.mode,
             size=RECTANGLE_HOTSPOT_SIZE,
             bounding_box=(0, 0, 0, 0),

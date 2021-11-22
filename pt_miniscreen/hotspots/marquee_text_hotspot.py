@@ -14,8 +14,11 @@ logger = logging.getLogger(__name__)
 class Hotspot(HotspotBase):
     DELTA_PX = 2
 
-    def __init__(self, interval, size, mode, text, font=None, font_size=20):
-        super().__init__(interval, size, mode)
+    def __init__(
+        self, size, mode, text, font=None, font_size=20, interval=Speeds.MARQUEE.value
+    ):
+        super().__init__(interval=interval, size=size, mode=mode)
+
         self.assistant = MiniscreenAssistant(self.mode, self.size)
         self.text_image = PIL.Image.new(self.mode, self.size, color="black")
 

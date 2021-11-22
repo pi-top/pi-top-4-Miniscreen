@@ -2,14 +2,18 @@ import logging
 
 import PIL.Image
 
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode, image_path, xy=None):
-        super().__init__(interval, size, mode)
+    def __init__(
+        self, size, mode, image_path, xy=None, interval=Speeds.DYNAMIC_PAGE_REDRAW.value
+    ):
+        super().__init__(interval=interval, size=size, mode=mode)
+
         self.xy = xy
         self._im = None
         self.image_path = image_path

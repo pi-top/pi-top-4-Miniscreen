@@ -2,6 +2,7 @@ import logging
 
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
@@ -10,7 +11,6 @@ logger = logging.getLogger(__name__)
 class Hotspot(HotspotBase):
     def __init__(
         self,
-        interval,
         size,
         mode,
         text,
@@ -20,8 +20,9 @@ class Hotspot(HotspotBase):
         fill=1,
         anchor=None,
         align=None,
+        interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
     ):
-        super().__init__(interval, size, mode)
+        super().__init__(interval=interval, size=size, mode=mode)
 
         self.assistant = MiniscreenAssistant(self.mode, self.size)
         self._text = text

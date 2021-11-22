@@ -3,8 +3,6 @@ from typing import Dict
 
 from pitop.common.sys_info import get_internal_ip, get_wifi_network_ssid
 
-from pt_miniscreen.state import Speeds
-
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
@@ -34,21 +32,21 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=self.interval,
+                    interval=0,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/antenna.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
                 ImageHotspot(
-                    interval=self.interval,
+                    interval=0,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/wifi.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
                 ImageHotspot(
-                    interval=self.interval,
+                    interval=0,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/home.png"),
@@ -57,14 +55,12 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
                 WifiStrengthHotspot(
-                    interval=self.interval,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ICON_HEIGHT),
                     mode=self.mode,
                 )
             ],
             (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=get_wifi_network_ssid,
@@ -73,7 +69,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    interval=Speeds.MARQUEE.value,
                     mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=self.get_ip_address,

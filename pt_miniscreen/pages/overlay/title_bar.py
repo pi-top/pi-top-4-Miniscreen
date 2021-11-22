@@ -7,7 +7,6 @@ from ...event import AppEvents, post_event
 from ...hotspots.base import HotspotInstance
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
-from ...state import Speeds
 from ...tiles import Tile
 
 logger = logging.getLogger(__name__)
@@ -56,7 +55,6 @@ class TitleBar(Tile):
         if height != 0:
             asst = MiniscreenAssistant(self.mode, self.size)
             marquee_text_hotspot = MarqueeTextHotspot(
-                interval=Speeds.MARQUEE.value,
                 mode=self.mode,
                 size=self.size,
                 text=self.behaviour.text,
@@ -77,7 +75,6 @@ class TitleBar(Tile):
                 (marquee_hotspot_x_pos, 0): [marquee_text_hotspot],
                 (0, height - 1): [
                     RectangleHotspot(
-                        interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
                         mode=self.mode,
                         size=(self.width, 1),
                         bounding_box=(0, 0) + (self.width, 1),
