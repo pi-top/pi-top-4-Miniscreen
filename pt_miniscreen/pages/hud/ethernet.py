@@ -29,7 +29,7 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    interval=0,
+                    interval=1,
                     mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/home.png"),
