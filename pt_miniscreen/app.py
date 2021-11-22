@@ -191,7 +191,7 @@ class App:
                 self.display_current_menu_image()
 
                 logger.debug("Waiting until image to display has changed...")
-                self.menu_manager.wait_until_should_redraw()
+                self.tile_manager.wait_until_should_redraw()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()
