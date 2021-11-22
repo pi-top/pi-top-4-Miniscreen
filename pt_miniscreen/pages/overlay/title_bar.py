@@ -20,6 +20,7 @@ class TitleBar(HotspotManager):
         super().__init__(viewport_size, window_size, window_position)
         self.mode = "1"
         self._behaviour = title_bar_behaviour
+        self.active = True
 
     def should_draw(self):
         return (

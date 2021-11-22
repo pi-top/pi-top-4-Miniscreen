@@ -203,3 +203,11 @@ class Menu:
             self.y_pos = value
         except StopIteration:
             pass
+
+    @property
+    def active(self):
+        return self.viewport.active
+
+    @active.setter
+    def active(self, value):
+        self.viewport.active = value
