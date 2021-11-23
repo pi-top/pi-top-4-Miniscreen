@@ -10,7 +10,8 @@ from ..base import Page as PageBase
 
 logger = logging.getLogger(__name__)
 
-
+FONT_SIZE = 19
+ICON_HEIGHT = 22
 RECTANGLE_HOTSPOT_SIZE = (37, 14)
 BATTERY_LEFT_MARGIN = 15
 CAPACITY_RECTANGLE_LEFT_OFFSET = 4
@@ -35,16 +36,17 @@ class Page(PageBase):
         self.text_hotspot = TextHotspot(
             interval=self.interval,
             mode=self.mode,
-            size=(self.long_section_width, self.height),
+            size=(self.short_section_width, self.height),
             text=f"{self.capacity}%",
-            font_size=19,
-            xy=(self.short_section_width, self.height / 2),
+            font_size=FONT_SIZE,
+            anchor="lt",
+            xy=(0, 0),
         )
 
         self.battery_base_hotspot = ImageHotspot(
             interval=self.interval,
             mode=self.mode,
-            size=(self.short_section_width, self.height),
+            size=(self.short_section_width, ICON_HEIGHT),
             image_path=None,
         )
 
@@ -55,16 +57,23 @@ class Page(PageBase):
             bounding_box=(0, 0, 0, 0),
         )
 
-        capacity_rectangle_top_margin = int(
-            (self.height - RECTANGLE_HOTSPOT_SIZE[1]) / 2
+        text_hotspot_pos = (
+            self.long_section_width,
+            self.offset_pos_for_vertical_center(self.text_hotspot.text_size[1]),
+        )
+        battery_hotspot_pos = (
+            BATTERY_LEFT_MARGIN,
+            self.offset_pos_for_vertical_center(ICON_HEIGHT),
+        )
+        rectangle_hotspot_pos = (
+            CAPACITY_RECTANGLE_LEFT_MARGIN,
+            self.offset_pos_for_vertical_center(RECTANGLE_HOTSPOT_SIZE[1]),
         )
 
         self.hotspots = {
-            (BATTERY_LEFT_MARGIN, 0): [self.battery_base_hotspot],
-            (CAPACITY_RECTANGLE_LEFT_MARGIN, capacity_rectangle_top_margin): [
-                self.rectangle_hotspot
-            ],
-            (self.short_section_width, 0): [self.text_hotspot],
+            battery_hotspot_pos: [self.battery_base_hotspot],
+            rectangle_hotspot_pos: [self.rectangle_hotspot],
+            text_hotspot_pos: [self.text_hotspot],
         }
 
         self.update_hotspots_properties()

@@ -72,6 +72,12 @@ menu_app_config = MenuAppConfig(
                                                                     page_cls=settings_connection.further_link.Page,
                                                                 ),
                                                             ),
+                                                            (
+                                                                "settings.connection.ap",
+                                                                PageConfig(
+                                                                    page_cls=settings_connection.ap.Page,
+                                                                ),
+                                                            ),
                                                         ],
                                                     ),
                                                 ),

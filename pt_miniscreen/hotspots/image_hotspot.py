@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 class Hotspot(HotspotBase):
     def __init__(self, interval, size, mode, image_path, xy=None):
         super().__init__(interval, size, mode)
+        if xy is None:
+            self.xy = (0, 0)
         self.xy = xy
         self._im = None
         self.image_path = image_path
@@ -61,11 +63,6 @@ class Hotspot(HotspotBase):
             return
         try:
             self._im = PIL.Image.open(self.image_path).convert(self.mode)
-            if self.xy is None:
-                self.xy = (
-                    self.size[0] / 2 - self._im.width / 2,
-                    self.size[1] / 2 - self._im.height / 2,
-                )
         except Exception as e:
             logger.warning(f"Couldn't open image {self.image_path} : {e}")
             raise

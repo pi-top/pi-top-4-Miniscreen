@@ -5,6 +5,8 @@ from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
+ICON_SIZE = 38
+
 
 class Page(PageBase):
     def __init__(self, interval, size, mode, config):
@@ -12,23 +14,27 @@ class Page(PageBase):
         self.setup_hotspots()
 
     def setup_hotspots(self):
-        cpu_bars_y_margin = self.height * 0.3
+        cpu_bar_hotspot_height = int(self.height * 0.7)
+
         self.hotspots: Dict = {
-            (0, 0): [
+            (0, self.offset_pos_for_vertical_center(ICON_SIZE)): [
                 ImageHotspot(
                     interval=self.interval,
                     mode=self.mode,
-                    size=(self.short_section_width, self.height),
+                    size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/cpu.png"),
                 ),
             ],
-            (self.short_section_width, int(cpu_bars_y_margin / 2)): [
+            (
+                self.short_section_width,
+                self.offset_pos_for_vertical_center(cpu_bar_hotspot_height),
+            ): [
                 CpuBarsHotspot(
                     interval=self.interval,
                     mode=self.mode,
                     size=(
                         self.long_section_width,
-                        int(self.height - cpu_bars_y_margin),
+                        cpu_bar_hotspot_height,
                     ),
                 ),
             ],
