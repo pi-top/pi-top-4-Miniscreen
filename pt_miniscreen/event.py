@@ -8,7 +8,7 @@ class AppEvents(Enum):
     UP_BUTTON_PRESS = auto()  # callable
     DOWN_BUTTON_PRESS = auto()  # callable
     BUTTON_ACTION_START = auto()  # None
-    ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE = auto()  # None
+    UPDATE_DISPLAYED_IMAGE = auto()  # None
     GO_TO_CHILD_MENU = auto()  # str
     GO_TO_PARENT_MENU = auto()  # None
 

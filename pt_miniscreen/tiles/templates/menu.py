@@ -73,11 +73,8 @@ class Tile(ViewportTile):
         menu_tile_id = list(new_menu.keys())[0]
         post_event(AppEvents.GO_TO_CHILD_MENU, menu_tile_id)
 
-        self.should_redraw_event.set()
-
     def go_to_parent_menu(self):
         post_event(AppEvents.GO_TO_PARENT_MENU)
-        self.should_redraw_event.set()
 
     ##################################
     # Button Press API (when active) #
@@ -98,12 +95,12 @@ class Tile(ViewportTile):
     def handle_up_btn(self):
         self.menu._set_page_to_previous()
         if self.menu.needs_to_scroll:
-            self.should_redraw_event.set()
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
     def handle_down_btn(self):
         self.menu._set_page_to_next()
         if self.menu.needs_to_scroll:
-            self.should_redraw_event.set()
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
     ############
     # Internal #

@@ -4,6 +4,7 @@ from time import sleep
 
 import PIL.Image
 
+from .event import AppEvents, subscribe
 from .state import Speeds
 
 # from imgcat import imgcat
@@ -20,6 +21,11 @@ class TileGroup:
 
         self.should_redraw_event = Event()
         self._active = False
+
+        subscribe(
+            AppEvents.UPDATE_DISPLAYED_IMAGE,
+            lambda _: self.should_redraw_event.set(),
+        )
 
     @property
     def active(self):

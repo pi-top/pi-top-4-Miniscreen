@@ -127,11 +127,11 @@ class Tile:
         (x, y) = hotspot_instance.xy
 
         # Update size needed to render hotspot instance
-        if x > self._render_size[0]:
-            self._render_size = (x, self._render_size[1])
+        if x > self.render_size[0]:
+            self._render_size = (x, self.render_size[1])
 
-        if y > self._render_size[1]:
-            self._render_size = (self._render_size[0], y)
+        if y > self.render_size[1]:
+            self._render_size = (self.render_size[0], y)
 
         logger.debug(f"Tile.add_hotspot_instance {hotspot_instance}")
 
@@ -169,7 +169,7 @@ class Tile:
                 # busy waiting...
                 if self.active and self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
-                    post_event(AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE)
+                    post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
                 sleep(hotspot.interval)
 
         self.image_caching_threads[hotspot] = Thread(
@@ -268,9 +268,4 @@ class Tile:
         subscribe(
             AppEvents.CANCEL_BUTTON_PRESS,
             lambda cb: cb(self.handle_cancel_btn) if self.active else None,
-        )
-
-        subscribe(
-            AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE,
-            lambda _: self.should_redraw_event.set(),
         )

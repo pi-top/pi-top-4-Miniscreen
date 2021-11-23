@@ -80,7 +80,7 @@ class App:
             #     )
             #     if self.menu.parent_goes_to_first_page:
             #         self.menu.move_to_page_pos(0)
-            #     self.should_redraw_event.set()
+            #     post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
             # TODO: go to next menu if menu is not in a child menu
             # if self.tile_group.menu.is_root:
