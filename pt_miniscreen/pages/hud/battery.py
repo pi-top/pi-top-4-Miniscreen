@@ -32,7 +32,7 @@ class Page(PageBase):
 
     def reset(self):
         self.text_hotspot = TextHotspot(
-            size=(self.short_section_width, self.height),
+            size=(self.short_section_width, FONT_SIZE),
             text=f"{self.capacity}%",
             font_size=FONT_SIZE,
             anchor="lt",
@@ -63,12 +63,9 @@ class Page(PageBase):
         )
 
         self.hotspot_instances = [
-            HotspotInstance(self.battery_base_hotspot, (BATTERY_LEFT_MARGIN, 0)),
-            HotspotInstance(
-                self.rectangle_hotspot,
-                (CAPACITY_RECTANGLE_LEFT_MARGIN, capacity_rectangle_top_margin),
-            ),
-            HotspotInstance(self.text_hotspot, (self.short_section_width, 0)),
+            HotspotInstance(self.battery_base_hotspot, battery_hotspot_pos),
+            HotspotInstance(self.rectangle_hotspot, rectangle_hotspot_pos),
+            HotspotInstance(self.text_hotspot, text_hotspot_pos),
         ]
 
         self.update_hotspots_properties()

@@ -98,7 +98,6 @@ class Page(PageBase):
         if isinstance(row_data, RowDataText):
             content_hotspot = MarqueeTextHotspot(
                 interval=Speeds.MARQUEE.value,
-                mode=self.mode,
                 size=row_data.hotspot_size
                 if row_data.hotspot_size
                 else self.layout_manager.hotspot_size(),
@@ -108,7 +107,6 @@ class Page(PageBase):
         else:
             content_hotspot = row_data.hotspot_type(
                 interval=Speeds.MARQUEE.value,
-                mode=self.mode,
                 size=row_data.hotspot_size
                 if row_data.hotspot_size
                 else self.layout_manager.hotspot_size(),
@@ -116,7 +114,6 @@ class Page(PageBase):
 
         image_hotspot = ImageHotspot(
             interval=self.interval,
-            mode=self.mode,
             size=self.layout_manager.icon_size,
             image_path=get_image_file_path(row_data.icon_path),
         )
