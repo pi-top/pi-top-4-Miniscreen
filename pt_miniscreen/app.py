@@ -55,7 +55,7 @@ class App:
             #     pos=(0, 0),
             # ),
             menu_tile=HUDMenuTile(size=self.miniscreen.size),
-            title_bar_tile=None
+            title_bar_tile=None,
         )
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)

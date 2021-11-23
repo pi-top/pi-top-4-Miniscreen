@@ -62,10 +62,13 @@ class TitleBar(Tile):
         )
         rect_xy = (0, self.height - 1)
 
-        self.set_hotspot_instances([
-            HotspotInstance(marquee_text_hotspot, marquee_text_xy),
-            HotspotInstance(rect_hotspot, rect_xy),
-        ], start=True)
+        self.set_hotspot_instances(
+            [
+                HotspotInstance(marquee_text_hotspot, marquee_text_xy),
+                HotspotInstance(rect_hotspot, rect_xy),
+            ],
+            start=True,
+        )
 
     @property
     def height(self):

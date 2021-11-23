@@ -1,8 +1,8 @@
 import logging
 
-from ...hotspots.base import HotspotInstance
 from ...event import AppEvents, post_event
 from ...generators import scroll_to
+from ...hotspots.base import HotspotInstance
 from .viewport import Tile as ViewportTile
 
 logger = logging.getLogger(__name__)
@@ -27,12 +27,9 @@ class Tile(ViewportTile):
         hotspot_instances = list()
         for page in self.pages:
             for i, hotspot_instance in enumerate(page.hotspot_instances):
-                xy = (
-                    hotspot_instance.xy[0],
-                    hotspot_instance.xy[1] + i * self.size[1]
-                )
+                xy = (hotspot_instance.xy[0], hotspot_instance.xy[1] + i * self.size[1])
                 hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
-        
+
         print(hotspot_instances)
         self.set_hotspot_instances(hotspot_instances, start=True)
 

@@ -53,7 +53,10 @@ class Page(PageBase):
 
         self.hotspot_instances = [
             HotspotInstance(self.battery_base_hotspot, (BATTERY_LEFT_MARGIN, 0)),
-            HotspotInstance(self.rectangle_hotspot, (CAPACITY_RECTANGLE_LEFT_MARGIN, capacity_rectangle_top_margin)),
+            HotspotInstance(
+                self.rectangle_hotspot,
+                (CAPACITY_RECTANGLE_LEFT_MARGIN, capacity_rectangle_top_margin),
+            ),
             HotspotInstance(self.text_hotspot, (self.short_section_width, 0)),
         ]
 

@@ -27,7 +27,6 @@ class Page(PageBase):
         ICON_X_POS = 10
         DEFAULT_FONT_SIZE = 12
 
-        
         hotspots = [
             HotspotInstance(
                 ImageHotspot(
@@ -36,7 +35,7 @@ class Page(PageBase):
                     image_path=get_image_file_path("sys_info/networking/antenna.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
-                (0, 0)
+                (0, 0),
             ),
             HotspotInstance(
                 ImageHotspot(
@@ -45,7 +44,7 @@ class Page(PageBase):
                     image_path=get_image_file_path("sys_info/networking/padlock.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
-                (0, 0)
+                (0, 0),
             ),
             HotspotInstance(
                 ImageHotspot(
@@ -54,7 +53,7 @@ class Page(PageBase):
                     image_path=get_image_file_path("sys_info/networking/home.png"),
                     xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
-                (0, 0)
+                (0, 0),
             ),
             HotspotInstance(
                 MarqueeTextHotspot(
@@ -62,7 +61,7 @@ class Page(PageBase):
                     text=lambda: get_ap_mode_status().get("ssid", ""),
                     font_size=DEFAULT_FONT_SIZE,
                 ),
-                (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1)
+                (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1),
             ),
             HotspotInstance(
                 MarqueeTextHotspot(
@@ -70,7 +69,7 @@ class Page(PageBase):
                     text=lambda: get_ap_mode_status().get("passphrase", ""),
                     font_size=DEFAULT_FONT_SIZE,
                 ),
-                (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1)
+                (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1),
             ),
             HotspotInstance(
                 MarqueeTextHotspot(
@@ -78,9 +77,8 @@ class Page(PageBase):
                     text=lambda: get_ap_mode_status().get("ip_address", ""),
                     font_size=DEFAULT_FONT_SIZE,
                 ),
-                (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1)
+                (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1),
             ),
         ]
-        
-        self.set_hotspot_instances(hotspots, start=True)
 
+        self.set_hotspot_instances(hotspots, start=True)
