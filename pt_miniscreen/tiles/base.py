@@ -2,7 +2,7 @@ import logging
 import time
 from threading import Thread
 from time import sleep
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
@@ -15,26 +15,12 @@ logger = logging.getLogger(__name__)
 
 class Tile:
     def __init__(self, size=None) -> None:
-        self._hotspot_collections: Dict[Any, List[Tuple]] = dict()
+        self._hotspot_collections: Dict[Any, List[HotspotInstance]] = dict()
         self._size = size
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = True
         self.active = False
-
-    def _add_hotspots_into_(self):
-        self.remove_all_hotspots()
-        for i, collection in enumerate(self._hotspot_collections):
-            # for upperleft_xy, hotspots in collection.hotspots.items():
-            for upperleft_xy, hotspots in self._hotspot_collection.items():
-                for hotspot in hotspots:
-                    pos = (
-                        int(upperleft_xy[0]),
-                        int(upperleft_xy[1] + i * self.height),
-                    )
-                    self.add_hotspot(
-                        HotspotInstance(hotspot, pos), collection_id=collection
-                    )
 
     @property
     def size(self):
@@ -62,6 +48,22 @@ class Tile:
     @height.setter
     def height(self, value):
         self.size = (self.width, value)
+
+    def start(self):
+        for _, thread in self.image_caching_threads.items():
+            thread.start()
+
+    def stop(self):
+        self.update_cached_images = False
+        for hotspot, thread in self.image_caching_threads.items():
+            thread.join(0)
+        logger.debug("stop - stopped all threads")
+
+    def reset_with_hotspot_instances(self, hotspot_instances):
+        self.clear()
+        for hotspot_instance in hotspot_instances:
+            self.add_hotspot_instance(hotspot_instance)
+        self.start()
 
     def _paste_hotspot_into_image(self, hotspot_instance, image):
         if (
@@ -100,12 +102,12 @@ class Tile:
         logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
         image.paste(hotspot_image, pos, mask)
 
-    def register(self, hotspot_instance, collection_id=None):
+    def add_hotspot_instance(self, hotspot_instance, collection_id=None):
         (x, y) = hotspot_instance.xy
         assert 0 <= x <= self.width - hotspot_instance.hotspot.width
         assert 0 <= y <= self.height - hotspot_instance.hotspot.height
 
-        logger.debug(f"Tile.register {hotspot_instance}")
+        logger.debug(f"Tile.add_hotspot_instance {hotspot_instance}")
         current_collection = self._hotspot_collections.get(collection_id, list())
         if hotspot_instance in current_collection:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
@@ -115,7 +117,7 @@ class Tile:
 
         self._register_thread(hotspot_instance)
 
-    def unregister(self, hotspot_instance):
+    def remove_hotspot_instance(self, hotspot_instance):
         for collection_id, collection in self._hotspot_collections:
             if hotspot_instance in collection:
                 self._hotspot_collections[collection_id].remove(hotspot_instance)
@@ -123,13 +125,18 @@ class Tile:
                     self._hotspot.remove(collection_id)
 
     def _register_thread(self, hotspot_instance):
+        logger.warning("Caching new image...")
         hotspot = hotspot_instance.hotspot
 
         def run():
             def cache_new_image():
                 self.cached_images[hotspot] = hotspot.image
 
+            logger.warning("Caching new image...")
             cache_new_image()
+            logger.warning(
+                f"Done caching new image... self.update_cached_images: {self.update_cached_images}"
+            )
             while self.update_cached_images:
                 # TODO: improve this "busy wait"
                 # if not active, there's no need to check - perhaps instead of sleeping,
@@ -138,22 +145,21 @@ class Tile:
                 # another thing to consider would be to do something similar with 'is overlapping'
                 # - if we are not overlapping, and the position is not changing, then this is still
                 # busy waiting...
+                logger.warning(f"self.active: {self.active}")
                 if self.active and self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
                     post_event(AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE)
                 sleep(hotspot.interval)
 
-        thread = Thread(target=run, args=(), daemon=True, name=hotspot)
-        thread.start()
-        self.image_caching_threads[hotspot] = thread
+        self.image_caching_threads[hotspot] = Thread(
+            target=run, args=(), daemon=True, name=hotspot
+        )
 
-    def stop_threads(self):
-        self.update_cached_images = False
-        for hotspot, thread in self.image_caching_threads.items():
-            thread.join(0)
-        logger.debug("stop_threads - stopped all threads")
+    def clear(self):
+        self.stop()
+        self.remove_all_hotspot_instances()
 
-    def remove_all_hotspots(self):
+    def remove_all_hotspot_instances(self):
         self._hotspot_collections = {}
 
     def is_hotspot_overlapping(self, hotspot_instance):

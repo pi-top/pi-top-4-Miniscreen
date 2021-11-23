@@ -1,5 +1,4 @@
 import logging
-from typing import Dict
 
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
@@ -26,6 +25,51 @@ class TitleBar(Tile):
             and self.behaviour.visible is True
         )
 
+    def setup_hotspots(self):
+        asst = MiniscreenAssistant(self.mode, self.size)
+        marquee_text_hotspot = MarqueeTextHotspot(
+            mode=self.mode,
+            size=self.size,
+            text=self.behaviour.text,
+            font=asst.get_mono_font(
+                size=14,
+                bold=True,
+            ),
+            font_size=14,
+        )
+        marquee_text_xy = (
+            # if no scroll is needed, center text in screen
+            0
+            if marquee_text_hotspot.needs_scrolling
+            else int((self.size[0] - marquee_text_hotspot.text_image.width) / 2),
+            0,
+        )
+
+        rect_hotspot = RectangleHotspot(
+            mode=self.mode,
+            size=(self.width, 1),
+            bounding_box=(0, 0) + (self.width, 1),
+        )
+        rect_xy = (0, self.height - 1)
+
+        hotspots = [
+            HotspotInstance(marquee_text_hotspot, marquee_text_xy),
+            HotspotInstance(rect_hotspot, rect_xy),
+        ]
+
+        self.reset_with_hotspot_instances(hotspots)
+
+    @property
+    def height(self):
+        if not self.behaviour.visible or self.behaviour.text == "":
+            return 0
+
+        return self.behaviour.height
+
+    @height.setter
+    def height(self, new_height):
+        self.behaviour.height = new_height
+
     @property
     def behaviour(self):
         return self._behaviour
@@ -41,49 +85,13 @@ class TitleBar(Tile):
             self.behaviour.text = behaviour.text
 
         self.behaviour.visible = behaviour.visible
+
         if behaviour.height is not None:
-            self.behaviour.height = behaviour.height
+            self.height = behaviour.height
 
-        height = self.behaviour.height
-        if not behaviour.visible or behaviour.text == "":
-            height = 0
-        elif behaviour.height:
-            height = behaviour.height
+        post_event(AppEvents.TITLE_BAR_HEIGHT_SET, self.height)
 
-        post_event(AppEvents.TITLE_BAR_HEIGHT_SET, height)
-
-        if height != 0:
-            asst = MiniscreenAssistant(self.mode, self.size)
-            marquee_text_hotspot = MarqueeTextHotspot(
-                mode=self.mode,
-                size=self.size,
-                text=self.behaviour.text,
-                font=asst.get_mono_font(
-                    size=14,
-                    bold=True,
-                ),
-                font_size=14,
-            )
-            marquee_hotspot_x_pos = 0
-            if not marquee_text_hotspot.needs_scrolling:
-                # if no scroll is needed, center text in screen
-                marquee_hotspot_x_pos = int(
-                    (self.size[0] - marquee_text_hotspot.text_image.width) / 2
-                )
-
-            hotspots: Dict = {
-                (marquee_hotspot_x_pos, 0): [marquee_text_hotspot],
-                (0, height - 1): [
-                    RectangleHotspot(
-                        mode=self.mode,
-                        size=(self.width, 1),
-                        bounding_box=(0, 0) + (self.width, 1),
-                    )
-                ],
-            }
-
-            self.remove_all_hotspots()
-            self.stop_threads()
-            for xy, hotspots in hotspots.items():
-                for hotspot in hotspots:
-                    self.register(HotspotInstance(hotspot, xy))
+        if self.height == 0:
+            self.clear()
+        else:
+            self.setup_hotspots()

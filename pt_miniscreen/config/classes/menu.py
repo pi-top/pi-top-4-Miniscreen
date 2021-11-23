@@ -8,7 +8,7 @@ from .title_bar import TitleBarBehaviour
 
 
 @dataclass
-class MenuConfig:
+class MenuTileConfig:
     menu_cls: Type[MenuTile] = MenuTile
     children: Dict[str, PageConfig] = field(default_factory=dict)
     parent_goes_to_first_page: bool = True

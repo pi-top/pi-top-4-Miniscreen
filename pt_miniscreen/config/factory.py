@@ -5,9 +5,9 @@ class ConfigFactory:
 
     def get(self, config):
         # avoid circular import
-        from .config import MenuConfig, PageConfig
+        from .config import MenuTileConfig, PageConfig
 
-        if isinstance(config, MenuConfig):
+        if isinstance(config, MenuTileConfig):
             return config.menu_cls(
                 size=self.size,
                 mode=self.mode,

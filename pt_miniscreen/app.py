@@ -127,7 +127,7 @@ class App:
 
         logger.debug(f"Time since action started: {time_since_action_started}")
 
-        if self.tile_manager.current_menu.current_page.action_process.is_alive():
+        if self.tile_manager.current_menu_tile.current_page.action_process.is_alive():
             logger.debug("Action not yet completed")
             return
 
@@ -136,14 +136,14 @@ class App:
             self.state_manager.state = DisplayState.WAKING
 
             logger.info("Notifying renderer to display 'unknown' action state")
-            self.tile_manager.current_menu.current_page.set_unknown_state()
+            self.tile_manager.current_menu_tile.current_page.set_unknown_state()
             return
 
         logger.info("Action completed - setting state to WAKING")
         self.state_manager.state = DisplayState.WAKING
         logger.info("Resetting state of hotspot to re-renderer current state")
 
-        self.tile_manager.current_menu.current_page.hotspot.reset()
+        self.tile_manager.current_menu_tile.current_page.hotspot.reset()
 
     @property
     def time_since_last_active(self):
@@ -167,7 +167,7 @@ class App:
 
     def display_current_menu_image(self):
         logger.debug("Updating scroll position and displaying current menus' image...")
-        self.tile_manager.update_current_menu_scroll_position()
+        self.tile_manager.update_current_menu_tile_scroll_position()
         self.display(self.tile_manager.image)
 
     def _main(self):

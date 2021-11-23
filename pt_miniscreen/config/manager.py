@@ -1,17 +1,17 @@
 import logging
 
-from .config import menu_app_config
+from .config import app_config
 from .factory import ConfigFactory
 
 logger = logging.getLogger(__name__)
 
 
-class MenuConfigManager:
+class MenuTileConfigManager:
     @staticmethod
     def get_menus_dict(size, mode):
         menus = dict()
         menu_factory = ConfigFactory(size, mode)
-        for menu_name, config in menu_app_config.children.items():
+        for menu_name, config in app_config.children.items():
             menus[menu_name] = menu_factory.get(config)
         return menus
 
@@ -63,10 +63,10 @@ class MenuConfigManager:
 
     @staticmethod
     def get_title_bar(size):
-        if not menu_app_config.title_bar:
+        if not app_config.title_bar:
             return
 
-        return menu_app_config.title_bar.page_cls(
-            size=(size[0], menu_app_config.title_bar.behaviour.height),
-            behaviour=menu_app_config.title_bar.behaviour,
+        return app_config.title_bar.page_cls(
+            size=(size[0], app_config.title_bar.behaviour.height),
+            behaviour=app_config.title_bar.behaviour,
         )

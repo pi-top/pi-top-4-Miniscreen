@@ -3,8 +3,9 @@ from threading import Event
 from time import sleep
 
 import PIL.Image
+from imgcat import imgcat
 
-from .config import MenuConfigManager
+from .config import MenuTileConfigManager
 from .event import AppEvents, post_event, subscribe
 from .state import Speeds
 
@@ -16,33 +17,33 @@ class TileManager:
         self.size = size
         self.mode = mode
 
-        self.title_bar = MenuConfigManager.get_title_bar(size)
-        self.menus = MenuConfigManager.get_menus_dict(size, mode)
+        self.title_bar = MenuTileConfigManager.get_title_bar(size)
+        self.menus = MenuTileConfigManager.get_menus_dict(size, mode)
         self.should_redraw_event = Event()
 
-        def update_current_menu_height(height):
+        def update_current_menu_tile_height(height):
             new_menu_height = self.size[1] - height
             logger.debug(
                 f"Title bar new height: {height} / Menu height now is {new_menu_height}"
             )
-            if self.current_menu.height != new_menu_height:
+            if self.current_menu_tile.height != new_menu_height:
                 logger.debug(f"Updating Menu height to {new_menu_height}")
-                self.current_menu.height = new_menu_height
+                self.current_menu_tile.height = new_menu_height
 
-        subscribe(AppEvents.TITLE_BAR_HEIGHT_SET, update_current_menu_height)
+        subscribe(AppEvents.TITLE_BAR_HEIGHT_SET, update_current_menu_tile_height)
 
-        self.current_menu_id = list(self.menus.keys())[0]
+        self.current_menu_tile_id = list(self.menus.keys())[0]
 
         subscribe(
             AppEvents.UP_BUTTON_PRESS,
             lambda callback_handler: callback_handler(
-                self._set_current_menu_page_to_previous
+                self._set_current_menu_tile_page_to_previous
             ),
         )
         subscribe(
             AppEvents.DOWN_BUTTON_PRESS,
             lambda callback_handler: callback_handler(
-                self._set_current_menu_page_to_next
+                self._set_current_menu_tile_page_to_next
             ),
         )
         subscribe(
@@ -68,43 +69,51 @@ class TileManager:
             title_bar_im = self.title_bar.image
             if title_bar_im:
                 im.paste(title_bar_im, (0, 0) + (self.size[0], title_bar_height))
-        im.paste(self.current_menu.image, (0, title_bar_height))
+
+        logger.debug(f"im.size: {im.size}")
+        logger.debug(f"title_bar_height: {title_bar_height}")
+        logger.debug(f"self.current_menu_tile: {self.current_menu_tile}")
+        logger.debug(f"self.current_menu_tile.image: {self.current_menu_tile.image}")
+
+        imgcat(self.current_menu_tile.image)
+
+        im.paste(self.current_menu_tile.image, (0, title_bar_height))
         return im
 
     @property
-    def current_menu_id(self):
-        return self._current_menu_id
+    def current_menu_tile_id(self):
+        return self._current_menu_tile_id
 
-    @current_menu_id.setter
-    def current_menu_id(self, menu_id):
-        if hasattr(self, "_current_menu_id"):
-            self.current_menu.active = False
-        self._current_menu_id = menu_id
-        self.title_bar.behaviour = self.current_menu.title_bar
+    @current_menu_tile_id.setter
+    def current_menu_tile_id(self, menu_id):
+        if hasattr(self, "_current_menu_tile_id"):
+            self.current_menu_tile.active = False
+        self._current_menu_tile_id = menu_id
+        self.title_bar.behaviour = self.current_menu_tile.title_bar
         logger.debug(
-            f"current_menu_id.setter - title bar behaviour : {self.title_bar.behaviour}"
+            f"current_menu_tile_id.setter - title bar behaviour : {self.title_bar.behaviour}"
         )
-        self.current_menu.active = True
+        self.current_menu_tile.active = True
         self.should_redraw_event.set()
 
     @property
-    def current_menu(self):
-        return self.menus[self.current_menu_id]
+    def current_menu_tile(self):
+        return self.menus[self.current_menu_tile_id]
 
     @property
-    def current_menu_page(self):
-        return self.current_menu.current_page
+    def current_menu_tile_page(self):
+        return self.current_menu_tile.current_page
 
     def _go_to_next_menu(self):
-        self.current_menu_id = MenuConfigManager.get_next_menu_id(
-            self.menus, self.current_menu_id
+        self.current_menu_tile_id = MenuTileConfigManager.get_next_menu_id(
+            self.menus, self.current_menu_tile_id
         )
-        if self.current_menu.parent_goes_to_first_page:
-            self.current_menu.move_to_page(0)
+        if self.current_menu_tile.parent_goes_to_first_page:
+            self.current_menu_tile.move_to_page(0)
         self.should_redraw_event.set()
 
     def _go_to_child_menu(self):
-        new_menu = self.current_menu_page.child_menu
+        new_menu = self.current_menu_tile_page.child_menu
         if not new_menu:
             return
 
@@ -112,52 +121,54 @@ class TileManager:
 
         for k, v in new_menu.items():
             self.menus[k] = v
-        self.current_menu_id = list(new_menu.keys())[0]
+        self.current_menu_tile_id = list(new_menu.keys())[0]
 
-        if self.current_menu.parent_goes_to_first_page:
-            self.current_menu.move_to_page(0)
+        if self.current_menu_tile.parent_goes_to_first_page:
+            self.current_menu_tile.move_to_page(0)
 
         self.should_redraw_event.set()
 
     def _go_to_parent_menu(self):
 
-        self.current_menu_id = MenuConfigManager.get_parent_menu_id(
-            self.current_menu_id
+        self.current_menu_tile_id = MenuTileConfigManager.get_parent_menu_id(
+            self.current_menu_tile_id
         )
 
         self.should_redraw_event.set()
 
     def _handle_select_btn(self):
-        if self.current_menu_page.child_menu:
+        if self.current_menu_tile_page.child_menu:
             self._go_to_child_menu()
         else:
             post_event(AppEvents.BUTTON_ACTION_START)
-            self.current_menu_page.on_select_press()
+            self.current_menu_tile_page.on_select_press()
 
     def _handle_cancel_btn(self):
-        if MenuConfigManager.menu_id_has_parent(self.menus, self.current_menu_id):
+        if MenuTileConfigManager.menu_id_has_parent(
+            self.menus, self.current_menu_tile_id
+        ):
             self._go_to_parent_menu()
         else:
             self._go_to_next_menu()
 
-    def _set_current_menu_page_to_previous(self):
-        self.current_menu.set_page_to_previous()
-        if self.current_menu.needs_to_scroll:
+    def _set_current_menu_tile_page_to_previous(self):
+        self.current_menu_tile.set_page_to_previous()
+        if self.current_menu_tile.needs_to_scroll:
             self.should_redraw_event.set()
 
-    def _set_current_menu_page_to_next(self):
-        self.current_menu.set_page_to_next()
-        if self.current_menu.needs_to_scroll:
+    def _set_current_menu_tile_page_to_next(self):
+        self.current_menu_tile.set_page_to_next()
+        if self.current_menu_tile.needs_to_scroll:
             self.should_redraw_event.set()
 
-    def update_current_menu_scroll_position(self):
-        if not self.current_menu.needs_to_scroll:
+    def update_current_menu_tile_scroll_position(self):
+        if not self.current_menu_tile.needs_to_scroll:
             return
 
-        self.current_menu.update_scroll_position()
+        self.current_menu_tile.update_scroll_position()
 
     def wait_until_should_redraw(self):
-        if self.current_menu.needs_to_scroll:
+        if self.current_menu_tile.needs_to_scroll:
             sleep(Speeds.SCROLL.value)
         else:
             self.should_redraw_event.wait()
