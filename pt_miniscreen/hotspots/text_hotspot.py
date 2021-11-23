@@ -64,7 +64,7 @@ class Hotspot(HotspotBase):
 
     @property
     def text_size(self):
-        draw = PIL.ImageDraw.Draw(PIL.Image.new(self.mode, self.size, color="black"))
+        draw = PIL.ImageDraw.Draw(PIL.Image.new("1", self.size, color="black"))
         text_bounding_box = draw.textbbox(
             (0, 0),
             text=self.text,
