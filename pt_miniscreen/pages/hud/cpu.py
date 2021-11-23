@@ -22,7 +22,7 @@ class Page(PageBase):
                     size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/cpu.png"),
                 ),
-                (0, self.offset_pos_for_vertical_center(ICON_SIZE))
+                (0, self.offset_pos_for_vertical_center(ICON_SIZE)),
             ),
             HotspotInstance(
                 CpuBarsHotspot(
@@ -34,6 +34,6 @@ class Page(PageBase):
                 (
                     self.short_section_width,
                     self.offset_pos_for_vertical_center(cpu_bar_hotspot_height),
-                )
-            )
+                ),
+            ),
         ]
