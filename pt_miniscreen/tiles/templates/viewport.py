@@ -87,11 +87,10 @@ class Tile(BaseTile):
         return Image.new("1", self.viewport_size)
 
     def process_image(self, image):
-        for _, hotspot_collection in self._hotspot_collections.items():
-            for hotspot_instance in hotspot_collection:
-                if not self.is_hotspot_overlapping(hotspot_instance):
-                    continue
-                self._paste_hotspot_into_image(hotspot_instance, image)
+        for hotspot_instance in self.hotspot_instances:
+            if not self.is_hotspot_overlapping(hotspot_instance):
+                continue
+            self._paste_hotspot_into_image(hotspot_instance, image)
         return image
 
     def post_process_image(self, image):

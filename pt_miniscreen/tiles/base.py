@@ -2,7 +2,7 @@ import logging
 import time
 from threading import Thread
 from time import sleep
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
@@ -15,15 +15,20 @@ logger = logging.getLogger(__name__)
 
 class Tile:
     def __init__(self, size, pos=(0, 0)) -> None:
-        self._hotspot_collections: Dict[Any, List[HotspotInstance]] = dict()
         self._size = size
         self._pos = pos
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
-        self.update_cached_images = True
+        self.update_cached_images = False
         self.active = False
+        self.hotspot_instances: List[HotspotInstance] = list()
+        self._render_size = self.size
 
         self.subscribe_to_button_events()
+
+    @property
+    def window_position(self):
+        return (0, 0)
 
     @property
     def size(self):
@@ -64,6 +69,7 @@ class Tile:
         self.size = (self.width, value)
 
     def start(self):
+        self.update_cached_images = True
         for _, thread in self.image_caching_threads.items():
             thread.start()
 
@@ -117,39 +123,40 @@ class Tile:
         if start:
             self.start()
 
-    def add_hotspot_instance(self, hotspot_instance, collection_id=None):
+    def add_hotspot_instance(self, hotspot_instance):
         (x, y) = hotspot_instance.xy
-        assert 0 <= x <= self.width - hotspot_instance.hotspot.width
-        assert 0 <= y <= self.height - hotspot_instance.hotspot.height
+
+        # Update size needed to render hotspot instance
+        if x > self._render_size[0]:
+            self._render_size = (x, self._render_size[1])
+
+        if y > self._render_size[1]:
+            self._render_size = (self._render_size[0], y)
 
         logger.debug(f"Tile.add_hotspot_instance {hotspot_instance}")
-        current_collection = self._hotspot_collections.get(collection_id, list())
-        if hotspot_instance in current_collection:
+
+        if hotspot_instance in self.hotspot_instances:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
-        current_collection.append((hotspot_instance))
-        self._hotspot_collections[collection_id] = current_collection
+
+        self.hotspot_instances.append((hotspot_instance))
         self.cached_images[hotspot_instance.hotspot] = dict()
 
         self._register_thread(hotspot_instance)
 
     def remove_hotspot_instance(self, hotspot_instance):
-        for collection_id, collection in self._hotspot_collections:
-            if hotspot_instance in collection:
-                self._hotspot_collections[collection_id].remove(hotspot_instance)
-                if len(self._hotspot_collections[collection_id]) == 0:
-                    self._hotspot.remove(collection_id)
+        self.hotspot_instances.remove(hotspot_instance)
 
     def _register_thread(self, hotspot_instance):
-        logger.warning("Caching new image...")
+        logger.debug("Caching new image...")
         hotspot = hotspot_instance.hotspot
 
         def run():
             def cache_new_image():
                 self.cached_images[hotspot] = hotspot.image
 
-            logger.warning("Caching new image...")
+            logger.debug("Caching new image...")
             cache_new_image()
-            logger.warning(
+            logger.debug(
                 f"Done caching new image... self.update_cached_images: {self.update_cached_images}"
             )
             while self.update_cached_images:
@@ -160,7 +167,6 @@ class Tile:
                 # another thing to consider would be to do something similar with 'is overlapping'
                 # - if we are not overlapping, and the position is not changing, then this is still
                 # busy waiting...
-                logger.warning(f"self.active: {self.active}")
                 if self.active and self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
                     post_event(AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE)
@@ -175,24 +181,49 @@ class Tile:
         self.remove_all_hotspot_instances()
 
     def remove_all_hotspot_instances(self):
-        self._hotspot_collections = {}
+        self.hotspot_instances = list()
 
     def is_hotspot_overlapping(self, hotspot_instance):
-        return True
+        def calc_bounds(xy, width, height):
+            """For width and height attributes, determine the bounding box if
+            were positioned at ``(x, y)``."""
+            left, top = xy
+            right, bottom = left + width, top + height
+            return [left, top, right, bottom]
+
+        def range_overlap(a_min, a_max, b_min, b_max):
+            """Neither range is completely greater than the other."""
+            return (a_min < b_max) and (b_min < a_max)
+
+        l1, t1, r1, b1 = calc_bounds(
+            hotspot_instance.xy,
+            hotspot_instance.hotspot.width,
+            hotspot_instance.hotspot.height,
+        )
+        l2, t2, r2, b2 = calc_bounds(self.window_position, self.size[0], self.size[1])
+        return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
+
+    @property
+    def render_size(self):
+        return (
+            self._render_size
+            if self._render_size[0] > self.size[0]
+            or self._render_size[1] > self.size[1]
+            else self.size
+        )
 
     def get_preprocess_image(self):
-        return Image.new("1", self.size)
+        return Image.new("1", self.render_size)
 
     def process_image(self, image):
-        for _, hotspot_collection in self._hotspot_collections.items():
-            for hotspot_instance in hotspot_collection:
-                if not self.is_hotspot_overlapping(hotspot_instance):
-                    continue
-                self._paste_hotspot_into_image(hotspot_instance, image)
+        for hotspot_instance in self.hotspot_instances:
+            if not self.is_hotspot_overlapping(hotspot_instance):
+                continue
+            self._paste_hotspot_into_image(hotspot_instance, image)
         return image
 
     def post_process_image(self, image):
-        return image
+        return image if image.size == self.size else image.crop(box=(0, 0) + self.size)
 
     @property
     def image(self):

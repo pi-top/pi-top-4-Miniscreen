@@ -51,9 +51,6 @@ class Page:
         # Only invoked if there is no child menu in config
         pass
 
-    def reset(self):
-        pass
-
     # TODO: remove this function in favour of using viewport directly
     def render(self, image):
         for position, hotspot_list in self.hotspots.items():
