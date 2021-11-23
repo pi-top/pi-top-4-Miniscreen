@@ -6,17 +6,15 @@ from ...base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, size, mode, image_path, text):
-        super().__init__(size=size, mode=mode)
+    def __init__(self, size, image_path, text):
         self.image_path = image_path
         self.text = text
-        self.setup_hotspots()
+        super().__init__(size=size)
 
-    def setup_hotspots(self):
+    def reset(self):
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    mode=self.mode,
                     # TODO: crop settings icon and re-position
                     # size=(self.short_section_width, size[1]),
                     size=self.size,
@@ -25,7 +23,6 @@ class Page(PageBase):
             ],
             (int(self.width / 4), 0): [
                 TextHotspot(
-                    mode=self.mode,
                     size=(self.width - int(self.width / 4), self.height),
                     text=self.text,
                     font_size=14,

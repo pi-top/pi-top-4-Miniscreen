@@ -2,6 +2,7 @@ from typing import Dict
 
 from pitop.common.sys_info import get_ap_mode_status
 
+from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...utils import get_image_file_path
@@ -9,11 +10,10 @@ from ..base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, size, mode):
-        super().__init__(size=size, mode=mode)
-        self.setup_hotspots()
+    def __init__(self, size):
+        super().__init__(size=size)
 
-    def setup_hotspots(self):
+    def reset(self):
         MARGIN_X_LEFT = 30
         MARGIN_X_RIGHT = 10
         SCALE = self.height / 64.0
@@ -27,52 +27,60 @@ class Page(PageBase):
         ICON_X_POS = 10
         DEFAULT_FONT_SIZE = 12
 
-        self.hotspots: Dict = {
-            (0, 0): [
+        
+        hotspots = [
+            HotspotInstance(
                 ImageHotspot(
                     interval=1,
-                    mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/antenna.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
+                (0, 0)
+            ),
+            HotspotInstance(
                 ImageHotspot(
                     interval=1,
-                    mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/padlock.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
+                (0, 0)
+            ),
+            HotspotInstance(
                 ImageHotspot(
                     interval=1,
-                    mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/home.png"),
                     xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
                 ),
-            ],
-            (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
+                (0, 0)
+            ),
+            HotspotInstance(
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=lambda: get_ap_mode_status().get("ssid", ""),
                     font_size=DEFAULT_FONT_SIZE,
                 ),
-            ],
-            (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1): [
+                (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1)
+            ),
+            HotspotInstance(
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=lambda: get_ap_mode_status().get("passphrase", ""),
                     font_size=DEFAULT_FONT_SIZE,
                 ),
-            ],
-            (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1): [
+                (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1)
+            ),
+            HotspotInstance(
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=lambda: get_ap_mode_status().get("ip_address", ""),
                     font_size=DEFAULT_FONT_SIZE,
                 ),
-            ],
-        }
+                (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1)
+            ),
+        ]
+        
+        self.set_hotspot_instances(hotspots, start=True)
+

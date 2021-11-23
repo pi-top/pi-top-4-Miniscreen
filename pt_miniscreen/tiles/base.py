@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class Tile:
-    def __init__(self, size=None) -> None:
+    def __init__(self, size, pos=(0, 0)) -> None:
         self._hotspot_collections: Dict[Any, List[HotspotInstance]] = dict()
         self._size = size
+        self._pos = pos
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = True
@@ -34,6 +35,17 @@ class Tile:
     @size.setter
     def size(self, xy):
         self._size = xy
+
+    @property
+    def pos(self):
+        if callable(self._pos):
+            return self._pos()
+
+        return self._pos
+
+    @pos.setter
+    def pos(self, xy):
+        self._pos = xy
 
     @property
     def bounding_box(self):
@@ -61,12 +73,6 @@ class Tile:
             thread.join(0)
         logger.debug("stop - stopped all threads")
 
-    def reset_with_hotspot_instances(self, hotspot_instances):
-        self.clear()
-        for hotspot_instance in hotspot_instances:
-            self.add_hotspot_instance(hotspot_instance)
-        self.start()
-
     def _paste_hotspot_into_image(self, hotspot_instance, image):
         if (
             not hotspot_instance.hotspot.draw_white
@@ -86,7 +92,7 @@ class Tile:
 
         if hotspot_instance.hotspot.invert:
             hotspot_image = MiniscreenAssistant(
-                hotspot_instance.hotspot.mode, hotspot_instance.hotspot.size
+                "1", hotspot_instance.hotspot.size
             ).invert(hotspot_image)
 
         mask = hotspot_instance.hotspot.mask(hotspot_image)
@@ -103,6 +109,13 @@ class Tile:
         )
         logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
         image.paste(hotspot_image, pos, mask)
+
+    def set_hotspot_instances(self, hotspot_instances, start=False):
+        self.clear()
+        for hotspot_instance in hotspot_instances:
+            self.add_hotspot_instance(hotspot_instance)
+        if start:
+            self.start()
 
     def add_hotspot_instance(self, hotspot_instance, collection_id=None):
         (x, y) = hotspot_instance.xy

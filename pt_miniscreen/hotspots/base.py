@@ -7,10 +7,9 @@ from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 
 class Hotspot:
-    def __init__(self, interval, size, mode):
+    def __init__(self, interval, size):
         self.interval = interval
         self.size = size
-        self.mode = mode
 
         self.draw_white = True
         self.draw_black = False
@@ -45,7 +44,7 @@ class Hotspot:
 
     @property
     def image(self):
-        hotspot_image = Image.new(self.mode, self.size)
+        hotspot_image = Image.new("1", self.size)
         self.render(hotspot_image)
         self.last_updated = perf_counter()
         return hotspot_image
@@ -57,13 +56,11 @@ class Hotspot:
         if not self.draw_white and not self.draw_black:
             return
 
-        hotspot_image = Image.new(image.mode, self.size)
+        hotspot_image = Image.new("1", self.size)
         self.render(hotspot_image)
 
         if self.invert:
-            hotspot_image = MiniscreenAssistant(self.mode, self.size).invert(
-                hotspot_image
-            )
+            hotspot_image = MiniscreenAssistant("1", self.size).invert(hotspot_image)
 
         mask = None
         if self.draw_white and not self.draw_black:

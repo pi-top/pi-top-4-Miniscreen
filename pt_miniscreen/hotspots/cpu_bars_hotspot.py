@@ -6,8 +6,8 @@ from .base import Hotspot as HotspotBase
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, size, mode, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, size, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
+        super().__init__(interval=interval, size=size)
 
     def render(self, image):
         percentages = psutil.cpu_percent(interval=None, percpu=True)

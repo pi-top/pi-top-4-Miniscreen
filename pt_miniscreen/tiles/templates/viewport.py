@@ -2,12 +2,12 @@ import logging
 
 from PIL import Image
 
-from .base import Tile
+from ..base import Tile as BaseTile
 
 logger = logging.getLogger(__name__)
 
 
-class ViewportTile(Tile):
+class Tile(BaseTile):
     """The viewport offers a positionable window into a larger resolution
     pseudo-display, that also supports the concept of hotspots (which act like
     live displays).
@@ -16,19 +16,14 @@ class ViewportTile(Tile):
     :type width: int
     :param height: The number of vertical pixels.
     :type height: int
-    :param mode: The supported color model, one of ``"1"``, ``"RGB"`` or
-        ``"RGBA"`` only.
-    :type mode: str
     """
 
-    def __init__(self, size, mode, viewport_size, window_position=(0, 0)):
-        self.mode = mode
-
+    def __init__(self, size, pos, viewport_size, window_position=(0, 0)):
         # TODO: move to viewport tile
         self._viewport_size = viewport_size
         self._window_position = window_position
 
-        super().__init__(size)
+        super().__init__(size=size, pos=pos)
 
     def is_hotspot_overlapping(self, hotspot_instance):
         def calc_bounds(xy, width, height):

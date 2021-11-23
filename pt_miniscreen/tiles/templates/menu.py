@@ -1,56 +1,53 @@
 import logging
 
-from ..config import ConfigFactory
-from ..config.classes.menu_edge_behaviour import MenuEdgeBehaviour
-from ..generators import scroll_to
-from .event import AppEvents, post_event
-from .viewport import ViewportTile
+from ...hotspots.base import HotspotInstance
+from ...event import AppEvents, post_event
+from ...generators import scroll_to
+from .viewport import Tile as ViewportTile
 
 logger = logging.getLogger(__name__)
 
 
-class MenuTile(ViewportTile):
+class Tile(ViewportTile):
     SCROLL_PX_RESOLUTION = 2
 
-    def __init__(self, size, mode):
+    def __init__(self, size, pos=(0, 0), pages=list()):
+        assert len(pages) > 0
         super().__init__(
             size=size,
-            viewport_size=(size[0], size[1] * len(config.children)),
-            mode=mode,
+            pos=pos,
+            viewport_size=(size[0], size[1] * len(pages)),
             window_position=(0, 0),
         )
+        self.pages = pages
 
         self.page_index = 0
         self.y_pos = 0
 
-        self.parent_goes_to_first_page = config.parent_goes_to_first_page
-        self.top_edge = config.top_edge
-        self.bottom_edge = config.bottom_edge
-        self.title_bar = config.title_bar
+        hotspot_instances = list()
+        for page in self.pages:
+            for i, hotspot_instance in enumerate(page.hotspot_instances):
+                xy = (
+                    hotspot_instance.xy[0],
+                    hotspot_instance.xy[1] + i * self.size[1]
+                )
+                hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
+        
+        print(hotspot_instances)
+        self.set_hotspot_instances(hotspot_instances, start=True)
 
-        config_factory = ConfigFactory(self.size, self.mode)
-
-        self.pages = list()
-        for page_name, page_config in config.children.items():
-            self.pages.append(config_factory.get(page_config))
-
-    #########
-    # Pages #
-    #########
-    @property
-    def current_page(self):
-        return self.pages[self.page_index]
-
-    def move_to_page(self, index):
+    ###############################
+    # Position - immediate/scroll #
+    ###############################
+    # Ignore scrolling behaviour
+    def move_to_page_pos(self, index):
         self.page_index = index
         self.y_pos = self.page_index * self.height
 
-    ##########
-    # Scroll #
-    ##########
+    # Update scroll position if page is not to be moved to immediately
     @property
     def needs_to_scroll(self):
-        final_y_pos = self.page_index * self.current_page.height
+        final_y_pos = self.page_index * self._current_page.height
         return self.y_pos != final_y_pos
 
     def update_scroll_position(self):
@@ -67,7 +64,7 @@ class MenuTile(ViewportTile):
     # Child/parent navigation #
     ###########################
     def go_to_child_menu(self):
-        new_menu = self.child_menu
+        new_menu = self._current_page.child_menu
         if not new_menu:
             return
 
@@ -79,9 +76,6 @@ class MenuTile(ViewportTile):
         menu_tile_id = list(new_menu.keys())[0]
         post_event(AppEvents.GO_TO_CHILD_MENU, menu_tile_id)
 
-        if self.menu_tile.parent_goes_to_first_page:
-            self.menu_tile.move_to_page(0)
-
         self.should_redraw_event.set()
 
     def go_to_parent_menu(self):
@@ -92,7 +86,7 @@ class MenuTile(ViewportTile):
     # Button Press API (when active) #
     ##################################
     def handle_select_btn(self):
-        if self.child_menu:
+        if self._current_page.child_menu:
             self._go_to_child_menu()
         else:
             post_event(AppEvents.BUTTON_ACTION_START)
@@ -117,6 +111,10 @@ class MenuTile(ViewportTile):
     ############
     # Internal #
     ############
+    @property
+    def _current_page(self):
+        return self.pages[self.page_index]
+
     def _set_page_index_to(self, page_index):
         if self.page_index == page_index:
             return
@@ -145,26 +143,12 @@ class MenuTile(ViewportTile):
 
     def _get_previous_page_index(self):
         if self.page_index == 0:
-            if self.top_edge == MenuEdgeBehaviour.NONE:
-                return self.page_index
-
-            elif self.top_edge == MenuEdgeBehaviour.BOUNCE:
-                return self._get_next_page_index()
-
-            elif self.top_edge == MenuEdgeBehaviour.LOOP:
-                return len(self.pages) - 1
+            return self.page_index
 
         return self.page_index - 1
 
     def _get_next_page_index(self):
         if self.page_index == len(self.pages) - 1:
-            if self.bottom_edge == MenuEdgeBehaviour.NONE:
-                return self.page_index
-
-            elif self.bottom_edge == MenuEdgeBehaviour.BOUNCE:
-                return self._get_previous_page_index()
-
-            elif self.bottom_edge == MenuEdgeBehaviour.LOOP:
-                return 0
+            return self.page_index
 
         return self.page_index + 1

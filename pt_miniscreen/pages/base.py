@@ -1,10 +1,7 @@
-from ..config import ConfigFactory
-
-
 class Page:
-    def __init__(self, size, mode):
+    def __init__(self, size, child_menu=None):
         self._size = size
-        self.mode = mode
+        self.child_menu = child_menu
 
         self.invert = False
         self.visible = True
@@ -15,13 +12,9 @@ class Page:
         self.long_section_width = int(self.width / golden_ratio)
         self.short_section_width = self.width - self.long_section_width
 
-        config_factory = ConfigFactory(size, mode)
-        self.child_menu = dict()
-        if config and config.child_menu:
-            for menu_name, menu_config in config.child_menu.items():
-                self.child_menu[menu_name] = config_factory.get(menu_config)
+        self.hotspot_instances = list()
 
-        self.hotspots = dict()
+        self.reset()
 
     @property
     def size(self):
@@ -31,10 +24,12 @@ class Page:
     def size(self, value):
         self._size = value
         # Resize hotspots
-        self.setup_hotspots()
-        # Resize childs
-        for _, menu in self.child_menu.items():
-            menu.size = self.size
+        self.reset()
+        # Resize child
+        self.child_menu.size = self.size
+
+    def reset(self):
+        pass
 
     @property
     def width(self):
@@ -56,7 +51,7 @@ class Page:
         # Only invoked if there is no child menu in config
         pass
 
-    def setup_hotspots(self):
+    def reset(self):
         pass
 
     # TODO: remove this function in favour of using viewport directly

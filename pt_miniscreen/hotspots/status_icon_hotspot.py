@@ -11,8 +11,8 @@ from .base import Hotspot as HotspotBase
 logger = logging.getLogger(__name__)
 
 
-def unknown_image(size, mode):
-    image = PIL.Image.new(mode, size)
+def unknown_image(size):
+    image = PIL.Image.new("1", size)
     center = (image.width / 2, image.height / 2)
 
     draw = PIL.ImageDraw.Draw(image)
@@ -24,14 +24,14 @@ def unknown_image(size, mode):
         xy=center,
         text="?",
         fill="black",
-        font=MiniscreenAssistant(mode, size).get_recommended_font(size=22),
+        font=MiniscreenAssistant("1", size).get_recommended_font(size=22),
         anchor="mm",
     )
     return image
 
 
-def tick_image(size, mode, scale, line_width):
-    image = PIL.Image.new(mode, size)
+def tick_image(size, scale, line_width):
+    image = PIL.Image.new("1", size)
 
     center = (image.width / 2, image.height / 2)
     internal_square_size = (scale * image.width, scale * image.height)
@@ -73,8 +73,8 @@ def tick_image(size, mode, scale, line_width):
     return image
 
 
-def cross_image(size, mode, scale, line_width):
-    image = PIL.Image.new(mode, size)
+def cross_image(size, scale, line_width):
+    image = PIL.Image.new("1", size)
 
     internal_square_size = (scale * image.width, scale * image.height)
     internal_square_top_left = (
@@ -100,8 +100,8 @@ def cross_image(size, mode, scale, line_width):
     return image
 
 
-def processing_image(size, mode, frame_number):
-    image = PIL.Image.new(mode, size)
+def processing_image(size, frame_number):
+    image = PIL.Image.new("1", size)
 
     circle_size = max(2, floor(image.width / 8))
     center = (image.width / 2, image.height / 2)
@@ -134,18 +134,18 @@ def processing_image(size, mode, frame_number):
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, size, mode, interval=Speeds.ACTION_STATE_UPDATE.value):
-        super().__init__(interval=interval, size=size, mode=mode)
+    def __init__(self, size, interval=Speeds.ACTION_STATE_UPDATE.value):
+        super().__init__(interval=interval, size=size)
 
         self.processing_frame_no = 0
 
         self.MAX_PROCESSING_STEPS = 3
         self.status_images = {
-            ActionState.UNKNOWN: unknown_image(size, mode),
-            ActionState.ENABLED: tick_image(size, mode, scale=0.5, line_width=3),
-            ActionState.DISABLED: cross_image(size, mode, scale=0.5, line_width=3),
+            ActionState.UNKNOWN: unknown_image(size),
+            ActionState.ENABLED: tick_image(size, scale=0.5, line_width=3),
+            ActionState.DISABLED: cross_image(size, scale=0.5, line_width=3),
             ActionState.PROCESSING: {
-                frame_number: processing_image(size, mode, frame_number=frame_number)
+                frame_number: processing_image(size, frame_number=frame_number)
                 for frame_number in range(self.MAX_PROCESSING_STEPS)
             },
         }

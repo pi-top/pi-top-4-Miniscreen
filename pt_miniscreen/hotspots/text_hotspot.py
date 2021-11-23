@@ -12,7 +12,6 @@ class Hotspot(HotspotBase):
     def __init__(
         self,
         size,
-        mode,
         text,
         font_size=20,
         xy=None,
@@ -22,9 +21,9 @@ class Hotspot(HotspotBase):
         align=None,
         interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
     ):
-        super().__init__(interval=interval, size=size, mode=mode)
+        super().__init__(interval=interval, size=size)
 
-        self.assistant = MiniscreenAssistant(self.mode, self.size)
+        self.assistant = MiniscreenAssistant("1", self.size)
         self._text = text
         self.font_size = font_size
 

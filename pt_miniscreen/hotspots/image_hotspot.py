@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 class Hotspot(HotspotBase):
     def __init__(
-        self, size, mode, image_path, xy=None, interval=Speeds.DYNAMIC_PAGE_REDRAW.value
+        self, size, image_path, xy=None, interval=Speeds.DYNAMIC_PAGE_REDRAW.value
     ):
-        super().__init__(interval=interval, size=size, mode=mode)
+        super().__init__(interval=interval, size=size)
 
         self.xy = xy
         self._im = None
@@ -39,13 +39,9 @@ class Hotspot(HotspotBase):
 
         PIL.ImageDraw.Draw(image).bitmap(
             xy=self.xy,
-            bitmap=self._im.convert(self.mode),
+            bitmap=self._im.convert("1"),
             fill="white",
         )
-
-    def setup_hotspots(self):
-        self._setup_image()
-        super().setup_hotspots()
 
     @property
     def image(self):
@@ -64,7 +60,7 @@ class Hotspot(HotspotBase):
         if self.image_path is None:
             return
         try:
-            self._im = PIL.Image.open(self.image_path).convert(self.mode)
+            self._im = PIL.Image.open(self.image_path).convert("1")
             if self.xy is None:
                 self.xy = (
                     self.size[0] / 2 - self._im.width / 2,

@@ -12,11 +12,10 @@ from ..base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, size, mode):
-        super().__init__(size=size, mode=mode)
-        self.setup_hotspots()
+    def __init__(self, size):
+        super().__init__(size=size)
 
-    def setup_hotspots(self):
+    def reset(self):
         MARGIN_X_LEFT = 30
         MARGIN_X_RIGHT = 10
         SCALE = self.height / 64.0
@@ -34,21 +33,18 @@ class Page(PageBase):
             (0, 0): [
                 ImageHotspot(
                     interval=1,
-                    mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/person.png"),
                     xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
                 ),
                 ImageHotspot(
                     interval=1,
-                    mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/padlock.png"),
                     xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
                 ),
                 ImageHotspot(
                     interval=1,
-                    mode=self.mode,
                     size=self.size,
                     image_path=get_image_file_path("sys_info/networking/home.png"),
                     xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
@@ -56,7 +52,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=self.get_user,
                     font_size=DEFAULT_FONT_SIZE,
@@ -64,7 +59,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=self.get_password,
                     font_size=DEFAULT_FONT_SIZE,
@@ -72,7 +66,6 @@ class Page(PageBase):
             ],
             (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1): [
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
                     text=self.get_ip_address,
                     font_size=DEFAULT_FONT_SIZE,

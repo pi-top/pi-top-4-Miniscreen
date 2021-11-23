@@ -9,7 +9,7 @@ from ..widgets.common import BaseSnapshot, default_margin_y, right_text, title_t
 
 
 class Hotspot(BaseSnapshot):
-    def __init__(self, width, height, mode, interval, **data):
+    def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod

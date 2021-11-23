@@ -7,23 +7,20 @@ from ..base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, size, mode):
-        super().__init__(size=size, mode=mode)
-        self.setup_hotspots()
+    def __init__(self, size):
+        super().__init__(size=size)
 
-    def setup_hotspots(self):
+    def reset(self):
         cpu_bars_y_margin = self.height * 0.3
         self.hotspots: Dict = {
             (0, 0): [
                 ImageHotspot(
-                    mode=self.mode,
                     size=(self.short_section_width, self.height),
                     image_path=get_image_file_path("sys_info/cpu.png"),
                 ),
             ],
             (self.short_section_width, int(cpu_bars_y_margin / 2)): [
                 CpuBarsHotspot(
-                    mode=self.mode,
                     size=(
                         self.long_section_width,
                         int(self.height - cpu_bars_y_margin),

@@ -16,8 +16,7 @@ class StarfieldScreensaver:
     SCREENSAVER_MAX_NO_OF_STARS = 512
     Z_MOVE = 0.19
 
-    def __init__(self, mode, size):
-        self.mode = mode
+    def __init__(self, size):
         self.size = size
 
         self.screensaver_stars = [
@@ -36,7 +35,7 @@ class StarfieldScreensaver:
         origin_x = self.size[0] // 2
         origin_y = self.size[1] // 2
 
-        image = Image.new(self.mode, self.size)
+        image = Image.new("1", self.size)
 
         draw = ImageDraw.Draw(image)
 

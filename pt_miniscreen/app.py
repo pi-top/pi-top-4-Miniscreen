@@ -6,12 +6,13 @@ from time import sleep
 
 from pitop import Pitop
 
-from .bootsplash import Bootsplash
+# from .bootsplash import Bootsplash
 from .event import AppEvents, post_event, subscribe
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
 from .tile_group import TileGroup
+from .tiles import HUDMenuTile
 
 logger = logging.getLogger(__name__)
 
@@ -44,16 +45,20 @@ class App:
             False
         )
 
-        self.splash = Bootsplash(self.miniscreen)
+        # self.splash = Bootsplash(self.miniscreen)
 
+        # title_bar_height = 19
         self.tile_group = TileGroup(
-            self.miniscreen.size,
-            self.miniscreen.mode,
+            size=self.miniscreen.size,
+            # TitleBarTile(
+            #     size=(self.size[0], title_bar_height),
+            #     pos=(0, 0),
+            # ),
+            menu_tile=HUDMenuTile(size=self.miniscreen.size),
+            title_bar_tile=None
         )
 
-        self.screensaver = StarfieldScreensaver(
-            self.miniscreen.mode, self.miniscreen.size
-        )
+        self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
 
         def button_press_callback_handler(callback):
@@ -74,7 +79,7 @@ class App:
             #         self.menus, self.current_menu_tile_id
             #     )
             #     if self.menu.parent_goes_to_first_page:
-            #         self.menu.move_to_page(0)
+            #         self.menu.move_to_page_pos(0)
             #     self.should_redraw_event.set()
 
             # TODO: go to next menu if menu is not in a child menu
@@ -137,29 +142,29 @@ class App:
 
     def handle_action(self):
         logger.debug("Resetting activity timer to prevent dimming...")
-        self.state_manager.user_activity_timer.reset()
+        # self.state_manager.user_activity_timer.reset()
 
-        time_since_action_started = self.state_manager.action_timer.elapsed_time
+        # time_since_action_started = self.state_manager.action_timer.elapsed_time
 
-        logger.debug(f"Time since action started: {time_since_action_started}")
+        # logger.debug(f"Time since action started: {time_since_action_started}")
 
-        if self.tile_group.menu.current_page.action_process.is_alive():
-            logger.debug("Action not yet completed")
-            return
+        # if self.tile_group.menu.current_page.action_process.is_alive():
+        #     logger.debug("Action not yet completed")
+        #     return
 
-        if time_since_action_started > self.TIMEOUTS[DisplayState.RUNNING_ACTION]:
-            logger.info("Action timed out - setting state to WAKING")
-            self.state_manager.state = DisplayState.WAKING
+        # if time_since_action_started > self.TIMEOUTS[DisplayState.RUNNING_ACTION]:
+        #     logger.info("Action timed out - setting state to WAKING")
+        #     self.state_manager.state = DisplayState.WAKING
 
-            logger.info("Notifying renderer to display 'unknown' action state")
-            self.tile_group.menu.current_page.set_unknown_state()
-            return
+        #     logger.info("Notifying renderer to display 'unknown' action state")
+        #     self.tile_group.menu.current_page.set_unknown_state()
+        #     return
 
-        logger.info("Action completed - setting state to WAKING")
-        self.state_manager.state = DisplayState.WAKING
-        logger.info("Resetting state of hotspot to re-renderer current state")
+        # logger.info("Action completed - setting state to WAKING")
+        # self.state_manager.state = DisplayState.WAKING
+        # logger.info("Resetting state of hotspot to re-renderer current state")
 
-        self.tile_group.menu.current_page.hotspot.reset()
+        # self.tile_group.menu.current_page.hotspot.reset()
 
     @property
     def time_since_last_active(self):
@@ -182,7 +187,7 @@ class App:
             return
 
     def _main(self):
-        self.handle_startup_animation()
+        # self.handle_startup_animation()
 
         logger.info("Starting main loop...")
         while not self.__stop:
@@ -195,7 +200,9 @@ class App:
 
             logger.debug(f"Current state: {self.state_manager.state}")
 
-            if self.state_manager.state == DisplayState.SCREENSAVER:
+            # DEBUG:
+            if False:
+                # if self.state_manager.state == DisplayState.SCREENSAVER:
                 self.show_screensaver_frame()
                 sleep(Speeds.SCREENSAVER.value)
             else:
@@ -204,18 +211,18 @@ class App:
                 logger.debug("Waiting until image to display has changed...")
                 self.tile_group.wait_until_should_redraw()
 
-            if self.state_manager.state == DisplayState.RUNNING_ACTION:
-                self.handle_action()
-                continue
+            # if self.state_manager.state == DisplayState.RUNNING_ACTION:
+            #     self.handle_action()
+            #     continue
 
-            self.handle_active_time()
+            # self.handle_active_time()
 
-            if self.time_since_last_active < self.TIMEOUTS[DisplayState.SCREENSAVER]:
-                continue
+            # if self.time_since_last_active < self.TIMEOUTS[DisplayState.SCREENSAVER]:
+            #     continue
 
-            if self.state_manager.state == DisplayState.DIM:
-                logger.info("Starting screensaver...")
-                self.state_manager.state = DisplayState.SCREENSAVER
+            # if self.state_manager.state == DisplayState.DIM:
+            #     logger.info("Starting screensaver...")
+            #     self.state_manager.state = DisplayState.SCREENSAVER
 
     def show_screensaver_frame(self):
         self.display(self.screensaver.image.convert("1"))
@@ -258,27 +265,3 @@ class App:
         if self.last_shown_image is not None:
             self.display(self.last_shown_image)
         logger.info("OLED control restored")
-
-    @property
-    def current_menu_tile_id(self):
-        return self._current_menu_tile_id
-
-    @current_menu_tile_id.setter
-    def current_menu_tile_id(self, menu_id):
-        if hasattr(self, "_current_menu_tile_id"):
-            self.menu.active = False
-        self._current_menu_tile_id = menu_id
-        self.title_bar.behaviour = self.menu.title_bar
-        logger.debug(
-            f"current_menu_tile_id.setter - title bar behaviour : {self.title_bar.behaviour}"
-        )
-        self.menu.active = True
-        self.should_redraw_event.set()
-
-    @property
-    def current_menu_tile(self):
-        return self.menus[self.current_menu_tile_id]
-
-    @property
-    def current_menu_tile_page(self):
-        return self.menu.current_page

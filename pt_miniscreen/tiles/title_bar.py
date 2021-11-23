@@ -2,19 +2,18 @@ import logging
 
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ...event import AppEvents, subscribe
-from ...hotspots.base import HotspotInstance
-from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
-from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
-from ...tiles import Tile
+from ..event import AppEvents, subscribe
+from ..hotspots.base import HotspotInstance
+from ..hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
+from ..hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
+from .base import Tile
 
 logger = logging.getLogger(__name__)
 
 
 class TitleBar(Tile):
-    def __init__(self, size, behaviour) -> None:
-        super().__init__(size)
-        self.mode = "1"
+    def __init__(self, size, pos, behaviour) -> None:
+        super().__init__(size, pos)
         self._behaviour = behaviour
         self.active = True
 
@@ -38,10 +37,9 @@ class TitleBar(Tile):
         subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
         subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
 
-    def setup_hotspots(self):
-        asst = MiniscreenAssistant(self.mode, self.size)
+    def reset(self):
+        asst = MiniscreenAssistant("1", self.size)
         marquee_text_hotspot = MarqueeTextHotspot(
-            mode=self.mode,
             size=self.size,
             text=self.behaviour.text,
             font=asst.get_mono_font(
@@ -59,18 +57,15 @@ class TitleBar(Tile):
         )
 
         rect_hotspot = RectangleHotspot(
-            mode=self.mode,
             size=(self.width, 1),
             bounding_box=(0, 0) + (self.width, 1),
         )
         rect_xy = (0, self.height - 1)
 
-        hotspots = [
+        self.set_hotspot_instances([
             HotspotInstance(marquee_text_hotspot, marquee_text_xy),
             HotspotInstance(rect_hotspot, rect_xy),
-        ]
-
-        self.reset_with_hotspot_instances(hotspots)
+        ], start=True)
 
     @property
     def height(self):
@@ -89,4 +84,4 @@ class TitleBar(Tile):
         if self.behaviour == behaviour or behaviour is None:
             return
 
-        self.setup_hotspots()
+        self.reset()

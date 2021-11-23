@@ -12,21 +12,19 @@ class Page(PageBase):
     def __init__(
         self,
         size,
-        mode,
         get_state_method,
         set_state_method,
         icon,
         text,
     ):
-        super().__init__(size=size, mode=mode)
         self.text = text
         self.icon = icon
         self.get_state_method = get_state_method
         self.set_state_method = set_state_method
 
-        self.setup_hotspots()
+        super().__init__(size=size)
 
-    def setup_hotspots(self):
+    def reset(self):
         SPACING = 4
         FONT_SIZE = 14
         STATUS_ICON_SIZE = 24
@@ -42,7 +40,6 @@ class Page(PageBase):
         SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
 
         self.status_icon_hotspot = StatusIconHotspot(
-            mode=self.mode,
             size=(THIRD_COLUMN_WIDTH, STATUS_ICON_SIZE),
         )
 
@@ -55,14 +52,12 @@ class Page(PageBase):
         self.hotspots: Dict = {
             (FIRST_COLUMN_POS, 0): [
                 ImageHotspot(
-                    mode=self.mode,
                     size=(ICON_WIDTH, self.height),
                     image_path=get_image_file_path(f"settings/{self.icon}.png"),
                 ),
             ],
             (SECOND_COLUMN_POS, (self.height - FONT_SIZE) / 2): [
                 MarqueeTextHotspot(
-                    mode=self.mode,
                     size=(SECOND_COLUMN_WIDTH, FONT_SIZE),
                     text=self.text,
                     font_size=FONT_SIZE,
