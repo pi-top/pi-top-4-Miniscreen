@@ -25,9 +25,7 @@ class Page(PageBase):
                 text=self.get_ip_address,
             ),
         )
-        super().__init__(
-            size=size, row_data=row_data
-        )
+        super().__init__(size=size, row_data=row_data)
 
     def get_user(self):
         return "pi" if getuser() == "root" else getuser()

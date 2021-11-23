@@ -13,6 +13,4 @@ class Page(PageBase):
                 text=lambda: get_internal_ip(iface="eth0"),
             ),
         )
-        super().__init__(
-            size=size, row_data=row_data
-        )
+        super().__init__(size=size, row_data=row_data)

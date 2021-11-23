@@ -21,6 +21,4 @@ class Page(PageBase):
                 text=lambda: get_ap_mode_status().get("ip_address", ""),
             ),
         )
-        super().__init__(
-            size=size, row_data=row_data
-        )
+        super().__init__(size=size, row_data=row_data)

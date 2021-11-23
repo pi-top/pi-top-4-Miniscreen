@@ -87,9 +87,11 @@ class Page(PageBase):
         for row_number, row_info in enumerate(self.row_data.rows):
             if row_info is None:
                 continue
-            for hotspot_instance in self._hotspot_instances_for_row(row_number, row_info):
+            for hotspot_instance in self._hotspot_instances_for_row(
+                row_number, row_info
+            ):
                 hotspot_instances.append(hotspot_instance)
-            
+
         self.set_hotspot_instances(hotspot_instances, start=True)
 
     def _hotspot_instances_for_row(self, row_number, row_data):
@@ -120,6 +122,10 @@ class Page(PageBase):
         )
 
         return [
-            HotspotInstance(image_hotspot, self.layout_manager.icon_position(row_number)),
-            HotspotInstance(content_hotspot, self.layout_manager.hotspot_position(row_number)),
+            HotspotInstance(
+                image_hotspot, self.layout_manager.icon_position(row_number)
+            ),
+            HotspotInstance(
+                content_hotspot, self.layout_manager.hotspot_position(row_number)
+            ),
         ]
