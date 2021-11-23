@@ -35,7 +35,8 @@ class TileGroup:
     def active(self, is_active):
         self._active = is_active
         self.menu_tile.active = self.active
-        self.title_bar_tile.active = self.active
+        if self.title_bar_tile:
+            self.title_bar_tile.active = self.active
 
     @property
     def image(self):

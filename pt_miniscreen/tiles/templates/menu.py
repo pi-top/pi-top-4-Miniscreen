@@ -30,7 +30,6 @@ class Tile(ViewportTile):
                 xy = (hotspot_instance.xy[0], hotspot_instance.xy[1] + i * self.size[1])
                 hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
 
-        print(hotspot_instances)
         self.set_hotspot_instances(hotspot_instances, start=True)
 
     ###############################
@@ -93,13 +92,13 @@ class Tile(ViewportTile):
         pass
 
     def handle_up_btn(self):
-        self.menu._set_page_to_previous()
-        if self.menu.needs_to_scroll:
+        self._set_page_to_previous()
+        if self.needs_to_scroll:
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
     def handle_down_btn(self):
-        self.menu._set_page_to_next()
-        if self.menu.needs_to_scroll:
+        self._set_page_to_next()
+        if self.needs_to_scroll:
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
     ############

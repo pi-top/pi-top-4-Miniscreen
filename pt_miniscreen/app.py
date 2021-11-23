@@ -57,6 +57,7 @@ class App:
             menu_tile=HUDMenuTile(size=self.miniscreen.size),
             title_bar_tile=None,
         )
+        self.tile_group.active = True
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
