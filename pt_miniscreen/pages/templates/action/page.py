@@ -29,6 +29,8 @@ class Page(PageBase):
         FONT_SIZE = 14
         STATUS_ICON_SIZE = 24
         ICON_WIDTH = 44
+        ICON_HEIGHT = 33
+        ICON_SIZE = (ICON_WIDTH, ICON_HEIGHT)
 
         FIRST_COLUMN_POS = 1
         FIRST_COLUMN_WIDTH = ICON_WIDTH + FIRST_COLUMN_POS
@@ -50,20 +52,20 @@ class Page(PageBase):
                 self.action_state = ActionState.DISABLED
 
         self.hotspots: Dict = {
-            (FIRST_COLUMN_POS, 0): [
+            (FIRST_COLUMN_POS, self.offset_pos_for_vertical_center(ICON_HEIGHT)): [
                 ImageHotspot(
-                    size=(ICON_WIDTH, self.height),
+                    size=ICON_SIZE,
                     image_path=get_image_file_path(f"settings/{self.icon}.png"),
                 ),
             ],
-            (SECOND_COLUMN_POS, (self.height - FONT_SIZE) / 2): [
+            (SECOND_COLUMN_POS, self.offset_pos_for_vertical_center(FONT_SIZE)): [
                 MarqueeTextHotspot(
                     size=(SECOND_COLUMN_WIDTH, FONT_SIZE),
                     text=self.text,
                     font_size=FONT_SIZE,
                 )
             ],
-            (THIRD_COLUMN_POS, (self.height - STATUS_ICON_SIZE) / 2): [
+            (THIRD_COLUMN_POS, self.offset_pos_for_vertical_center(STATUS_ICON_SIZE)): [
                 self.status_icon_hotspot
             ],
         }

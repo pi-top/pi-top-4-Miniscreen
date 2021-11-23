@@ -12,20 +12,25 @@ class Page(PageBase):
         super().__init__(size=size)
 
     def reset(self):
+        FONT_SIZE = 14
+        ICON_SIZE = 25
+        TEXT_LEFT_MARGIN = int(self.width * 0.3)
+        ICON_LEFT_MARGIN = (TEXT_LEFT_MARGIN - ICON_SIZE) / 2
+
         self.hotspots: Dict = {
-            (0, 0): [
+            (ICON_LEFT_MARGIN, self.offset_pos_for_vertical_center(ICON_SIZE)): [
                 ImageHotspot(
-                    # TODO: crop settings icon and re-position
-                    # size=(self.short_section_width, size[1]),
-                    size=self.size,
+                    size=(ICON_SIZE, ICON_SIZE),
                     image_path=self.image_path,
                 ),
             ],
-            (int(self.width / 4), 0): [
+            (TEXT_LEFT_MARGIN, self.offset_pos_for_vertical_center(FONT_SIZE)): [
                 TextHotspot(
-                    size=(self.width - int(self.width / 4), self.height),
+                    size=(self.width - TEXT_LEFT_MARGIN, FONT_SIZE),
                     text=self.text,
-                    font_size=14,
+                    font_size=FONT_SIZE,
+                    anchor="lt",
+                    xy=(0, 0),
                 )
             ],
         }

@@ -1,84 +1,26 @@
-from typing import Dict
-
 from pitop.common.sys_info import get_ap_mode_status
 
-from ...hotspots.base import HotspotInstance
-from ...hotspots.image_hotspot import Hotspot as ImageHotspot
-from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
-from ...utils import get_image_file_path
-from ..base import Page as PageBase
+from .network_page_base import NetworkPageData
+from .network_page_base import Page as PageBase
+from .network_page_base import RowDataText
 
 
 class Page(PageBase):
     def __init__(self, size):
-        super().__init__(size=size)
-
-    def reset(self):
-        MARGIN_X_LEFT = 30
-        MARGIN_X_RIGHT = 10
-        SCALE = self.height / 64.0
-        ICON_HEIGHT = 12
-        VERTICAL_SPACING = 4
-        ROW_HEIGHT = ICON_HEIGHT + VERTICAL_SPACING
-        DELTA_Y = int(ROW_HEIGHT * SCALE)
-        COMMON_FIRST_LINE_Y = int(10 * SCALE)
-        COMMON_SECOND_LINE_Y = COMMON_FIRST_LINE_Y + DELTA_Y
-        COMMON_THIRD_LINE_Y = COMMON_SECOND_LINE_Y + DELTA_Y
-        ICON_X_POS = 10
-        DEFAULT_FONT_SIZE = 12
-
-        hotspots = [
-            HotspotInstance(
-                ImageHotspot(
-                    interval=1,
-                    size=self.size,
-                    image_path=get_image_file_path("sys_info/networking/antenna.png"),
-                    xy=(ICON_X_POS, COMMON_FIRST_LINE_Y),
-                ),
-                (0, 0),
+        row_data = NetworkPageData(
+            first_row=RowDataText(
+                icon_path="sys_info/networking/antenna.png",
+                text=lambda: get_ap_mode_status().get("ssid", ""),
             ),
-            HotspotInstance(
-                ImageHotspot(
-                    interval=1,
-                    size=self.size,
-                    image_path=get_image_file_path("sys_info/networking/padlock.png"),
-                    xy=(ICON_X_POS, COMMON_SECOND_LINE_Y),
-                ),
-                (0, 0),
+            second_row=RowDataText(
+                icon_path="sys_info/networking/padlock.png",
+                text=lambda: get_ap_mode_status().get("passphrase", ""),
             ),
-            HotspotInstance(
-                ImageHotspot(
-                    interval=1,
-                    size=self.size,
-                    image_path=get_image_file_path("sys_info/networking/home.png"),
-                    xy=(ICON_X_POS, COMMON_THIRD_LINE_Y),
-                ),
-                (0, 0),
+            third_row=RowDataText(
+                icon_path="sys_info/networking/home.png",
+                text=lambda: get_ap_mode_status().get("ip_address", ""),
             ),
-            HotspotInstance(
-                MarqueeTextHotspot(
-                    size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
-                    text=lambda: get_ap_mode_status().get("ssid", ""),
-                    font_size=DEFAULT_FONT_SIZE,
-                ),
-                (MARGIN_X_LEFT, COMMON_FIRST_LINE_Y - 1),
-            ),
-            HotspotInstance(
-                MarqueeTextHotspot(
-                    size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
-                    text=lambda: get_ap_mode_status().get("passphrase", ""),
-                    font_size=DEFAULT_FONT_SIZE,
-                ),
-                (MARGIN_X_LEFT, COMMON_SECOND_LINE_Y - 1),
-            ),
-            HotspotInstance(
-                MarqueeTextHotspot(
-                    size=(self.width - MARGIN_X_LEFT - MARGIN_X_RIGHT, ROW_HEIGHT),
-                    text=lambda: get_ap_mode_status().get("ip_address", ""),
-                    font_size=DEFAULT_FONT_SIZE,
-                ),
-                (MARGIN_X_LEFT, COMMON_THIRD_LINE_Y - 1),
-            ),
-        ]
-
-        self.set_hotspot_instances(hotspots, start=True)
+        )
+        super().__init__(
+            size=size, row_data=row_data
+        )

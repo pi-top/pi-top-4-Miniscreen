@@ -1,5 +1,7 @@
 import logging
 
+import PIL.ImageDraw
+import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..state import Speeds
@@ -33,6 +35,8 @@ class Hotspot(HotspotBase):
         self.anchor = anchor
         self.align = align
 
+        if font is None:
+            font = self.assistant.get_recommended_font_path(self.font_size)
         self.font = font
         self.fill = fill
 
@@ -57,3 +61,16 @@ class Hotspot(HotspotBase):
     @text.setter
     def text(self, value_or_callback):
         self._text = value_or_callback
+
+    @property
+    def text_size(self):
+        draw = PIL.ImageDraw.Draw(PIL.Image.new(self.mode, self.size, color="black"))
+        text_bounding_box = draw.textbbox(
+            (0, 0),
+            text=self.text,
+            font=PIL.ImageFont.truetype(self.font, size=self.font_size),
+        )
+        return (
+            text_bounding_box[2] - text_bounding_box[0],
+            min(text_bounding_box[3] - text_bounding_box[1], self.height),
+        )

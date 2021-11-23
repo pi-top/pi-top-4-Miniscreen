@@ -14,6 +14,9 @@ class Hotspot(HotspotBase):
     ):
         super().__init__(interval=interval, size=size)
 
+        if xy is None:
+            xy = (0, 0)
+
         self.xy = xy
         self._im = None
         self.image_path = image_path
@@ -61,11 +64,6 @@ class Hotspot(HotspotBase):
             return
         try:
             self._im = PIL.Image.open(self.image_path).convert("1")
-            if self.xy is None:
-                self.xy = (
-                    self.size[0] / 2 - self._im.width / 2,
-                    self.size[1] / 2 - self._im.height / 2,
-                )
         except Exception as e:
             logger.warning(f"Couldn't open image {self.image_path} : {e}")
             raise
