@@ -2,7 +2,7 @@ from ..config import ConfigFactory
 
 
 class Page:
-    def __init__(self, size, mode, config):
+    def __init__(self, size, mode):
         self._size = size
         self.mode = mode
 

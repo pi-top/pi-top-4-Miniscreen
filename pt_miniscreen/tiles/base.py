@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 from PIL import Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..event import AppEvents, post_event
+from ..event import AppEvents, post_event, subscribe
 from ..hotspots.base import HotspotInstance
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,8 @@ class Tile:
         self.image_caching_threads: Dict = dict()
         self.update_cached_images = True
         self.active = False
+
+        self.subscribe_to_button_events()
 
     @property
     def size(self):
@@ -193,3 +195,38 @@ class Tile:
         logger.debug(f"Time generating image: {end - start}")
 
         return im
+
+    def handle_select_btn(self):
+        return
+
+    def handle_cancel_btn(self):
+        return
+
+    def handle_up_btn(self):
+        return
+
+    def handle_down_btn(self):
+        return
+
+    def subscribe_to_button_events(self):
+        subscribe(
+            AppEvents.UP_BUTTON_PRESS,
+            lambda cb: cb(self.handle_up_btn) if self.active else None,
+        )
+        subscribe(
+            AppEvents.DOWN_BUTTON_PRESS,
+            lambda cb: cb(self.handle_down_btn) if self.active else None,
+        )
+        subscribe(
+            AppEvents.SELECT_BUTTON_PRESS,
+            lambda cb: cb(self.handle_select_btn) if self.active else None,
+        )
+        subscribe(
+            AppEvents.CANCEL_BUTTON_PRESS,
+            lambda cb: cb(self.handle_cancel_btn) if self.active else None,
+        )
+
+        subscribe(
+            AppEvents.ACTIVE_HOTSPOT_HAS_NEW_CACHED_IMAGE,
+            lambda _: self.should_redraw_event.set(),
+        )

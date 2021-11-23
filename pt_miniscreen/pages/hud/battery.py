@@ -18,8 +18,8 @@ CAPACITY_RECTANGLE_LEFT_MARGIN = BATTERY_LEFT_MARGIN + CAPACITY_RECTANGLE_LEFT_O
 
 
 class Page(PageBase):
-    def __init__(self, size, mode, config):
-        super().__init__(size, mode, config)
+    def __init__(self, size, mode):
+        super().__init__(size, mode)
 
         self.battery = Battery()
         self.cable_connected = self.battery.is_charging or self.battery.is_full

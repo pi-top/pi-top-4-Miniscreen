@@ -2,7 +2,7 @@ import logging
 
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ...event import AppEvents, post_event
+from ...event import AppEvents, subscribe
 from ...hotspots.base import HotspotInstance
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
@@ -18,12 +18,25 @@ class TitleBar(Tile):
         self._behaviour = behaviour
         self.active = True
 
-    def should_draw(self):
-        return (
-            self.behaviour.height != 0
-            and self.behaviour.text != ""
-            and self.behaviour.visible is True
-        )
+        def handle_go_to_child(menu_name):
+            if not self.behaviour.append_title:
+                return
+
+            self.behaviour.text = f"{self.behaviour.text} / {behaviour.text}"
+
+        def handle_go_to_parent():
+            if not self.behaviour.append_title:
+                return
+
+            menu_id_fields = self.behaviour.text.split(".")
+
+            if len(menu_id_fields) == 1:
+                return
+
+            self.behaviour.text = ".".join(menu_id_fields[:-1])
+
+        subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
+        subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
 
     def setup_hotspots(self):
         asst = MiniscreenAssistant(self.mode, self.size)
@@ -61,9 +74,6 @@ class TitleBar(Tile):
 
     @property
     def height(self):
-        if not self.behaviour.visible or self.behaviour.text == "":
-            return 0
-
         return self.behaviour.height
 
     @height.setter
@@ -79,19 +89,4 @@ class TitleBar(Tile):
         if self.behaviour == behaviour or behaviour is None:
             return
 
-        if behaviour.append_title:
-            self.behaviour.text = f"{self.behaviour.text} / {behaviour.text}"
-        else:
-            self.behaviour.text = behaviour.text
-
-        self.behaviour.visible = behaviour.visible
-
-        if behaviour.height is not None:
-            self.height = behaviour.height
-
-        post_event(AppEvents.TITLE_BAR_HEIGHT_SET, self.height)
-
-        if self.height == 0:
-            self.clear()
-        else:
-            self.setup_hotspots()
+        self.setup_hotspots()

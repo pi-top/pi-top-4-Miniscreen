@@ -13,13 +13,12 @@ class Page(PageBase):
         self,
         size,
         mode,
-        config,
         get_state_method,
         set_state_method,
         icon,
         text,
     ):
-        super().__init__(size=size, mode=mode, config=config)
+        super().__init__(size=size, mode=mode)
         self.text = text
         self.icon = icon
         self.get_state_method = get_state_method

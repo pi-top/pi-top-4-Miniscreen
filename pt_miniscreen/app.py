@@ -11,7 +11,7 @@ from .event import AppEvents, post_event, subscribe
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
-from .tile_manager import TileManager
+from .tile_group import TileGroup
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class App:
 
         self.splash = Bootsplash(self.miniscreen)
 
-        self.tile_manager = TileManager(
+        self.tile_group = TileGroup(
             self.miniscreen.size,
             self.miniscreen.mode,
         )
@@ -56,29 +56,45 @@ class App:
         )
         self.state_manager = DisplayStateManager()
 
-        def callback_handler(callback):
+        def button_press_callback_handler(callback):
             if self.state_manager.state != DisplayState.WAKING:
                 self.state_manager.user_activity_timer.reset()
 
             if self.state_manager.state == DisplayState.ACTIVE:
                 if callable(callback):
-                    logger.debug("callback_handler - Executing callback")
+                    logger.debug("button_press_callback_handler - Executing callback")
                     callback()
                 return
 
             self.sleep_manager.wake()
 
+        def handle_cancel_btn(callback):
+            # def go_to_next_menu(self):
+            #     self.current_menu_tile_id = MenuTileConfigManager.get_next_menu_id(
+            #         self.menus, self.current_menu_tile_id
+            #     )
+            #     if self.menu.parent_goes_to_first_page:
+            #         self.menu.move_to_page(0)
+            #     self.should_redraw_event.set()
+
+            # TODO: go to next menu if menu is not in a child menu
+            # if self.tile_group.menu.is_root:
+            # go_to_next_menu()
+            # else:
+            # button_press_callback_handler(callback)
+            button_press_callback_handler(callback)
+
         self.miniscreen.up_button.when_released = lambda: post_event(
-            AppEvents.UP_BUTTON_PRESS, callback_handler
+            AppEvents.UP_BUTTON_PRESS, button_press_callback_handler
         )
         self.miniscreen.down_button.when_released = lambda: post_event(
-            AppEvents.DOWN_BUTTON_PRESS, callback_handler
+            AppEvents.DOWN_BUTTON_PRESS, button_press_callback_handler
         )
         self.miniscreen.select_button.when_released = lambda: post_event(
-            AppEvents.SELECT_BUTTON_PRESS, callback_handler
+            AppEvents.SELECT_BUTTON_PRESS, button_press_callback_handler
         )
         self.miniscreen.cancel_button.when_released = lambda: post_event(
-            AppEvents.CANCEL_BUTTON_PRESS, callback_handler
+            AppEvents.CANCEL_BUTTON_PRESS, handle_cancel_btn
         )
 
         subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
@@ -127,7 +143,7 @@ class App:
 
         logger.debug(f"Time since action started: {time_since_action_started}")
 
-        if self.tile_manager.current_menu_tile.current_page.action_process.is_alive():
+        if self.tile_group.menu.current_page.action_process.is_alive():
             logger.debug("Action not yet completed")
             return
 
@@ -136,14 +152,14 @@ class App:
             self.state_manager.state = DisplayState.WAKING
 
             logger.info("Notifying renderer to display 'unknown' action state")
-            self.tile_manager.current_menu_tile.current_page.set_unknown_state()
+            self.tile_group.menu.current_page.set_unknown_state()
             return
 
         logger.info("Action completed - setting state to WAKING")
         self.state_manager.state = DisplayState.WAKING
         logger.info("Resetting state of hotspot to re-renderer current state")
 
-        self.tile_manager.current_menu_tile.current_page.hotspot.reset()
+        self.tile_group.menu.current_page.hotspot.reset()
 
     @property
     def time_since_last_active(self):
@@ -165,11 +181,6 @@ class App:
             self.sleep_manager.sleep()
             return
 
-    def display_current_menu_image(self):
-        logger.debug("Updating scroll position and displaying current menus' image...")
-        self.tile_manager.update_current_menu_tile_scroll_position()
-        self.display(self.tile_manager.image)
-
     def _main(self):
         self.handle_startup_animation()
 
@@ -188,10 +199,10 @@ class App:
                 self.show_screensaver_frame()
                 sleep(Speeds.SCREENSAVER.value)
             else:
-                self.display_current_menu_image()
+                self.display(self.tile_group.image)
 
                 logger.debug("Waiting until image to display has changed...")
-                self.tile_manager.wait_until_should_redraw()
+                self.tile_group.wait_until_should_redraw()
 
             if self.state_manager.state == DisplayState.RUNNING_ACTION:
                 self.handle_action()
@@ -247,3 +258,27 @@ class App:
         if self.last_shown_image is not None:
             self.display(self.last_shown_image)
         logger.info("OLED control restored")
+
+    @property
+    def current_menu_tile_id(self):
+        return self._current_menu_tile_id
+
+    @current_menu_tile_id.setter
+    def current_menu_tile_id(self, menu_id):
+        if hasattr(self, "_current_menu_tile_id"):
+            self.menu.active = False
+        self._current_menu_tile_id = menu_id
+        self.title_bar.behaviour = self.menu.title_bar
+        logger.debug(
+            f"current_menu_tile_id.setter - title bar behaviour : {self.title_bar.behaviour}"
+        )
+        self.menu.active = True
+        self.should_redraw_event.set()
+
+    @property
+    def current_menu_tile(self):
+        return self.menus[self.current_menu_tile_id]
+
+    @property
+    def current_menu_tile_page(self):
+        return self.menu.current_page

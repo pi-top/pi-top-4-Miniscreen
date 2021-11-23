@@ -3,11 +3,10 @@ from ..templates.action import Page as ActionPage
 
 
 class Page(ActionPage):
-    def __init__(self, size, mode, config):
+    def __init__(self, size, mode):
         super().__init__(
             size=size,
             mode=mode,
-            config=config,
             get_state_method=get_wifi_ap_state,
             set_state_method=change_wifi_mode,
             # TODO: use correct icon
