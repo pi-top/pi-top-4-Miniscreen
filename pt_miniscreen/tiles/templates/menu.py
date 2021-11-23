@@ -25,8 +25,8 @@ class Tile(ViewportTile):
         self.y_pos = 0
 
         hotspot_instances = list()
-        for page in self.pages:
-            for i, hotspot_instance in enumerate(page.hotspot_instances):
+        for i, page in enumerate(self.pages):
+            for hotspot_instance in page.hotspot_instances:
                 xy = (hotspot_instance.xy[0], hotspot_instance.xy[1] + i * self.size[1])
                 hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
 
