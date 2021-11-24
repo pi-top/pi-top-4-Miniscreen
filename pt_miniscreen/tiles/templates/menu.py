@@ -82,7 +82,6 @@ class Tile(ViewportTile):
             self._go_to_child_menu()
         else:
             post_event(AppEvents.BUTTON_ACTION_START)
-            self.on_select_press()
 
     def handle_cancel_btn(self):
         # TODO: handle going back to parent

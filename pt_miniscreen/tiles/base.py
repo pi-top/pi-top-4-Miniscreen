@@ -7,7 +7,7 @@ from typing import Dict, List
 from PIL import Image, ImageChops
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..event import AppEvents, post_event, subscribe
+from ..event import AppEvents, post_event
 from ..hotspots.base import HotspotInstance
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,6 @@ class Tile:
         self.hotspot_instances: List[HotspotInstance] = list()
         self._render_size = self.size
 
-        self.subscribe_to_button_events()
         self.reset()
 
     def reset(self):
@@ -287,21 +286,3 @@ class Tile:
 
     def handle_down_btn(self):
         return
-
-    def subscribe_to_button_events(self):
-        subscribe(
-            AppEvents.UP_BUTTON_PRESS,
-            lambda cb: cb(self.handle_up_btn) if self.active else None,
-        )
-        subscribe(
-            AppEvents.DOWN_BUTTON_PRESS,
-            lambda cb: cb(self.handle_down_btn) if self.active else None,
-        )
-        subscribe(
-            AppEvents.SELECT_BUTTON_PRESS,
-            lambda cb: cb(self.handle_select_btn) if self.active else None,
-        )
-        subscribe(
-            AppEvents.CANCEL_BUTTON_PRESS,
-            lambda cb: cb(self.handle_cancel_btn) if self.active else None,
-        )

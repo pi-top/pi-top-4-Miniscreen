@@ -70,51 +70,46 @@ class App:
         )
 
         self.tile_groups = [hud_tile_group, settings_tile_group]
-        self.tile_groups[0].active = True
+        self.tile_group_idx = 0
+        self.current_tile_group.active = True
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
 
-        def button_press_callback_handler(callback):
+        def handle_button_press():
             if self.state_manager.state != DisplayState.WAKING:
                 self.state_manager.user_activity_timer.reset()
 
             if self.state_manager.state == DisplayState.ACTIVE:
-                if callable(callback):
-                    logger.debug("button_press_callback_handler - Executing callback")
-                    callback()
                 return
 
             self.sleep_manager.wake()
 
-        def handle_cancel_btn(callback):
-            # def go_to_next_menu(self):
-            #     self.current_menu_tile_id = MenuTileConfigManager.get_next_menu_id(
-            #         self.menus, self.current_menu_tile_id
-            #     )
-            #     if self.menu.parent_goes_to_first_page:
-            #         self.menu.move_to_page_pos(0)
-            #     post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+        def handle_cancel_btn():
+            print("Handling cancel btn")
+            was_active = self.state_manager.state == DisplayState.ACTIVE
+            handle_button_press()
+            if not was_active:
+                return
+
+            def go_to_next_tile_group():
+                print("Going to next tile")
+                self.current_tile_group.active = False
+                self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
+                print(self.tile_group_idx)
+                print(len(self.tile_groups))
+                self.current_tile_group.active = True
+
+                # if self.menu.parent_goes_to_first_page:
+                #     self.menu.move_to_page_pos(0)
+                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
             # TODO: go to next menu if menu is not in a child menu
             # if self.tile_group.menu.is_root:
-            # go_to_next_menu()
-            # else:
-            # button_press_callback_handler(callback)
-            button_press_callback_handler(callback)
+            go_to_next_tile_group()
+            post_event(AppEvents.CANCEL_BUTTON_PRESS)
 
-        self.miniscreen.up_button.when_released = lambda: post_event(
-            AppEvents.UP_BUTTON_PRESS, button_press_callback_handler
-        )
-        self.miniscreen.down_button.when_released = lambda: post_event(
-            AppEvents.DOWN_BUTTON_PRESS, button_press_callback_handler
-        )
-        self.miniscreen.select_button.when_released = lambda: post_event(
-            AppEvents.SELECT_BUTTON_PRESS, button_press_callback_handler
-        )
-        self.miniscreen.cancel_button.when_released = lambda: post_event(
-            AppEvents.CANCEL_BUTTON_PRESS, handle_cancel_btn
-        )
+        self.miniscreen.cancel_button.when_released = handle_cancel_btn
 
         subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
@@ -215,13 +210,13 @@ class App:
                 self.show_screensaver_frame()
                 sleep(Speeds.SCREENSAVER.value)
             else:
-                self.display(self.tile_groups[0].image)
+                self.display(self.current_tile_group.image)
                 if environ.get("IMGCAT", "0") == "1":
                     print("\033c")
-                    imgcat(self.tile_groups[0].image)
+                    imgcat(self.current_tile_group.image)
 
                 logger.debug("Waiting until image to display has changed...")
-                self.tile_groups[0].wait_until_should_redraw()
+                self.current_tile_group.wait_until_should_redraw()
                 logger.debug("Image to display has changed!")
 
             # if self.state_manager.state == DisplayState.RUNNING_ACTION:
@@ -236,6 +231,10 @@ class App:
             # if self.state_manager.state == DisplayState.DIM:
             #     logger.info("Starting screensaver...")
             #     self.state_manager.state = DisplayState.SCREENSAVER
+
+    @property
+    def current_tile_group(self):
+        return self.tile_groups[self.tile_group_idx]
 
     def show_screensaver_frame(self):
         self.display(self.screensaver.image.convert("1"))
