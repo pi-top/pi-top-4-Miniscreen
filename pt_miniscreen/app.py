@@ -209,8 +209,9 @@ class App:
                 sleep(Speeds.SCREENSAVER.value)
             else:
                 self.display(self.tile_group.image)
-                print("\033c")
-                imgcat(self.tile_group.image)
+                if environ.get("IMGCAT", "0") == "1":
+                    print("\033c")
+                    imgcat(self.tile_group.image)
 
                 logger.debug("Waiting until image to display has changed...")
                 self.tile_group.wait_until_should_redraw()

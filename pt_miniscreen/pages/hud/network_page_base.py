@@ -68,10 +68,9 @@ class NetworkPageLayout:
 
 class Page(PageBase):
     def __init__(self, size, row_data):
-        super().__init__(size=size)
         self.row_data = row_data
-        self.layout_manager = NetworkPageLayout(self.size)
-        self.reset()
+        self.layout_manager = NetworkPageLayout(size)
+        super().__init__(size=size)
 
     @property
     def size(self):
@@ -83,16 +82,14 @@ class Page(PageBase):
         self.layout_manager = NetworkPageLayout(self.size)
 
     def reset(self):
-        hotspot_instances = list()
+        self.hotspot_instances = list()
         for row_number, row_info in enumerate(self.row_data.rows):
             if row_info is None:
                 continue
             for hotspot_instance in self._hotspot_instances_for_row(
                 row_number, row_info
             ):
-                hotspot_instances.append(hotspot_instance)
-
-        self.set_hotspot_instances(hotspot_instances, start=True)
+                self.hotspot_instances.append(hotspot_instance)
 
     def _hotspot_instances_for_row(self, row_number, row_data):
         if isinstance(row_data, RowDataText):
@@ -113,7 +110,7 @@ class Page(PageBase):
             )
 
         image_hotspot = ImageHotspot(
-            interval=self.interval,
+            interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
             size=self.layout_manager.icon_size,
             image_path=get_image_file_path(row_data.icon_path),
         )
