@@ -126,12 +126,15 @@ class Tile:
     def add_hotspot_instance(self, hotspot_instance):
         (x, y) = hotspot_instance.xy
 
-        # Update size needed to render hotspot instance
-        if x > self.render_size[0]:
-            self._render_size = (x, self.render_size[1])
+        # xy + size = max size needed to render a given hotspot instance
+        # self._render_size manages this max size for all added hotspot instances
+        max_x = x + hotspot_instance.size[0]
+        if max_x > self.render_size[0]:
+            self._render_size = (max_x, self.render_size[1])
 
-        if y > self.render_size[1]:
-            self._render_size = (self.render_size[0], y)
+        max_y = y + hotspot_instance.size[1]
+        if max_y > self.render_size[1]:
+            self._render_size = (self.render_size[0], max_y)
 
         logger.debug(f"Tile.add_hotspot_instance {hotspot_instance}")
 

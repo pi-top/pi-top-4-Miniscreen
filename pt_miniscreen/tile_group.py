@@ -7,9 +7,6 @@ import PIL.Image
 from .event import AppEvents, subscribe
 from .state import Speeds
 
-# from imgcat import imgcat
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -56,8 +53,6 @@ class TileGroup:
         # logger.debug(f"title_bar_height: {title_bar_height}")
         # logger.debug(f"self.menu_tile: {self.menu_tile}")
         # logger.debug(f"self.menu_tile.image: {self.menu_tile.image}")
-
-        # imgcat(self.menu_tile.image)
 
         return im
 

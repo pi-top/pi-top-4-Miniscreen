@@ -1,5 +1,3 @@
-from typing import Dict
-
 from ...hotspots.base import HotspotInstance
 from ...hotspots.cpu_bars_hotspot import Hotspot as CpuBarsHotspot
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot

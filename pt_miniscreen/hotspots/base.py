@@ -88,3 +88,7 @@ class Hotspot:
 class HotspotInstance:
     hotspot: Hotspot
     xy: Tuple[int, int]
+
+    @property
+    def size(self):
+        return self.hotspot.size

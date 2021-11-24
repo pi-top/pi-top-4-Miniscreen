@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Tuple, Union
+from typing import Any, Callable, Tuple, Union
 
-from pt_miniscreen.state import Speeds
-
+from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
+from ...state import Speeds
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
@@ -68,7 +68,7 @@ class NetworkPageLayout:
 
 class Page(PageBase):
     def __init__(self, size, row_data):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+        super().__init__(size=size)
         self.row_data = row_data
         self.layout_manager = NetworkPageLayout(self.size)
         self.reset()

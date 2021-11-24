@@ -19,7 +19,6 @@ class Tile(BaseTile):
     """
 
     def __init__(self, size, pos, viewport_size, window_position=(0, 0)):
-        # TODO: move to viewport tile
         self._viewport_size = viewport_size
         self._window_position = window_position
 
@@ -75,13 +74,17 @@ class Tile(BaseTile):
             return self._window_position()
         return self._window_position
 
-    @property
-    def window_y_pos(self):
-        return self._position[1]
+    @window_position.setter
+    def window_position(self, position):
+        self._window_position = position
 
-    @window_y_pos.setter
-    def window_y_pos(self, pos):
-        self.position = (0, pos)
+    @property
+    def y_pos(self):
+        return self.window_position[1]
+
+    @y_pos.setter
+    def y_pos(self, pos):
+        self.window_position = (self.window_position[0], pos)
 
     def get_preprocess_image(self):
         return Image.new("1", self.viewport_size)

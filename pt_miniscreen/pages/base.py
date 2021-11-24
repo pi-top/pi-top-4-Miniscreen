@@ -51,11 +51,5 @@ class Page:
         # Only invoked if there is no child menu in config
         pass
 
-    # TODO: remove this function in favour of using viewport directly
-    def render(self, image):
-        for position, hotspot_list in self.hotspots.items():
-            for hotspot in hotspot_list:
-                hotspot.paste_into(image, position)
-
     def offset_pos_for_vertical_center(self, hotspot_height):
         return int((self.height - hotspot_height) / 2)
