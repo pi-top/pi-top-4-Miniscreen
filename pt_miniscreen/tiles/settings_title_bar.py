@@ -12,36 +12,37 @@ logger = logging.getLogger(__name__)
 
 
 class SettingsTitleBarTile(Tile):
-    def __init__(self, size, pos, text="Settings", append_title=True) -> None:
-        super().__init__(size, pos)
-        self.append_title = append_title
-        self._text = text
+    def __init__(self, size, pos) -> None:
+        self.append_title = True
+        self.text = "Settings"
+        self.delimiter = " / "
 
         def handle_go_to_child(menu_name):
             if not self.append_title:
                 return
 
-            self._text = f"{self._text} / {text}"
+            self.text = f"{self.text}{self.delimiter}{menu_name}"
 
         def handle_go_to_parent():
             if not self.append_title:
                 return
 
-            menu_id_fields = self._text.split(".")
+            text_fields = self.text.split(self.delimiter)
 
-            if len(menu_id_fields) == 1:
+            if len(text_fields) == 1:
                 return
 
-            self._text = ".".join(menu_id_fields[:-1])
+            self.text = self.delimiter.join(text_fields[:-1])
 
         subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
         subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
+        super().__init__(size, pos)
 
     def reset(self):
         asst = MiniscreenAssistant("1", self.size)
         marquee_text_hotspot = MarqueeTextHotspot(
             size=self.size,
-            text=self._text,
+            text=self.text,
             font=asst.get_mono_font(
                 size=14,
                 bold=True,
@@ -69,15 +70,3 @@ class SettingsTitleBarTile(Tile):
             ],
             start=True,
         )
-
-    @property
-    def size(self):
-        return self._size
-
-    @size.setter
-    def size(self, size):
-        if size == self.size:
-            return
-
-        self.size = size
-        self.reset()

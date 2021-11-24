@@ -19,12 +19,15 @@ class Tile:
         self._pos = pos
         self.cached_images: Dict = dict()
         self.image_caching_threads: Dict = dict()
-        self.update_cached_images = False
         self.active = False
         self.hotspot_instances: List[HotspotInstance] = list()
         self._render_size = self.size
 
         self.subscribe_to_button_events()
+        self.reset()
+
+    def reset(self):
+        pass
 
     @property
     def window_position(self):
@@ -39,7 +42,15 @@ class Tile:
 
     @size.setter
     def size(self, xy):
+        size = xy
+        if callable(xy):
+            size = xy()
+
+        if size == self.size:
+            return
+
         self._size = xy
+        self.reset()
 
     @property
     def pos(self):
@@ -69,27 +80,29 @@ class Tile:
         self.size = (self.width, value)
 
     def start(self):
-        self.update_cached_images = True
         for _, thread in self.image_caching_threads.items():
             thread.start()
 
     def stop(self):
-        self.update_cached_images = False
-        for hotspot, thread in self.image_caching_threads.items():
-            thread.join(0)
-        logger.debug("stop - stopped all threads")
+        if len(self.image_caching_threads) == 0:
+            return
+
+        logger.warning(
+            f"Tile: stopping {len(self.image_caching_threads)} hotspot threads..."
+        )
+        for _, thread in self.image_caching_threads.items():
+            thread.do_run = False
+            logger.error("TIME TO STOP THE RUN!")
+            thread.join()
+
+        logger.debug(f"Tile: stopped {len(self.image_caching_threads)} hotspot threads")
+        self.image_caching_threads = dict()
 
     def _paste_hotspot_into_image(self, hotspot_instance, image):
         if (
             not hotspot_instance.hotspot.draw_white
             and not hotspot_instance.hotspot.draw_black
         ):
-            return
-
-        if not self.update_cached_images:
-            logger.debug(
-                "paste_hotspot_into_image - Not caching images anymore - returning"
-            )
             return
 
         hotspot_image = self.cached_images.get(hotspot_instance.hotspot)
@@ -118,9 +131,13 @@ class Tile:
 
     def set_hotspot_instances(self, hotspot_instances, start=False):
         self.clear()
+        logger.info(f"Adding {len(hotspot_instances)} hotspot instances...")
         for hotspot_instance in hotspot_instances:
             self.add_hotspot_instance(hotspot_instance)
         if start:
+            logger.info(
+                f"Automatically starting {len(hotspot_instances)} hotspot instances..."
+            )
             self.start()
 
     def add_hotspot_instance(self, hotspot_instance):
@@ -136,8 +153,6 @@ class Tile:
         if max_y > self.render_size[1]:
             self._render_size = (self.render_size[0], max_y)
 
-        logger.debug(f"Tile.add_hotspot_instance {hotspot_instance}")
-
         if hotspot_instance in self.hotspot_instances:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
 
@@ -150,7 +165,7 @@ class Tile:
         self.hotspot_instances.remove(hotspot_instance)
 
     def _register_thread(self, hotspot_instance):
-        logger.debug("Caching new image...")
+        # logger.debug(f"Registering image caching thread for hotspot_instance {hotspot_instance}...")
         hotspot = hotspot_instance.hotspot
 
         def run():
@@ -171,12 +186,11 @@ class Tile:
                     self.cached_images[hotspot] = new_img
                     post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
-            logger.debug("Caching new image...")
+            # logger.debug("Caching new image...")
             cache_new_image()
-            logger.debug(
-                f"Done caching new image... self.update_cached_images: {self.update_cached_images}"
-            )
-            while self.update_cached_images:
+            # logger.debug(f"Done caching new image : {self.update_cached_images}")
+
+            while True:
                 # TODO: improve this "busy wait"
                 # if not active, there's no need to check - perhaps instead of sleeping,
                 # we should wait on an event triggered on active state change?
@@ -197,6 +211,10 @@ class Tile:
         self.remove_all_hotspot_instances()
 
     def remove_all_hotspot_instances(self):
+        if len(self.hotspot_instances) == 0:
+            return
+
+        logger.warning(f"Removing {len(self.hotspot_instances)} hotspot instances...")
         self.hotspot_instances = list()
 
     def is_hotspot_overlapping(self, hotspot_instance):
@@ -243,13 +261,15 @@ class Tile:
 
     @property
     def image(self):
-        if not self.update_cached_images:
-            logger.debug("Not caching images anymore - returning")
-            return
+        im = self.get_preprocess_image()
+
+        if not self.active:
+            logger.debug("Not active - returning")
+            return im
 
         start = time.time()
 
-        im = self.post_process_image(self.process_image(self.get_preprocess_image()))
+        im = self.post_process_image(self.process_image(im))
 
         end = time.time()
         logger.debug(f"Time generating image: {end - start}")

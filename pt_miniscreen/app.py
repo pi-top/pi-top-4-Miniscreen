@@ -13,7 +13,7 @@ from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
 from .tile_group import TileGroup
-from .tiles import HUDMenuTile  # , SettingsMenuTile, SettingsTitleBarTile
+from .tiles import HUDMenuTile, SettingsMenuTile, SettingsTitleBarTile
 
 logger = logging.getLogger(__name__)
 
@@ -53,20 +53,24 @@ class App:
             menu_tile=HUDMenuTile(size=self.miniscreen.size),
             title_bar_tile=None,
         )
-        # title_bar_height = 19
-        # settings_tile_group = TileGroup(
-        #     size=self.miniscreen.size,
-        #     title_bar_tile=SettingsTitleBarTile(
-        #         size=(self.miniscreen.size[0], title_bar_height),
-        #         pos=(0, 0),
-        #     ),
-        #     menu_tile=SettingsMenuTile(
-        #         size=(self.miniscreen.size[0], self.miniscreen.size[1] - title_bar_height),
-        #         pos=(0, title_bar_height)
-        #     ),
-        # )
-        self.tile_group = hud_tile_group
-        self.tile_group.active = True
+        title_bar_height = 19
+        settings_tile_group = TileGroup(
+            size=self.miniscreen.size,
+            title_bar_tile=SettingsTitleBarTile(
+                size=(self.miniscreen.size[0], title_bar_height),
+                pos=(0, 0),
+            ),
+            menu_tile=SettingsMenuTile(
+                size=(
+                    self.miniscreen.size[0],
+                    self.miniscreen.size[1] - title_bar_height,
+                ),
+                pos=(0, title_bar_height),
+            ),
+        )
+
+        self.tile_groups = [hud_tile_group, settings_tile_group]
+        self.tile_groups[0].active = True
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
@@ -133,12 +137,7 @@ class App:
             return
 
         logger.info("Stopping app...")
-
         self.__stop = True
-        if self.__thread and self.__thread.is_alive():
-            self.__thread.join()
-
-        logger.debug("Stopped app")
 
     def handle_startup_animation(self):
         if not self.splash.has_played():
@@ -216,13 +215,13 @@ class App:
                 self.show_screensaver_frame()
                 sleep(Speeds.SCREENSAVER.value)
             else:
-                self.display(self.tile_group.image)
+                self.display(self.tile_groups[0].image)
                 if environ.get("IMGCAT", "0") == "1":
                     print("\033c")
-                    imgcat(self.tile_group.image)
+                    imgcat(self.tile_groups[0].image)
 
                 logger.debug("Waiting until image to display has changed...")
-                self.tile_group.wait_until_should_redraw()
+                self.tile_groups[0].wait_until_should_redraw()
                 logger.debug("Image to display has changed!")
 
             # if self.state_manager.state == DisplayState.RUNNING_ACTION:

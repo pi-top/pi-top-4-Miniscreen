@@ -14,7 +14,7 @@ class Page(PageBase):
         FONT_SIZE = 14
         ICON_SIZE = 25
         TEXT_LEFT_MARGIN = int(self.width * 0.3)
-        ICON_LEFT_MARGIN = (TEXT_LEFT_MARGIN - ICON_SIZE) / 2
+        ICON_LEFT_MARGIN = int((TEXT_LEFT_MARGIN - ICON_SIZE) / 2)
 
         self.hotspot_instances = [
             HotspotInstance(

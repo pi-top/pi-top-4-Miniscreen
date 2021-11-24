@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class TileGroup:
-    def __init__(self, size, title_bar_tile, menu_tile):
+    def __init__(self, size, menu_tile, title_bar_tile=None):
         self.size = size
         self.title_bar_tile = title_bar_tile
         self.menu_tile = menu_tile
@@ -23,6 +23,11 @@ class TileGroup:
             AppEvents.UPDATE_DISPLAYED_IMAGE,
             lambda _: self.should_redraw_event.set(),
         )
+
+    def stop(self):
+        if self.title_bar_tile:
+            self.title_bar_tile.stop()
+        self.menu_tile.stop()
 
     @property
     def active(self):
@@ -41,27 +46,24 @@ class TileGroup:
 
         im = PIL.Image.new("1", self.size)
 
-        # logger.debug(f"im.size: {im.size}")
-
-        logger.debug(f"self.menu_tile: {self.menu_tile}")
-        logger.debug(f"self.menu_tile.size: {self.menu_tile.size}")
-        logger.debug(
-            f"self.menu_tile.window_position: {self.menu_tile.window_position}"
-        )
-
-        title_bar_height = 0
-        if self.title_bar_tile and self.title_bar_tile.size != (0, 0):
-            logger.debug(f"self.title_bar_tile: {self.title_bar_tile}")
-            logger.debug(f"self.title_bar_tile.size: {self.title_bar_tile.size}")
-            logger.debug(
-                f"self.title_bar_tile.window_position: {self.title_bar_tile.window_position}"
+        def paste_tile_into_image(tile, image):
+            box = (
+                tile.pos[0],
+                tile.pos[1],
+                tile.pos[0] + tile.size[0],
+                tile.pos[1] + tile.size[1],
             )
+            logger.debug(
+                f"Pasting tile '{tile}' (size: {tile.size})"
+                f" into image '{image}' (size: {image.size})"
+                f", box: {box}"
+            )
+            image.paste(tile.image, box)
 
-            title_bar_height = self.title_bar_tile.size[1]
-            im.paste(self.title_bar_tile.image, (0, 0))
+        if self.title_bar_tile:
+            paste_tile_into_image(self.title_bar_tile, im)
 
-        # Offset menu tile image by height of title bar
-        im.paste(self.menu_tile.image, (0, title_bar_height))
+        paste_tile_into_image(self.menu_tile, im)
 
         return im
 
