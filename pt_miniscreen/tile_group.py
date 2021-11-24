@@ -41,18 +41,27 @@ class TileGroup:
 
         im = PIL.Image.new("1", self.size)
 
+        # logger.debug(f"im.size: {im.size}")
+
+        logger.debug(f"self.menu_tile: {self.menu_tile}")
+        logger.debug(f"self.menu_tile.size: {self.menu_tile.size}")
+        logger.debug(
+            f"self.menu_tile.window_position: {self.menu_tile.window_position}"
+        )
+
         title_bar_height = 0
         if self.title_bar_tile and self.title_bar_tile.size != (0, 0):
+            logger.debug(f"self.title_bar_tile: {self.title_bar_tile}")
+            logger.debug(f"self.title_bar_tile.size: {self.title_bar_tile.size}")
+            logger.debug(
+                f"self.title_bar_tile.window_position: {self.title_bar_tile.window_position}"
+            )
+
             title_bar_height = self.title_bar_tile.size[1]
             im.paste(self.title_bar_tile.image, (0, 0))
 
         # Offset menu tile image by height of title bar
         im.paste(self.menu_tile.image, (0, title_bar_height))
-
-        # logger.debug(f"im.size: {im.size}")
-        # logger.debug(f"title_bar_height: {title_bar_height}")
-        # logger.debug(f"self.menu_tile: {self.menu_tile}")
-        # logger.debug(f"self.menu_tile.image: {self.menu_tile.image}")
 
         return im
 

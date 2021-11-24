@@ -11,28 +11,28 @@ from .base import Tile
 logger = logging.getLogger(__name__)
 
 
-class TitleBar(Tile):
-    def __init__(self, size, pos, behaviour) -> None:
+class SettingsTitleBarTile(Tile):
+    def __init__(self, size, pos, text="Settings", append_title=True) -> None:
         super().__init__(size, pos)
-        self._behaviour = behaviour
-        self.active = True
+        self.append_title = append_title
+        self._text = text
 
         def handle_go_to_child(menu_name):
-            if not self.behaviour.append_title:
+            if not self.append_title:
                 return
 
-            self.behaviour.text = f"{self.behaviour.text} / {behaviour.text}"
+            self._text = f"{self._text} / {text}"
 
         def handle_go_to_parent():
-            if not self.behaviour.append_title:
+            if not self.append_title:
                 return
 
-            menu_id_fields = self.behaviour.text.split(".")
+            menu_id_fields = self._text.split(".")
 
             if len(menu_id_fields) == 1:
                 return
 
-            self.behaviour.text = ".".join(menu_id_fields[:-1])
+            self._text = ".".join(menu_id_fields[:-1])
 
         subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
         subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
@@ -41,7 +41,7 @@ class TitleBar(Tile):
         asst = MiniscreenAssistant("1", self.size)
         marquee_text_hotspot = MarqueeTextHotspot(
             size=self.size,
-            text=self.behaviour.text,
+            text=self._text,
             font=asst.get_mono_font(
                 size=14,
                 bold=True,
@@ -60,7 +60,7 @@ class TitleBar(Tile):
             size=(self.width, 1),
             bounding_box=(0, 0) + (self.width, 1),
         )
-        rect_xy = (0, self.height - 1)
+        rect_xy = (0, self.size[1] - 1)
 
         self.set_hotspot_instances(
             [
@@ -71,20 +71,13 @@ class TitleBar(Tile):
         )
 
     @property
-    def height(self):
-        return self.behaviour.height
+    def size(self):
+        return self._size
 
-    @height.setter
-    def height(self, new_height):
-        self.behaviour.height = new_height
-
-    @property
-    def behaviour(self):
-        return self._behaviour
-
-    @behaviour.setter
-    def behaviour(self, behaviour):
-        if self.behaviour == behaviour or behaviour is None:
+    @size.setter
+    def size(self, size):
+        if size == self.size:
             return
 
+        self.size = size
         self.reset()

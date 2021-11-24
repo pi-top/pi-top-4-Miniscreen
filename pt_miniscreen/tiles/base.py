@@ -4,7 +4,7 @@ from threading import Thread
 from time import sleep
 from typing import Dict, List
 
-from PIL import Image
+from PIL import Image, ImageChops
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..event import AppEvents, post_event, subscribe
@@ -104,16 +104,16 @@ class Tile:
         mask = hotspot_instance.hotspot.mask(hotspot_image)
         pos = hotspot_instance.xy
         # box = pos + (pos[0] + hotspot_image.size[0], pos[1] + hotspot_image.size[1])
-        logger.debug(
-            f"viewport.paste_hotspot_into_image - hotspot image size: {hotspot_image.size}"
-        )
-        logger.debug(
-            f"viewport.paste_hotspot_into_image - base image size: {image.size}"
-        )
-        logger.debug(
-            f"viewport.paste_hotspot_into_image - hotspot xy: {hotspot_instance.xy}"
-        )
-        logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
+        # logger.debug(
+        #     f"viewport.paste_hotspot_into_image - hotspot image size: {hotspot_image.size}"
+        # )
+        # logger.debug(
+        #     f"viewport.paste_hotspot_into_image - base image size: {image.size}"
+        # )
+        # logger.debug(
+        #     f"viewport.paste_hotspot_into_image - hotspot xy: {hotspot_instance.xy}"
+        # )
+        # logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
         image.paste(hotspot_image, pos, mask)
 
     def set_hotspot_instances(self, hotspot_instances, start=False):
@@ -142,7 +142,7 @@ class Tile:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
 
         self.hotspot_instances.append((hotspot_instance))
-        self.cached_images[hotspot_instance.hotspot] = dict()
+        self.cached_images[hotspot_instance.hotspot] = None
 
         self._register_thread(hotspot_instance)
 
@@ -154,8 +154,22 @@ class Tile:
         hotspot = hotspot_instance.hotspot
 
         def run():
+            def have_differences(image_one, image_two):
+                try:
+                    return (
+                        ImageChops.difference(image_one, image_two).getbbox()
+                        is not None
+                    )
+                except Exception:
+                    logger.debug(f"Error comparing images {image_one} and {image_two}")
+                    return False
+
             def cache_new_image():
-                self.cached_images[hotspot] = hotspot.image
+                last_img = self.cached_images[hotspot]
+                new_img = hotspot.image
+                if last_img is None or have_differences(last_img, new_img):
+                    self.cached_images[hotspot] = new_img
+                    post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
             logger.debug("Caching new image...")
             cache_new_image()
@@ -172,7 +186,6 @@ class Tile:
                 # busy waiting...
                 if self.active and self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
-                    post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
                 sleep(hotspot.interval)
 
         self.image_caching_threads[hotspot] = Thread(

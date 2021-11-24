@@ -1,1 +1,2 @@
-from . import connection, display
+from .connection import Page as ConnectionPage
+from .display import Page as DisplayPage
