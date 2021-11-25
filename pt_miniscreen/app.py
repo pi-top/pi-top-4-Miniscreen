@@ -8,11 +8,12 @@ from imgcat import imgcat
 from pitop import Pitop
 
 # from .bootsplash import Bootsplash
-from .event import AppEvents, post_event, subscribe
+from .event import AppEvents, post_event
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
 from .tile_group import TileGroup
+from .tile_group_context import TileGroupContext, TileGroupContextManager
 from .tiles import HUDMenuTile, SettingsMenuTile, SettingsTitleBarTile
 
 logger = logging.getLogger(__name__)
@@ -48,70 +49,55 @@ class App:
 
         # self.splash = Bootsplash(self.miniscreen)
 
-        hud_tile_group = TileGroup(
-            size=self.miniscreen.size,
-            menu_tile=HUDMenuTile(size=self.miniscreen.size),
-            title_bar_tile=None,
-        )
         title_bar_height = 19
-        settings_tile_group = TileGroup(
-            size=self.miniscreen.size,
-            title_bar_tile=SettingsTitleBarTile(
-                size=(self.miniscreen.size[0], title_bar_height),
-                pos=(0, 0),
-            ),
-            menu_tile=SettingsMenuTile(
-                size=(
-                    self.miniscreen.size[0],
-                    self.miniscreen.size[1] - title_bar_height,
+        app_main_context = TileGroupContext(
+            tile_groups=[
+                TileGroup(
+                    size=self.miniscreen.size,
+                    menu_tile=HUDMenuTile(size=self.miniscreen.size),
+                    title_bar_tile=None,
                 ),
-                pos=(0, title_bar_height),
-            ),
+                TileGroup(
+                    size=self.miniscreen.size,
+                    title_bar_tile=SettingsTitleBarTile(
+                        size=(self.miniscreen.size[0], title_bar_height),
+                        pos=(0, 0),
+                    ),
+                    menu_tile=SettingsMenuTile(
+                        size=(
+                            self.miniscreen.size[0],
+                            self.miniscreen.size[1] - title_bar_height,
+                        ),
+                        pos=(0, title_bar_height),
+                    ),
+                ),
+            ]
         )
-
-        self.tile_groups = [hud_tile_group, settings_tile_group]
-        self.tile_group_idx = 0
+        self.context_manager = TileGroupContextManager(contexts=[app_main_context])
         self.current_tile_group.active = True
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
 
-        def handle_button_press():
+        def handle_button_press(event: AppEvents):
             if self.state_manager.state != DisplayState.WAKING:
                 self.state_manager.user_activity_timer.reset()
-
             if self.state_manager.state == DisplayState.ACTIVE:
-                return
-
+                if event == AppEvents.SELECT_BUTTON_PRESS:
+                    self.context_manager.handle_select_button()
+                if event == AppEvents.CANCEL_BUTTON_PRESS:
+                    self.context_manager.handle_cancel_button()
+                post_event(event)
             self.sleep_manager.wake()
 
-        def handle_cancel_btn():
-            print("Handling cancel btn")
-            was_active = self.state_manager.state == DisplayState.ACTIVE
-            handle_button_press()
-            if not was_active:
-                return
+        self.miniscreen.cancel_button.when_released = lambda: handle_button_press(
+            AppEvents.CANCEL_BUTTON_PRESS
+        )
+        self.miniscreen.select_button.when_released = lambda: handle_button_press(
+            AppEvents.SELECT_BUTTON_PRESS
+        )
 
-            def go_to_next_tile_group():
-                print("Going to next tile")
-                self.current_tile_group.active = False
-                self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
-                print(self.tile_group_idx)
-                print(len(self.tile_groups))
-                self.current_tile_group.active = True
-
-                # if self.menu.parent_goes_to_first_page:
-                #     self.menu.move_to_page_pos(0)
-                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-            # TODO: go to next menu if menu is not in a child menu
-            # if self.tile_group.menu.is_root:
-            go_to_next_tile_group()
-            post_event(AppEvents.CANCEL_BUTTON_PRESS)
-
-        self.miniscreen.cancel_button.when_released = handle_cancel_btn
-
-        subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
+        # subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
 
     def start(self):
@@ -234,7 +220,7 @@ class App:
 
     @property
     def current_tile_group(self):
-        return self.tile_groups[self.tile_group_idx]
+        return self.context_manager.current_tile_group
 
     def show_screensaver_frame(self):
         self.display(self.screensaver.image.convert("1"))

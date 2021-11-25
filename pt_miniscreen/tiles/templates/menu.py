@@ -58,8 +58,8 @@ class Tile(ViewportTile):
     ###########################
     # Child/parent navigation #
     ###########################
-    def go_to_child_menu(self):
-        new_menu = self._current_page.child_menu
+    def go_to_child_tile_group(self):
+        new_menu = self._current_page.child_tile_group
         if not new_menu:
             return
 
@@ -78,8 +78,8 @@ class Tile(ViewportTile):
     # Button Press API (when active) #
     ##################################
     def handle_select_btn(self):
-        if self._current_page.child_menu:
-            self._go_to_child_menu()
+        if self._current_page.child_tile_group:
+            self.go_to_child_tile_group()
         else:
             post_event(AppEvents.BUTTON_ACTION_START)
 

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class SettingsTitleBarTile(Tile):
-    def __init__(self, size, pos) -> None:
+    def __init__(self, size, pos, text="") -> None:
         self.append_title = True
         self.text = "Settings"
         self.delimiter = " / "

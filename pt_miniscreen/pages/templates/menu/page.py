@@ -5,10 +5,10 @@ from ...base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, size, image_path, text):
+    def __init__(self, size, image_path, text, child_tile_group=None):
         self.image_path = image_path
         self.text = text
-        super().__init__(size=size)
+        super().__init__(size=size, child_tile_group=child_tile_group)
 
     def reset(self):
         FONT_SIZE = 14

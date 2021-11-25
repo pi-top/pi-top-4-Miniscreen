@@ -140,6 +140,9 @@ class Tile:
             self.start()
 
     def add_hotspot_instance(self, hotspot_instance):
+        if hotspot_instance in self.hotspot_instances:
+            raise Exception(f"Hotspot instance {hotspot_instance} already registered")
+
         (x, y) = hotspot_instance.xy
 
         # xy + size = max size needed to render a given hotspot instance
@@ -151,9 +154,6 @@ class Tile:
         max_y = y + hotspot_instance.size[1]
         if max_y > self.render_size[1]:
             self._render_size = (self.render_size[0], max_y)
-
-        if hotspot_instance in self.hotspot_instances:
-            raise Exception(f"Hotspot instance {hotspot_instance} already registered")
 
         self.hotspot_instances.append((hotspot_instance))
         self.cached_images[hotspot_instance.hotspot] = None
