@@ -5,17 +5,12 @@ from threading import Event, Thread
 from time import sleep
 
 from imgcat import imgcat
-from pitop import Pitop
 
 # from .bootsplash import Bootsplash
 from .event import AppEvents, post_event
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
-from .tile_group import TileGroup
-from .tile_group_context import TileGroupContext, TileGroupContextManager
-from .tiles import HUDMenuTile, SettingsMenuTile, SettingsTitleBarTile
-from .tiles.settings_connection import SettingsConnectionMenuTile
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +23,8 @@ class App:
         DisplayState.RUNNING_ACTION: 30,
     }
 
-    def __init__(self):
+    def __init__(self, miniscreen, context_manager):
         logger.debug("Initialising app...")
-
-        logger.debug("Setting ENV VAR to use miniscreen as system...")
-        environ["PT_MINISCREEN_SYSTEM"] = "1"
 
         self.__thread = Thread(target=self._main, args=())
         self.__stop = False
@@ -41,7 +33,7 @@ class App:
 
         self.user_gave_back_control_event = Event()
 
-        self.miniscreen = Pitop().miniscreen
+        self.miniscreen = miniscreen
 
         self.miniscreen.when_user_controlled = lambda: self.set_is_user_controlled(True)
         self.miniscreen.when_system_controlled = lambda: self.set_is_user_controlled(
@@ -50,53 +42,8 @@ class App:
 
         # self.splash = Bootsplash(self.miniscreen)
 
-        title_bar_height = 19
-        app_main_context = TileGroupContext(
-            name="main",
-            tile_groups=[
-                TileGroup(
-                    size=self.miniscreen.size,
-                    menu_tile=HUDMenuTile(size=self.miniscreen.size),
-                    title_bar_tile=None,
-                ),
-                TileGroup(
-                    size=self.miniscreen.size,
-                    title_bar_tile=SettingsTitleBarTile(
-                        size=(self.miniscreen.size[0], title_bar_height),
-                        pos=(0, 0),
-                    ),
-                    menu_tile=SettingsMenuTile(
-                        size=(
-                            self.miniscreen.size[0],
-                            self.miniscreen.size[1] - title_bar_height,
-                        ),
-                        pos=(0, title_bar_height),
-                    ),
-                ),
-            ],
-        )
-        self.context_manager = TileGroupContextManager(contexts=[app_main_context])
+        self.context_manager = context_manager
         self.current_tile_group.active = True
-
-        self.context_manager.register(
-            TileGroupContext(
-                name="settings_menu",
-                tile_groups=[
-                    TileGroup(
-                        size=self.miniscreen.size,
-                        menu_tile=SettingsConnectionMenuTile(self.miniscreen.size),
-                        title_bar_tile=SettingsTitleBarTile(
-                            size=(
-                                self.miniscreen.size[0],
-                                self.miniscreen.size[1] - title_bar_height,
-                            ),
-                            pos=(0, title_bar_height),
-                            text="Settings / Connection",
-                        ),
-                    ),
-                ],
-            )
-        )
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
