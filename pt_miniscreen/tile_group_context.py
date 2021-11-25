@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TileGroupContext:
     tile_groups: List[TileGroup]
+    name: str = ""
     index: int = 0
 
     @property
@@ -51,9 +52,13 @@ class TileGroupContextManager:
     def current_tile_group(self):
         return self.current_context.current_tile_group
 
-    def _switch_to_latest(self):
+    def switch_to(self, context_name):
         self.current_tile_group.active = False
-        self.index = len(self.contexts) - 1
+
+        for index, context in enumerate(self.contexts):
+            if context.name == context_name:
+                self.index = index
+
         self.current_tile_group.active = True
         post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
@@ -62,19 +67,18 @@ class TileGroupContextManager:
         if self.current_context.can_go_to_next_tile_group():
             self.current_context.go_to_next_tile_group()
         else:
-            # pop tile group context
+            # go to main context
             self.current_tile_group.active = False
-            self.remove(self.current_context)
+            self.index = 0
             self.current_tile_group.active = True
         post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
     def handle_select_button(self):
         logger.debug("Handling Select button press")
-        new_tile_group = (
-            self.current_tile_group.menu_tile._current_page.child_tile_group
+        child_context_name = (
+            self.current_tile_group.menu_tile._current_page.child_context_name
         )
-        if new_tile_group:
-            self.register(TileGroupContext(tile_groups=[new_tile_group]))
-            self._switch_to_latest()
+        if child_context_name:
+            self.switch_to(child_context_name)
         else:
             logger.debug("Handling action")

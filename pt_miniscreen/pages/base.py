@@ -1,7 +1,7 @@
 class Page:
-    def __init__(self, size, child_tile_group=None):
+    def __init__(self, size, child_context_name=None):
         self._size = size
-        self.child_tile_group = child_tile_group
+        self.child_context_name = child_context_name
 
         self.invert = False
         self.visible = True
@@ -25,8 +25,6 @@ class Page:
         self._size = value
         # Resize hotspots
         self.reset()
-        # Resize child
-        self.child_tile_group.size = self.size
 
     def reset(self):
         pass

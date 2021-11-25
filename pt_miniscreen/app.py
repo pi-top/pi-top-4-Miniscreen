@@ -15,6 +15,7 @@ from .state import DisplayState, DisplayStateManager, Speeds
 from .tile_group import TileGroup
 from .tile_group_context import TileGroupContext, TileGroupContextManager
 from .tiles import HUDMenuTile, SettingsMenuTile, SettingsTitleBarTile
+from .tiles.settings_connection import SettingsConnectionMenuTile
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ class App:
 
         title_bar_height = 19
         app_main_context = TileGroupContext(
+            name="main",
             tile_groups=[
                 TileGroup(
                     size=self.miniscreen.size,
@@ -71,10 +73,30 @@ class App:
                         pos=(0, title_bar_height),
                     ),
                 ),
-            ]
+            ],
         )
         self.context_manager = TileGroupContextManager(contexts=[app_main_context])
         self.current_tile_group.active = True
+
+        self.context_manager.register(
+            TileGroupContext(
+                name="settings_menu",
+                tile_groups=[
+                    TileGroup(
+                        size=self.miniscreen.size,
+                        menu_tile=SettingsConnectionMenuTile(self.miniscreen.size),
+                        title_bar_tile=SettingsTitleBarTile(
+                            size=(
+                                self.miniscreen.size[0],
+                                self.miniscreen.size[1] - title_bar_height,
+                            ),
+                            pos=(0, title_bar_height),
+                            text="Settings / Connection",
+                        ),
+                    ),
+                ],
+            )
+        )
 
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
