@@ -57,86 +57,47 @@ class App:
         self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
 
-        def handle_button_press():
+        def go_to_next_tile_group():
+            self.current_tile_group.active = False
+            self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
+            self.current_tile_group.active = True
+
+            # TODO: move this to menu tile
+            # if self.menu.parent_goes_to_first_page:
+            #     self.menu.move_to_page_pos(0)
+
+        def handle_event(event: AppEvents):
+            handler = {
+                AppEvents.CANCEL_BUTTON_PRESS: self.current_tile_group.handle_cancel_btn,
+                AppEvents.SELECT_BUTTON_PRESS: self.current_tile_group.handle_select_btn,
+                AppEvents.UP_BUTTON_PRESS: self.current_tile_group.handle_up_btn,
+                AppEvents.DOWN_BUTTON_PRESS: self.current_tile_group.handle_down_btn,
+            }[event]
+
+            if not handler() and event == AppEvents.CANCEL_BUTTON_PRESS:
+                go_to_next_tile_group()
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+            post_event(event)
+
+        def handle_button_press(event: AppEvents):
             if self.state_manager.state != DisplayState.WAKING:
                 self.state_manager.user_activity_timer.reset()
-
             if self.state_manager.state == DisplayState.ACTIVE:
-                return
-
+                handle_event(event)
             self.sleep_manager.wake()
 
-        def handle_cancel_btn():
-            logger.debug("Handling cancel button press")
-            was_active = self.state_manager.state == DisplayState.ACTIVE
-            handle_button_press()
-            if not was_active:
-                return
-
-            def go_to_next_tile_group():
-                if len(self.tile_groups) <= 1:
-                    return
-
-                logger.debug("Going to next tile")
-                self.current_tile_group.active = False
-                self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
-                self.current_tile_group.active = True
-
-                # TODO: move this to menu tile
-                # if self.menu.parent_goes_to_first_page:
-                #     self.menu.move_to_page_pos(0)
-                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-            # TODO: allow app to check if tile group is using the cancel button
-            handled = self.current_tile_group.handle_cancel_btn()
-            if not handled:
-                go_to_next_tile_group()
-
-            post_event(AppEvents.CANCEL_BUTTON_PRESS)
-
-        def handle_select_btn():
-            logger.debug("Handling select button press")
-            was_active = self.state_manager.state == DisplayState.ACTIVE
-            handle_button_press()
-            if not was_active:
-                return
-
-            handled = self.current_tile_group.handle_select_btn()
-            if handled:
-                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-            post_event(AppEvents.SELECT_BUTTON_PRESS)
-
-        def handle_up_btn():
-            logger.debug("Handling up button press")
-            was_active = self.state_manager.state == DisplayState.ACTIVE
-            handle_button_press()
-            if not was_active:
-                return
-
-            handled = self.current_tile_group.handle_up_btn()
-            if handled:
-                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-            post_event(AppEvents.UP_BUTTON_PRESS)
-
-        def handle_down_btn():
-            logger.debug("Handling down button press")
-            was_active = self.state_manager.state == DisplayState.ACTIVE
-            handle_button_press()
-            if not was_active:
-                return
-
-            handled = self.current_tile_group.handle_down_btn()
-            if handled:
-                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-            post_event(AppEvents.DOWN_BUTTON_PRESS)
-
-        self.miniscreen.cancel_button.when_released = handle_cancel_btn
-        self.miniscreen.select_button.when_released = handle_select_btn
-        self.miniscreen.up_button.when_released = handle_up_btn
-        self.miniscreen.down_button.when_released = handle_down_btn
+        self.miniscreen.cancel_button.when_released = lambda: handle_button_press(
+            AppEvents.CANCEL_BUTTON_PRESS
+        )
+        self.miniscreen.select_button.when_released = lambda: handle_button_press(
+            AppEvents.SELECT_BUTTON_PRESS
+        )
+        self.miniscreen.up_button.when_released = lambda: handle_button_press(
+            AppEvents.UP_BUTTON_PRESS
+        )
+        self.miniscreen.down_button.when_released = lambda: handle_button_press(
+            AppEvents.DOWN_BUTTON_PRESS
+        )
 
         subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
