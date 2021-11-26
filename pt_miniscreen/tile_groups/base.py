@@ -100,12 +100,16 @@ class TileGroup:
 
     def handle_up_btn(self):
         self.menu_tile.set_page_to_previous()
+
         if self.menu_tile.needs_to_scroll:
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-            return True
+
+        return True
 
     def handle_down_btn(self):
         self.menu_tile.set_page_to_next()
+
         if self.menu_tile.needs_to_scroll:
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-            return True
+
+        return True
