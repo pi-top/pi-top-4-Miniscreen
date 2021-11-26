@@ -121,8 +121,7 @@ class TileGroup:
         elif False:
             post_event(AppEvents.BUTTON_ACTION_START)
             return True
-        else:
-            return False
+        return False
 
     def handle_cancel_btn(self):
         if len(self.menu_tiles) > 1:

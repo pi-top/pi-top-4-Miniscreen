@@ -107,8 +107,36 @@ class App:
 
             post_event(AppEvents.SELECT_BUTTON_PRESS)
 
+        def handle_up_btn():
+            logger.debug("Handling up button press")
+            was_active = self.state_manager.state == DisplayState.ACTIVE
+            handle_button_press()
+            if not was_active:
+                return
+
+            handled = self.current_tile_group.handle_up_btn()
+            if handled:
+                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+
+            post_event(AppEvents.UP_BUTTON_PRESS)
+
+        def handle_down_btn():
+            logger.debug("Handling down button press")
+            was_active = self.state_manager.state == DisplayState.ACTIVE
+            handle_button_press()
+            if not was_active:
+                return
+
+            handled = self.current_tile_group.handle_down_btn()
+            if handled:
+                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+
+            post_event(AppEvents.DOWN_BUTTON_PRESS)
+
         self.miniscreen.cancel_button.when_released = handle_cancel_btn
         self.miniscreen.select_button.when_released = handle_select_btn
+        self.miniscreen.up_button.when_released = handle_up_btn
+        self.miniscreen.down_button.when_released = handle_down_btn
 
         subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)

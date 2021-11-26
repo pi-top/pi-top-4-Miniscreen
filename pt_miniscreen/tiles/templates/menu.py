@@ -43,7 +43,7 @@ class Tile(ViewportTile):
     def page_index(self, idx):
         if self.page_index == idx:
             return
-        self.page_index = idx
+        self._page_index = idx
         self.scroll_coordinate_generator = scroll_to(
             min_value=self.y_pos,
             max_value=self.page_index * self.height,
