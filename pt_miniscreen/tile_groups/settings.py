@@ -25,23 +25,23 @@ class TileGroup(TileGroupBase):
         )
 
         def handle_go_to_child(menu_name):
-            if not self.title_bar.append_title:
+            if not title_bar_tile.append_title:
                 return
 
-            self.title_bar.text = (
-                f"{self.title_bar.text}{self.title_bar.delimiter}{menu_name}"
+            title_bar_tile.text = (
+                f"{title_bar_tile.text}{title_bar_tile.delimiter}{menu_name}"
             )
 
-        def handle_go_to_parent():
-            if not self.title_bar.append_title:
+        def handle_go_to_parent(_):
+            if not title_bar_tile.append_title:
                 return
 
-            text_fields = self.title_bar.text.split(self.title_bar.delimiter)
+            text_fields = title_bar_tile.text.split(title_bar_tile.delimiter)
 
             if len(text_fields) == 1:
                 return
 
-            self.title_bar.text = self.title_bar.delimiter.join(text_fields[:-1])
+            title_bar_tile.text = title_bar_tile.delimiter.join(text_fields[:-1])
 
         # TODO - replace with callback?
         subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
@@ -53,8 +53,8 @@ class TileGroup(TileGroupBase):
     # Button Press API (when active) #
     ##################################
     def handle_select_btn(self):
-        if self.menu_tile._current_page.child_menu:
-            self.menu_tile._go_to_child_menu()
+        if self.current_menu_tile.current_page.child_menu:
+            self.current_menu_tile.go_to_child_menu()
             return True
         elif False:
             post_event(AppEvents.BUTTON_ACTION_START)
@@ -63,17 +63,17 @@ class TileGroup(TileGroupBase):
             return False
 
     def handle_cancel_btn(self):
-        # TODO: handle going back to parent
-        # if MenuTileConfigManager.menu_id_has_parent(self.menu_tile.menus, self.menu_tile.menu_tile_id):
-        # self.menu_tile.go_to_parent_menu()
-        pass
+        if len(self.menu_tiles) > 1:
+            self.current_menu_tile.go_to_parent_menu()
+            return True
+        return False
 
     def handle_up_btn(self):
-        self.menu_tile.set_page_to_previous()
-        if self.menu_tile.needs_to_scroll:
+        self.current_menu_tile.set_page_to_previous()
+        if self.current_menu_tile.needs_to_scroll:
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
     def handle_down_btn(self):
-        self.menu_tile.set_page_to_next()
-        if self.menu_tile.needs_to_scroll:
+        self.current_menu_tile.set_page_to_next()
+        if self.current_menu_tile.needs_to_scroll:
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)

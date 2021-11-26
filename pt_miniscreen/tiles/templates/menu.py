@@ -107,17 +107,16 @@ class Tile(ViewportTile):
     # Child/parent navigation #
     ###########################
     def go_to_child_menu(self):
-        new_menu = self.current_page.child_menu
-        if not new_menu:
+        if not self.has_child_menu:
             return
 
-        logger.info("Current menu's page has child menu - setting menu to child")
-
-        for k, v in new_menu.items():
-            self.menus[k] = v
-
-        menu_tile_id = list(new_menu.keys())[0]
-        post_event(AppEvents.GO_TO_CHILD_MENU, menu_tile_id)
+        logger.info("Current tile has child tile - setting to child")
+        post_event(AppEvents.GO_TO_CHILD_MENU, self.current_page.child_menu)
 
     def go_to_parent_menu(self):
-        post_event(AppEvents.GO_TO_PARENT_MENU)
+        logger.info("Going to parent")
+        post_event(AppEvents.GO_TO_PARENT_MENU, self)
+
+    @property
+    def has_child_menu(self):
+        return self.current_page.child_menu is not None

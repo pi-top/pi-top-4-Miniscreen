@@ -12,3 +12,9 @@ class TileGroup(TileGroupBase):
         size,
     ):
         super().__init__(size, HUDMenuTile(size=size))
+
+    def handle_select_btn(self):
+        return False
+
+    def handle_cancel_btn(self):
+        return False

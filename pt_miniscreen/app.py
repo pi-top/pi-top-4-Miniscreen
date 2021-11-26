@@ -67,7 +67,7 @@ class App:
             self.sleep_manager.wake()
 
         def handle_cancel_btn():
-            print("Handling cancel btn")
+            logger.debug("Handling cancel button press")
             was_active = self.state_manager.state == DisplayState.ACTIVE
             handle_button_press()
             if not was_active:
@@ -77,7 +77,7 @@ class App:
                 if len(self.tile_groups) <= 1:
                     return
 
-                print("Going to next tile")
+                logger.debug("Going to next tile")
                 self.current_tile_group.active = False
                 self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
                 self.current_tile_group.active = True
@@ -94,7 +94,21 @@ class App:
 
             post_event(AppEvents.CANCEL_BUTTON_PRESS)
 
+        def handle_select_btn():
+            logger.debug("Handling select button press")
+            was_active = self.state_manager.state == DisplayState.ACTIVE
+            handle_button_press()
+            if not was_active:
+                return
+
+            handled = self.current_tile_group.handle_select_btn()
+            if handled:
+                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+
+            post_event(AppEvents.SELECT_BUTTON_PRESS)
+
         self.miniscreen.cancel_button.when_released = handle_cancel_btn
+        self.miniscreen.select_button.when_released = handle_select_btn
 
         subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
         self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
