@@ -13,9 +13,18 @@ logger = logging.getLogger(__name__)
 class SettingsTitleBarTile(Tile):
     def __init__(self, size, pos) -> None:
         self.append_title = True
-        self.text = "Settings"
+        self._text = "Settings"
         self.delimiter = " / "
         super().__init__(size, pos)
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+        self.reset()
 
     def reset(self):
         asst = MiniscreenAssistant("1", self.size)

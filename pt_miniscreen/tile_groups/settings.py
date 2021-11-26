@@ -1,6 +1,6 @@
 import logging
 
-from ..event import AppEvents, post_event, subscribe
+from ..event import AppEvents, subscribe
 from ..tiles import SettingsMenuTile, SettingsTitleBarTile
 from .base import TileGroup as TileGroupBase
 
@@ -24,12 +24,12 @@ class TileGroup(TileGroupBase):
             pos=(0, 0),
         )
 
-        def handle_go_to_child(menu_name):
+        def handle_go_to_child(menu_tile):
             if not title_bar_tile.append_title:
                 return
 
             title_bar_tile.text = (
-                f"{title_bar_tile.text}{title_bar_tile.delimiter}{menu_name}"
+                f"{title_bar_tile.text}{title_bar_tile.delimiter}{menu_tile.name}"
             )
 
         def handle_go_to_parent(_):
@@ -48,32 +48,3 @@ class TileGroup(TileGroupBase):
         subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
 
         super().__init__(size, menu_tile, title_bar_tile)
-
-    ##################################
-    # Button Press API (when active) #
-    ##################################
-    def handle_select_btn(self):
-        if self.current_menu_tile.current_page.child_menu:
-            self.current_menu_tile.go_to_child_menu()
-            return True
-        elif False:
-            post_event(AppEvents.BUTTON_ACTION_START)
-            return True
-        else:
-            return False
-
-    def handle_cancel_btn(self):
-        if len(self.menu_tiles) > 1:
-            self.current_menu_tile.go_to_parent_menu()
-            return True
-        return False
-
-    def handle_up_btn(self):
-        self.current_menu_tile.set_page_to_previous()
-        if self.current_menu_tile.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-    def handle_down_btn(self):
-        self.current_menu_tile.set_page_to_next()
-        if self.current_menu_tile.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)

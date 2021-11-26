@@ -10,9 +10,9 @@ from .templates import MenuTile
 class SettingsConnectionMenuTile(MenuTile):
     def __init__(self, size, pos=(0, 0)):
         super().__init__(
-            size,
-            pos,
-            [
+            size=size,
+            pos=pos,
+            pages=[
                 Page(size)
                 for Page in [
                     APActionPage,
@@ -21,4 +21,5 @@ class SettingsConnectionMenuTile(MenuTile):
                     VNCActionPage,
                 ]
             ],
+            name="Connection",
         )

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Tile(ViewportTile):
     SCROLL_PX_RESOLUTION = 2
 
-    def __init__(self, size, pos=(0, 0), pages=list()):
+    def __init__(self, size, pos=(0, 0), pages=list(), name=""):
         assert len(pages) > 0
         super().__init__(
             size=size,
@@ -20,7 +20,7 @@ class Tile(ViewportTile):
             window_position=(0, 0),
         )
         self.pages = pages
-
+        self.name = name
         self._page_index = 0
 
         hotspot_instances = list()
@@ -111,6 +111,7 @@ class Tile(ViewportTile):
             return
 
         logger.info("Current tile has child tile - setting to child")
+        self.current_page.child_menu.pos = self.pos
         post_event(AppEvents.GO_TO_CHILD_MENU, self.current_page.child_menu)
 
     def go_to_parent_menu(self):

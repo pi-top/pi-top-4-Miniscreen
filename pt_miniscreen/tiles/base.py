@@ -86,13 +86,12 @@ class Tile:
         if len(self.image_caching_threads) == 0:
             return
 
-        logger.warning(
+        logger.debug(
             f"Tile: stopping {len(self.image_caching_threads)} hotspot threads..."
         )
         for _, thread in self.image_caching_threads.items():
             thread.do_run = False
-            logger.error("TIME TO STOP THE RUN!")
-            thread.join()
+            thread.join(0)
 
         logger.debug(f"Tile: stopped {len(self.image_caching_threads)} hotspot threads")
         self.image_caching_threads = dict()
