@@ -4,8 +4,8 @@ from time import sleep
 
 import PIL.Image
 
-from .event import AppEvents, post_event, subscribe
-from .state import Speeds
+from ..event import AppEvents, post_event, subscribe
+from ..state import Speeds
 
 logger = logging.getLogger(__name__)
 

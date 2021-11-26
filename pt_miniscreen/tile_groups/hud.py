@@ -11,4 +11,4 @@ class TileGroup(TileGroupBase):
         self,
         size,
     ):
-        super().__init__(size, HUDMenuTile(size=self.miniscreen.size))
+        super().__init__(size, HUDMenuTile(size=size))
