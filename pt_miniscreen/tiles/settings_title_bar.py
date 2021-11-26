@@ -2,7 +2,6 @@ import logging
 
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..event import AppEvents, subscribe
 from ..hotspots.base import HotspotInstance
 from ..hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ..hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
@@ -16,26 +15,6 @@ class SettingsTitleBarTile(Tile):
         self.append_title = True
         self.text = "Settings"
         self.delimiter = " / "
-
-        def handle_go_to_child(menu_name):
-            if not self.append_title:
-                return
-
-            self.text = f"{self.text}{self.delimiter}{menu_name}"
-
-        def handle_go_to_parent():
-            if not self.append_title:
-                return
-
-            text_fields = self.text.split(self.delimiter)
-
-            if len(text_fields) == 1:
-                return
-
-            self.text = self.delimiter.join(text_fields[:-1])
-
-        subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
-        subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
         super().__init__(size, pos)
 
     def reset(self):

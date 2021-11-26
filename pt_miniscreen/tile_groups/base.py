@@ -4,17 +4,23 @@ from time import sleep
 
 import PIL.Image
 
-from .event import AppEvents, subscribe
+from .event import AppEvents, post_event, subscribe
 from .state import Speeds
 
 logger = logging.getLogger(__name__)
 
 
 class TileGroup:
-    def __init__(self, size, menu_tile, title_bar_tile=None):
+    def __init__(
+        self,
+        size,
+        menu_tile,
+        title_bar_tile=None,
+    ):
         self.size = size
-        self.title_bar_tile = title_bar_tile
         self.menu_tile = menu_tile
+
+        self.title_bar_tile = title_bar_tile
 
         self.should_redraw_event = Event()
         self._active = False
@@ -75,3 +81,31 @@ class TileGroup:
 
         if self.should_redraw_event.is_set():
             self.should_redraw_event.clear()
+
+    ##################################
+    # Button Press API (when active) #
+    ##################################
+    def handle_select_btn(self):
+        if self.menu_tile._current_page.child_menu:
+            self.menu_tile._go_to_child_menu()
+            return True
+        elif False:
+            post_event(AppEvents.BUTTON_ACTION_START)
+            return True
+        else:
+            return False
+
+    def handle_cancel_btn(self):
+        return False
+
+    def handle_up_btn(self):
+        self.menu_tile.set_page_to_previous()
+        if self.menu_tile.needs_to_scroll:
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+            return True
+
+    def handle_down_btn(self):
+        self.menu_tile.set_page_to_next()
+        if self.menu_tile.needs_to_scroll:
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+            return True

@@ -12,8 +12,7 @@ from .event import AppEvents, post_event, subscribe
 from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
 from .state import DisplayState, DisplayStateManager, Speeds
-from .tile_group import TileGroup
-from .tiles import HUDMenuTile, SettingsMenuTile, SettingsTitleBarTile
+from .tile_groups import HUDTileGroup, SettingsTileGroup
 
 logger = logging.getLogger(__name__)
 
@@ -48,28 +47,10 @@ class App:
 
         # self.splash = Bootsplash(self.miniscreen)
 
-        hud_tile_group = TileGroup(
-            size=self.miniscreen.size,
-            menu_tile=HUDMenuTile(size=self.miniscreen.size),
-            title_bar_tile=None,
-        )
-        title_bar_height = 19
-        settings_tile_group = TileGroup(
-            size=self.miniscreen.size,
-            title_bar_tile=SettingsTitleBarTile(
-                size=(self.miniscreen.size[0], title_bar_height),
-                pos=(0, 0),
-            ),
-            menu_tile=SettingsMenuTile(
-                size=(
-                    self.miniscreen.size[0],
-                    self.miniscreen.size[1] - title_bar_height,
-                ),
-                pos=(0, title_bar_height),
-            ),
-        )
-
-        self.tile_groups = [hud_tile_group, settings_tile_group]
+        self.tile_groups = [
+            group(size=self.miniscreen.size)
+            for group in [HUDTileGroup, SettingsTileGroup]
+        ]
         self.tile_group_idx = 0
         self.current_tile_group.active = True
 
@@ -93,20 +74,24 @@ class App:
                 return
 
             def go_to_next_tile_group():
+                if len(self.tile_groups) <= 1:
+                    return
+
                 print("Going to next tile")
                 self.current_tile_group.active = False
                 self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
-                print(self.tile_group_idx)
-                print(len(self.tile_groups))
                 self.current_tile_group.active = True
 
+                # TODO: move this to menu tile
                 # if self.menu.parent_goes_to_first_page:
                 #     self.menu.move_to_page_pos(0)
                 post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
-            # TODO: go to next menu if menu is not in a child menu
-            # if self.tile_group.menu.is_root:
-            go_to_next_tile_group()
+            # TODO: allow app to check if tile group is using the cancel button
+            handled = self.current_tile_group.handle_cancel_btn()
+            if not handled:
+                go_to_next_tile_group()
+
             post_event(AppEvents.CANCEL_BUTTON_PRESS)
 
         self.miniscreen.cancel_button.when_released = handle_cancel_btn

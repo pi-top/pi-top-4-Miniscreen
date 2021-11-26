@@ -21,7 +21,7 @@ class Tile(ViewportTile):
         )
         self.pages = pages
 
-        self.page_index = 0
+        self._page_index = 0
 
         hotspot_instances = list()
         for i, page in enumerate(self.pages):
@@ -31,6 +31,25 @@ class Tile(ViewportTile):
 
         self.set_hotspot_instances(hotspot_instances, start=True)
 
+    @property
+    def current_page(self):
+        return self.pages[self.page_index]
+
+    @property
+    def page_index(self):
+        return self._page_index
+
+    @page_index.setter
+    def page_index(self, idx):
+        if self.page_index == idx:
+            return
+        self.page_index = idx
+        self.scroll_coordinate_generator = scroll_to(
+            min_value=self.y_pos,
+            max_value=self.page_index * self.height,
+            resolution=self.SCROLL_PX_RESOLUTION,
+        )
+
     ###############################
     # Position - immediate/scroll #
     ###############################
@@ -39,10 +58,39 @@ class Tile(ViewportTile):
         self.page_index = index
         self.y_pos = self.page_index * self.height
 
+    # Set page, but still require scrolling
+    def set_page_to_previous(self):
+        if self.needs_to_scroll:
+            return
+
+        def get_previous_page_index():
+            if self.page_index == 0:
+                return self.page_index
+
+            return self.page_index - 1
+
+        previous_index = self.page_index
+        self.page_index = get_previous_page_index()
+        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
+
+    def set_page_to_next(self):
+        if self.needs_to_scroll:
+            return
+
+        def get_next_page_index():
+            if self.page_index == len(self.pages) - 1:
+                return self.page_index
+
+            return self.page_index + 1
+
+        previous_index = self.page_index
+        self.page_index = get_next_page_index()
+        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
+
     # Update scroll position if page is not to be moved to immediately
     @property
     def needs_to_scroll(self):
-        final_y_pos = self.page_index * self._current_page.height
+        final_y_pos = self.page_index * self.current_page.height
         return self.y_pos != final_y_pos
 
     def update_scroll_position(self):
@@ -59,7 +107,7 @@ class Tile(ViewportTile):
     # Child/parent navigation #
     ###########################
     def go_to_child_menu(self):
-        new_menu = self._current_page.child_menu
+        new_menu = self.current_page.child_menu
         if not new_menu:
             return
 
@@ -73,73 +121,3 @@ class Tile(ViewportTile):
 
     def go_to_parent_menu(self):
         post_event(AppEvents.GO_TO_PARENT_MENU)
-
-    ##################################
-    # Button Press API (when active) #
-    ##################################
-    def handle_select_btn(self):
-        if self._current_page.child_menu:
-            self._go_to_child_menu()
-        else:
-            post_event(AppEvents.BUTTON_ACTION_START)
-
-    def handle_cancel_btn(self):
-        # TODO: handle going back to parent
-        # if MenuTileConfigManager.menu_id_has_parent(self.menus, self.menu_tile_id):
-        # self.go_to_parent_menu()
-        pass
-
-    def handle_up_btn(self):
-        self._set_page_to_previous()
-        if self.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-    def handle_down_btn(self):
-        self._set_page_to_next()
-        if self.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-    ############
-    # Internal #
-    ############
-    @property
-    def _current_page(self):
-        return self.pages[self.page_index]
-
-    def _set_page_index_to(self, page_index):
-        if self.page_index == page_index:
-            return
-        self.page_index = page_index
-        self.scroll_coordinate_generator = scroll_to(
-            min_value=self.y_pos,
-            max_value=self.page_index * self.height,
-            resolution=self.SCROLL_PX_RESOLUTION,
-        )
-
-    def _set_page_to_previous(self):
-        if self.needs_to_scroll:
-            return
-
-        previous_index = self.page_index
-        self._set_page_index_to(self._get_previous_page_index())
-        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
-
-    def _set_page_to_next(self):
-        if self.needs_to_scroll:
-            return
-
-        previous_index = self.page_index
-        self._set_page_index_to(self._get_next_page_index())
-        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
-
-    def _get_previous_page_index(self):
-        if self.page_index == 0:
-            return self.page_index
-
-        return self.page_index - 1
-
-    def _get_next_page_index(self):
-        if self.page_index == len(self.pages) - 1:
-            return self.page_index
-
-        return self.page_index + 1
