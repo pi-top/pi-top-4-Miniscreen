@@ -30,7 +30,7 @@ class Speeds(Enum):
     SCROLL = 0.004
     SCREENSAVER = 0.05
     ACTION_STATE_UPDATE = 0.5
-    MARQUEE = 0.2
+    MARQUEE = 0.1
 
 
 class DisplayStateManager:
