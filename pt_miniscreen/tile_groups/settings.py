@@ -23,15 +23,10 @@ class SettingsTileGroup(TileGroup):
 
         self.menu_tile_stack.append(root_menu_tile)
 
-        title_bar_tile = SettingsTitleBarTile(
+        self.title_bar_tile = SettingsTitleBarTile(
             size=(size[0], self.title_bar_height),
             pos=(0, 0),
         )
-
-        def update_title_bar_text():
-            title_bar_tile.text = title_bar_tile.delimiter.join(
-                [tile.menu.name.capitalize() for tile in self.menu_tile_stack]
-            )
 
         def handle_go_to_child(menu_cls):
             self.menu_tile_stack.append(
@@ -45,21 +40,32 @@ class SettingsTileGroup(TileGroup):
                 )
             )
 
-            if title_bar_tile.append_title:
-                update_title_bar_text()
-
-        def handle_go_to_parent(_):
-            self.menu_tile_stack.pop()
-            if title_bar_tile.append_title:
-                update_title_bar_text()
+            if self.title_bar_tile.append_title:
+                self.update_title_bar_text()
 
         subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
-        subscribe(AppEvents.GO_TO_PARENT_MENU, handle_go_to_parent)
 
         super().__init__(
-            size=size, menu_tile=root_menu_tile, title_bar_tile=title_bar_tile
+            size=size, menu_tile=root_menu_tile, title_bar_tile=self.title_bar_tile
+        )
+
+    def update_title_bar_text(self):
+        self.title_bar_tile.text = self.title_bar_tile.delimiter.join(
+            [tile.menu.name.capitalize() for tile in self.menu_tile_stack]
         )
 
     @property
     def current_menu_tile(self):
         return self.menu_tile_stack[-1]
+
+    def handle_cancel_btn(self):
+        if len(self.menu_tile_stack) == 1:
+            return False
+
+        self.menu_tile_stack.pop()
+        self.current_menu_tile.active = True
+
+        if self.title_bar_tile.append_title:
+            self.update_title_bar_text()
+
+        return True

@@ -75,6 +75,9 @@ class App:
             }[event]
 
             if not handler() and event == AppEvents.CANCEL_BUTTON_PRESS:
+                logger.info(
+                    "Button press not handled by current tile group - going to next tile group"
+                )
                 go_to_next_tile_group()
             post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
             post_event(event)

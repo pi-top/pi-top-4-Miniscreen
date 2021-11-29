@@ -59,9 +59,6 @@ class TileGroup:
             box = (
                 tile.pos[0],
                 tile.pos[1],
-                # TODO: fails when moving from child back to parent
-                # tile.pos[0] + tile.size[0],
-                # tile.pos[1] + tile.size[1],
             )
             logger.debug(
                 f"Pasting tile '{tile}' (size: {tile.size})"
