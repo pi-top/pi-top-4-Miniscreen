@@ -212,7 +212,7 @@ class Tile:
         if len(self.hotspot_instances) == 0:
             return
 
-        logger.warning(f"Removing {len(self.hotspot_instances)} hotspot instances...")
+        logger.info(f"Removing {len(self.hotspot_instances)} hotspot instances...")
         self.hotspot_instances = list()
 
     def is_hotspot_overlapping(self, hotspot_instance):

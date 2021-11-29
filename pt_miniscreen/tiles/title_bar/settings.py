@@ -28,8 +28,9 @@ class SettingsTitleBarTile(Tile):
 
     def reset(self):
         asst = MiniscreenAssistant("1", self.size)
+        margin = 2
         marquee_text_hotspot = MarqueeTextHotspot(
-            size=self.size,
+            size=(self.size[0] - 2 * margin, self.size[1]),
             text=self.text,
             font=asst.get_mono_font(
                 size=14,
@@ -38,9 +39,8 @@ class SettingsTitleBarTile(Tile):
             font_size=14,
         )
         marquee_text_xy = (
+            margin if marquee_text_hotspot.needs_scrolling
             # if no scroll is needed, center text in screen
-            0
-            if marquee_text_hotspot.needs_scrolling
             else int((self.size[0] - marquee_text_hotspot.text_image.width) / 2),
             0,
         )
