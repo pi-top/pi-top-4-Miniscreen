@@ -11,7 +11,7 @@ class HUDTileGroup(TileGroup):
         self,
         size,
     ):
-        super().__init__(size, HUDMenuTile(size=size))
+        super().__init__(size=size, menu_tile=HUDMenuTile(size=size))
 
     def handle_select_btn(self):
         return False

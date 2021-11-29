@@ -71,10 +71,10 @@ class Menu:
     # Child/parent navigation #
     ###########################
 
-    def publish_child_menu_event(self):
+    def go_to_child_menu(self):
         if not self.has_child_menu:
             return
-        post_event(AppEvents.GO_TO_CHILD_MENU, self.current_page.child_menu)
+        post_event(AppEvents.GO_TO_CHILD_MENU, self.current_page.child_menu_cls)
 
     def go_to_parent_menu(self):
         logger.info("Going to parent")
@@ -82,4 +82,4 @@ class Menu:
 
     @property
     def has_child_menu(self):
-        return self.current_page.child_menu is not None
+        return self.current_page.child_menu_cls is not None

@@ -2,7 +2,7 @@ from ...actions import change_wifi_mode, get_wifi_ap_state
 from ..templates.action import Page as ActionPage
 
 
-class Page(ActionPage):
+class APActionPage(ActionPage):
     def __init__(self, size):
         super().__init__(
             size=size,

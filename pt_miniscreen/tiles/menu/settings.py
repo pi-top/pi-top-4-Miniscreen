@@ -8,5 +8,4 @@ class SettingsMenuTile(MenuTile):
             menu_cls=SettingsRootMenu,
             size=size,
             pos=pos,
-            name="settings",
         )

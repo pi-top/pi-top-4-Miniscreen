@@ -19,7 +19,7 @@ class TileGroup:
     ):
         self.size = size
 
-        self.menu_tiles = [menu_tile]
+        self._current_menu_tile = menu_tile
 
         self.title_bar_tile = title_bar_tile
 
@@ -31,32 +31,9 @@ class TileGroup:
             lambda _: self.should_redraw_event.set(),
         )
 
-        def add_menu_tile(menu_tile):
-            if not self.active:
-                return
-            self.current_menu_tile.active = False
-            self.menu_tiles.append(menu_tile)
-            self.current_menu_tile.active = True
-
-        subscribe(
-            AppEvents.GO_TO_CHILD_MENU,
-            add_menu_tile,
-        )
-
-        def remove_menu_tile(menu_tile):
-            if not self.active or len(self.menu_tiles) == 1:
-                return
-            self.menu_tiles.remove(menu_tile)
-            self.current_menu_tile.active = True
-
-        subscribe(
-            AppEvents.GO_TO_PARENT_MENU,
-            remove_menu_tile,
-        )
-
     @property
     def current_menu_tile(self):
-        return self.menu_tiles[-1]
+        return self._current_menu_tile
 
     def stop(self):
         if self.title_bar_tile:

@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class MenuTile(ViewportTile):
-    def __init__(self, menu_cls, size, pos=(0, 0), name=""):
+    def __init__(self, menu_cls, size, pos=(0, 0)):
         self.menu = menu_cls(size)
 
         super().__init__(

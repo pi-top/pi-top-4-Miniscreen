@@ -4,7 +4,7 @@ from ...actions import change_vnc_enabled_state
 from ..templates.action import Page as ActionPage
 
 
-class Page(ActionPage):
+class VNCActionPage(ActionPage):
     def __init__(self, size):
         super().__init__(
             size=size,
