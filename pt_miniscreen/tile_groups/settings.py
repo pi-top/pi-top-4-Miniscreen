@@ -34,8 +34,8 @@ class SettingsTileGroup(TileGroup):
                 MenuTile(
                     menu_cls=menu_cls,
                     size=(
-                        self.current_menu_tile.size[0],
-                        self.current_menu_tile.size[1] - self.title_bar_height,
+                        size[0],
+                        size[1] - self.title_bar_height,
                     ),
                     pos=(0, self.title_bar_height),
                 )
