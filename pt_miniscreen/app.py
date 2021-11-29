@@ -2,17 +2,15 @@ import logging
 from os import environ
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
-from time import sleep
 
 from imgcat import imgcat
 from pitop import Pitop
 
 # from .bootsplash import Bootsplash
 from .event import AppEvents, post_event, subscribe
-from .screensaver import StarfieldScreensaver
 from .sleep_manager import SleepManager
-from .state import DisplayState, DisplayStateManager, Speeds
-from .tile_groups import HUDTileGroup, SettingsTileGroup
+from .state import DisplayState, DisplayStateManager
+from .tile_groups import HUDTileGroup, SettingsTileGroup, StarfieldScreensaverTileGroup
 
 logger = logging.getLogger(__name__)
 
@@ -49,22 +47,21 @@ class App:
 
         self.tile_groups = [
             group(size=self.miniscreen.size)
-            for group in [HUDTileGroup, SettingsTileGroup]
+            for group in [
+                HUDTileGroup,
+                SettingsTileGroup,
+                StarfieldScreensaverTileGroup,
+            ]
         ]
         self.tile_group_idx = 0
         self.current_tile_group.active = True
 
-        self.screensaver = StarfieldScreensaver(self.miniscreen.size)
         self.state_manager = DisplayStateManager()
 
         def go_to_next_tile_group():
             self.current_tile_group.active = False
             self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
             self.current_tile_group.active = True
-
-            # TODO: move this to menu tile
-            # if self.menu.parent_goes_to_first_page:
-            #     self.menu.move_to_page_pos(0)
 
         def handle_event(event: AppEvents):
             handler = {
@@ -75,7 +72,7 @@ class App:
             }[event]
 
             if not handler() and event == AppEvents.CANCEL_BUTTON_PRESS:
-                logger.info(
+                logger.debug(
                     "Button press not handled by current tile group - going to next tile group"
                 )
                 go_to_next_tile_group()
@@ -195,20 +192,14 @@ class App:
 
             logger.debug(f"Current state: {self.state_manager.state}")
 
-            # DEBUG:
-            if False:
-                # if self.state_manager.state == DisplayState.SCREENSAVER:
-                self.show_screensaver_frame()
-                sleep(Speeds.SCREENSAVER.value)
-            else:
-                self.display(self.current_tile_group.image)
-                if environ.get("IMGCAT", "0") == "1":
-                    print("\033c")
-                    imgcat(self.current_tile_group.image)
+            self.display(self.current_tile_group.image)
+            if environ.get("IMGCAT", "0") == "1":
+                print("\033c")
+                imgcat(self.current_tile_group.image)
 
-                logger.debug("Waiting until image to display has changed...")
-                self.current_tile_group.wait_until_should_redraw()
-                logger.debug("Image to display has changed!")
+            logger.debug("Waiting until image to display has changed...")
+            self.current_tile_group.wait_until_should_redraw()
+            logger.debug("Image to display has changed!")
 
             # if self.state_manager.state == DisplayState.RUNNING_ACTION:
             #     self.handle_action()
@@ -226,9 +217,6 @@ class App:
     @property
     def current_tile_group(self):
         return self.tile_groups[self.tile_group_idx]
-
-    def show_screensaver_frame(self):
-        self.display(self.screensaver.image.convert("1"))
 
     def set_is_user_controlled(self, user_has_control):
         if self.user_has_control and not user_has_control:

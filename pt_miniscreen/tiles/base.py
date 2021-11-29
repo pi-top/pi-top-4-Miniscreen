@@ -285,3 +285,6 @@ class Tile:
 
     def handle_down_btn(self):
         return False
+
+    def needs_to_scroll(self):
+        return False

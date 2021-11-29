@@ -12,9 +12,3 @@ class HUDTileGroup(TileGroup):
         size,
     ):
         super().__init__(size=size, menu_tile=HUDMenuTile(size=size))
-
-    def handle_select_btn(self):
-        return False
-
-    def handle_cancel_btn(self):
-        return False
