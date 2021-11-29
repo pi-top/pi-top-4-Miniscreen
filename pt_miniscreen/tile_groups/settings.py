@@ -29,6 +29,7 @@ class SettingsTileGroup(TileGroup):
         )
 
         def handle_go_to_child(menu_cls):
+            self.current_menu_tile.active = False
             self.menu_tile_stack.append(
                 MenuTile(
                     menu_cls=menu_cls,
@@ -39,7 +40,7 @@ class SettingsTileGroup(TileGroup):
                     pos=(0, self.title_bar_height),
                 )
             )
-
+            self.current_menu_tile.active = True
             if self.title_bar_tile.append_title:
                 self.update_title_bar_text()
 
