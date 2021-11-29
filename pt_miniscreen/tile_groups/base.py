@@ -4,7 +4,7 @@ from time import sleep
 
 import PIL.Image
 
-from ..event import AppEvents, post_event, subscribe
+from ..event import AppEvents, subscribe
 from ..state import Speeds
 
 logger = logging.getLogger(__name__)
@@ -76,8 +76,6 @@ class TileGroup:
 
     @property
     def image(self):
-        self.current_menu_tile.update_scroll_position()
-
         im = PIL.Image.new("1", self.size)
 
         def paste_tile_into_image(tile, image):
@@ -103,6 +101,11 @@ class TileGroup:
         return im
 
     def wait_until_should_redraw(self):
+        # TODO: time event-based redraw event
+        #
+        # i.e. `self.should_redraw_event.set()` every `Speeds.SCROLL.value`` seconds
+        # and other redraw events are ignored until scrolling has completed
+        # (to ensure that scrolling generators work correctly)
         if self.current_menu_tile.needs_to_scroll:
             sleep(Speeds.SCROLL.value)
         else:
@@ -115,32 +118,13 @@ class TileGroup:
     # Button Press API (when active) #
     ##################################
     def handle_select_btn(self):
-        if self.current_menu_tile.has_child_menu:
-            self.current_menu_tile.go_to_child_menu()
-            return True
-        elif False:
-            post_event(AppEvents.BUTTON_ACTION_START)
-            return True
-        return False
+        return self.current_menu_tile.handle_select_btn()
 
     def handle_cancel_btn(self):
-        if len(self.menu_tiles) > 1:
-            self.current_menu_tile.go_to_parent_menu()
-            return True
-        return False
+        return self.current_menu_tile.handle_cancel_btn()
 
     def handle_up_btn(self):
-        self.current_menu_tile.set_page_to_previous()
-
-        if self.current_menu_tile.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-        return True
+        return self.current_menu_tile.handle_up_btn()
 
     def handle_down_btn(self):
-        self.current_menu_tile.set_page_to_next()
-
-        if self.current_menu_tile.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
-
-        return True
+        return self.current_menu_tile.handle_down_btn()

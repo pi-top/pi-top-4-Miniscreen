@@ -2,12 +2,12 @@ import logging
 
 from ..event import AppEvents, subscribe
 from ..tiles import SettingsMenuTile, SettingsTitleBarTile
-from .base import TileGroup as TileGroupBase
+from .base import TileGroup
 
 logger = logging.getLogger(__name__)
 
 
-class TileGroup(TileGroupBase):
+class SettingsTileGroup(TileGroup):
     def __init__(
         self,
         size,
@@ -24,12 +24,12 @@ class TileGroup(TileGroupBase):
             pos=(0, 0),
         )
 
-        def handle_go_to_child(menu_tile):
+        def handle_go_to_child(menu_cls):
             if not title_bar_tile.append_title:
                 return
 
             title_bar_tile.text = (
-                f"{title_bar_tile.text}{title_bar_tile.delimiter}{menu_tile.name}"
+                f"{title_bar_tile.text}{title_bar_tile.delimiter}{menu_cls.name}"
             )
 
         def handle_go_to_parent(_):

@@ -25,8 +25,6 @@ class Page:
         self._size = value
         # Resize hotspots
         self.reset()
-        # Resize child
-        self.child_menu.size = self.size
 
     def reset(self):
         pass

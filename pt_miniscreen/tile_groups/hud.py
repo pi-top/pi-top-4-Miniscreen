@@ -1,12 +1,12 @@
 import logging
 
 from ..tiles import HUDMenuTile
-from .base import TileGroup as TileGroupBase
+from .base import TileGroup
 
 logger = logging.getLogger(__name__)
 
 
-class TileGroup(TileGroupBase):
+class HUDTileGroup(TileGroup):
     def __init__(
         self,
         size,

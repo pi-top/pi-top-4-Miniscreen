@@ -1,30 +1,25 @@
 import logging
 
 from ...event import AppEvents, post_event
-from ...generators import scroll_to
 from ...hotspots.base import HotspotInstance
-from .viewport import Tile as ViewportTile
+from .viewport import ViewportTile
 
 logger = logging.getLogger(__name__)
 
 
-class Tile(ViewportTile):
-    SCROLL_PX_RESOLUTION = 2
+class MenuTile(ViewportTile):
+    def __init__(self, menu_cls, size, pos=(0, 0), name=""):
+        self.menu = menu_cls(size)
 
-    def __init__(self, size, pos=(0, 0), pages=list(), name=""):
-        assert len(pages) > 0
         super().__init__(
             size=size,
             pos=pos,
-            viewport_size=(size[0], size[1] * len(pages)),
+            viewport_size=(size[0], size[1] * len(self.menu.pages)),
             window_position=(0, 0),
         )
-        self.pages = pages
-        self.name = name
-        self._page_index = 0
 
         hotspot_instances = list()
-        for i, page in enumerate(self.pages):
+        for i, page in enumerate(self.menu.pages):
             for hotspot_instance in page.hotspot_instances:
                 xy = (hotspot_instance.xy[0], hotspot_instance.xy[1] + i * self.size[1])
                 hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
@@ -32,65 +27,51 @@ class Tile(ViewportTile):
         self.set_hotspot_instances(hotspot_instances, start=True)
 
     @property
-    def current_page(self):
-        return self.pages[self.page_index]
+    def image(self):
+        self.update_scroll_position()
+        return super().image
 
-    @property
-    def page_index(self):
-        return self._page_index
+    ##################################
+    # Button Press API (when active) #
+    ##################################
+    def handle_select_btn(self) -> bool:
+        if self.menu.has_child_menu:
+            self.menu.go_to_child_menu()
+            return True
+        # elif False:
+        #     post_event(AppEvents.BUTTON_ACTION_START)
+        #     return True
+        return False
 
-    @page_index.setter
-    def page_index(self, idx):
-        if self.page_index == idx:
-            return
-        self._page_index = idx
-        self.scroll_coordinate_generator = scroll_to(
-            min_value=self.y_pos,
-            max_value=self.page_index * self.height,
-            resolution=self.SCROLL_PX_RESOLUTION,
-        )
+    def handle_cancel_btn(self) -> bool:
+        return False
 
-    ###############################
-    # Position - immediate/scroll #
-    ###############################
-    # Ignore scrolling behaviour
-    def move_to_page_pos(self, index):
-        self.page_index = index
-        self.y_pos = self.page_index * self.height
-
-    # Set page, but still require scrolling
-    def set_page_to_previous(self):
+    def handle_up_btn(self) -> bool:
         if self.needs_to_scroll:
-            return
+            return True
 
-        def get_previous_page_index():
-            if self.page_index == 0:
-                return self.page_index
+        self.menu.set_page_to_previous()
 
-            return self.page_index - 1
-
-        previous_index = self.page_index
-        self.page_index = get_previous_page_index()
-        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
-
-    def set_page_to_next(self):
         if self.needs_to_scroll:
-            return
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
 
-        def get_next_page_index():
-            if self.page_index == len(self.pages) - 1:
-                return self.page_index
+        return True
 
-            return self.page_index + 1
+    def handle_down_btn(self) -> bool:
+        if self.needs_to_scroll:
+            return True
 
-        previous_index = self.page_index
-        self.page_index = get_next_page_index()
-        logger.debug(f"Page index: {previous_index} -> {self.page_index}")
+        self.menu.set_page_to_next()
+
+        if self.needs_to_scroll:
+            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+
+        return True
 
     # Update scroll position if page is not to be moved to immediately
     @property
     def needs_to_scroll(self):
-        final_y_pos = self.page_index * self.current_page.height
+        final_y_pos = self.menu.page_index * self.menu.current_page.height
         return self.y_pos != final_y_pos
 
     def update_scroll_position(self):
@@ -98,26 +79,7 @@ class Tile(ViewportTile):
             return
 
         try:
-            value = next(self.scroll_coordinate_generator)
+            value = next(self.menu.scroll_coordinate_generator)
             self.y_pos = value
         except StopIteration:
             pass
-
-    ###########################
-    # Child/parent navigation #
-    ###########################
-    def go_to_child_menu(self):
-        if not self.has_child_menu:
-            return
-
-        logger.info("Current tile has child tile - setting to child")
-        self.current_page.child_menu.pos = self.pos
-        post_event(AppEvents.GO_TO_CHILD_MENU, self.current_page.child_menu)
-
-    def go_to_parent_menu(self):
-        logger.info("Going to parent")
-        post_event(AppEvents.GO_TO_PARENT_MENU, self)
-
-    @property
-    def has_child_menu(self):
-        return self.current_page.child_menu is not None

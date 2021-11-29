@@ -275,13 +275,13 @@ class Tile:
         return im
 
     def handle_select_btn(self):
-        return
+        return False
 
     def handle_cancel_btn(self):
-        return
+        return False
 
     def handle_up_btn(self):
-        return
+        return False
 
     def handle_down_btn(self):
-        return
+        return False

@@ -1,3 +1,3 @@
 from .base import TileGroup
-from .hud import TileGroup as HUDTileGroup
-from .settings import TileGroup as SettingsTileGroup
+from .hud import HUDTileGroup
+from .settings import SettingsTileGroup

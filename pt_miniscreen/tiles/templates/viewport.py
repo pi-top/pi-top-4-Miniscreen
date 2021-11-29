@@ -2,12 +2,12 @@ import logging
 
 from PIL import Image
 
-from ..base import Tile as BaseTile
+from ..base import Tile
 
 logger = logging.getLogger(__name__)
 
 
-class Tile(BaseTile):
+class ViewportTile(Tile):
     """The viewport offers a positionable window into a larger resolution
     pseudo-display, that also supports the concept of hotspots (which act like
     live displays).

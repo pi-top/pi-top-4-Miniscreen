@@ -1,2 +1,2 @@
-from .menu import Tile as MenuTile
-from .viewport import Tile as ViewportTile
+from .menu import MenuTile
+from .viewport import ViewportTile
