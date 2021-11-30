@@ -1,6 +1,7 @@
 import logging
 from enum import Enum
 from os import path
+from pathlib import Path
 from time import perf_counter
 from typing import Callable
 
@@ -60,7 +61,7 @@ class StateManager:
             self.action_timer.touch()
 
         def handle_stop_bootsplash(_):
-            # Path(self.bootsplash_breadcrumb).touch()
+            Path(self.bootsplash_breadcrumb).touch()
             self.state = State.ACTIVE
 
         subscribe(AppEvent.BUTTON_ACTION_START, start_current_menu_action)
