@@ -1,120 +1,151 @@
 import logging
+import time
 from os import environ
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
-from time import sleep
 
 from imgcat import imgcat
 from pitop import Pitop
 
-# from .bootsplash import Bootsplash
-from .event import AppEvents, post_event, subscribe
-from .screensaver import StarfieldScreensaver
-from .sleep_manager import SleepManager
-from .state import DisplayState, DisplayStateManager, Speeds
-from .tile_group import TileGroup
-from .tiles import HUDMenuTile, SettingsMenuTile, SettingsTitleBarTile
+from .event import AppEvent, post_event, subscribe
+from .state import State, StateManager
+from .tile_groups import (
+    HUDTileGroup,
+    PitopBootsplashTileGroup,
+    SettingsTileGroup,
+    StarfieldScreensaverTileGroup,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class App:
     TIMEOUTS = {
-        DisplayState.DIM: 20,
-        DisplayState.SCREENSAVER: 60,
-        DisplayState.WAKING: 0.6,
-        DisplayState.RUNNING_ACTION: 30,
+        State.DIM: 20,
+        State.SCREENSAVER: 60,
+        State.WAKING: 0.6,
+        State.RUNNING_ACTION: 30,
     }
 
     def __init__(self):
-        logger.debug("Initialising app...")
+        logger.debug("Initializing app...")
 
         logger.debug("Setting ENV VAR to use miniscreen as system...")
         environ["PT_MINISCREEN_SYSTEM"] = "1"
 
-        self.__thread = Thread(target=self._main, args=())
         self.__stop = False
-
         self.last_shown_image = None
-
         self.user_gave_back_control_event = Event()
+        self.tile_group_stack = list()
 
+        logger.debug("Initializing miniscreen...")
         self.miniscreen = Pitop().miniscreen
 
-        self.miniscreen.when_user_controlled = lambda: self.set_is_user_controlled(True)
-        self.miniscreen.when_system_controlled = lambda: self.set_is_user_controlled(
-            False
-        )
+        logger.debug("Initializing rest of app...")
+        self.__thread = Thread(target=self._main, args=())
 
-        # self.splash = Bootsplash(self.miniscreen)
+        self._add_tile_group_to_stack_from_cls(HUDTileGroup)
 
-        hud_tile_group = TileGroup(
-            size=self.miniscreen.size,
-            menu_tile=HUDMenuTile(size=self.miniscreen.size),
-            title_bar_tile=None,
-        )
-        title_bar_height = 19
-        settings_tile_group = TileGroup(
-            size=self.miniscreen.size,
-            title_bar_tile=SettingsTitleBarTile(
-                size=(self.miniscreen.size[0], title_bar_height),
-                pos=(0, 0),
-            ),
-            menu_tile=SettingsMenuTile(
-                size=(
-                    self.miniscreen.size[0],
-                    self.miniscreen.size[1] - title_bar_height,
-                ),
-                pos=(0, title_bar_height),
-            ),
-        )
+        self.setup_events()
 
-        self.tile_groups = [hud_tile_group, settings_tile_group]
-        self.tile_group_idx = 0
+        self.state_manager = StateManager(self.miniscreen.contrast)
+
+        logger.debug("Done initializing app")
+
+    def add_tile_group(self, tile_group):
+        if len(self.tile_group_stack) > 0:
+            self.current_tile_group.active = False
+        self.tile_group_stack.append(tile_group)
+
         self.current_tile_group.active = True
+        post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
-        self.screensaver = StarfieldScreensaver(self.miniscreen.size)
-        self.state_manager = DisplayStateManager()
+    def pop_tile_group(self):
+        self.current_tile_group.active = False
 
-        def handle_button_press():
-            if self.state_manager.state != DisplayState.WAKING:
-                self.state_manager.user_activity_timer.reset()
+        if len(self.tile_group_stack) > 1:
+            self.tile_group_stack.pop()
+        else:
+            self._add_tile_group_to_stack_from_cls(SettingsTileGroup)
 
-            if self.state_manager.state == DisplayState.ACTIVE:
-                return
+        self.current_tile_group.active = True
+        post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
-            self.sleep_manager.wake()
+    def _add_tile_group_to_stack_from_cls(self, tile_group_class):
+        self.add_tile_group(tile_group_class(size=self.miniscreen.size))
 
-        def handle_cancel_btn():
-            print("Handling cancel btn")
-            was_active = self.state_manager.state == DisplayState.ACTIVE
-            handle_button_press()
-            if not was_active:
-                return
+    def setup_events(self) -> None:
+        subscribe(
+            AppEvent.START_BOOTSPLASH,
+            lambda _: self._add_tile_group_to_stack_from_cls(PitopBootsplashTileGroup),
+        )
+        subscribe(AppEvent.STOP_BOOTSPLASH, lambda _: self.pop_tile_group())
 
-            def go_to_next_tile_group():
-                print("Going to next tile")
-                self.current_tile_group.active = False
-                self.tile_group_idx = (self.tile_group_idx + 1) % len(self.tile_groups)
-                print(self.tile_group_idx)
-                print(len(self.tile_groups))
-                self.current_tile_group.active = True
+        subscribe(
+            AppEvent.START_SCREENSAVER,
+            lambda: self._add_tile_group_to_stack_from_cls(
+                StarfieldScreensaverTileGroup
+            ),
+        )
+        subscribe(AppEvent.STOP_SCREENSAVER, lambda _: self.pop_tile_group())
 
-                # if self.menu.parent_goes_to_first_page:
-                #     self.menu.move_to_page_pos(0)
-                post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+        def set_is_user_controlled(user_has_control) -> None:
+            if self.user_has_control and not user_has_control:
+                self.user_gave_back_control_event.set()
 
-            # TODO: go to next menu if menu is not in a child menu
-            # if self.tile_group.menu.is_root:
-            go_to_next_tile_group()
-            post_event(AppEvents.CANCEL_BUTTON_PRESS)
+            logger.info(
+                f"User has {'taken' if user_has_control else 'given back'} control of the miniscreen"
+            )
 
-        self.miniscreen.cancel_button.when_released = handle_cancel_btn
+        self.miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
+        self.miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
 
-        subscribe(AppEvents.BUTTON_ACTION_START, self.start_current_menu_action)
-        self.sleep_manager = SleepManager(self.state_manager, self.miniscreen)
+        def handle_event(event: AppEvent):
+            logger.debug(
+                f"Handling event {event.name} for tile group {self.current_tile_group}"
+            )
 
-    def start(self):
+            handler = {
+                AppEvent.CANCEL_BUTTON_PRESS: self.current_tile_group.handle_cancel_btn,
+                AppEvent.SELECT_BUTTON_PRESS: self.current_tile_group.handle_select_btn,
+                AppEvent.UP_BUTTON_PRESS: self.current_tile_group.handle_up_btn,
+                AppEvent.DOWN_BUTTON_PRESS: self.current_tile_group.handle_down_btn,
+            }[event]
+
+            if not handler() and event == AppEvent.CANCEL_BUTTON_PRESS:
+                logger.debug(
+                    "Button press not handled by current tile group - going to next tile group"
+                )
+                self.pop_tile_group()
+            post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
+            post_event(event)
+
+        self.miniscreen.cancel_button.when_released = (
+            lambda: self.state_manager.handle_button_press(
+                AppEvent.CANCEL_BUTTON_PRESS, handle_event
+            )
+        )
+        self.miniscreen.select_button.when_released = (
+            lambda: self.state_manager.handle_button_press(
+                AppEvent.SELECT_BUTTON_PRESS, handle_event
+            )
+        )
+        self.miniscreen.up_button.when_released = (
+            lambda: self.state_manager.handle_button_press(
+                AppEvent.UP_BUTTON_PRESS, handle_event
+            )
+        )
+        self.miniscreen.down_button.when_released = (
+            lambda: self.state_manager.handle_button_press(
+                AppEvent.DOWN_BUTTON_PRESS, handle_event
+            )
+        )
+
+    @property
+    def current_tile_group(self):
+        return self.tile_group_stack[-1]
+
+    def start(self) -> None:
         if self.__stop:
             return
 
@@ -127,140 +158,44 @@ class App:
         self.__thread.daemon = True
         self.__thread.start()
 
-    def stop(self):
+    def stop(self) -> None:
         if self.__stop:
             return
 
         logger.info("Stopping app...")
         self.__stop = True
 
-    def handle_startup_animation(self):
-        if not self.splash.has_played():
-            logger.info("Not played boot animation this session - starting...")
-            self.splash.play()
-            logger.info("Finished startup animation")
-
     @property
-    def user_has_control(self):
+    def user_has_control(self) -> bool:
         return self.miniscreen.is_active
 
-    def handle_action(self):
-        logger.debug("Resetting activity timer to prevent dimming...")
-        # self.state_manager.user_activity_timer.reset()
-
-        # time_since_action_started = self.state_manager.action_timer.elapsed_time
-
-        # logger.debug(f"Time since action started: {time_since_action_started}")
-
-        # if self.tile_group.menu.current_page.action_process.is_alive():
-        #     logger.debug("Action not yet completed")
-        #     return
-
-        # if time_since_action_started > self.TIMEOUTS[DisplayState.RUNNING_ACTION]:
-        #     logger.info("Action timed out - setting state to WAKING")
-        #     self.state_manager.state = DisplayState.WAKING
-
-        #     logger.info("Notifying renderer to display 'unknown' action state")
-        #     self.tile_group.menu.current_page.set_unknown_state()
-        #     return
-
-        # logger.info("Action completed - setting state to WAKING")
-        # self.state_manager.state = DisplayState.WAKING
-        # logger.info("Resetting state of hotspot to re-renderer current state")
-
-        # self.tile_group.menu.current_page.hotspot.reset()
-
-    @property
-    def time_since_last_active(self):
-        return self.state_manager.user_activity_timer.elapsed_time
-
-    def handle_active_time(self):
-        logger.debug("Checking for state change based on inactive time...")
-
-        if self.state_manager.state == DisplayState.WAKING:
-            if self.time_since_last_active < self.TIMEOUTS[DisplayState.WAKING]:
-                return
-
-            self.state_manager.state = DisplayState.ACTIVE
-
-        if self.time_since_last_active < self.TIMEOUTS[DisplayState.DIM]:
-            return
-
-        if self.state_manager.state == DisplayState.ACTIVE:
-            self.sleep_manager.sleep()
-            return
-
-    def _main(self):
-        # self.handle_startup_animation()
-
+    def _main(self) -> None:
         logger.info("Starting main loop...")
         while not self.__stop:
 
-            logger.debug(f"User has control: {self.user_has_control}")
-
             if self.user_has_control:
-                self.wait_for_user_control_release()
+                logger.info(
+                    "User has control. Waiting for user to give control back..."
+                )
+                self.user_gave_back_control_event.wait()
                 self.reset()
 
             logger.debug(f"Current state: {self.state_manager.state}")
 
-            # DEBUG:
-            if False:
-                # if self.state_manager.state == DisplayState.SCREENSAVER:
-                self.show_screensaver_frame()
-                sleep(Speeds.SCREENSAVER.value)
-            else:
-                self.display(self.current_tile_group.image)
-                if environ.get("IMGCAT", "0") == "1":
-                    print("\033c")
-                    imgcat(self.current_tile_group.image)
+            self.display(self.current_tile_group.image)
+            if environ.get("IMGCAT", "0") == "1":
+                print("\033c")
+                imgcat(self.current_tile_group.image)
 
-                logger.debug("Waiting until image to display has changed...")
-                self.current_tile_group.wait_until_should_redraw()
-                logger.debug("Image to display has changed!")
+            logger.debug("Waiting until image to display has changed...")
+            start = time.time()
+            self.current_tile_group.wait_until_should_redraw()
+            end = time.time()
+            logger.debug(f"Image to display has changed! Wait time: {end - start}")
 
-            # if self.state_manager.state == DisplayState.RUNNING_ACTION:
-            #     self.handle_action()
-            #     continue
-
-            # self.handle_active_time()
-
-            # if self.time_since_last_active < self.TIMEOUTS[DisplayState.SCREENSAVER]:
-            #     continue
-
-            # if self.state_manager.state == DisplayState.DIM:
-            #     logger.info("Starting screensaver...")
-            #     self.state_manager.state = DisplayState.SCREENSAVER
-
-    @property
-    def current_tile_group(self):
-        return self.tile_groups[self.tile_group_idx]
-
-    def show_screensaver_frame(self):
-        self.display(self.screensaver.image.convert("1"))
-
-    def set_is_user_controlled(self, user_has_control):
-        if self.user_has_control and not user_has_control:
-            self.user_gave_back_control_event.set()
-
-        logger.info(
-            f"User has {'taken' if user_has_control else 'given back'} control of the miniscreen"
-        )
-
-    def wait_for_user_control_release(self):
-        logger.info("User has control. Waiting for user to give control back...")
-        self.user_gave_back_control_event.wait()
-
-    def start_current_menu_action(self, _):
-        logger.debug("Setting state to RUNNING_ACTION")
-        self.state = DisplayState.RUNNING_ACTION
-
-        logger.debug("Taking note of current time for start of action")
-        self.state_manager.action_timer.reset()
-
-    def display(self, image, wake=False):
+    def display(self, image, wake=False) -> None:
         if wake:
-            self.sleep_manager.wake()
+            self.state_manager.wake()
 
         try:
             self.miniscreen.device.display(image)
@@ -270,9 +205,9 @@ class App:
 
         self.last_shown_image = image
 
-    def reset(self):
+    def reset(self) -> None:
         logger.info("Forcing full state refresh...")
-        self.sleep_manager.wake()
+        self.state_manager.wake()
         self.miniscreen.reset()
         if self.last_shown_image is not None:
             self.display(self.last_shown_image)

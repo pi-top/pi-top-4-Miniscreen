@@ -4,7 +4,7 @@ from ...actions import change_further_link_enabled_state
 from ..templates.action import Page as ActionPage
 
 
-class Page(ActionPage):
+class FurtherLinkActionPage(ActionPage):
     def __init__(self, size):
         super().__init__(
             size=size,

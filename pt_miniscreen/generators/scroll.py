@@ -1,4 +1,4 @@
-def pause_every(interval, generator, sleep_for):
+def pause_every(pause_yield_interval, generator, no_of_pause_yields):
     while True:
         try:
             x = next(generator)  # Will raise StopIteration if lines is exhausted
@@ -6,8 +6,8 @@ def pause_every(interval, generator, sleep_for):
             # Just ignore
             continue
 
-        if x % interval == 0:
-            for _ in range(sleep_for):
+        if x % pause_yield_interval == 0:
+            for _ in range(no_of_pause_yields):
                 yield x
         else:
             yield x

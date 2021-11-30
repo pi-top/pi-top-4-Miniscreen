@@ -1,5 +1,6 @@
 import logging
 
+import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
@@ -65,15 +66,17 @@ class Hotspot(HotspotBase):
         text_draw = PIL.ImageDraw.Draw(self.text_image)
         text_draw.text(xy=(0, 0), text=self.text, font=self.font, fill="white")
 
+        scroll_len = self.text_image.width - self.size[0]
+
         # update coordinate generator maximum values for the new image
         self.coordinate_generator = pause_every(
-            interval=self.text_image.width - self.size[0],
+            pause_yield_interval=scroll_len,
             generator=carousel(
                 min_value=0,
-                max_value=self.text_image.width - self.size[0],
+                max_value=scroll_len,
                 resolution=self.DELTA_PX,
             ),
-            sleep_for=7,
+            no_of_pause_yields=8,
         )
 
     @property

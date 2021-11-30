@@ -4,7 +4,7 @@ from ...actions import change_ssh_enabled_state
 from ..templates.action import Page as ActionPage
 
 
-class Page(ActionPage):
+class SSHActionPage(ActionPage):
     def __init__(self, size):
         super().__init__(
             size=size,

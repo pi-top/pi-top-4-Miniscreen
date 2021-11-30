@@ -7,7 +7,7 @@ from typing import Dict, List
 from PIL import Image, ImageChops
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..event import AppEvents, post_event
+from ..event import AppEvent, post_event
 from ..hotspots.base import HotspotInstance
 
 logger = logging.getLogger(__name__)
@@ -86,13 +86,12 @@ class Tile:
         if len(self.image_caching_threads) == 0:
             return
 
-        logger.warning(
+        logger.debug(
             f"Tile: stopping {len(self.image_caching_threads)} hotspot threads..."
         )
         for _, thread in self.image_caching_threads.items():
             thread.do_run = False
-            logger.error("TIME TO STOP THE RUN!")
-            thread.join()
+            thread.join(0)
 
         logger.debug(f"Tile: stopped {len(self.image_caching_threads)} hotspot threads")
         self.image_caching_threads = dict()
@@ -107,6 +106,8 @@ class Tile:
         hotspot_image = self.cached_images.get(hotspot_instance.hotspot)
         if not hotspot_image:
             return
+
+        hotspot_image = hotspot_image.convert("1")
 
         if hotspot_instance.hotspot.invert:
             hotspot_image = MiniscreenAssistant(
@@ -183,7 +184,7 @@ class Tile:
                 new_img = hotspot.image
                 if last_img is None or have_differences(last_img, new_img):
                     self.cached_images[hotspot] = new_img
-                    post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+                    post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
             # logger.debug("Caching new image...")
             cache_new_image()
@@ -213,7 +214,7 @@ class Tile:
         if len(self.hotspot_instances) == 0:
             return
 
-        logger.warning(f"Removing {len(self.hotspot_instances)} hotspot instances...")
+        logger.info(f"Removing {len(self.hotspot_instances)} hotspot instances...")
         self.hotspot_instances = list()
 
     def is_hotspot_overlapping(self, hotspot_instance):
@@ -276,13 +277,16 @@ class Tile:
         return im
 
     def handle_select_btn(self):
-        return
+        return False
 
     def handle_cancel_btn(self):
-        return
+        return False
 
     def handle_up_btn(self):
-        return
+        return False
 
     def handle_down_btn(self):
-        return
+        return False
+
+    def needs_to_scroll(self):
+        return False
