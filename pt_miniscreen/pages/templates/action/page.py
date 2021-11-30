@@ -8,6 +8,9 @@ from .state import ActionState
 
 
 class Page(PageBase):
+    STATUS_ICON_SIZE = 24
+    THIRD_COLUMN_WIDTH = STATUS_ICON_SIZE
+
     def __init__(
         self,
         size,
@@ -20,13 +23,15 @@ class Page(PageBase):
         self.icon = icon
         self.get_state_method = get_state_method
         self.set_state_method = set_state_method
+        self.status_icon_hotspot = StatusIconHotspot(
+            size=(self.THIRD_COLUMN_WIDTH, self.STATUS_ICON_SIZE),
+        )
 
         super().__init__(size=size)
 
     def reset(self):
         SPACING = 4
         FONT_SIZE = 14
-        STATUS_ICON_SIZE = 24
         ICON_WIDTH = 44
         ICON_HEIGHT = 33
         ICON_SIZE = (ICON_WIDTH, ICON_HEIGHT)
@@ -34,24 +39,19 @@ class Page(PageBase):
         FIRST_COLUMN_POS = 1
         FIRST_COLUMN_WIDTH = ICON_WIDTH + FIRST_COLUMN_POS
 
-        THIRD_COLUMN_WIDTH = STATUS_ICON_SIZE
-        THIRD_COLUMN_POS = self.width - THIRD_COLUMN_WIDTH - SPACING
+        THIRD_COLUMN_POS = self.width - self.THIRD_COLUMN_WIDTH - SPACING
 
         SECOND_COLUMN_POS = FIRST_COLUMN_WIDTH + SPACING
         SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
 
         self.status_icon_hotspot = StatusIconHotspot(
-            size=(THIRD_COLUMN_WIDTH, STATUS_ICON_SIZE),
+            size=(self.THIRD_COLUMN_WIDTH, self.STATUS_ICON_SIZE),
         )
 
         self.action_state = ActionState.ENABLED
 
-        if callable(self.get_state_method):
-            if self.get_state_method() != "Enabled":
-                self.action_state = ActionState.DISABLED
-
-        # TODO: reset hotspots?
-        # processing_icon_frame = 0
+        if callable(self.get_state_method) and self.get_state_method() != "Enabled":
+            self.action_state = ActionState.DISABLED
 
         self.hotspot_instances = [
             HotspotInstance(
@@ -73,7 +73,7 @@ class Page(PageBase):
                 self.status_icon_hotspot,
                 (
                     THIRD_COLUMN_POS,
-                    self.offset_pos_for_vertical_center(STATUS_ICON_SIZE),
+                    self.offset_pos_for_vertical_center(self.STATUS_ICON_SIZE),
                 ),
             ),
         ]

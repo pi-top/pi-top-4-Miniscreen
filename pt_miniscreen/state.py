@@ -69,8 +69,8 @@ class ScheduledEventManager:
 
 class StateManager:
     TIMEOUTS = {
-        State.DIM: 2,
-        State.SCREENSAVER: 4,
+        State.DIM: 20,
+        State.SCREENSAVER: 40,
         State.WAKING: 0.6,
         State.RUNNING_ACTION: 30,
     }
@@ -151,15 +151,17 @@ class StateManager:
         )
 
     def setup_event_listeners(self):
-        def start_current_menu_action(_) -> None:
-            logger.critical("Setting state to RUNNING_ACTION")
+        def do_action(action_func) -> None:
+            logger.error("Setting state to RUNNING_ACTION")
             self.state = State.RUNNING_ACTION
+            logger.critical("Running button action function")
+            action_func()
 
         def handle_stop_bootsplash(_):
             Path(self.bootsplash_breadcrumb).touch()
             self.state = State.ACTIVE
 
-        subscribe(AppEvent.BUTTON_ACTION_START, start_current_menu_action)
+        subscribe(AppEvent.BUTTON_ACTION_START, do_action)
         subscribe(AppEvent.STOP_BOOTSPLASH, handle_stop_bootsplash)
 
     @property
@@ -193,7 +195,9 @@ class StateManager:
             post_event(AppEvent.STOP_SCREENSAVER)
 
         elif self.state == State.RUNNING_ACTION:
+            logger.critical("WE ARE RUNNING AN ACTION!")
             self.start_action_timeout_timer()
+            post_event(AppEvent.STOP_SCREENSAVER)
 
         self._state = new_state
 

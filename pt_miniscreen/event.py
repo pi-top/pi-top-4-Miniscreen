@@ -10,7 +10,7 @@ class AppEvent(Enum):
     CANCEL_BUTTON_PRESS = auto()  # callable
     UP_BUTTON_PRESS = auto()  # callable
     DOWN_BUTTON_PRESS = auto()  # callable
-    BUTTON_ACTION_START = auto()  # None
+    BUTTON_ACTION_START = auto()  # callable
     UPDATE_DISPLAYED_IMAGE = auto()  # None
     GO_TO_CHILD_MENU = auto()  # str
     GO_TO_PARENT_MENU = auto()  # None

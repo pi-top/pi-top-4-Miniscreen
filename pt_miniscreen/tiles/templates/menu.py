@@ -40,9 +40,11 @@ class MenuTile(ViewportTile):
         if self.menu.has_child_menu:
             self.menu.go_to_child_menu()
             return True
-        # elif False:
-        #     post_event(AppEvent.BUTTON_ACTION_START)
-        #     return True
+        elif hasattr(self.menu.current_page, "action_state"):
+            post_event(
+                AppEvent.BUTTON_ACTION_START, self.menu.current_page.on_select_press
+            )
+            return True
         return False
 
     def handle_cancel_btn(self) -> bool:
