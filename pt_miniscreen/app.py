@@ -8,7 +8,7 @@ from imgcat import imgcat
 from pitop import Pitop
 
 from .event import AppEvent, post_event, subscribe
-from .state import State, StateManager
+from .state import StateManager
 from .tile_groups import (
     HUDTileGroup,
     PitopBootsplashTileGroup,
@@ -20,13 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 class App:
-    TIMEOUTS = {
-        State.DIM: 20,
-        State.SCREENSAVER: 60,
-        State.WAKING: 0.6,
-        State.RUNNING_ACTION: 30,
-    }
-
     def __init__(self):
         logger.debug("Initializing app...")
 
@@ -83,7 +76,7 @@ class App:
 
         subscribe(
             AppEvent.START_SCREENSAVER,
-            lambda: self._add_tile_group_to_stack_from_cls(
+            lambda _: self._add_tile_group_to_stack_from_cls(
                 StarfieldScreensaverTileGroup
             ),
         )

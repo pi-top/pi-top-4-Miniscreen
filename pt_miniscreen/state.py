@@ -2,24 +2,13 @@ import logging
 from enum import Enum
 from os import path
 from pathlib import Path
-from time import perf_counter
+from sched import scheduler
+from threading import Event, Thread
 from typing import Callable
 
 from .event import AppEvent, post_event, subscribe
 
 logger = logging.getLogger(__name__)
-
-
-class ActivityTimer:
-    def __init__(self):
-        self.last_active_time = perf_counter()
-
-    def touch(self):
-        self.last_active_time = perf_counter()
-
-    @property
-    def elapsed_time(self):
-        return perf_counter() - self.last_active_time
 
 
 class State(Enum):
@@ -39,12 +28,58 @@ class Speeds(Enum):
     MARQUEE = 0.1
 
 
+class ScheduledEventManager:
+    def __init__(self):
+        self.sched = scheduler()
+        self.sched_events = dict()
+
+        self.got_new_sched_event = Event()
+
+        Thread(target=self.main, args=(), daemon=True).start()
+
+    def main(self):
+        while True:
+            if len(self.sched.queue) == 0:
+                logger.warning("Waiting on a new scheduled event...")
+                self.got_new_sched_event.wait()
+                self.got_new_sched_event.clear()
+
+            logger.warning(
+                f"Running scheduled events - got {len(self.sched.queue) > 0}"
+            )
+            self.sched.run()
+            logger.warning("Finished scheduled events")
+
+    def set_sched_event(self, name, sched_enter_kwargs):
+        logger.info(
+            f"Setting up scheduled event '{name}' with args {sched_enter_kwargs}..."
+        )
+        self.sched_events.update({name: self.sched.enter(**sched_enter_kwargs)})
+        # logger.warning(self.sched_events)
+        logger.info("Emitting 'got new scheduled event'")
+        self.got_new_sched_event.set()
+
+    def cancel_sched_event(self, name):
+        event = self.sched_events.get(name)
+        if event and event in self.sched.queue:
+            logger.info(f"Cancelling scheduled event '{name}'")
+            self.sched.cancel(event)
+            self.sched_events.pop(name)
+
+
 class StateManager:
+    TIMEOUTS = {
+        State.DIM: 2,
+        State.SCREENSAVER: 4,
+        State.WAKING: 0.6,
+        State.RUNNING_ACTION: 30,
+    }
+
     def __init__(self, contrast_change_func):
         self.contrast_change_func = contrast_change_func
 
-        self.user_activity_timer = ActivityTimer()
-        self.action_timer = ActivityTimer()
+        self.sched_event_manager = ScheduledEventManager()
+
         self._state = State.ACTIVE
 
         self.bootsplash_breadcrumb = "/tmp/.com.pi-top.pt_miniscreen.boot-played"
@@ -52,13 +87,73 @@ class StateManager:
         if not path.exists(self.bootsplash_breadcrumb):
             self.state = State.BOOTSPLASH
 
-        self.setup_events()
+        self.setup_event_listeners()
 
-    def setup_events(self):
+        self.reset_dim_timer()
+
+    def reset_dim_timer(self):
+        event_key = "dim"
+        self.sched_event_manager.cancel_sched_event(event_key)
+
+        self.sched_event_manager.set_sched_event(
+            event_key,
+            {"delay": self.TIMEOUTS[State.DIM], "priority": 1, "action": self.sleep},
+        )
+
+    def reset_screensaver_timer(self):
+        event_key = "screensaver"
+        self.sched_event_manager.cancel_sched_event(event_key)
+
+        def set_screensaver_state():
+            self.state = State.SCREENSAVER
+
+        self.sched_event_manager.set_sched_event(
+            event_key,
+            {
+                "delay": self.TIMEOUTS[State.SCREENSAVER],
+                "priority": 1,
+                "action": set_screensaver_state,
+            },
+        )
+
+    def start_waking_timer(self):
+        event_key = "waking"
+        self.sched_event_manager.cancel_sched_event(event_key)
+
+        def set_state_active():
+            self.state = State.ACTIVE
+
+        self.sched_event_manager.set_sched_event(
+            event_key,
+            {
+                "delay": self.TIMEOUTS[State.WAKING],
+                "priority": 1,
+                "action": set_state_active,
+            },
+        )
+
+    def start_action_timeout_timer(self):
+        event_key = "action"
+        self.sched_event_manager.cancel_sched_event(event_key)
+
+        def set_failed_state():
+            # Do something error-y
+            logger.error("Action timed out! Could be bad.")
+            self.state = State.ACTIVE
+
+        self.sched_event_manager.set_sched_event(
+            event_key,
+            {
+                "delay": self.TIMEOUTS[State.RUNNING_ACTION],
+                "priority": 1,
+                "action": set_failed_state,
+            },
+        )
+
+    def setup_event_listeners(self):
         def start_current_menu_action(_) -> None:
-            logger.debug("Setting state to RUNNING_ACTION")
+            logger.critical("Setting state to RUNNING_ACTION")
             self.state = State.RUNNING_ACTION
-            self.action_timer.touch()
 
         def handle_stop_bootsplash(_):
             Path(self.bootsplash_breadcrumb).touch()
@@ -77,25 +172,39 @@ class StateManager:
             return
 
         logger.debug(f"New display state: {new_state}")
-        self.user_activity_timer.touch()
+
+        if new_state == State.DIM:
+            self.reset_screensaver_timer()
+
+        if self._state == State.DIM:
+            self.sched_event_manager.cancel_sched_event("screensaver")
+
+        if new_state == State.WAKING:
+            logger.debug("Starting waking timer...")
+            self.start_waking_timer()
 
         if new_state == State.BOOTSPLASH:
             post_event(AppEvent.START_BOOTSPLASH)
 
-        if new_state == State.SCREENSAVER:
+        elif new_state == State.SCREENSAVER:
             post_event(AppEvent.START_SCREENSAVER)
 
         elif self._state == State.SCREENSAVER:
             post_event(AppEvent.STOP_SCREENSAVER)
 
+        elif self.state == State.RUNNING_ACTION:
+            self.start_action_timeout_timer()
+
         self._state = new_state
 
     def handle_button_press(self, event: AppEvent, handle_event: Callable) -> None:
         if self.state != State.WAKING:
-            self.user_activity_timer.touch()
-        if self.state == State.ACTIVE:
-            handle_event(event)
+            self.reset_dim_timer()
+
         self.wake()
+
+        if self.state in [State.ACTIVE, State.DIM]:
+            handle_event(event)
 
     @property
     def is_sleeping(self) -> bool:
