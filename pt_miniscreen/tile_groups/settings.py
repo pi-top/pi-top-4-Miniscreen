@@ -1,6 +1,6 @@
 import logging
 
-from ..event import AppEvents, subscribe
+from ..event import AppEvent, subscribe
 from ..tiles import MenuTile, SettingsMenuTile, SettingsTitleBarTile
 from .base import TileGroup
 
@@ -12,7 +12,6 @@ class SettingsTileGroup(TileGroup):
         self,
         size,
     ):
-
         self.menu_tile_stack = list()
 
         self.title_bar_height = 19
@@ -44,7 +43,7 @@ class SettingsTileGroup(TileGroup):
             if self.title_bar_tile.append_title:
                 self.update_title_bar_text()
 
-        subscribe(AppEvents.GO_TO_CHILD_MENU, handle_go_to_child)
+        subscribe(AppEvent.GO_TO_CHILD_MENU, handle_go_to_child)
 
         super().__init__(
             size=size, menu_tile=root_menu_tile, title_bar_tile=self.title_bar_tile

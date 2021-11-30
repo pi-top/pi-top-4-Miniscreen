@@ -1,11 +1,9 @@
 import logging
 from threading import Event
-from time import sleep
 
 import PIL.Image
 
-from ..event import AppEvents, subscribe
-from ..state import Speeds
+from ..event import AppEvent, subscribe
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +25,7 @@ class TileGroup:
         self._active = False
 
         subscribe(
-            AppEvents.UPDATE_DISPLAYED_IMAGE,
+            AppEvent.UPDATE_DISPLAYED_IMAGE,
             lambda _: self.should_redraw_event.set(),
         )
 
@@ -75,15 +73,7 @@ class TileGroup:
         return im
 
     def wait_until_should_redraw(self):
-        # TODO: time event-based redraw event
-        #
-        # i.e. `self.should_redraw_event.set()` every `Speeds.SCROLL.value`` seconds
-        # and other redraw events are ignored until scrolling has completed
-        # (to ensure that scrolling generators work correctly)
-        if self.current_menu_tile.needs_to_scroll:
-            sleep(Speeds.SCROLL.value)
-        else:
-            self.should_redraw_event.wait()
+        self.should_redraw_event.wait()
 
         if self.should_redraw_event.is_set():
             self.should_redraw_event.clear()

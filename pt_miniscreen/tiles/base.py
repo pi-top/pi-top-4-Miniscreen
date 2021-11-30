@@ -7,7 +7,7 @@ from typing import Dict, List
 from PIL import Image, ImageChops
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..event import AppEvents, post_event
+from ..event import AppEvent, post_event
 from ..hotspots.base import HotspotInstance
 
 logger = logging.getLogger(__name__)
@@ -107,6 +107,8 @@ class Tile:
         if not hotspot_image:
             return
 
+        hotspot_image = hotspot_image.convert("1")
+
         if hotspot_instance.hotspot.invert:
             hotspot_image = MiniscreenAssistant(
                 "1", hotspot_instance.hotspot.size
@@ -182,7 +184,7 @@ class Tile:
                 new_img = hotspot.image
                 if last_img is None or have_differences(last_img, new_img):
                     self.cached_images[hotspot] = new_img
-                    post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+                    post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
             # logger.debug("Caching new image...")
             cache_new_image()

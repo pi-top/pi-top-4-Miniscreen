@@ -1,6 +1,6 @@
 import logging
 
-from ..event import AppEvents, post_event
+from ..event import AppEvent, post_event
 from ..generators import scroll_to
 
 logger = logging.getLogger(__name__)
@@ -74,11 +74,11 @@ class Menu:
     def go_to_child_menu(self):
         if not self.has_child_menu:
             return
-        post_event(AppEvents.GO_TO_CHILD_MENU, self.current_page.child_menu_cls)
+        post_event(AppEvent.GO_TO_CHILD_MENU, self.current_page.child_menu_cls)
 
     def go_to_parent_menu(self):
         logger.info("Going to parent")
-        post_event(AppEvents.GO_TO_PARENT_MENU, self)
+        post_event(AppEvent.GO_TO_PARENT_MENU, self)
 
     @property
     def has_child_menu(self):

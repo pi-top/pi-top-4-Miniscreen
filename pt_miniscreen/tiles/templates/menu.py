@@ -1,7 +1,9 @@
 import logging
+from time import sleep
 
-from ...event import AppEvents, post_event
+from ...event import AppEvent, post_event
 from ...hotspots.base import HotspotInstance
+from ...state import Speeds
 from .viewport import ViewportTile
 
 logger = logging.getLogger(__name__)
@@ -39,7 +41,7 @@ class MenuTile(ViewportTile):
             self.menu.go_to_child_menu()
             return True
         # elif False:
-        #     post_event(AppEvents.BUTTON_ACTION_START)
+        #     post_event(AppEvent.BUTTON_ACTION_START)
         #     return True
         return False
 
@@ -52,8 +54,7 @@ class MenuTile(ViewportTile):
 
         self.menu.set_page_to_previous()
 
-        if self.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+        self.emit_image_update_events_until_finished_scrolling()
 
         return True
 
@@ -63,18 +64,22 @@ class MenuTile(ViewportTile):
 
         self.menu.set_page_to_next()
 
-        if self.needs_to_scroll:
-            post_event(AppEvents.UPDATE_DISPLAYED_IMAGE)
+        self.emit_image_update_events_until_finished_scrolling()
 
         return True
 
+    def emit_image_update_events_until_finished_scrolling(self):
+        while self.needs_to_scroll:
+            post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
+            sleep(Speeds.SCROLL.value)
+
     # Update scroll position if page is not to be moved to immediately
     @property
-    def needs_to_scroll(self):
+    def needs_to_scroll(self) -> bool:
         final_y_pos = self.menu.page_index * self.menu.current_page.height
         return self.y_pos != final_y_pos
 
-    def update_scroll_position(self):
+    def update_scroll_position(self) -> None:
         if not self.needs_to_scroll:
             return
 
