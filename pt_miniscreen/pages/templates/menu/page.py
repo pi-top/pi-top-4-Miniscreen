@@ -1,16 +1,26 @@
+from typing import Callable, Union
+
 from ....hotspots.base import HotspotInstance
 from ....hotspots.image_hotspot import Hotspot as ImageHotspot
 from ....hotspots.text_hotspot import Hotspot as TextHotspot
+from ....types import Coordinate
 from ...base import Page as PageBase
 
 
 class Page(PageBase):
-    def __init__(self, size, image_path, text, child_menu_cls=None):
+    def __init__(
+        self,
+        size: Coordinate,
+        image_path: str,
+        text: Union[str, Callable],
+        child_menu_cls=None,
+    ) -> None:
         self.image_path = image_path
         self.text = text
         super().__init__(size=size, child_menu_cls=child_menu_cls)
+        self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         FONT_SIZE = 14
         ICON_SIZE = 25
         TEXT_LEFT_MARGIN = int(self.width * 0.3)

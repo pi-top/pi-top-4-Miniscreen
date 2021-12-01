@@ -16,17 +16,18 @@ class SettingsTitleBarTile(Tile):
         self._text = "Settings"
         self.delimiter = " / "
         super().__init__(size, pos)
+        self.reset()
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str) -> None:
         self._text = value
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         asst = MiniscreenAssistant("1", self.size)
         margin = 2
         marquee_text_hotspot = MarqueeTextHotspot(

@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ...state import Speeds
+from ...types import Coordinate
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
@@ -13,7 +14,7 @@ from ..base import Page as PageBase
 class RowDataGeneric:
     icon_path: str
     hotspot_type: Any
-    hotspot_size: Union[Tuple[int, int], None] = None
+    hotspot_size: Optional[Coordinate] = None
 
 
 @dataclass
@@ -24,9 +25,9 @@ class RowDataText(RowDataGeneric):
 
 @dataclass
 class NetworkPageData:
-    first_row: Union[RowDataGeneric, None] = None
-    second_row: Union[RowDataGeneric, None] = None
-    third_row: Union[RowDataGeneric, None] = None
+    first_row: Optional[RowDataGeneric] = None
+    second_row: Optional[RowDataGeneric] = None
+    third_row: Optional[RowDataGeneric] = None
 
     @property
     def rows(self):
@@ -71,6 +72,7 @@ class Page(PageBase):
         self.row_data = row_data
         self.layout_manager = NetworkPageLayout(size)
         super().__init__(size=size)
+        self.reset()
 
     @property
     def size(self):

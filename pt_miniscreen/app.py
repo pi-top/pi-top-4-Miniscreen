@@ -45,7 +45,7 @@ class App:
 
         logger.debug("Done initializing app")
 
-    def add_tile_group(self, tile_group):
+    def add_tile_group(self, tile_group) -> None:
         if len(self.tile_group_stack) > 0:
             self.current_tile_group.active = False
         self.tile_group_stack.append(tile_group)
@@ -53,7 +53,7 @@ class App:
         self.current_tile_group.active = True
         post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
-    def pop_tile_group(self):
+    def pop_tile_group(self) -> None:
         self.current_tile_group.active = False
 
         if len(self.tile_group_stack) > 1:
@@ -64,23 +64,23 @@ class App:
         self.current_tile_group.active = True
         post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
-    def _add_tile_group_to_stack_from_cls(self, tile_group_class):
+    def _add_tile_group_to_stack_from_cls(self, tile_group_class) -> None:
         self.add_tile_group(tile_group_class(size=self.miniscreen.size))
 
     def setup_events(self) -> None:
         subscribe(
             AppEvent.START_BOOTSPLASH,
-            lambda _: self._add_tile_group_to_stack_from_cls(PitopBootsplashTileGroup),
+            lambda: self._add_tile_group_to_stack_from_cls(PitopBootsplashTileGroup),
         )
-        subscribe(AppEvent.STOP_BOOTSPLASH, lambda _: self.pop_tile_group())
+        subscribe(AppEvent.STOP_BOOTSPLASH, lambda: self.pop_tile_group())
 
         subscribe(
             AppEvent.START_SCREENSAVER,
-            lambda _: self._add_tile_group_to_stack_from_cls(
+            lambda: self._add_tile_group_to_stack_from_cls(
                 StarfieldScreensaverTileGroup
             ),
         )
-        subscribe(AppEvent.STOP_SCREENSAVER, lambda _: self.pop_tile_group())
+        subscribe(AppEvent.STOP_SCREENSAVER, lambda: self.pop_tile_group())
 
         def set_is_user_controlled(user_has_control) -> None:
             if self.user_has_control and not user_has_control:

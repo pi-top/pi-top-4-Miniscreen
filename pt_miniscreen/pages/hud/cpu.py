@@ -10,6 +10,7 @@ ICON_SIZE = 38
 class Page(PageBase):
     def __init__(self, size):
         super().__init__(size=size)
+        self.reset()
 
     def reset(self):
         cpu_bar_hotspot_height = int(self.height * 0.7)

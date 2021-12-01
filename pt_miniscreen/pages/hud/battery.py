@@ -29,6 +29,7 @@ class Page(PageBase):
             self.capacity = 0
 
         super().__init__(size)
+        self.reset()
 
     def reset(self):
         self.text_hotspot = TextHotspot(

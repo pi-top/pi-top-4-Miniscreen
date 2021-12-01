@@ -1,10 +1,17 @@
+import logging
+from typing import Callable, Optional
+
+from ....event import AppEvent, subscribe
 from ....hotspots.base import HotspotInstance
 from ....hotspots.image_hotspot import Hotspot as ImageHotspot
 from ....hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
 from ....hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
+from ....types import Coordinate
 from ....utils import get_image_file_path
 from ...base import Page as PageBase
 from .state import ActionState
+
+logger = logging.getLogger(__name__)
 
 
 class Page(PageBase):
@@ -13,12 +20,12 @@ class Page(PageBase):
 
     def __init__(
         self,
-        size,
-        get_state_method,
-        set_state_method,
-        icon,
-        text,
-    ):
+        size: Coordinate,
+        get_state_method: Optional[Callable],
+        set_state_method: Callable,
+        icon: str,
+        text: str,
+    ) -> None:
         self.text = text
         self.icon = icon
         self.get_state_method = get_state_method
@@ -27,9 +34,17 @@ class Page(PageBase):
             size=(self.THIRD_COLUMN_WIDTH, self.STATUS_ICON_SIZE),
         )
 
-        super().__init__(size=size)
+        def reset_if_processing():
+            if self.action_state == ActionState.PROCESSING:
+                self.reset()
 
-    def reset(self):
+        subscribe(AppEvent.ACTION_TIMEOUT, reset_if_processing)
+        subscribe(AppEvent.ACTION_FINISH, reset_if_processing)
+
+        super().__init__(size=size)
+        self.reset()
+
+    def reset(self) -> None:
         SPACING = 4
         FONT_SIZE = 14
         ICON_WIDTH = 44
@@ -44,14 +59,12 @@ class Page(PageBase):
         SECOND_COLUMN_POS = FIRST_COLUMN_WIDTH + SPACING
         SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
 
-        self.status_icon_hotspot = StatusIconHotspot(
-            size=(self.THIRD_COLUMN_WIDTH, self.STATUS_ICON_SIZE),
-        )
-
-        self.action_state = ActionState.ENABLED
-
-        if callable(self.get_state_method) and self.get_state_method() != "Enabled":
+        if not callable(self.get_state_method):
+            self.action_state = ActionState.SUBMIT
+        elif self.get_state_method() != "Enabled":
             self.action_state = ActionState.DISABLED
+        else:
+            self.action_state = ActionState.ENABLED
 
         self.hotspot_instances = [
             HotspotInstance(
@@ -79,23 +92,22 @@ class Page(PageBase):
         ]
 
     @property
-    def action_state(self):
+    def action_state(self) -> ActionState:
         return self.status_icon_hotspot.action_state
 
     @action_state.setter
-    def action_state(self, state: ActionState):
+    def action_state(self, state: ActionState) -> None:
+        if state == self.status_icon_hotspot.action_state:
+            return
+
         if state == ActionState.UNKNOWN:
             # If unknown state is entered into after initialisation
             # stay in that state until page is reset
             return
 
-        if state == ActionState.PROCESSING:
-            # Update state of processing hotspot
-            pass
-
         self.status_icon_hotspot.action_state = state
 
-    def on_select_press(self):
+    def on_select_press(self) -> None:
         if self.action_state == ActionState.PROCESSING:
             return
 
@@ -104,5 +116,3 @@ class Page(PageBase):
 
         self.action_state = ActionState.PROCESSING
         self.set_state_method()
-        self.action_state = ActionState.UNKNOWN
-        self.reset()

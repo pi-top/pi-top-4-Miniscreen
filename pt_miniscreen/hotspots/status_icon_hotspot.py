@@ -1,5 +1,5 @@
 import logging
-from math import floor
+from math import ceil, floor
 
 import PIL.Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
@@ -34,17 +34,17 @@ def tick_image(size, scale, line_width):
     image = PIL.Image.new("1", size)
 
     center = (image.width / 2, image.height / 2)
-    internal_square_size = (scale * image.width, scale * image.height)
+    internal_rect_size = (scale * image.width, scale * image.height)
     internal_square_top_left = (
         image.width * (1 - scale) / 2 - 1,
         image.height * (1 - scale) / 2 - 1,
     )
 
-    tick_top_right_x = internal_square_top_left[0] + internal_square_size[0] + 1
-    tick_top_left_y = internal_square_top_left[1] + internal_square_size[1] * 5 / 8
+    tick_top_right_x = internal_square_top_left[0] + internal_rect_size[0] + 1
+    tick_top_left_y = internal_square_top_left[1] + internal_rect_size[1] * 5 / 8
     joint_xy = (
-        center[0] - internal_square_size[0] / 4,
-        center[1] + internal_square_size[1] / 2,
+        center[0] - internal_rect_size[0] / 4,
+        center[1] + internal_rect_size[1] / 2,
     )
 
     draw = PIL.ImageDraw.Draw(image)
@@ -76,14 +76,14 @@ def tick_image(size, scale, line_width):
 def cross_image(size, scale, line_width):
     image = PIL.Image.new("1", size)
 
-    internal_square_size = (scale * image.width, scale * image.height)
+    internal_rect_size = (scale * image.width, scale * image.height)
     internal_square_top_left = (
         int(image.width * (1 - scale) / 2 - 1),
         int(image.height * (1 - scale) / 2 - 1),
     )
     internal_square_bottom_right = (
-        internal_square_top_left[0] + internal_square_size[0] + 1,
-        internal_square_top_left[1] + internal_square_size[1] + 1,
+        internal_square_top_left[0] + internal_rect_size[0] + 1,
+        internal_square_top_left[1] + internal_rect_size[1] + 1,
     )
 
     draw = PIL.ImageDraw.Draw(image)
@@ -133,6 +133,38 @@ def processing_image(size, frame_number):
     return image
 
 
+def submit_image(size, scale):
+    image = PIL.Image.new("1", size)
+    internal_rect_size = (int(scale * image.width), int(scale * image.height))
+    # offset top left to have center of triangle be center of image
+    internal_square_top_left = (
+        floor(image.width * (1 - scale) / 2),
+        ceil(image.height * (1 - scale) / 2),
+    )
+    internal_square_bottom_left = (
+        internal_square_top_left[0],
+        internal_square_top_left[1] + internal_rect_size[0],
+    )
+    internal_square_middle_right = (
+        internal_square_top_left[0] + internal_rect_size[0],
+        ceil(internal_square_top_left[1] + internal_rect_size[1] / 2),
+    )
+    draw = PIL.ImageDraw.Draw(image)
+    draw.ellipse(
+        xy=[(0, 0), (image.width - 1, image.height - 1)],
+        fill="white",
+    )
+    draw.polygon(
+        xy=[
+            internal_square_top_left,
+            internal_square_bottom_left,
+            internal_square_middle_right,
+        ],
+        fill="black",
+    )
+    return image
+
+
 class Hotspot(HotspotBase):
     def __init__(self, size, interval=Speeds.ACTION_STATE_UPDATE.value):
         super().__init__(interval=interval, size=size)
@@ -148,6 +180,7 @@ class Hotspot(HotspotBase):
                 frame_number: processing_image(size, frame_number=frame_number)
                 for frame_number in range(self.MAX_PROCESSING_STEPS)
             },
+            ActionState.SUBMIT: submit_image(size, scale=0.5),
         }
 
         self._action_state = ActionState.UNKNOWN
@@ -169,10 +202,8 @@ class Hotspot(HotspotBase):
             self.processing_frame_no = (
                 self.processing_frame_no + 1
             ) % self.MAX_PROCESSING_STEPS
-            return self.status_images.get(self.action_state).get(
-                self.processing_frame_no
-            )
-        return self.status_images.get(self.action_state)
+            return self.status_images[self.action_state][self.processing_frame_no]
+        return self.status_images[self.action_state]
 
     def render(self, image):
         image.paste(self.status_image)

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Tuple
 
 from PIL import Image, ImageOps
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
+
+from ..types import Coordinate
 
 
 class Hotspot:
@@ -87,7 +88,7 @@ class Hotspot:
 @dataclass
 class HotspotInstance:
     hotspot: Hotspot
-    xy: Tuple[int, int]
+    xy: Coordinate
 
     @property
     def size(self):

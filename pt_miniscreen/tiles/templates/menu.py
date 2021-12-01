@@ -42,9 +42,7 @@ class MenuTile(ViewportTile):
             self.menu.go_to_child_menu()
             return True
         elif hasattr(self.menu.current_page, "action_state"):
-            post_event(
-                AppEvent.BUTTON_ACTION_START, self.menu.current_page.on_select_press
-            )
+            post_event(AppEvent.ACTION_START, self.menu.current_page.on_select_press)
             return True
         return False
 
@@ -71,8 +69,8 @@ class MenuTile(ViewportTile):
 
         return True
 
-    def emit_image_update_events_until_finished_scrolling(self):
-        def do_emits():
+    def emit_image_update_events_until_finished_scrolling(self) -> None:
+        def do_emits() -> None:
             while self.needs_to_scroll:
                 post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
                 sleep(Speeds.SCROLL.value)

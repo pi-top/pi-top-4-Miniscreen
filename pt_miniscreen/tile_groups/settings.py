@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from ..event import AppEvent, subscribe
 from ..tiles import MenuTile, SettingsMenuTile, SettingsTitleBarTile
@@ -11,8 +12,8 @@ class SettingsTileGroup(TileGroup):
     def __init__(
         self,
         size,
-    ):
-        self.menu_tile_stack = list()
+    ) -> None:
+        self.menu_tile_stack: List[MenuTile] = list()
 
         self.title_bar_height = 19
         root_menu_tile = SettingsMenuTile(
@@ -27,7 +28,7 @@ class SettingsTileGroup(TileGroup):
             pos=(0, 0),
         )
 
-        def handle_go_to_child(menu_cls):
+        def handle_go_to_child(menu_cls) -> None:
             self.current_menu_tile.active = False
             self.menu_tile_stack.append(
                 MenuTile(
@@ -49,7 +50,7 @@ class SettingsTileGroup(TileGroup):
             size=size, menu_tile=root_menu_tile, title_bar_tile=self.title_bar_tile
         )
 
-    def update_title_bar_text(self):
+    def update_title_bar_text(self) -> None:
         self.title_bar_tile.text = self.title_bar_tile.delimiter.join(
             [tile.menu.name.capitalize() for tile in self.menu_tile_stack]
         )
@@ -58,7 +59,7 @@ class SettingsTileGroup(TileGroup):
     def current_menu_tile(self):
         return self.menu_tile_stack[-1]
 
-    def handle_cancel_btn(self):
+    def handle_cancel_btn(self) -> bool:
         if len(self.menu_tile_stack) == 1:
             return False
 

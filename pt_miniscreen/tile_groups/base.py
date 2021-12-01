@@ -4,6 +4,7 @@ from threading import Event
 import PIL.Image
 
 from ..event import AppEvent, subscribe
+from ..types import Coordinate
 
 logger = logging.getLogger(__name__)
 
@@ -11,10 +12,10 @@ logger = logging.getLogger(__name__)
 class TileGroup:
     def __init__(
         self,
-        size,
+        size: Coordinate,
         menu_tile,
         title_bar_tile=None,
-    ):
+    ) -> None:
         self.size = size
 
         self._current_menu_tile = menu_tile
@@ -26,31 +27,31 @@ class TileGroup:
 
         subscribe(
             AppEvent.UPDATE_DISPLAYED_IMAGE,
-            lambda _: self.should_redraw_event.set(),
+            lambda: self.should_redraw_event.set(),
         )
 
     @property
     def current_menu_tile(self):
         return self._current_menu_tile
 
-    def stop(self):
+    def stop(self) -> None:
         if self.title_bar_tile:
             self.title_bar_tile.stop()
         self.current_menu_tile.stop()
 
     @property
-    def active(self):
+    def active(self) -> bool:
         return self._active
 
     @active.setter
-    def active(self, is_active):
+    def active(self, is_active: bool) -> None:
         self._active = is_active
         self.current_menu_tile.active = self.active
         if self.title_bar_tile:
             self.title_bar_tile.active = self.active
 
     @property
-    def image(self):
+    def image(self) -> PIL.Image.Image:
         im = PIL.Image.new("1", self.size)
 
         def paste_tile_into_image(tile, image):
@@ -72,7 +73,7 @@ class TileGroup:
 
         return im
 
-    def wait_until_should_redraw(self):
+    def wait_until_should_redraw(self) -> None:
         self.should_redraw_event.wait()
 
         if self.should_redraw_event.is_set():
@@ -81,14 +82,14 @@ class TileGroup:
     ##################################
     # Button Press API (when active) #
     ##################################
-    def handle_select_btn(self):
+    def handle_select_btn(self) -> bool:
         return self.current_menu_tile.handle_select_btn()
 
-    def handle_cancel_btn(self):
+    def handle_cancel_btn(self) -> bool:
         return self.current_menu_tile.handle_cancel_btn()
 
-    def handle_up_btn(self):
+    def handle_up_btn(self) -> bool:
         return self.current_menu_tile.handle_up_btn()
 
-    def handle_down_btn(self):
+    def handle_down_btn(self) -> bool:
         return self.current_menu_tile.handle_down_btn()
