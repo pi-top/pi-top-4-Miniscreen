@@ -5,11 +5,10 @@ from time import sleep
 from typing import Dict, List
 
 from PIL import Image, ImageChops
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ..event import AppEvent, post_event
 from ..hotspots.base import Hotspot, HotspotInstance
-from ..types import BoundingBox, Coordinate
+from ..types import BoundingBox, CachedImage, Coordinate
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class Tile:
     def __init__(self, size: Coordinate, pos: Coordinate = (0, 0)) -> None:
         self._size: Coordinate = size
         self.pos: Coordinate = pos
-        self.cached_images: Dict[Hotspot, Image.Image] = dict()
+        self.cached_images: Dict[Hotspot, CachedImage] = dict()
         self.image_caching_threads: Dict[Hotspot, Thread] = dict()
         self.active: bool = False
         self.hotspot_instances: List[HotspotInstance] = list()
@@ -89,27 +88,11 @@ class Tile:
         if hotspot_instance.hotspot not in self.cached_images:
             return
 
-        hotspot_image = self.cached_images[hotspot_instance.hotspot].convert("1")
-
-        if hotspot_instance.hotspot.invert:
-            hotspot_image = MiniscreenAssistant(
-                "1", hotspot_instance.hotspot.size
-            ).invert(hotspot_image)
-
-        mask = hotspot_instance.hotspot.mask(hotspot_image)
-        pos = hotspot_instance.xy
-        # box = pos + (pos[0] + hotspot_image.size[0], pos[1] + hotspot_image.size[1])
-        # logger.debug(
-        #     f"viewport.paste_hotspot_into_image - hotspot image size: {hotspot_image.size}"
-        # )
-        # logger.debug(
-        #     f"viewport.paste_hotspot_into_image - base image size: {image.size}"
-        # )
-        # logger.debug(
-        #     f"viewport.paste_hotspot_into_image - hotspot xy: {hotspot_instance.xy}"
-        # )
-        # logger.debug(f"viewport.paste_hotspot_into_image - position: {pos}")
-        image.paste(hotspot_image, pos, mask)
+        image.paste(
+            self.cached_images[hotspot_instance.hotspot][0],  # .convert("1"),
+            hotspot_instance.xy,
+            self.cached_images[hotspot_instance.hotspot][1],  # .convert("1"),
+        )
 
     def set_hotspot_instances(
         self, hotspot_instances: List[HotspotInstance], start: bool = False
@@ -141,7 +124,12 @@ class Tile:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
 
         self.hotspot_instances.append((hotspot_instance))
-        self.cached_images[hotspot_instance.hotspot] = hotspot_instance.hotspot.image
+
+        image = hotspot_instance.hotspot.image
+        self.cached_images[hotspot_instance.hotspot] = (
+            image,
+            hotspot_instance.hotspot.create_mask(image),
+        )
 
         self._register_thread(hotspot_instance)
 
@@ -164,23 +152,30 @@ class Tile:
                     return False
 
             def cache_new_image():
-                last_img = self.cached_images[hotspot]
-                new_img = hotspot.image
+                last_img = self.cached_images[hotspot][0]
+                new_img = hotspot_instance.hotspot.image
+                new_mask = hotspot_instance.hotspot.create_mask(new_img)
                 if last_img is None or have_differences(last_img, new_img):
-                    self.cached_images[hotspot] = new_img
+                    self.cached_images[hotspot] = (new_img, new_mask)
                     post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
 
             while True:
-                # TODO: improve this "busy wait"
-                # if not active, there's no need to check - perhaps instead of sleeping,
-                # we should wait on an event triggered on active state change?
-                #
-                # another thing to consider would be to do something similar with 'is overlapping'
-                # - if we are not overlapping, and the position is not changing, then this is still
-                # busy waiting...
-                if self.active and self.is_hotspot_overlapping(hotspot_instance):
+                # Wait until active
+                if not self.active:
+                    self.is_active_event.wait()
+                    self.is_active_event.clear()
+
+                # If not overlapping, wait until conditions change
+                if not self.is_hotspot_overlapping(hotspot_instance):
+                    # self.overlap_conditions_changed = Event()
+                    self.overlap_conditions_changed.wait()
+                    self.overlap_conditions_changed.clear()
+
+                # Conditions may be correct - check if overlapping
+                if self.is_hotspot_overlapping(hotspot_instance):
                     cache_new_image()
-                sleep(hotspot.interval)
+
+                    sleep(hotspot.interval)
 
         self.image_caching_threads[hotspot] = Thread(target=run, args=(), daemon=True)
 

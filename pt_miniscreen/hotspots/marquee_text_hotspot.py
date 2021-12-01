@@ -41,18 +41,7 @@ class Hotspot(HotspotBase):
         )
         image.paste(cropped_text_image, (0, 0))
 
-    @property
-    def text(self):
-        if callable(self._text):
-            return self._text()
-        return self._text
-
-    @text.setter
-    def text(self, value_or_callback):
-        self._text = value_or_callback
-        self.update_text_image()
-
-    def update_text_image(self):
+    def _update_text_image(self):
         # create empty image with the size of the text
         draw = PIL.ImageDraw.Draw(PIL.Image.new("1", self.size, color="black"))
         text_bounding_box = draw.textbbox((0, 0), text=self.text, font=self.font)
@@ -80,6 +69,17 @@ class Hotspot(HotspotBase):
         )
 
     @property
+    def text(self):
+        if callable(self._text):
+            return self._text()
+        return self._text
+
+    @text.setter
+    def text(self, value_or_callback):
+        self._text = value_or_callback
+        self._update_text_image()
+
+    @property
     def needs_scrolling(self):
         try:
             return self.width <= self.text_image.width
@@ -93,5 +93,5 @@ class Hotspot(HotspotBase):
         return self._interval
 
     @interval.setter
-    def interval(self, value):
-        self._interval = value
+    def interval(self, interval: float) -> None:
+        self._interval = interval

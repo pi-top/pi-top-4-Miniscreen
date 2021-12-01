@@ -1,88 +1,95 @@
 from dataclasses import dataclass
-from time import perf_counter
+from typing import Optional
 
 from PIL import Image, ImageOps
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..types import Coordinate
+from ..types import CachedImage, Coordinate
 
 
 class Hotspot:
-    def __init__(self, interval, size):
-        self.interval = interval
-        self.size = size
+    def __init__(self, interval: float, size: Coordinate):
+        self._interval: float = interval
+        self.size: Coordinate = size
 
-        self.draw_white = True
-        self.draw_black = False
+        self.draw_white: bool = True
+        self.draw_black: bool = False
 
-        self.last_updated = -self.interval
-        self.invert = False
-        self.width = size[0]
-        self.height = size[1]
+        self.invert: bool = False
+        self.width: int = size[0]
+        self.height: int = size[1]
 
     @property
-    def width(self):
+    def interval(self) -> float:
+        return self._interval
+
+    @interval.setter
+    def interval(self, interval: float) -> None:
+        self._interval = interval
+
+    @property
+    def width(self) -> int:
         return self.size[0]
 
     @width.setter
-    def width(self, value):
+    def width(self, value: int) -> None:
         self.size = (value, self.height)
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.size[1]
 
     @height.setter
-    def height(self, value):
+    def height(self, value: int) -> None:
         self.size = (self.width, value)
 
-    def should_redraw(self):
-        if not self.draw_white and not self.draw_black:
-            return False
-
-        """Only requests a redraw after ``interval`` seconds have elapsed."""
-        return perf_counter() - self.last_updated > self.interval
-
     @property
-    def image(self):
+    def image(self) -> Image.Image:
         hotspot_image = Image.new("1", self.size)
-        self.render(hotspot_image)
-        self.last_updated = perf_counter()
-        return hotspot_image
 
-    def render(self, image):
-        raise NotImplementedError
-
-    def paste_into(self, image, xy):
         if not self.draw_white and not self.draw_black:
-            return
+            return hotspot_image
 
-        hotspot_image = Image.new("1", self.size)
         self.render(hotspot_image)
 
         if self.invert:
             hotspot_image = MiniscreenAssistant("1", self.size).invert(hotspot_image)
 
-        mask = None
-        if self.draw_white and not self.draw_black:
-            mask = hotspot_image
+        self.render(hotspot_image)
+        return hotspot_image
 
-        elif not self.draw_white and self.draw_black:
-            mask = ImageOps.invert(hotspot_image)
+    def render(self, image: Image.Image) -> None:
+        raise NotImplementedError
 
-        image.paste(hotspot_image, xy, mask)
+    def create_mask(self, image: Optional[Image.Image] = None) -> Image.Image:
+        if image is None:
+            image = self.image
 
-    def mask(self, hotspot_image):
-        mask = None
-        if self.draw_white and not self.draw_black:
-            mask = hotspot_image
+        # 'superimpose'
+        white_only = self.draw_white and not self.draw_black
 
-        elif not self.draw_white and self.draw_black:
-            mask = ImageOps.invert(hotspot_image)
+        # 'paste over'
+        white_and_black = self.draw_black and not self.draw_white
 
-        elif self.draw_white and self.draw_black:
-            mask = Image.new("1", size=hotspot_image.size, fill="white")
+        # 'inverted superimpose'
+        black_only = self.draw_black and not self.draw_white
+
+        if white_only:
+            mask = image
+
+        elif black_only:
+            mask = ImageOps.invert(image)
+
+        elif white_and_black:
+            mask = Image.new("1", size=image.size, color="white")
+
+        else:  # nothing (no effect) = not self.draw_black and not self.draw_black
+            mask = Image.new("1", size=image.size, color="black")
+
         return mask
+
+    def get_cached_image(self) -> CachedImage:
+        return (self.image, self.create_mask(self.image))
 
 
 @dataclass
@@ -91,5 +98,5 @@ class HotspotInstance:
     xy: Coordinate
 
     @property
-    def size(self):
+    def size(self) -> Coordinate:
         return self.hotspot.size
