@@ -6,4 +6,4 @@ class ActionState(Enum):
     PROCESSING = auto()
     ENABLED = auto()
     DISABLED = auto()
-    SUBMIT = auto()
+    IDLE = auto()

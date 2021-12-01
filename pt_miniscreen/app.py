@@ -1,5 +1,6 @@
 import logging
 import time
+from enum import Enum, auto
 from os import environ
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
@@ -93,45 +94,47 @@ class App:
         self.miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
         self.miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
 
-        def handle_event(event: AppEvent):
+        class MiniscreenButton(Enum):
+            UP = auto()
+            DOWN = auto()
+            SELECT = auto()
+            CANCEL = auto()
+
+        def handle_button_press(button: MiniscreenButton):
             logger.debug(
-                f"Handling event {event.name} for tile group {self.current_tile_group}"
+                f"Handling button {button} for tile group {self.current_tile_group}"
             )
 
-            handler = {
-                AppEvent.CANCEL_BUTTON_PRESS: self.current_tile_group.handle_cancel_btn,
-                AppEvent.SELECT_BUTTON_PRESS: self.current_tile_group.handle_select_btn,
-                AppEvent.UP_BUTTON_PRESS: self.current_tile_group.handle_up_btn,
-                AppEvent.DOWN_BUTTON_PRESS: self.current_tile_group.handle_down_btn,
-            }[event]
+            if not self.state_manager.buttons_should_be_handled():
+                logger.info("State manager says that buttons should not be handled")
+                return
 
-            if not handler() and event == AppEvent.CANCEL_BUTTON_PRESS:
+            self.state_manager.wake()
+
+            handler = {
+                MiniscreenButton.CANCEL: self.current_tile_group.handle_cancel_btn,
+                MiniscreenButton.SELECT: self.current_tile_group.handle_select_btn,
+                MiniscreenButton.UP: self.current_tile_group.handle_up_btn,
+                MiniscreenButton.DOWN: self.current_tile_group.handle_down_btn,
+            }[button]
+
+            if not handler() and button == MiniscreenButton.CANCEL:
                 logger.debug(
                     "Button press not handled by current tile group - going to next tile group"
                 )
                 self.pop_tile_group()
-            post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
-            post_event(event)
 
-        self.miniscreen.cancel_button.when_released = (
-            lambda: self.state_manager.handle_button_press(
-                AppEvent.CANCEL_BUTTON_PRESS, handle_event
-            )
+        self.miniscreen.cancel_button.when_released = lambda: handle_button_press(
+            MiniscreenButton.CANCEL
         )
-        self.miniscreen.select_button.when_released = (
-            lambda: self.state_manager.handle_button_press(
-                AppEvent.SELECT_BUTTON_PRESS, handle_event
-            )
+        self.miniscreen.select_button.when_released = lambda: handle_button_press(
+            MiniscreenButton.SELECT
         )
-        self.miniscreen.up_button.when_released = (
-            lambda: self.state_manager.handle_button_press(
-                AppEvent.UP_BUTTON_PRESS, handle_event
-            )
+        self.miniscreen.up_button.when_released = lambda: handle_button_press(
+            MiniscreenButton.UP
         )
-        self.miniscreen.down_button.when_released = (
-            lambda: self.state_manager.handle_button_press(
-                AppEvent.DOWN_BUTTON_PRESS, handle_event
-            )
+        self.miniscreen.down_button.when_released = lambda: handle_button_press(
+            MiniscreenButton.DOWN
         )
 
     @property
@@ -177,7 +180,7 @@ class App:
 
             self.display(self.current_tile_group.image)
             if environ.get("IMGCAT", "0") == "1":
-                print("\033c")
+                print("")
                 imgcat(self.current_tile_group.image)
 
             logger.debug("Waiting until image to display has changed...")

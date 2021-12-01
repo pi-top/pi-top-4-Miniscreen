@@ -60,7 +60,7 @@ class Page(PageBase):
         SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
 
         if not callable(self.get_state_method):
-            self.action_state = ActionState.SUBMIT
+            self.action_state = ActionState.IDLE
         elif self.get_state_method() != "Enabled":
             self.action_state = ActionState.DISABLED
         else:

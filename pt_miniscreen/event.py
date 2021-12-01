@@ -6,16 +6,17 @@ logger = logging.getLogger(__name__)
 
 
 class AppEvent(Enum):
-    SELECT_BUTTON_PRESS = auto()  # callable
-    CANCEL_BUTTON_PRESS = auto()  # callable
-    UP_BUTTON_PRESS = auto()  # callable
-    DOWN_BUTTON_PRESS = auto()  # callable
+    # Action page -> app (for state change)
     ACTION_START = auto()  # callable
+    # App -> action page (for UI change)
     ACTION_FINISH = auto()  # callable
     ACTION_TIMEOUT = auto()  # callable
+    # Hotspots -> app (for redraw)
     UPDATE_DISPLAYED_IMAGE = auto()  # None
+    # Menu page -> menu tile group (for pushing to menu tile stack)
     GO_TO_CHILD_MENU = auto()  # str
     GO_TO_PARENT_MENU = auto()  # None
+    # State manager -> app (for pushing to tile group stack)
     START_BOOTSPLASH = auto()  # None
     STOP_BOOTSPLASH = auto()  # None
     START_SCREENSAVER = auto()  # None
