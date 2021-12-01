@@ -125,11 +125,9 @@ class Tile:
 
         self.hotspot_instances.append((hotspot_instance))
 
-        image = hotspot_instance.hotspot.image
-        self.cached_images[hotspot_instance.hotspot] = (
-            image,
-            hotspot_instance.hotspot.create_mask(image),
-        )
+        self.cached_images[
+            hotspot_instance.hotspot
+        ] = hotspot_instance.hotspot.get_cached_image()
 
         self._register_thread(hotspot_instance)
 
@@ -153,8 +151,7 @@ class Tile:
 
             def cache_new_image():
                 last_img = self.cached_images[hotspot][0]
-                new_img = hotspot_instance.hotspot.image
-                new_mask = hotspot_instance.hotspot.create_mask(new_img)
+                new_img, new_mask = hotspot_instance.hotspot.get_cached_image()
                 if last_img is None or have_differences(last_img, new_img):
                     self.cached_images[hotspot] = (new_img, new_mask)
                     post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
