@@ -1,11 +1,13 @@
-from ..config import ConfigFactory
-from ..state import Speeds
+from typing import List, Tuple
+
+from ..hotspots.base import HotspotInstance
+from ..types import Coordinate
 
 
 class Page:
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, size: Coordinate, child_menu_cls=None) -> None:
         self._size = size
-        self.mode = mode
+        self.child_menu_cls = child_menu_cls
 
         self.invert = False
         self.visible = True
@@ -16,64 +18,40 @@ class Page:
         self.long_section_width = int(self.width / golden_ratio)
         self.short_section_width = self.width - self.long_section_width
 
-        config_factory = ConfigFactory(size, mode, interval)
-        self.child_menu = dict()
-        if config and config.child_menu:
-            for menu_name, menu_config in config.child_menu.items():
-                self.child_menu[menu_name] = config_factory.get(menu_config)
-
-        self.hotspots = dict()
+        self.hotspot_instances: List[HotspotInstance] = list()
 
     @property
-    def size(self):
+    def size(self) -> Tuple:
         return self._size
 
     @size.setter
-    def size(self, value):
+    def size(self, value: Coordinate):
         self._size = value
         # Resize hotspots
-        self.setup_hotspots()
-        # Resize childs
-        for _, menu in self.child_menu.items():
-            menu.size = self.size
+        self.reset()
+
+    def reset(self) -> None:
+        pass
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.size[0]
 
     @width.setter
-    def width(self, value):
+    def width(self, value: int) -> None:
         self.size = (value, self.height)
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.size[1]
 
     @height.setter
-    def height(self, value):
+    def height(self, value: int) -> None:
         self.size = (self.width, value)
 
     def on_select_press(self):
         # Only invoked if there is no child menu in config
         pass
 
-    def setup_hotspots(self):
-        pass
-
-    # TODO: remove this function in favour of using viewport directly
-    def render(self, image):
-        for position, hotspot_list in self.hotspots.items():
-            for hotspot in hotspot_list:
-                hotspot.paste_into(image, position)
-
-    @property
-    def interval(self):
-        _interval = Speeds.DYNAMIC_PAGE_REDRAW.value
-        for _, hotspot_list in self.hotspots.items():
-            for hotspot in hotspot_list:
-                if hotspot.interval < _interval:
-                    _interval = hotspot.interval
-        return _interval
-
-    def offset_pos_for_vertical_center(self, hotspot_height):
+    def offset_pos_for_vertical_center(self, hotspot_height: int) -> int:
         return int((self.height - hotspot_height) / 2)

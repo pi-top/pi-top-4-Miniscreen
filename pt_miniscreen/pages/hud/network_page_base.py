@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
-from pt_miniscreen.state import Speeds
-
+from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
+from ...state import Speeds
+from ...types import Coordinate
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
@@ -13,7 +14,7 @@ from ..base import Page as PageBase
 class RowDataGeneric:
     icon_path: str
     hotspot_type: Any
-    hotspot_size: Union[Tuple[int, int], None] = None
+    hotspot_size: Optional[Coordinate] = None
 
 
 @dataclass
@@ -24,9 +25,9 @@ class RowDataText(RowDataGeneric):
 
 @dataclass
 class NetworkPageData:
-    first_row: Union[RowDataGeneric, None] = None
-    second_row: Union[RowDataGeneric, None] = None
-    third_row: Union[RowDataGeneric, None] = None
+    first_row: Optional[RowDataGeneric] = None
+    second_row: Optional[RowDataGeneric] = None
+    third_row: Optional[RowDataGeneric] = None
 
     @property
     def rows(self):
@@ -67,11 +68,11 @@ class NetworkPageLayout:
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config, row_data):
-        super().__init__(interval=interval, size=size, mode=mode, config=config)
+    def __init__(self, size, row_data):
         self.row_data = row_data
-        self.layout_manager = NetworkPageLayout(self.size)
-        self.setup_hotspots()
+        self.layout_manager = NetworkPageLayout(size)
+        super().__init__(size=size)
+        self.reset()
 
     @property
     def size(self):
@@ -82,18 +83,20 @@ class Page(PageBase):
         super().size = value
         self.layout_manager = NetworkPageLayout(self.size)
 
-    def setup_hotspots(self):
-        self.hotspots: Dict = {}
+    def reset(self):
+        self.hotspot_instances = list()
         for row_number, row_info in enumerate(self.row_data.rows):
             if row_info is None:
                 continue
-            self.hotspots.update(self._hotspot_setup_for_row(row_number, row_info))
+            for hotspot_instance in self._hotspot_instances_for_row(
+                row_number, row_info
+            ):
+                self.hotspot_instances.append(hotspot_instance)
 
-    def _hotspot_setup_for_row(self, row_number, row_data):
+    def _hotspot_instances_for_row(self, row_number, row_data):
         if isinstance(row_data, RowDataText):
             content_hotspot = MarqueeTextHotspot(
                 interval=Speeds.MARQUEE.value,
-                mode=self.mode,
                 size=row_data.hotspot_size
                 if row_data.hotspot_size
                 else self.layout_manager.hotspot_size(),
@@ -103,20 +106,22 @@ class Page(PageBase):
         else:
             content_hotspot = row_data.hotspot_type(
                 interval=Speeds.MARQUEE.value,
-                mode=self.mode,
                 size=row_data.hotspot_size
                 if row_data.hotspot_size
                 else self.layout_manager.hotspot_size(),
             )
 
         image_hotspot = ImageHotspot(
-            interval=self.interval,
-            mode=self.mode,
+            interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
             size=self.layout_manager.icon_size,
             image_path=get_image_file_path(row_data.icon_path),
         )
 
-        return {
-            self.layout_manager.icon_position(row_number): [image_hotspot],
-            self.layout_manager.hotspot_position(row_number): [content_hotspot],
-        }
+        return [
+            HotspotInstance(
+                image_hotspot, self.layout_manager.icon_position(row_number)
+            ),
+            HotspotInstance(
+                content_hotspot, self.layout_manager.hotspot_position(row_number)
+            ),
+        ]

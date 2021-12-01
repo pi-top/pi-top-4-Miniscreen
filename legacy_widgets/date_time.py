@@ -11,7 +11,7 @@ from ..widgets.common import (
 
 
 class Hotspot(BaseSnapshot):
-    def __init__(self, width, height, mode, interval, **data):
+    def __init__(self, width, height, interval, **data):
         super(Hotspot, self).__init__(width, height, interval, Hotspot.render)
 
     @staticmethod

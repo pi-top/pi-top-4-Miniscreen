@@ -1,11 +1,14 @@
 import PIL.Image
 
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 
 class Hotspot(HotspotBase):
-    def __init__(self, interval, size, mode, bounding_box=None):
-        super().__init__(interval, size, mode)
+    def __init__(
+        self, size, bounding_box=None, interval=Speeds.DYNAMIC_PAGE_REDRAW.value
+    ):
+        super().__init__(interval=interval, size=size)
 
         if bounding_box is None:
             bounding_box = (0, 0) + self.size

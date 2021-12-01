@@ -6,7 +6,7 @@ from .network_page_base import RowDataText
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, size):
         row_data = NetworkPageData(
             first_row=RowDataText(
                 icon_path="sys_info/networking/antenna.png",
@@ -21,6 +21,4 @@ class Page(PageBase):
                 text=lambda: get_ap_mode_status().get("ip_address", ""),
             ),
         )
-        super().__init__(
-            interval=interval, size=size, mode=mode, config=config, row_data=row_data
-        )
+        super().__init__(size=size, row_data=row_data)

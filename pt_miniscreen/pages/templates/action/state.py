@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 class ActionState(Enum):
-    UNKNOWN = 0
-    PROCESSING = 1
-    ENABLED = 2
-    DISABLED = 3
-    FINISHED_PROCESSING = 4
+    UNKNOWN = auto()
+    PROCESSING = auto()
+    ENABLED = auto()
+    DISABLED = auto()
+    SUBMIT = auto()

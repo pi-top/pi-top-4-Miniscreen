@@ -1,1 +1,1 @@
-from . import hdmi_reset
+from .hdmi_reset import HDMIResetPage

@@ -2,6 +2,7 @@ import logging
 
 from pitop.battery import Battery
 
+from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
 from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
 from ...hotspots.text_hotspot import Hotspot as TextHotspot
@@ -19,24 +20,20 @@ CAPACITY_RECTANGLE_LEFT_MARGIN = BATTERY_LEFT_MARGIN + CAPACITY_RECTANGLE_LEFT_O
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
-        super().__init__(interval, size, mode, config)
-
+    def __init__(self, size):
         self.battery = Battery()
         self.cable_connected = self.battery.is_charging or self.battery.is_full
-        self.capacity = 0
         try:
             self.capacity = self.battery.capacity
         except Exception:
-            pass
+            self.capacity = 0
 
-        self.setup_hotspots()
+        super().__init__(size)
+        self.reset()
 
-    def setup_hotspots(self):
+    def reset(self):
         self.text_hotspot = TextHotspot(
-            interval=self.interval,
-            mode=self.mode,
-            size=(self.short_section_width, self.height),
+            size=(self.short_section_width, FONT_SIZE),
             text=f"{self.capacity}%",
             font_size=FONT_SIZE,
             anchor="lt",
@@ -44,15 +41,11 @@ class Page(PageBase):
         )
 
         self.battery_base_hotspot = ImageHotspot(
-            interval=self.interval,
-            mode=self.mode,
             size=(self.short_section_width, ICON_HEIGHT),
             image_path=None,
         )
 
         self.rectangle_hotspot = RectangleHotspot(
-            interval=self.interval,
-            mode=self.mode,
             size=RECTANGLE_HOTSPOT_SIZE,
             bounding_box=(0, 0, 0, 0),
         )
@@ -70,11 +63,11 @@ class Page(PageBase):
             self.offset_pos_for_vertical_center(RECTANGLE_HOTSPOT_SIZE[1]),
         )
 
-        self.hotspots = {
-            battery_hotspot_pos: [self.battery_base_hotspot],
-            rectangle_hotspot_pos: [self.rectangle_hotspot],
-            text_hotspot_pos: [self.text_hotspot],
-        }
+        self.hotspot_instances = [
+            HotspotInstance(self.battery_base_hotspot, battery_hotspot_pos),
+            HotspotInstance(self.rectangle_hotspot, rectangle_hotspot_pos),
+            HotspotInstance(self.text_hotspot, text_hotspot_pos),
+        ]
 
         self.update_hotspots_properties()
         self.setup_events()

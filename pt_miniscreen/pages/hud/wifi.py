@@ -9,7 +9,7 @@ from .network_page_base import RowDataGeneric, RowDataText
 
 
 class Page(PageBase):
-    def __init__(self, interval, size, mode, config):
+    def __init__(self, size):
         row_data = NetworkPageData(
             first_row=RowDataGeneric(
                 icon_path="sys_info/networking/antenna.png",
@@ -24,9 +24,7 @@ class Page(PageBase):
                 text=self.get_ip_address,
             ),
         )
-        super().__init__(
-            interval=interval, size=size, mode=mode, config=config, row_data=row_data
-        )
+        super().__init__(size=size, row_data=row_data)
 
     def get_ip_address(self):
         ip = ""

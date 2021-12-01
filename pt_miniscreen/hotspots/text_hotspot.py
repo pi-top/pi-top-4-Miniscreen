@@ -4,6 +4,7 @@ import PIL.ImageDraw
 import PIL.ImageFont
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
+from ..state import Speeds
 from .base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
@@ -12,9 +13,7 @@ logger = logging.getLogger(__name__)
 class Hotspot(HotspotBase):
     def __init__(
         self,
-        interval,
         size,
-        mode,
         text,
         font_size=20,
         xy=None,
@@ -22,10 +21,11 @@ class Hotspot(HotspotBase):
         fill=1,
         anchor=None,
         align=None,
+        interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
     ):
-        super().__init__(interval, size, mode)
+        super().__init__(interval=interval, size=size)
 
-        self.assistant = MiniscreenAssistant(self.mode, self.size)
+        self.assistant = MiniscreenAssistant("1", self.size)
         self._text = text
         self.font_size = font_size
 
@@ -64,7 +64,7 @@ class Hotspot(HotspotBase):
 
     @property
     def text_size(self):
-        draw = PIL.ImageDraw.Draw(PIL.Image.new(self.mode, self.size, color="black"))
+        draw = PIL.ImageDraw.Draw(PIL.Image.new("1", self.size, color="black"))
         text_bounding_box = draw.textbbox(
             (0, 0),
             text=self.text,
