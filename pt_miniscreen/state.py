@@ -203,14 +203,8 @@ class StateManager:
 
         self._state = new_state
 
-    def handle_button_press(self, event: AppEvent, handle_event: Callable) -> None:
-        if self.state != State.WAKING:
-            self.reset_dim_timer()
-
-        self.wake()
-
-        if self.state in [State.ACTIVE, State.DIM]:
-            handle_event(event)
+    def buttons_should_be_handled(self):
+        return self.state in [State.ACTIVE, State.DIM]
 
     @property
     def is_sleeping(self) -> bool:

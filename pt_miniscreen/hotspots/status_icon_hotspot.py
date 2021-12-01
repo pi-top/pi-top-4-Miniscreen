@@ -133,7 +133,7 @@ def processing_image(size, frame_number):
     return image
 
 
-def submit_image(size, scale):
+def submit_button_image(size, scale):
     image = PIL.Image.new("1", size)
     internal_rect_size = (int(scale * image.width), int(scale * image.height))
     # offset top left to have center of triangle be center of image
@@ -180,7 +180,7 @@ class Hotspot(HotspotBase):
                 frame_number: processing_image(size, frame_number=frame_number)
                 for frame_number in range(self.MAX_PROCESSING_STEPS)
             },
-            ActionState.SUBMIT: submit_image(size, scale=0.5),
+            ActionState.IDLE: submit_button_image(size, scale=0.5),
         }
 
         self._action_state = ActionState.UNKNOWN
