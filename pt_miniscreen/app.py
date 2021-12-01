@@ -118,7 +118,7 @@ class App:
                 MiniscreenButton.DOWN: self.current_tile_group.handle_down_btn,
             }[button]
 
-            if not handler() and button == self.miniscreen.cancel_button:
+            if not handler() and button == MiniscreenButton.CANCEL:
                 logger.debug(
                     "Button press not handled by current tile group - going to next tile group"
                 )
