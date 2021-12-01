@@ -283,10 +283,10 @@ class Tile:
         return False
 
     def handle_up_btn(self):
-        return False
+        return self.needs_to_scroll
 
     def handle_down_btn(self):
-        return False
+        return self.needs_to_scroll
 
     def needs_to_scroll(self):
         return False

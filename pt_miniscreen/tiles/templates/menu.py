@@ -1,4 +1,5 @@
 import logging
+from threading import Thread
 from time import sleep
 
 from ...event import AppEvent, post_event
@@ -71,9 +72,12 @@ class MenuTile(ViewportTile):
         return True
 
     def emit_image_update_events_until_finished_scrolling(self):
-        while self.needs_to_scroll:
-            post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
-            sleep(Speeds.SCROLL.value)
+        def do_emits():
+            while self.needs_to_scroll:
+                post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
+                sleep(Speeds.SCROLL.value)
+
+        Thread(target=do_emits).start()
 
     # Update scroll position if page is not to be moved to immediately
     @property

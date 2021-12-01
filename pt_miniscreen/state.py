@@ -3,8 +3,9 @@ from enum import Enum
 from os import path
 from pathlib import Path
 from sched import scheduler
-from threading import Event, Thread
-from typing import Callable
+from threading import Thread, currentThread
+from time import sleep
+from typing import Callable, Union
 
 from .event import AppEvent, post_event, subscribe
 
@@ -22,7 +23,7 @@ class State(Enum):
 
 class Speeds(Enum):
     DYNAMIC_PAGE_REDRAW = 1
-    SCROLL = 0.004
+    SCROLL = 0.017
     SCREENSAVER = 0.05
     ACTION_STATE_UPDATE = 0.5
     MARQUEE = 0.1
@@ -31,40 +32,33 @@ class Speeds(Enum):
 class ScheduledEventManager:
     def __init__(self):
         self.sched = scheduler()
-        self.sched_events = dict()
+        self.sched_event_threads = dict()
 
-        self.got_new_sched_event = Event()
+    def run_scheduled_event_thread(
+        self, delay: Union[int, float], action: Callable
+    ) -> None:
+        # Replace with event wait?
+        sleep(delay)
 
-        Thread(target=self.main, args=(), daemon=True).start()
+        if getattr(currentThread(), "do_action", True):
+            action()
 
-    def main(self):
-        while True:
-            if len(self.sched.queue) == 0:
-                logger.warning("Waiting on a new scheduled event...")
-                self.got_new_sched_event.wait()
-                self.got_new_sched_event.clear()
-
-            logger.warning(
-                f"Running scheduled events - got {len(self.sched.queue) > 0}"
-            )
-            self.sched.run()
-            logger.warning("Finished scheduled events")
-
-    def set_sched_event(self, name, sched_enter_kwargs):
-        logger.info(
-            f"Setting up scheduled event '{name}' with args {sched_enter_kwargs}..."
+    def set_sched_event(
+        self, name: str, delay: Union[int, float], action: Callable
+    ) -> None:
+        logger.info(f"Setting up scheduled event '{name}' with delay {delay}...")
+        t = Thread(
+            target=self.run_scheduled_event_thread, args=(delay, action), daemon=True
         )
-        self.sched_events.update({name: self.sched.enter(**sched_enter_kwargs)})
-        # logger.warning(self.sched_events)
-        logger.info("Emitting 'got new scheduled event'")
-        self.got_new_sched_event.set()
+        t.start()
+        self.sched_event_threads.update({name: t})
 
     def cancel_sched_event(self, name):
-        event = self.sched_events.get(name)
-        if event and event in self.sched.queue:
+        event_thread = self.sched_event_threads.get(name)
+        if event_thread and event_thread.is_alive():
             logger.info(f"Cancelling scheduled event '{name}'")
-            self.sched.cancel(event)
-            self.sched_events.pop(name)
+            event_thread.do_action = False
+            self.sched_event_threads.pop(name)
 
 
 class StateManager:
@@ -75,7 +69,7 @@ class StateManager:
         State.RUNNING_ACTION: 30,
     }
 
-    def __init__(self, contrast_change_func):
+    def __init__(self, contrast_change_func: Callable):
         self.contrast_change_func = contrast_change_func
 
         self.sched_event_manager = ScheduledEventManager()
@@ -91,16 +85,17 @@ class StateManager:
 
         self.reset_dim_timer()
 
-    def reset_dim_timer(self):
+    def reset_dim_timer(self) -> None:
         event_key = "dim"
         self.sched_event_manager.cancel_sched_event(event_key)
 
         self.sched_event_manager.set_sched_event(
-            event_key,
-            {"delay": self.TIMEOUTS[State.DIM], "priority": 1, "action": self.sleep},
+            name=event_key,
+            delay=self.TIMEOUTS[State.DIM],
+            action=self.sleep,
         )
 
-    def reset_screensaver_timer(self):
+    def reset_screensaver_timer(self) -> None:
         event_key = "screensaver"
         self.sched_event_manager.cancel_sched_event(event_key)
 
@@ -108,56 +103,47 @@ class StateManager:
             self.state = State.SCREENSAVER
 
         self.sched_event_manager.set_sched_event(
-            event_key,
-            {
-                "delay": self.TIMEOUTS[State.SCREENSAVER],
-                "priority": 1,
-                "action": set_screensaver_state,
-            },
+            name=event_key,
+            delay=self.TIMEOUTS[State.SCREENSAVER],
+            action=set_screensaver_state,
         )
 
-    def start_waking_timer(self):
+    def start_waking_timer(self) -> None:
         event_key = "waking"
         self.sched_event_manager.cancel_sched_event(event_key)
 
-        def set_state_active():
+        def set_state_active() -> None:
             self.state = State.ACTIVE
 
         self.sched_event_manager.set_sched_event(
-            event_key,
-            {
-                "delay": self.TIMEOUTS[State.WAKING],
-                "priority": 1,
-                "action": set_state_active,
-            },
+            name=event_key,
+            delay=self.TIMEOUTS[State.WAKING],
+            action=set_state_active,
         )
 
-    def start_action_timeout_timer(self):
+    def start_action_timeout_timer(self) -> None:
         event_key = "action"
         self.sched_event_manager.cancel_sched_event(event_key)
 
-        def set_failed_state():
+        def set_failed_state() -> None:
             # Do something error-y
             logger.error("Action timed out! Could be bad.")
             self.state = State.ACTIVE
 
         self.sched_event_manager.set_sched_event(
-            event_key,
-            {
-                "delay": self.TIMEOUTS[State.RUNNING_ACTION],
-                "priority": 1,
-                "action": set_failed_state,
-            },
+            name=event_key,
+            delay=self.TIMEOUTS[State.RUNNING_ACTION],
+            action=set_failed_state,
         )
 
-    def setup_event_listeners(self):
+    def setup_event_listeners(self) -> None:
         def do_action(action_func) -> None:
             logger.error("Setting state to RUNNING_ACTION")
             self.state = State.RUNNING_ACTION
             logger.critical("Running button action function")
             action_func()
 
-        def handle_stop_bootsplash(_):
+        def handle_stop_bootsplash(_) -> None:
             Path(self.bootsplash_breadcrumb).touch()
             self.state = State.ACTIVE
 
