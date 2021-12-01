@@ -27,20 +27,20 @@ class ViewportTile(Tile):
         viewport_size: Coordinate,
         window_position: Coordinate = (0, 0),
     ) -> None:
-        self._viewport_size = viewport_size
-        self._window_position = window_position
+        self._viewport_size: Coordinate = viewport_size
+        self._window_position: Coordinate = window_position
 
         super().__init__(size=size, pos=pos)
 
     def is_hotspot_overlapping(self, hotspot_instance: HotspotInstance) -> bool:
-        def calc_bounds(xy, width, height):
+        def calc_bounds(xy: Coordinate, width: int, height: int) -> BoundingBox:
             """For width and height attributes, determine the bounding box if
             were positioned at ``(x, y)``."""
             left, top = xy
             right, bottom = left + width, top + height
-            return [left, top, right, bottom]
+            return (left, top, right, bottom)
 
-        def range_overlap(a_min, a_max, b_min, b_max):
+        def range_overlap(a_min: int, a_max: int, b_min: int, b_max: int) -> bool:
             """Neither range is completely greater than the other."""
             return (a_min < b_max) and (b_min < a_max)
 
@@ -64,9 +64,6 @@ class ViewportTile(Tile):
 
     @property
     def viewport_size(self) -> Coordinate:
-        if callable(self._viewport_size):
-            return self._viewport_size()
-
         if self._viewport_size is None:
             return self.size
 
@@ -78,8 +75,6 @@ class ViewportTile(Tile):
 
     @property
     def window_position(self) -> Coordinate:
-        if callable(self._window_position):
-            return self._window_position()
         return self._window_position
 
     @window_position.setter

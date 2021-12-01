@@ -54,8 +54,6 @@ class Hotspot(HotspotBase):
 
     @property
     def text(self):
-        if callable(self._text):
-            return self._text()
         return self._text
 
     @text.setter
