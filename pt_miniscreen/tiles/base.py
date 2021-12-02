@@ -1,12 +1,12 @@
 import logging
 import time
-from threading import Thread
+from threading import Event, Thread
 from time import sleep
 from typing import Dict, List
 
 from PIL import Image, ImageChops
 
-from ..event import AppEvent, post_event
+from ..event import AppEvent, post_event, subscribe
 from ..hotspots.base import Hotspot, HotspotInstance
 from ..types import BoundingBox, CachedImage, Coordinate
 
@@ -19,9 +19,33 @@ class Tile:
         self.pos: Coordinate = pos
         self.cached_images: Dict[Hotspot, CachedImage] = dict()
         self.image_caching_threads: Dict[Hotspot, Thread] = dict()
-        self.active: bool = False
+        self._active: bool = False
         self.hotspot_instances: List[HotspotInstance] = list()
         self._render_size: Coordinate = self.size
+
+        self.is_active_event = Event()
+        self.overlap_conditions_changed_event = Event()
+
+        def handle_position_change():
+            if self.active:
+                self.overlap_conditions_changed_event.set()
+                self.overlap_conditions_changed_event.clear()
+
+        # TODO: broadcast a 'position changed' event instead
+        subscribe(AppEvent.UPDATE_DISPLAYED_IMAGE, handle_position_change)
+
+    @property
+    def active(self) -> bool:
+        return self._active
+
+    @active.setter
+    def active(self, is_active):
+        self._active = is_active
+        if self.active:
+            self.is_active_event.set()
+
+        if self.is_active_event.is_set():
+            self.is_active_event.clear()
 
     def reset(self) -> None:
         pass
@@ -160,13 +184,10 @@ class Tile:
                 # Wait until active
                 if not self.active:
                     self.is_active_event.wait()
-                    self.is_active_event.clear()
 
                 # If not overlapping, wait until conditions change
                 if not self.is_hotspot_overlapping(hotspot_instance):
-                    # self.overlap_conditions_changed = Event()
-                    self.overlap_conditions_changed.wait()
-                    self.overlap_conditions_changed.clear()
+                    self.overlap_conditions_changed_event.wait()
 
                 # Conditions may be correct - check if overlapping
                 if self.is_hotspot_overlapping(hotspot_instance):
