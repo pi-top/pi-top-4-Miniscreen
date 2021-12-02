@@ -88,7 +88,7 @@ class Hotspot:
 
         return mask
 
-    def get_cached_image(self) -> CachedImage:
+    def get_new_image(self) -> CachedImage:
         image = self.image
         return (image, self.create_mask(image))
 
