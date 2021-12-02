@@ -10,7 +10,7 @@ class Page(PageBase):
         row_data = NetworkPageData(
             second_row=RowDataText(
                 icon_path="sys_info/networking/home.png",
-                text=lambda: get_internal_ip(iface="eth0"),
+                text=get_internal_ip(iface="eth0"),
             ),
         )
         super().__init__(size=size, row_data=row_data)

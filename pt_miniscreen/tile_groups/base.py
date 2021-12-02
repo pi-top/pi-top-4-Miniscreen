@@ -62,6 +62,7 @@ class TileGroup:
             )
             image.paste(tile.image, tile.pos)
 
+        # Paste images without mask
         if self.title_bar_tile:
             paste_tile_into_image(self.title_bar_tile, im)
 

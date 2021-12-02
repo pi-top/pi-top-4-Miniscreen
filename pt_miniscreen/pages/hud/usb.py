@@ -14,15 +14,15 @@ class Page(PageBase):
         row_data = NetworkPageData(
             first_row=RowDataText(
                 icon_path="sys_info/networking/person.png",
-                text=self.get_user,
+                text=self.get_user(),
             ),
             second_row=RowDataText(
                 icon_path="sys_info/networking/padlock.png",
-                text=self.get_password,
+                text=self.get_password(),
             ),
             third_row=RowDataText(
                 icon_path="sys_info/networking/home.png",
-                text=self.get_ip_address,
+                text=self.get_ip_address(),
             ),
         )
         super().__init__(size=size, row_data=row_data)

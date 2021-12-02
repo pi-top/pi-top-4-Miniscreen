@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Optional
 
 from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
@@ -20,7 +20,7 @@ class RowDataGeneric:
 @dataclass
 class RowDataText(RowDataGeneric):
     hotspot_type: Any = MarqueeTextHotspot
-    text: Union[str, Callable] = ""
+    text: str = ""
 
 
 @dataclass

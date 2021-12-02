@@ -73,8 +73,8 @@ class Hotspot(HotspotBase):
         return self._text
 
     @text.setter
-    def text(self, value_or_callback):
-        self._text = value_or_callback
+    def text(self, new_text):
+        self._text = new_text
         self._update_text_image()
 
     @property

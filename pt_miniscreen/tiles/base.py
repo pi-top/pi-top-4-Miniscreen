@@ -113,9 +113,9 @@ class Tile:
             return
 
         image.paste(
-            self.cached_images[hotspot_instance.hotspot][0],  # .convert("1"),
+            self.cached_images[hotspot_instance.hotspot][0],
             hotspot_instance.xy,
-            self.cached_images[hotspot_instance.hotspot][1],  # .convert("1"),
+            self.cached_images[hotspot_instance.hotspot][1],
         )
 
     def set_hotspot_instances(
