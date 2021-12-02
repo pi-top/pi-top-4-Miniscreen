@@ -1,7 +1,9 @@
+import datetime
 import logging
 import time
 from enum import Enum, auto
 from os import environ
+from pathlib import Path
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
 
@@ -27,6 +29,13 @@ class App:
         logger.debug("Setting ENV VAR to use miniscreen as system...")
         environ["PT_MINISCREEN_SYSTEM"] = "1"
 
+        self.timestamp = (
+            str(datetime.datetime.now())
+            .split(".")[0]
+            .replace(" ", "_")
+            .replace(":", "-")
+        )
+        self.saved_cache_frame_no = 1
         self.__stop = False
         self.last_shown_image = None
         self.user_gave_back_control_event = Event()
@@ -182,6 +191,15 @@ class App:
             if environ.get("IMGCAT", "0") == "1":
                 print("")
                 imgcat(self.current_tile_group.image)
+
+            if environ.get("SAVE_CACHE", "0") == "1":
+                p = Path(f"/tmp/pt-miniscreen/{self.timestamp}")
+                p.mkdir(parents=True, exist_ok=True)
+
+                self.current_tile_group.image.save(
+                    p / f"{str(self.saved_cache_frame_no).zfill(4)}.png"
+                )
+                self.saved_cache_frame_no += 1
 
             logger.debug("Waiting until image to display has changed...")
             start = time.time()
