@@ -159,8 +159,7 @@ class App:
         signal(SIGTERM, lambda signal, frame: self.stop())
 
         logger.debug("Starting main app thread...")
-        self.__thread = Thread(target=self._main, args=())
-        self.__thread.daemon = True
+        self.__thread = Thread(target=self._main, args=(), daemon=True)
         self.__thread.start()
 
     def stop(self) -> None:

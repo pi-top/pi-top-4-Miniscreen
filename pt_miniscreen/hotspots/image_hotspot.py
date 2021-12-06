@@ -29,8 +29,6 @@ class Hotspot(HotspotBase):
         self.loop = loop
         self.playback_speed = 1.0
 
-        self.start()
-
     def update_frame_no(self):
         if self._im.is_animated:
             if self._frame_no + 1 < self._im.n_frames:

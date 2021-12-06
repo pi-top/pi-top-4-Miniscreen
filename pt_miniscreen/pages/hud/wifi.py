@@ -17,11 +17,11 @@ class Page(PageBase):
             ),
             second_row=RowDataText(
                 icon_path="sys_info/networking/wifi.png",
-                text=get_wifi_network_ssid(),
+                text=get_wifi_network_ssid,
             ),
             third_row=RowDataText(
                 icon_path="sys_info/networking/home.png",
-                text=self.get_ip_address(),
+                text=self.get_ip_address,
             ),
         )
         super().__init__(size=size, row_data=row_data)

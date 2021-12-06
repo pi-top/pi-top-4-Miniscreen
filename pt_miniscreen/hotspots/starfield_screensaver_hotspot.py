@@ -32,8 +32,6 @@ class Hotspot(HotspotBase):
             for i in range(self.SCREENSAVER_MAX_NO_OF_STARS)
         ]
 
-        self.start()
-
     def render(self, image):
         # Adapted from https://github.com/rm-hull/luma.examples/blob/master/examples/starfield.py
 

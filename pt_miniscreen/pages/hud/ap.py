@@ -10,15 +10,15 @@ class Page(PageBase):
         row_data = NetworkPageData(
             first_row=RowDataText(
                 icon_path="sys_info/networking/antenna.png",
-                text=get_ap_mode_status().get("ssid", ""),
+                text=lambda: get_ap_mode_status().get("ssid", ""),
             ),
             second_row=RowDataText(
                 icon_path="sys_info/networking/padlock.png",
-                text=get_ap_mode_status().get("passphrase", ""),
+                text=lambda: get_ap_mode_status().get("passphrase", ""),
             ),
             third_row=RowDataText(
                 icon_path="sys_info/networking/home.png",
-                text=get_ap_mode_status().get("ip_address", ""),
+                text=lambda: get_ap_mode_status().get("ip_address", ""),
             ),
         )
         super().__init__(size=size, row_data=row_data)

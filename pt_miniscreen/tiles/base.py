@@ -84,10 +84,11 @@ class Tile:
         if hotspot_instance in self.hotspot_instances:
             raise Exception(f"Hotspot instance {hotspot_instance} already registered")
 
-        self.hotspot_instances.append((hotspot_instance))
+        self.hotspot_instances.append(hotspot_instance)
         hotspot_instance.set_active_based_on_if_visible_in_window(
             self.window_position, self.size
         )
+        hotspot_instance.start()
 
     def remove_hotspot_instance(self, hotspot_instance: HotspotInstance):
         self.hotspot_instances.remove(hotspot_instance)

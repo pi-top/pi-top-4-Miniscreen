@@ -204,7 +204,7 @@ class StateManager:
         self._state = new_state
 
     def buttons_should_be_handled(self):
-        return self.state in [State.ACTIVE, State.DIM]
+        return self.state in [State.ACTIVE, State.DIM, State.SCREENSAVER]
 
     @property
     def is_sleeping(self) -> bool:

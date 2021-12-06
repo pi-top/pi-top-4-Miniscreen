@@ -18,6 +18,9 @@ class HotspotInstance:
     def size(self) -> Coordinate:
         return self.hotspot.size
 
+    def start(self) -> None:
+        self.hotspot.start()
+
     @property
     def active(self) -> bool:
         return self.hotspot.active

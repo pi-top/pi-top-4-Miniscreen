@@ -41,8 +41,6 @@ class Hotspot(HotspotBase):
         self.font = font
         self.fill = fill
 
-        self.start()
-
     def render(self, image):
         self.assistant.render_text(
             image,

@@ -8,7 +8,6 @@ from .base import Hotspot as HotspotBase
 class Hotspot(HotspotBase):
     def __init__(self, size, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
         super().__init__(interval=interval, size=size)
-        self.start()
 
     def render(self, image):
         wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
