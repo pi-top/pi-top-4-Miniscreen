@@ -23,6 +23,7 @@ class BootsplashHotspot(ImageHotspot):
                 image_path = config.get("Bootsplash", "Path")
             except Exception:
                 pass
+
         super().__init__(size, image_path, loop=False)
 
     def render(self, image):

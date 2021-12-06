@@ -56,6 +56,5 @@ class SettingsTitleBarTile(Tile):
             [
                 HotspotInstance(marquee_text_hotspot, marquee_text_xy),
                 HotspotInstance(rect_hotspot, rect_xy),
-            ],
-            start=True,
+            ]
         )

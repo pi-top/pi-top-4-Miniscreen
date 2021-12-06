@@ -31,6 +31,8 @@ class Hotspot(HotspotBase):
         self.font = font
         self.text = text
 
+        self.start()
+
     def render(self, image):
         if self.text == "":
             return

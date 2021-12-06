@@ -26,6 +26,7 @@ class Hotspot(HotspotBase):
         super().__init__(interval=interval, size=size)
 
         self.assistant = MiniscreenAssistant("1", self.size)
+
         self._text = text
         self.font_size = font_size
 
@@ -39,6 +40,8 @@ class Hotspot(HotspotBase):
             font = self.assistant.get_recommended_font_path(self.font_size)
         self.font = font
         self.fill = fill
+
+        self.start()
 
     def render(self, image):
         self.assistant.render_text(

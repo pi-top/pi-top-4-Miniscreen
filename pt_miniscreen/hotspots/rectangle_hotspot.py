@@ -14,6 +14,8 @@ class Hotspot(HotspotBase):
             bounding_box = (0, 0) + self.size
         self.bounding_box = bounding_box
 
+        self.start()
+
     def render(self, image):
         if (
             self.bounding_box[0] == self.bounding_box[2]

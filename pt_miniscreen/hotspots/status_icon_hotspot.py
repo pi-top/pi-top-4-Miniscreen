@@ -185,6 +185,8 @@ class Hotspot(HotspotBase):
 
         self._action_state = ActionState.UNKNOWN
 
+        self.start()
+
     @property
     def action_state(self):
         return self._action_state

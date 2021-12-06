@@ -22,6 +22,7 @@ class Hotspot(HotspotBase):
 
     def __init__(self, size, interval=Speeds.SCREENSAVER.value):
         super().__init__(size=size, interval=interval)
+
         self.screensaver_stars = [
             Star(
                 randrange(-25, 25),
@@ -30,6 +31,8 @@ class Hotspot(HotspotBase):
             )
             for i in range(self.SCREENSAVER_MAX_NO_OF_STARS)
         ]
+
+        self.start()
 
     def render(self, image):
         # Adapted from https://github.com/rm-hull/luma.examples/blob/master/examples/starfield.py

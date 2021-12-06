@@ -2,7 +2,6 @@ import logging
 
 from PIL import Image
 
-from ...hotspots.base import HotspotInstance
 from ...types import BoundingBox, Coordinate
 from ..base import Tile
 
@@ -32,26 +31,6 @@ class ViewportTile(Tile):
 
         super().__init__(size=size, pos=pos)
 
-    def is_hotspot_overlapping(self, hotspot_instance: HotspotInstance) -> bool:
-        def calc_bounds(xy: Coordinate, width: int, height: int) -> BoundingBox:
-            """For width and height attributes, determine the bounding box if
-            were positioned at ``(x, y)``."""
-            left, top = xy
-            right, bottom = left + width, top + height
-            return (left, top, right, bottom)
-
-        def range_overlap(a_min: int, a_max: int, b_min: int, b_max: int) -> bool:
-            """Neither range is completely greater than the other."""
-            return (a_min < b_max) and (b_min < a_max)
-
-        l1, t1, r1, b1 = calc_bounds(
-            hotspot_instance.xy,
-            hotspot_instance.hotspot.width,
-            hotspot_instance.hotspot.height,
-        )
-        l2, t2, r2, b2 = calc_bounds(self.window_position, self.size[0], self.size[1])
-        return range_overlap(l1, r1, l2, r2) and range_overlap(t1, b1, t2, b2)
-
     def _crop_box(self) -> BoundingBox:
         (left, top) = self.window_position
         right = left + self.size[0]
@@ -73,6 +52,12 @@ class ViewportTile(Tile):
     def viewport_size(self, value: Coordinate) -> None:
         self._viewport_size = value
 
+    def update_all_hotspot_instances(self):
+        [
+            i.set_active_based_on_if_visible_in_window(self.window_position, self.size)
+            for i in self.hotspot_instances
+        ]
+
     @property
     def window_position(self) -> Coordinate:
         return self._window_position
@@ -80,6 +65,7 @@ class ViewportTile(Tile):
     @window_position.setter
     def window_position(self, position: Coordinate) -> None:
         self._window_position = position
+        self.update_all_hotspot_instances()
 
     @property
     def y_pos(self) -> int:
@@ -91,13 +77,6 @@ class ViewportTile(Tile):
 
     def get_preprocess_image(self) -> Image.Image:
         return Image.new("1", self.viewport_size)
-
-    def process_image(self, image: Image.Image) -> Image.Image:
-        for hotspot_instance in self.hotspot_instances:
-            if not self.is_hotspot_overlapping(hotspot_instance):
-                continue
-            self._paste_hotspot_into_image(hotspot_instance, image)
-        return image
 
     def post_process_image(self, image: Image.Image) -> Image.Image:
         return image.crop(box=self._crop_box())

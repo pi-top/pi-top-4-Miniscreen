@@ -27,7 +27,7 @@ class MenuTile(ViewportTile):
                 xy = (hotspot_instance.xy[0], hotspot_instance.xy[1] + i * self.size[1])
                 hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
 
-        self.set_hotspot_instances(hotspot_instances, start=True)
+        self.set_hotspot_instances(hotspot_instances)
 
     @property
     def image(self):
