@@ -7,10 +7,11 @@ from .base import Hotspot as HotspotBase
 
 class Hotspot(HotspotBase):
     def __init__(self, size, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
-        super().__init__(interval=interval, size=size)
+        # Half of the interval time is spent actually collecting the percentages in `Hotspot.render`
+        super().__init__(interval=interval / 2, size=size)
 
     def render(self, image):
-        percentages = psutil.cpu_percent(interval=None, percpu=True)
+        percentages = psutil.cpu_percent(interval=self.interval, percpu=True)
 
         space_between_bars = 4
         width_cpu = self.size[0] / len(percentages)

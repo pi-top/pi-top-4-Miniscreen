@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Optional
 
 from ...hotspots.base import HotspotInstance
 from ...hotspots.image_hotspot import Hotspot as ImageHotspot
-from ...hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
+from ...hotspots.marquee_dynamic_text_hotspot import (
+    Hotspot as MarqueeDynamicTextHotspot,
+)
 from ...state import Speeds
 from ...types import Coordinate
 from ...utils import get_image_file_path
@@ -19,8 +21,8 @@ class RowDataGeneric:
 
 @dataclass
 class RowDataText(RowDataGeneric):
-    hotspot_type: Any = MarqueeTextHotspot
-    text: Union[str, Callable] = ""
+    hotspot_type: Any = MarqueeDynamicTextHotspot
+    text: str = ""
 
 
 @dataclass
@@ -95,7 +97,7 @@ class Page(PageBase):
 
     def _hotspot_instances_for_row(self, row_number, row_data):
         if isinstance(row_data, RowDataText):
-            content_hotspot = MarqueeTextHotspot(
+            content_hotspot = MarqueeDynamicTextHotspot(
                 interval=Speeds.MARQUEE.value,
                 size=row_data.hotspot_size
                 if row_data.hotspot_size

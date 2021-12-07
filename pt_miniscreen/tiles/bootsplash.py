@@ -13,4 +13,4 @@ class PitopBootsplashTile(Tile):
 
         hotspot_instances = list()
         hotspot_instances.append(HotspotInstance(BootsplashHotspot(size), (0, 0)))
-        self.set_hotspot_instances(hotspot_instances, start=True)
+        self.set_hotspot_instances(hotspot_instances)

@@ -18,4 +18,4 @@ class StarfieldScreensaverTile(Tile):
         hotspot_instances.append(
             HotspotInstance(StarfieldScreensaverHotspot(size), (0, 0))
         )
-        self.set_hotspot_instances(hotspot_instances, start=True)
+        self.set_hotspot_instances(hotspot_instances)

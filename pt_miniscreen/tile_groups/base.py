@@ -55,17 +55,14 @@ class TileGroup:
         im = PIL.Image.new("1", self.size)
 
         def paste_tile_into_image(tile, image):
-            box = (
-                tile.pos[0],
-                tile.pos[1],
-            )
             logger.debug(
                 f"Pasting tile '{tile}' (size: {tile.size})"
                 f" into image '{image}' (size: {image.size})"
-                f", box: {box}"
+                f", pos: {tile.pos}"
             )
-            image.paste(tile.image, box)
+            image.paste(tile.image, tile.pos)
 
+        # Paste images without mask
         if self.title_bar_tile:
             paste_tile_into_image(self.title_bar_tile, im)
 

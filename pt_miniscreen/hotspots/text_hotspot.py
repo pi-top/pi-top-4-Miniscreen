@@ -26,6 +26,7 @@ class Hotspot(HotspotBase):
         super().__init__(interval=interval, size=size)
 
         self.assistant = MiniscreenAssistant("1", self.size)
+
         self._text = text
         self.font_size = font_size
 
@@ -54,8 +55,6 @@ class Hotspot(HotspotBase):
 
     @property
     def text(self):
-        if callable(self._text):
-            return self._text()
         return self._text
 
     @text.setter

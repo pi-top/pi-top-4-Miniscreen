@@ -22,6 +22,7 @@ class Hotspot(HotspotBase):
 
     def __init__(self, size, interval=Speeds.SCREENSAVER.value):
         super().__init__(size=size, interval=interval)
+
         self.screensaver_stars = [
             Star(
                 randrange(-25, 25),
