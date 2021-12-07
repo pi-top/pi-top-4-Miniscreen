@@ -101,7 +101,6 @@ class Hotspot:
         if self.invert:
             im = MiniscreenAssistant("1", self.size).invert(im)
 
-        self.render(im)
         return im
 
     @property
