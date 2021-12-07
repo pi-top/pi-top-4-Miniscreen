@@ -5,7 +5,7 @@ from typing import Callable
 
 from ..state import Speeds
 from ..types import Coordinate
-from .marquee_text_hotspot import Hotspot as MarqueeHotspotBase
+from .marquee_text import Hotspot as MarqueeHotspotBase
 
 logger = logging.getLogger(__name__)
 

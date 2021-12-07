@@ -3,7 +3,7 @@ from configparser import ConfigParser
 from os import path
 
 from ..event import AppEvent, post_event
-from ..hotspots.image_hotspot import Hotspot as ImageHotspot
+from ..hotspots.image import Hotspot as ImageHotspot
 from ..utils import get_image_file_path
 
 logger = logging.getLogger(__name__)

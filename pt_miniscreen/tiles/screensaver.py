@@ -2,9 +2,7 @@ import logging
 
 from pt_miniscreen.hotspots.base import HotspotInstance
 
-from ..hotspots.starfield_screensaver_hotspot import (
-    Hotspot as StarfieldScreensaverHotspot,
-)
+from ..hotspots.starfield_screensaver import Hotspot as StarfieldScreensaverHotspot
 from .base import Tile
 
 logger = logging.getLogger(__name__)

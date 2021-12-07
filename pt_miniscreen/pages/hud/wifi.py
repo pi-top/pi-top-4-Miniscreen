@@ -2,7 +2,7 @@ from ipaddress import ip_address
 
 from pitop.common.sys_info import get_internal_ip, get_wifi_network_ssid
 
-from ...hotspots.wifi_strength_hotspot import Hotspot as WifiStrengthHotspot
+from ...hotspots.wifi_strength import Hotspot as WifiStrengthHotspot
 from .network_page_base import NetworkPageData
 from .network_page_base import Page as PageBase
 from .network_page_base import RowDataGeneric, RowDataText

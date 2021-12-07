@@ -1,6 +1,6 @@
 from ...hotspots.base import HotspotInstance
-from ...hotspots.cpu_bars_hotspot import Hotspot as CpuBarsHotspot
-from ...hotspots.image_hotspot import Hotspot as ImageHotspot
+from ...hotspots.cpu_bars import Hotspot as CpuBarsHotspot
+from ...hotspots.image import Hotspot as ImageHotspot
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 

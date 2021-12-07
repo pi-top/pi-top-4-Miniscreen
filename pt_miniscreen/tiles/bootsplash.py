@@ -1,7 +1,7 @@
 import logging
 
 from ..hotspots.base import HotspotInstance
-from ..hotspots.bootsplash_hotspot import BootsplashHotspot
+from ..hotspots.bootsplash import BootsplashHotspot
 from .base import Tile
 
 logger = logging.getLogger(__name__)

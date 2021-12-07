@@ -3,9 +3,9 @@ import logging
 from pitop.battery import Battery
 
 from ...hotspots.base import HotspotInstance
-from ...hotspots.image_hotspot import Hotspot as ImageHotspot
-from ...hotspots.rectangle_hotspot import Hotspot as RectangleHotspot
-from ...hotspots.text_hotspot import Hotspot as TextHotspot
+from ...hotspots.image import Hotspot as ImageHotspot
+from ...hotspots.rectangle import Hotspot as RectangleHotspot
+from ...hotspots.text import Hotspot as TextHotspot
 from ...utils import get_image_file_path
 from ..base import Page as PageBase
 

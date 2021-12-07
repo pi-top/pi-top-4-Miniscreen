@@ -3,9 +3,9 @@ from typing import Callable, Optional
 
 from ....event import AppEvent, subscribe
 from ....hotspots.base import HotspotInstance
-from ....hotspots.image_hotspot import Hotspot as ImageHotspot
-from ....hotspots.marquee_text_hotspot import Hotspot as MarqueeTextHotspot
-from ....hotspots.status_icon_hotspot import Hotspot as StatusIconHotspot
+from ....hotspots.image import Hotspot as ImageHotspot
+from ....hotspots.marquee_text import Hotspot as MarqueeTextHotspot
+from ....hotspots.status_icon import Hotspot as StatusIconHotspot
 from ....types import Coordinate
 from ....utils import get_image_file_path
 from ...base import Page as PageBase
