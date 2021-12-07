@@ -9,7 +9,6 @@ StartLimitBurst=5
 [Service]
 Type=simple
 Restart=on-failure
-Environment="PT_MINISCREEN_SYSTEM=1"
 Environment="PYTHONUNBUFFERED=1"
 Environment="PYTHONDONTWRITEBYTECODE=1"
 ExecStart=/usr/bin/pt-miniscreen
