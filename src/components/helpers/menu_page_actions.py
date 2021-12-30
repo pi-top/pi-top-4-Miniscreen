@@ -43,7 +43,7 @@ def change_vnc_enabled_state():
 
 
 def change_pt_further_link_enabled_state():
-    __change_service_enabled_state("pt-further-link.service")
+    __change_service_enabled_state("further-link.service")
 
 
 class WifiModes(IntEnum):
