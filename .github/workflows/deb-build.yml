@@ -52,7 +52,7 @@ jobs:
           echo "TARGET_ARCHITECTURE=${target_architecture}" >> $GITHUB_ENV
 
       - name: Build Debian package
-        uses: pi-top/debian-package-build-action@master
+        uses: pi-top/debian-package-build-action@sign-deb
         with:
           # https://github.com/pi-top/debian-package-build-action/pull/19
           # lintian_check_changelog_spelling: false
