@@ -3,8 +3,8 @@ from threading import Thread
 from time import sleep
 from typing import Callable
 
-from ..state import Speeds
-from ..types import Coordinate
+from ...state import Speeds
+from ...types import Coordinate
 from .marquee_text import Hotspot as MarqueeHotspotBase
 
 logger = logging.getLogger(__name__)

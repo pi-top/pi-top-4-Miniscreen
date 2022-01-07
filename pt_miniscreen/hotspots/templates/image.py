@@ -2,8 +2,8 @@ import logging
 
 import PIL.Image
 
-from ..state import Speeds
-from .base import Hotspot as HotspotBase
+from ...state import Speeds
+from ..base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
 
