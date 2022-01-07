@@ -7,7 +7,6 @@ from pathlib import Path
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
 
-from imgcat import imgcat
 from pitop import Pitop
 
 from .event import AppEvent, post_event, subscribe
@@ -189,6 +188,8 @@ class App:
             self.display(self.current_tile_group.image)
             if environ.get("IMGCAT", "0") == "1":
                 print("")
+                from imgcat import imgcat
+
                 imgcat(self.current_tile_group.image)
 
             if environ.get("SAVE_CACHE", "0") == "1":
