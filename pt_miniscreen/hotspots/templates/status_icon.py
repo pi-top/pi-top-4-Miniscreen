@@ -4,9 +4,9 @@ from math import ceil, floor
 import PIL.Image
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..pages.templates.action.state import ActionState
-from ..state import Speeds
-from .base import Hotspot as HotspotBase
+from ...pages.templates.action.state import ActionState
+from ...state import Speeds
+from ..base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
 

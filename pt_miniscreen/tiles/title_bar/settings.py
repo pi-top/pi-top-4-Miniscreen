@@ -3,8 +3,8 @@ import logging
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...hotspots.base import HotspotInstance
-from ...hotspots.marquee_text import Hotspot as MarqueeTextHotspot
-from ...hotspots.rectangle import Hotspot as RectangleHotspot
+from ...hotspots.templates.marquee_text import Hotspot as MarqueeTextHotspot
+from ...hotspots.templates.rectangle import Hotspot as RectangleHotspot
 from ..base import Tile
 
 logger = logging.getLogger(__name__)

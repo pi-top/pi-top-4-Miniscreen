@@ -1,8 +1,8 @@
 from typing import Callable, Union
 
 from ....hotspots.base import HotspotInstance
-from ....hotspots.image import Hotspot as ImageHotspot
-from ....hotspots.text import Hotspot as TextHotspot
+from ....hotspots.templates.image import Hotspot as ImageHotspot
+from ....hotspots.templates.text import Hotspot as TextHotspot
 from ....types import Coordinate
 from ...base import Page as PageBase
 

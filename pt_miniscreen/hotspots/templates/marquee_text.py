@@ -4,10 +4,10 @@ from typing import Iterator
 from PIL import Image, ImageDraw
 from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
-from ..generators import carousel, pause_every
-from ..state import Speeds
-from ..types import Coordinate
-from .base import Hotspot as HotspotBase
+from ...generators import carousel, pause_every
+from ...state import Speeds
+from ...types import Coordinate
+from ..base import Hotspot as HotspotBase
 
 logger = logging.getLogger(__name__)
 
