@@ -14,7 +14,7 @@ class Page:
         self.font_size = 14
         self.wrap = True
 
-        golden_ratio = (1 + 5 ** 0.5) / 2
+        golden_ratio = (1 + 5**0.5) / 2
         self.long_section_width = int(self.width / golden_ratio)
         self.short_section_width = self.width - self.long_section_width
 
