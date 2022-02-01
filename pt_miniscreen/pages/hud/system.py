@@ -1,4 +1,4 @@
-from ...menus import SystemMenu
+from ...tiles.menu.system import SystemMenuTile
 from ...utils import get_image_file_path
 from ..templates.menu import Page as PageBase
 
@@ -10,5 +10,5 @@ class Page(PageBase):
             image_path=get_image_file_path("menu/system.gif"),
             image_size=29,
             text="System",
-            child_menu_cls=SystemMenu,
+            child_menu_cls=SystemMenuTile,
         )

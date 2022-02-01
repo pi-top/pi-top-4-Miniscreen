@@ -1,8 +1,8 @@
-from ...pages.hud import NetworkMenuPage, OverviewPage, SettingsMenuPage, SystemMenuPage
+from ...pages.system import BatteryPage, CPUPage
 from ..templates import MenuTile
 
 
-class HUDMenuTile(MenuTile):
+class SystemMenuTile(MenuTile):
     def __init__(self, size, pos=(0, 0)):
         super().__init__(
             size=size,
@@ -10,10 +10,8 @@ class HUDMenuTile(MenuTile):
             pages=[
                 Page(size)
                 for Page in (
-                    OverviewPage,
-                    SystemMenuPage,
-                    NetworkMenuPage,
-                    SettingsMenuPage,
+                    BatteryPage,
+                    CPUPage,
                 )
             ],
         )
