@@ -48,9 +48,9 @@ class App:
 
         self._add_tile_group_to_stack_from_cls(HUDTileGroup)
 
-        self.setup_events()
-
         self.state_manager = StateManager(self.miniscreen.contrast)
+
+        self.setup_events()
 
         logger.debug("Done initializing app")
 
