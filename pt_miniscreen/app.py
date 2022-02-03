@@ -6,6 +6,7 @@ from os import environ
 from pathlib import Path
 from signal import SIGINT, SIGTERM, signal
 from threading import Event, Thread
+from typing import Optional
 
 from pitop import Pitop
 
@@ -34,7 +35,6 @@ class App:
             .replace(":", "-")
         )
         self.saved_cache_frame_no = 1
-        self.__stop = False
         self.last_shown_image = None
         self.user_gave_back_control_event = Event()
         self.tile_group_stack = list()
@@ -43,8 +43,6 @@ class App:
         self.miniscreen = Pitop().miniscreen
 
         logger.debug("Initializing rest of app...")
-        self.__thread = Thread(target=self._main, args=())
-
         self._add_tile_group_to_stack_from_cls(HUDTileGroup)
 
         self.setup_events()
@@ -151,8 +149,7 @@ class App:
         return self.tile_group_stack[-1]
 
     def start(self) -> None:
-        if self.__stop:
-            return
+        self.__stop_event = Event()
 
         logger.debug("Configuring interrupt signals...")
         signal(SIGINT, lambda signal, frame: self.stop())
@@ -162,12 +159,16 @@ class App:
         self.__thread = Thread(target=self._main, args=(), daemon=True)
         self.__thread.start()
 
-    def stop(self) -> None:
-        if self.__stop:
-            return
+    def wait_for_stop(self) -> None:
+        self.__stop_event.wait()
+        error = getattr(self, "__stop_error", None)
+        if isinstance(error, Exception):
+            raise error
 
+    def stop(self, error: Optional[Exception] = None) -> None:
         logger.info("Stopping app...")
-        self.__stop = True
+        self.__stop_error = error
+        self.__stop_event.set()
 
     @property
     def user_has_control(self) -> bool:
@@ -175,8 +176,7 @@ class App:
 
     def _main(self) -> None:
         logger.info("Starting main loop...")
-        while not self.__stop:
-
+        while not self.__stop_event.is_set():
             if self.user_has_control:
                 logger.info(
                     "User has control. Waiting for user to give control back..."
@@ -212,13 +212,13 @@ class App:
         if wake:
             self.state_manager.wake()
 
+        self.last_shown_image = image
+
         try:
             self.miniscreen.device.display(image)
-        except RuntimeError:
-            if not self.__stop:
-                raise
-
-        self.last_shown_image = image
+        except (RuntimeError, BrokenPipeError) as e:
+            # can't draw to miniscreen, reset won't help, just die
+            self.stop(e)
 
     def reset(self) -> None:
         logger.info("Forcing full state refresh...")

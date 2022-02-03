@@ -75,7 +75,7 @@ class MenuTile(ViewportTile):
                 post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
                 sleep(Speeds.SCROLL.value)
 
-        Thread(target=do_emits).start()
+        Thread(target=do_emits, daemon=True).start()
 
     # Update scroll position if page is not to be moved to immediately
     @property
