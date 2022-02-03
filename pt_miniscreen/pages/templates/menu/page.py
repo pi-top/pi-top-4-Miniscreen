@@ -13,26 +13,30 @@ class Page(PageBase):
         size: Coordinate,
         image_path: str,
         text: Union[str, Callable],
+        image_size=25,
         child_menu_cls=None,
     ) -> None:
         self.image_path = image_path
+        self.image_size = image_size
         self.text = text
         super().__init__(size=size, child_menu_cls=child_menu_cls)
         self.reset()
 
     def reset(self) -> None:
         FONT_SIZE = 14
-        ICON_SIZE = 25
         TEXT_LEFT_MARGIN = int(self.width * 0.3)
-        ICON_LEFT_MARGIN = int((TEXT_LEFT_MARGIN - ICON_SIZE) / 2)
+        ICON_LEFT_MARGIN = int((TEXT_LEFT_MARGIN - self.image_size) / 2)
 
         self.hotspot_instances = [
             HotspotInstance(
                 ImageHotspot(
-                    size=(ICON_SIZE, ICON_SIZE),
+                    size=(self.image_size, self.image_size),
                     image_path=self.image_path,
                 ),
-                (ICON_LEFT_MARGIN, self.offset_pos_for_vertical_center(ICON_SIZE)),
+                (
+                    ICON_LEFT_MARGIN,
+                    self.offset_pos_for_vertical_center(self.image_size),
+                ),
             ),
             HotspotInstance(
                 TextHotspot(

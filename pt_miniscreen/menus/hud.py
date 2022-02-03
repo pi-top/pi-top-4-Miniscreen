@@ -1,6 +1,6 @@
 import logging
 
-from ..pages.hud import APPage, BatteryPage, CPUPage, EthernetPage, USBPage, WifiPage
+from ..pages.hud import NetworkMenuPage, OverviewPage, SettingsMenuPage, SystemMenuPage
 from .base import Menu
 
 logger = logging.getLogger(__name__)
@@ -13,12 +13,10 @@ class HUDMenu(Menu):
             pages=[
                 Page(size)
                 for Page in (
-                    BatteryPage,
-                    CPUPage,
-                    WifiPage,
-                    APPage,
-                    EthernetPage,
-                    USBPage,
+                    OverviewPage,
+                    SystemMenuPage,
+                    NetworkMenuPage,
+                    SettingsMenuPage,
                 )
             ],
             name="hud",
