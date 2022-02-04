@@ -1,18 +1,6 @@
 pi-top-4-miniscreen (5.0.1-2) bullseye; urgency=medium
 
-  * [pre-commit.ci] pre-commit autoupdate (#185)
-  * [pre-commit.ci] pre-commit autoupdate (#192)
-  * [pre-commit.ci] pre-commit autoupdate (#197)
   * Application re-write (#177)
-  * Updated master workflow files
-  * [pre-commit.ci] pre-commit autoupdate (#200)
-  * [pre-commit.ci] pre-commit autoupdate (#203)
-  * Add signing key and passphrase to deb_release workflow
-  * Fix broken imports (#204)
-  * [pre-commit.ci] pre-commit autoupdate (#205)
-  * [pre-commit.ci] pre-commit autoupdate (#206)
-  * Add pull request template
-  * Update PR template to track Github issues
 
  -- pi-top <deb-maintainers@pi-top.com>  Fri, 04 Feb 2022 12:09:33 +0000
 
