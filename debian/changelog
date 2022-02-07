@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (6.0.0-2) bullseye; urgency=medium
+
+  * Create app StateManager before calling setup_events which uses it (#207)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 07 Feb 2022 16:42:18 +0000
+
 pi-top-4-miniscreen (6.0.0-1) bullseye; urgency=medium
 
   * Application re-write (#177)
