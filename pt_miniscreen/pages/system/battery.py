@@ -11,10 +11,11 @@ from ..base import Page as PageBase
 
 logger = logging.getLogger(__name__)
 
-FONT_SIZE = 19
+FONT_SIZE = 16
 ICON_HEIGHT = 22
 RECTANGLE_HOTSPOT_SIZE = (37, 14)
-BATTERY_LEFT_MARGIN = 15
+BATTERY_LEFT_MARGIN = 10
+TEXT_LEFT_POSITION = 60
 CAPACITY_RECTANGLE_LEFT_OFFSET = 4
 CAPACITY_RECTANGLE_LEFT_MARGIN = BATTERY_LEFT_MARGIN + CAPACITY_RECTANGLE_LEFT_OFFSET
 
@@ -60,7 +61,7 @@ class Page(PageBase):
         )
 
         text_hotspot_pos = (
-            self.long_section_width,
+            TEXT_LEFT_POSITION,
             self.offset_pos_for_vertical_center(self.text_hotspot.text_size[1]),
         )
         battery_hotspot_pos = (

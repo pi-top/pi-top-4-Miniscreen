@@ -8,10 +8,7 @@ class SystemMenuTile(MenuTile):
             size=size,
             pos=pos,
             pages=[
-                Page(size)
-                for Page in (
-                    BatteryPage,
-                    CPUPage,
-                )
+                BatteryPage,
+                CPUPage,
             ],
         )

@@ -14,13 +14,10 @@ class SettingsMenuTile(MenuTile):
             size=size,
             pos=pos,
             pages=[
-                Page(size)
-                for Page in (
-                    SSHActionPage,
-                    VNCActionPage,
-                    FurtherLinkActionPage,
-                    APActionPage,
-                    HDMIResetPage,
-                )
+                SSHActionPage,
+                VNCActionPage,
+                FurtherLinkActionPage,
+                APActionPage,
+                HDMIResetPage,
             ],
         )

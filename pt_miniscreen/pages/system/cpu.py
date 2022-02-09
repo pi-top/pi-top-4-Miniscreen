@@ -5,6 +5,9 @@ from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
 ICON_SIZE = 38
+ICON_LEFT_MARGIN = 5
+CPU_BARS_LEFT_MARGIN = 5
+CPU_BARS_TOTAL_WIDTH = 60
 
 
 class Page(PageBase):
@@ -21,17 +24,17 @@ class Page(PageBase):
                     size=(ICON_SIZE, ICON_SIZE),
                     image_path=get_image_file_path("sys_info/cpu.png"),
                 ),
-                (0, self.offset_pos_for_vertical_center(ICON_SIZE)),
+                (ICON_LEFT_MARGIN, self.offset_pos_for_vertical_center(ICON_SIZE)),
             ),
             HotspotInstance(
                 CpuBarsHotspot(
                     size=(
-                        self.long_section_width,
+                        CPU_BARS_TOTAL_WIDTH,
                         cpu_bar_hotspot_height,
                     ),
                 ),
                 (
-                    self.short_section_width,
+                    CPU_BARS_LEFT_MARGIN + ICON_SIZE + ICON_LEFT_MARGIN,
                     self.offset_pos_for_vertical_center(cpu_bar_hotspot_height),
                 ),
             ),

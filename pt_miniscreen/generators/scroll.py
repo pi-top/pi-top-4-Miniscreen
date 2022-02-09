@@ -10,7 +10,7 @@ def pause_every(pause_yield_interval, generator, no_of_pause_yields):
         except StopIteration:
             continue
 
-        if x % pause_yield_interval == 0:
+        if pause_yield_interval > 0 and x % pause_yield_interval == 0:
             # Pause
             logger.debug("Time to pause...")
             for _ in range(no_of_pause_yields):

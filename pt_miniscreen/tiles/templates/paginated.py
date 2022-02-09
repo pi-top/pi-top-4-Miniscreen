@@ -1,17 +1,24 @@
 import logging
+from math import floor
 from threading import Thread
 from time import sleep
+
+from PIL import Image
+
+from pt_miniscreen.tiles.base import Tile
 
 from ...event import AppEvent, post_event
 from ...generators import scroll_to
 from ...hotspots.base import HotspotInstance
+from ...hotspots.scrollbar import Hotspot as ScrollbarHotspot
+from ...hotspots.templates.rectangle import Hotspot as RectangleHotspot
 from ...state import Speeds
 from .viewport import ViewportTile
 
 logger = logging.getLogger(__name__)
 
 
-class PaginatedTile(ViewportTile):
+class PaginatedTile(Tile):
     SCROLL_PX_RESOLUTION = 2
 
     def __del__(self):
@@ -20,24 +27,58 @@ class PaginatedTile(ViewportTile):
         for page in self.pages:
             page.cleanup()
 
-    def __init__(self, size, pages, start_index=0, pos=(0, 0)):
-        self.pages = pages
-        self.page_index = start_index
+    def __init__(self, size, pages, scrollbar_width=9, start_index=0, pos=(0, 0)):
+        super().__init__(size=size, pos=pos)
 
-        super().__init__(
-            size=size,
-            pos=pos,
-            viewport_size=(size[0], size[1] * len(self.pages)),
-            window_position=(0, size[1] * self.page_index),
+        page_width = size[0] - scrollbar_width
+        page_size = (page_width, size[1])
+        self.pages = [Page(page_size) for Page in pages]
+        self.page_index = start_index
+        self.scrollbar_width = scrollbar_width
+        scrollbar_border_width = 1
+
+        self.pages_viewport = ViewportTile(
+            size=page_size,
+            pos=(self.scrollbar_width + scrollbar_border_width, 0),
+            viewport_size=(page_width, size[1] * len(self.pages)),
+            window_position=(0, page_size[1] * self.page_index),
         )
 
-        hotspot_instances = list()
+        # add pages to viewport
         for i, page in enumerate(self.pages):
             for hotspot_instance in page.hotspot_instances:
-                xy = (hotspot_instance.xy[0], hotspot_instance.xy[1] + i * self.size[1])
-                hotspot_instances.append(HotspotInstance(hotspot_instance.hotspot, xy))
+                xy = (
+                    hotspot_instance.xy[0],
+                    hotspot_instance.xy[1] + i * page.size[1],
+                )
+                self.pages_viewport.add_hotspot_instance(
+                    HotspotInstance(hotspot_instance.hotspot, xy)
+                )
 
-        self.set_hotspot_instances(hotspot_instances)
+        # add scrollbar
+        bar_height = floor(size[1] / len(pages))
+        self.scrollbar = ScrollbarHotspot(
+            bar_height=bar_height,
+            bar_y_start=start_index * bar_height,
+            size=(scrollbar_width, size[1]),
+            interval=0.01,
+        )
+        self.add_hotspot_instance(HotspotInstance(self.scrollbar, (0, 0)))
+
+        # add right border for scrollbar
+        self.add_hotspot_instance(
+            HotspotInstance(
+                RectangleHotspot(size=(scrollbar_border_width, size[1])),
+                (scrollbar_width + 1, 0),
+            )
+        )
+
+    def __setattr__(self, name, value) -> None:
+        # Keep pages_viewport active property in sync with self.active
+        if name == "active" and hasattr(self, "pages_viewport"):
+            self.pages_viewport.active = value
+
+        return super().__setattr__(name, value)
 
     @property
     def current_page(self):
@@ -45,7 +86,7 @@ class PaginatedTile(ViewportTile):
 
     def needs_to_scroll(self) -> bool:
         final_y_pos = self.page_index * self.current_page.height
-        return self.y_pos != final_y_pos
+        return self.pages_viewport.y_pos != final_y_pos
 
     def update_scroll_position(self) -> None:
         if not self.needs_to_scroll():
@@ -53,7 +94,10 @@ class PaginatedTile(ViewportTile):
 
         try:
             value = next(self.scroll_coordinate_generator)
-            self.y_pos = value
+            self.pages_viewport.y_pos = value
+            self.scrollbar.bar_y_pos = floor(
+                (value * self.size[1] / self.pages_viewport._viewport_size[1])
+            )
         except StopIteration:
             pass
 
@@ -89,3 +133,9 @@ class PaginatedTile(ViewportTile):
 
     def handle_down_btn(self) -> bool:
         return self.scroll_to_next()
+
+    # this seems to be the only way to compose tiles atm
+    def get_preprocess_image(self):
+        image = Image.new("1", self.size)
+        image.paste(self.pages_viewport.image, self.pages_viewport.pos)
+        return image

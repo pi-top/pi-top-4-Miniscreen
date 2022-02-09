@@ -24,8 +24,9 @@ class Page(PageBase):
 
     def reset(self) -> None:
         FONT_SIZE = 14
-        TEXT_LEFT_MARGIN = int(self.width * 0.3)
-        ICON_LEFT_MARGIN = int((TEXT_LEFT_MARGIN - self.image_size) / 2)
+        TEXT_LEFT = int(self.width * 0.375)
+        ICON_OFFSET = 3
+        ICON_LEFT = int((TEXT_LEFT - self.image_size) / 2) + ICON_OFFSET
 
         self.hotspot_instances = [
             HotspotInstance(
@@ -34,18 +35,18 @@ class Page(PageBase):
                     image_path=self.image_path,
                 ),
                 (
-                    ICON_LEFT_MARGIN,
+                    ICON_LEFT,
                     self.offset_pos_for_vertical_center(self.image_size),
                 ),
             ),
             HotspotInstance(
                 TextHotspot(
-                    size=(self.width - TEXT_LEFT_MARGIN, FONT_SIZE),
+                    size=(self.width - TEXT_LEFT, FONT_SIZE),
                     text=self.text,
                     font_size=FONT_SIZE,
                     anchor="lt",
                     xy=(0, 0),
                 ),
-                (TEXT_LEFT_MARGIN, self.offset_pos_for_vertical_center(FONT_SIZE)),
+                (TEXT_LEFT, self.offset_pos_for_vertical_center(FONT_SIZE)),
             ),
         ]
