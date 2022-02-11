@@ -48,9 +48,9 @@ class App:
 
         self._add_tile_group_to_stack_from_cls(HUDTileGroup)
 
-        self.state_manager = StateManager(self.miniscreen.contrast)
-
         self.setup_events()
+
+        self.state_manager = StateManager(self.miniscreen.contrast)
 
         logger.debug("Done initializing app")
 
@@ -112,6 +112,10 @@ class App:
             logger.debug(
                 f"Handling button {button} for tile group {self.current_tile_group}"
             )
+
+            if not getattr(self, "state_manager", None):
+                logger.info("Button press before State manager initialised")
+                return
 
             if not self.state_manager.buttons_should_be_handled():
                 logger.info("State manager says that buttons should not be handled")
