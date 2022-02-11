@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (6.0.0-3) bullseye; urgency=medium
+
+  * chore: add dev folder with useful scripts (#213)
+  * Create StateManager after setup_events, reverts a13f287 (#215)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 11 Feb 2022 16:19:25 +0000
+
 pi-top-4-miniscreen (6.0.0-2) bullseye; urgency=medium
 
   * Create app StateManager before calling setup_events which uses it (#207)
