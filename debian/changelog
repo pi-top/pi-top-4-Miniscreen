@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (6.0.0-3) bullseye; urgency=medium
+pi-top-4-miniscreen (6.0.1-1) bullseye; urgency=medium
 
   * chore: add dev folder with useful scripts (#213)
   * Create StateManager after setup_events, reverts a13f287 (#215)
