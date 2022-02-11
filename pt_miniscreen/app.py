@@ -113,7 +113,7 @@ class App:
                 f"Handling button {button} for tile group {self.current_tile_group}"
             )
 
-            if not getattr(self, 'state_manager'):
+            if not getattr(self, "state_manager"):
                 logger.info("Button press before State manager initialised")
                 return
 
