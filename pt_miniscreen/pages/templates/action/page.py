@@ -107,7 +107,7 @@ class Page(PageBase):
 
         self.status_icon_hotspot.action_state = state
 
-    def on_select_press(self) -> None:
+    def start_action(self) -> None:
         if self.action_state == ActionState.PROCESSING:
             return
 

@@ -14,7 +14,6 @@ from .state import StateManager
 from .tile_groups import (
     HUDTileGroup,
     PitopBootsplashTileGroup,
-    SettingsTileGroup,
     StarfieldScreensaverTileGroup,
 )
 
@@ -67,8 +66,6 @@ class App:
 
         if len(self.tile_group_stack) > 1:
             self.tile_group_stack.pop()
-        else:
-            self._add_tile_group_to_stack_from_cls(SettingsTileGroup)
 
         self.current_tile_group.active = True
         post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)

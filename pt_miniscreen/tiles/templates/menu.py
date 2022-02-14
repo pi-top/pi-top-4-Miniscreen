@@ -42,7 +42,7 @@ class MenuTile(ViewportTile):
             self.menu.go_to_child_menu()
             return True
         elif hasattr(self.menu.current_page, "action_state"):
-            post_event(AppEvent.ACTION_START, self.menu.current_page.on_select_press)
+            post_event(AppEvent.ACTION_START, self.menu.current_page.start_action)
             return True
         return False
 

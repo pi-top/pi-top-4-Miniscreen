@@ -1,4 +1,4 @@
-from ...menus import HUDMenu
+from ...menus.hud import HUDMenu
 from ..templates import MenuTile
 
 

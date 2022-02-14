@@ -1,24 +1,26 @@
-from ..pages.settings_connection import (
+from ..pages.settings import (
     APActionPage,
     FurtherLinkActionPage,
+    HDMIResetPage,
     SSHActionPage,
     VNCActionPage,
 )
 from .base import Menu
 
 
-class SettingsConnectionMenu(Menu):
+class SettingsMenu(Menu):
     def __init__(self, size):
         super().__init__(
             size=size,
             pages=[
                 Page(size)
-                for Page in [
+                for Page in (
                     SSHActionPage,
                     VNCActionPage,
                     FurtherLinkActionPage,
                     APActionPage,
-                ]
+                    HDMIResetPage,
+                )
             ],
-            name="connection",
+            name="settings",
         )

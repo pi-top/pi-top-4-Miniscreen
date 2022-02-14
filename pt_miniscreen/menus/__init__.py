@@ -1,5 +1,4 @@
 # from .base import Menu
-from .hud import HUDMenu
-from .settings_connection import SettingsConnectionMenu
-from .settings_display import SettingsDisplayMenu
-from .settings_root import SettingsRootMenu
+from .network import NetworkMenu
+from .settings import SettingsMenu
+from .system import SystemMenu
