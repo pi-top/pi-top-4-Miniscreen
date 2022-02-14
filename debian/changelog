@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (6.0.1-2) bullseye; urgency=medium
+pi-top-4-miniscreen (6.1.0-1) bullseye; urgency=medium
 
   * feat: organise pages into sub-menus (#209)
   * refactor: extract scroll logic to paginated tile (#210)
