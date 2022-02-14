@@ -1,3 +1,11 @@
+pi-top-4-miniscreen (6.1.0-1) bullseye; urgency=medium
+
+  * feat: organise pages into sub-menus (#209)
+  * refactor: extract scroll logic to paginated tile (#210)
+  * Os 1207 miniscreen stability (#208)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 14 Feb 2022 16:06:20 +0000
+
 pi-top-4-miniscreen (6.0.1-1) bullseye; urgency=medium
 
   * chore: add dev folder with useful scripts (#213)
