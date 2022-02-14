@@ -69,7 +69,7 @@ class PaginatedTile(ViewportTile):
                 post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
                 sleep(Speeds.SCROLL.value)
 
-        Thread(target=scroll).start()
+        Thread(target=scroll, daemon=True).start()
         return True
 
     def scroll_to_previous(self) -> bool:
