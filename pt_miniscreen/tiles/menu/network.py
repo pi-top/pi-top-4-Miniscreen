@@ -1,15 +1,12 @@
-import logging
-
-from ..pages.network import APPage, EthernetPage, USBPage, WifiPage
-from .base import Menu
-
-logger = logging.getLogger(__name__)
+from ...pages.network import APPage, EthernetPage, USBPage, WifiPage
+from ..templates import MenuTile
 
 
-class NetworkMenu(Menu):
-    def __init__(self, size):
+class NetworkMenuTile(MenuTile):
+    def __init__(self, size, pos=(0, 0)):
         super().__init__(
-            size,
+            size=size,
+            pos=pos,
             pages=[
                 Page(size)
                 for Page in (
@@ -19,5 +16,4 @@ class NetworkMenu(Menu):
                     USBPage,
                 )
             ],
-            name="network",
         )
