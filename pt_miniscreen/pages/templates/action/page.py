@@ -115,4 +115,8 @@ class Page(PageBase):
             return
 
         self.action_state = ActionState.PROCESSING
-        self.set_state_method()
+
+        try:
+            self.set_state_method()
+        except Exception as e:
+            logger.error(e)
