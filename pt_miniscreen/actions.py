@@ -43,6 +43,7 @@ def change_further_link_enabled_state():
 def change_wifi_mode():
     if get_wifi_ap_state() == "Enabled":
         run_command("/usr/bin/wifi-ap-sta stop", timeout=30)
+        run_command("/usr/bin/wifi-ap-sta disable", timeout=30)
     else:
         run_command("/usr/bin/wifi-ap-sta start", timeout=30)
 
