@@ -21,6 +21,9 @@ class HotspotInstance:
     def start(self) -> None:
         self.hotspot.start()
 
+    def cleanup(self) -> None:
+        self.hotspot.cleanup()
+
     @property
     def active(self) -> bool:
         return self.hotspot.active

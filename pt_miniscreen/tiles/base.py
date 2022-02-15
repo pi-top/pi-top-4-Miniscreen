@@ -11,6 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 class Tile:
+    def __del__(self):
+        logger.info(f"Garbage collect Tile: {self}")
+
+        for hotspot_instance in self.hotspot_instances:
+            hotspot_instance.cleanup()
+
     def __init__(self, size: Coordinate, pos: Coordinate = (0, 0)) -> None:
         self._size: Coordinate = size
         self.pos: Coordinate = pos
@@ -92,13 +98,15 @@ class Tile:
 
     def remove_hotspot_instance(self, hotspot_instance: HotspotInstance):
         self.hotspot_instances.remove(hotspot_instance)
+        hotspot_instance.cleanup()
 
     def remove_all_hotspot_instances(self) -> None:
         if len(self.hotspot_instances) == 0:
             return
 
         logger.debug(f"Removing {len(self.hotspot_instances)} hotspot instances...")
-        self.hotspot_instances = list()
+        for hotspot_instance in self.hotspot_instances:
+            self.remove_hotspot_instance(hotspot_instance)
 
     def get_preprocess_image(self) -> Image.Image:
         return Image.new("1", self.render_size)
