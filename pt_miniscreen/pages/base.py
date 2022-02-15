@@ -20,6 +20,9 @@ class Page:
 
         self.hotspot_instances: List[HotspotInstance] = list()
 
+    def cleanup(self):
+        pass
+
     @property
     def size(self) -> Tuple:
         return self._size

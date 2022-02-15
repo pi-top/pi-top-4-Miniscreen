@@ -14,6 +14,12 @@ logger = logging.getLogger(__name__)
 class PaginatedTile(ViewportTile):
     SCROLL_PX_RESOLUTION = 2
 
+    def __del__(self):
+        super().__del__()
+
+        for page in self.pages:
+            page.cleanup()
+
     def __init__(self, size, pages, start_index=0, pos=(0, 0)):
         self.pages = pages
         self.page_index = start_index

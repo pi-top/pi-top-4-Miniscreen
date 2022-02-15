@@ -18,18 +18,27 @@ BATTERY_LEFT_MARGIN = 15
 CAPACITY_RECTANGLE_LEFT_OFFSET = 4
 CAPACITY_RECTANGLE_LEFT_MARGIN = BATTERY_LEFT_MARGIN + CAPACITY_RECTANGLE_LEFT_OFFSET
 
+# battery lives to the end of the process so we must create it globally to avoid
+# memory leaks
+battery = Battery()
+
 
 class Page(PageBase):
     def __init__(self, size):
-        self.battery = Battery()
-        self.cable_connected = self.battery.is_charging or self.battery.is_full
+        self.cable_connected = battery.is_charging or battery.is_full
         try:
-            self.capacity = self.battery.capacity
+            self.capacity = battery.capacity
         except Exception:
             self.capacity = 0
 
         super().__init__(size)
         self.reset()
+
+    def cleanup(self):
+        battery.on_capacity_change = None
+        battery.when_charging = None
+        battery.when_full = None
+        battery.when_discharging = None
 
     def reset(self):
         self.text_hotspot = TextHotspot(
@@ -98,7 +107,7 @@ class Page(PageBase):
             self.cable_connected = state in ("charging", "full")
             self.update_hotspots_properties()
 
-        self.battery.on_capacity_change = update_capacity
-        self.battery.when_charging = lambda: update_charging_state("charging")
-        self.battery.when_full = lambda: update_charging_state("full")
-        self.battery.when_discharging = lambda: update_charging_state("discharging")
+        battery.on_capacity_change = update_capacity
+        battery.when_charging = lambda: update_charging_state("charging")
+        battery.when_full = lambda: update_charging_state("full")
+        battery.when_discharging = lambda: update_charging_state("discharging")
