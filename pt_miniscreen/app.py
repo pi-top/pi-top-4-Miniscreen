@@ -227,7 +227,7 @@ class App:
         try:
             self.miniscreen.reset()
         except RuntimeError as e:
-            logger.error(f'Error resetting miniscreen: {e}')
+            logger.error(f"Error resetting miniscreen: {e}")
 
         if self.last_shown_image is not None:
             self.display(self.last_shown_image)
