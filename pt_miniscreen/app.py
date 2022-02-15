@@ -87,7 +87,7 @@ class App:
         subscribe(AppEvent.STOP_SCREENSAVER, lambda: self.pop_tile_group())
 
         def set_is_user_controlled(user_has_control) -> None:
-            if self.user_has_control and not user_has_control:
+            if not user_has_control:
                 self.user_gave_back_control_event.set()
 
             logger.info(
@@ -182,6 +182,7 @@ class App:
                     "User has control. Waiting for user to give control back..."
                 )
                 self.user_gave_back_control_event.wait()
+                self.user_gave_back_control_event.clear()
                 self.reset()
 
             logger.debug(f"Current state: {self.state_manager.state}")
@@ -204,7 +205,7 @@ class App:
 
             logger.debug("Waiting until image to display has changed...")
             start = time.time()
-            self.current_tile_group.wait_until_should_redraw()
+            self.current_tile_group.wait_until_should_redraw(timeout=1)
             end = time.time()
             logger.debug(f"Image to display has changed! Wait time: {end - start}")
 
