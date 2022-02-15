@@ -114,10 +114,14 @@ class PaginatedTile(Tile):
         )
 
         def scroll():
+            post_event(AppEvent.SCROLL_START)
+
             while self.needs_to_scroll():
                 self.update_scroll_position()
                 post_event(AppEvent.UPDATE_DISPLAYED_IMAGE)
                 sleep(Speeds.SCROLL.value)
+
+            post_event(AppEvent.SCROLL_END)
 
         Thread(target=scroll, daemon=True).start()
         return True

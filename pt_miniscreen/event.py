@@ -16,6 +16,9 @@ class AppEvent(Enum):
     # Menu page -> menu tile group (for pushing to menu tile stack)
     GO_TO_CHILD_MENU = auto()  # str
     GO_TO_PARENT_MENU = auto()  # None
+    # Scrolling
+    SCROLL_START = auto()
+    SCROLL_END = auto()
     # State manager -> app (for pushing to tile group stack)
     START_BOOTSPLASH = auto()  # None
     STOP_BOOTSPLASH = auto()  # None

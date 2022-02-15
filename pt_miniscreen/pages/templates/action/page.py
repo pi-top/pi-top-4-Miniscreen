@@ -3,11 +3,9 @@ from typing import Callable, Optional
 
 from ....event import AppEvent, subscribe
 from ....hotspots.base import HotspotInstance
-from ....hotspots.templates.image import Hotspot as ImageHotspot
-from ....hotspots.templates.marquee_text import Hotspot as MarqueeTextHotspot
 from ....hotspots.templates.status_icon import Hotspot as StatusIconHotspot
+from ....hotspots.templates.text import Hotspot as TextHotspot
 from ....types import Coordinate
-from ....utils import get_image_file_path
 from ...base import Page as PageBase
 from .state import ActionState
 
@@ -45,19 +43,14 @@ class Page(PageBase):
         self.reset()
 
     def reset(self) -> None:
-        SPACING = 4
+        SPACING = 5
         FONT_SIZE = 14
-        ICON_WIDTH = 44
-        ICON_HEIGHT = 33
-        ICON_SIZE = (ICON_WIDTH, ICON_HEIGHT)
 
-        FIRST_COLUMN_POS = 1
-        FIRST_COLUMN_WIDTH = ICON_WIDTH + FIRST_COLUMN_POS
+        FIRST_COLUMN_POS = 10
+        FIRST_COLUMN_WIDTH = 50
 
-        THIRD_COLUMN_POS = self.width - self.THIRD_COLUMN_WIDTH - SPACING
-
-        SECOND_COLUMN_POS = FIRST_COLUMN_WIDTH + SPACING
-        SECOND_COLUMN_WIDTH = THIRD_COLUMN_POS - SECOND_COLUMN_POS - SPACING
+        SECOND_COLUMN_POS = FIRST_COLUMN_POS + FIRST_COLUMN_WIDTH + SPACING
+        SECOND_COLUMN_WIDTH = self.size[0] - SECOND_COLUMN_POS
 
         if not callable(self.get_state_method):
             self.action_state = ActionState.IDLE
@@ -68,24 +61,18 @@ class Page(PageBase):
 
         self.hotspot_instances = [
             HotspotInstance(
-                ImageHotspot(
-                    size=ICON_SIZE,
-                    image_path=get_image_file_path(f"settings/{self.icon}.png"),
-                ),
-                (FIRST_COLUMN_POS, self.offset_pos_for_vertical_center(ICON_HEIGHT)),
-            ),
-            HotspotInstance(
-                MarqueeTextHotspot(
-                    size=(SECOND_COLUMN_WIDTH, FONT_SIZE),
+                TextHotspot(
+                    size=(SECOND_COLUMN_WIDTH, FONT_SIZE * 2),
                     text=self.text,
                     font_size=FONT_SIZE,
+                    align="right",
                 ),
-                (SECOND_COLUMN_POS, self.offset_pos_for_vertical_center(FONT_SIZE)),
+                (FIRST_COLUMN_POS, int(self.size[1] / 2) - FONT_SIZE),
             ),
             HotspotInstance(
                 self.status_icon_hotspot,
                 (
-                    THIRD_COLUMN_POS,
+                    SECOND_COLUMN_POS,
                     self.offset_pos_for_vertical_center(self.STATUS_ICON_SIZE),
                 ),
             ),

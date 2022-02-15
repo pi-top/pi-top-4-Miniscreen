@@ -14,95 +14,100 @@ from ..base import Page as PageBase
 
 logger = logging.getLogger(__name__)
 
+BATTERY_SIZE = (48, 22)  # must match image size
+CAPACITY_SIZE = (37, 14)  # must match size of inner rectangle of charging image
+BATTERY_LEFT = 10
+CAPACITY_LEFT_MARGIN = 4  # must match left margin for capacity in charging image
+CAPACITY_LEFT = BATTERY_LEFT + CAPACITY_LEFT_MARGIN
+
 FONT_SIZE = 16
-ICON_HEIGHT = 22
-RECTANGLE_HOTSPOT_SIZE = (37, 14)
-BATTERY_LEFT_MARGIN = 15
-TEXT_LEFT_POSITION = 65
-CAPACITY_RECTANGLE_LEFT_OFFSET = 4
-CAPACITY_RECTANGLE_LEFT_MARGIN = BATTERY_LEFT_MARGIN + CAPACITY_RECTANGLE_LEFT_OFFSET
+TEXT_SIZE = (40, FONT_SIZE)
+TEXT_TOP = 25
+TEXT_LEFT_MARGIN = 5
+TEXT_LEFT = BATTERY_LEFT + BATTERY_SIZE[0] + TEXT_LEFT_MARGIN
+
+# battery lives to the end of the process so we must create it globally to avoid
+# memory leaks
+battery = Battery()
+
+
+def cable_connected():
+    return battery.is_charging or battery.is_full
+
+
+def get_capacity_text():
+    return "Unknown" if battery.capacity is None else f"{battery.capacity}%"
+
+
+def get_capacity_bounding_box():
+    if cable_connected():
+        return (0, 0, 0, 0)
+
+    capacity_width = int(CAPACITY_SIZE[0] * battery.capacity / 100)
+    return (0, 0, capacity_width, CAPACITY_SIZE[1])
+
+
+def get_battery_image_path():
+    return get_image_file_path(
+        "sys_info/battery_shell_charging.png"
+        if cable_connected()
+        else "sys_info/battery_shell_empty.png"
+    )
 
 
 class Page(PageBase):
     def __init__(self, size):
-        self.battery = Battery()
-        self.cable_connected = self.battery.is_charging or self.battery.is_full
-        try:
-            self.capacity = self.battery.capacity
-        except Exception:
-            self.capacity = 0
-
         super().__init__(size)
-        self.reset()
 
-    def reset(self):
         self.text_hotspot = TextHotspot(
-            size=(self.short_section_width, FONT_SIZE),
-            text=f"{self.capacity}%",
+            size=TEXT_SIZE,
+            text=get_capacity_text(),
             font_size=FONT_SIZE,
             anchor="lt",
             xy=(0, 0),
         )
 
-        self.battery_base_hotspot = ImageHotspot(
-            size=(self.short_section_width, ICON_HEIGHT),
-            image_path=None,
+        self.battery_hotspot = ImageHotspot(
+            size=BATTERY_SIZE,
+            image_path=get_battery_image_path(),
         )
 
-        self.rectangle_hotspot = RectangleHotspot(
-            size=RECTANGLE_HOTSPOT_SIZE,
-            bounding_box=(0, 0, 0, 0),
-        )
-
-        text_hotspot_pos = (
-            TEXT_LEFT_POSITION,
-            self.offset_pos_for_vertical_center(self.text_hotspot.text_size[1]),
-        )
-        battery_hotspot_pos = (
-            BATTERY_LEFT_MARGIN,
-            self.offset_pos_for_vertical_center(ICON_HEIGHT),
-        )
-        rectangle_hotspot_pos = (
-            CAPACITY_RECTANGLE_LEFT_MARGIN,
-            self.offset_pos_for_vertical_center(RECTANGLE_HOTSPOT_SIZE[1]),
+        self.capacity_hotspot = RectangleHotspot(
+            size=CAPACITY_SIZE,
+            bounding_box=get_capacity_bounding_box(),
         )
 
         self.hotspot_instances = [
-            HotspotInstance(self.battery_base_hotspot, battery_hotspot_pos),
-            HotspotInstance(self.rectangle_hotspot, rectangle_hotspot_pos),
-            HotspotInstance(self.text_hotspot, text_hotspot_pos),
+            HotspotInstance(
+                self.battery_hotspot,
+                (
+                    BATTERY_LEFT,
+                    self.offset_pos_for_vertical_center(BATTERY_SIZE[1]),
+                ),
+            ),
+            HotspotInstance(
+                self.capacity_hotspot,
+                (
+                    CAPACITY_LEFT,
+                    self.offset_pos_for_vertical_center(CAPACITY_SIZE[1]),
+                ),
+            ),
+            HotspotInstance(self.text_hotspot, (TEXT_LEFT, TEXT_TOP)),
         ]
 
-        self.update_hotspots_properties()
-        self.setup_events()
+        # setup battery callbacks
+        battery.on_capacity_change = lambda _: self.update_hotspots_properties()
+        battery.when_charging = self.update_hotspots_properties
+        battery.when_full = self.update_hotspots_properties
+        battery.when_discharging = self.update_hotspots_properties
+
+    def cleanup(self):
+        battery.on_capacity_change = None
+        battery.when_charging = None
+        battery.when_full = None
+        battery.when_discharging = None
 
     def update_hotspots_properties(self):
-        text = "Unknown"
-        if self.capacity is not None:
-            text = f"{self.capacity}%"
-        self.text_hotspot.text = text
-
-        image_path = get_image_file_path("sys_info/battery_shell_empty.png")
-        if self.cable_connected:
-            image_path = get_image_file_path("sys_info/battery_shell_charging.png")
-        self.battery_base_hotspot.image_path = image_path
-
-        bounding_box = (0, 0, 0, 0)
-        if not self.cable_connected:
-            bar_width = int(self.rectangle_hotspot.size[0] * self.capacity / 100)
-            bounding_box = (0, 0, bar_width, self.rectangle_hotspot.size[1])
-        self.rectangle_hotspot.bounding_box = bounding_box
-
-    def setup_events(self):
-        def update_capacity(capacity):
-            self.capacity = capacity
-            self.update_hotspots_properties()
-
-        def update_charging_state(state):
-            self.cable_connected = state in ("charging", "full")
-            self.update_hotspots_properties()
-
-        self.battery.on_capacity_change = update_capacity
-        self.battery.when_charging = lambda: update_charging_state("charging")
-        self.battery.when_full = lambda: update_charging_state("full")
-        self.battery.when_discharging = lambda: update_charging_state("discharging")
+        self.text_hotspot.text = get_capacity_text()
+        self.battery_hotspot.image_path = get_battery_image_path()
+        self.capacity_hotspot.bounding_box = get_capacity_bounding_box()
