@@ -70,8 +70,8 @@ class TileGroup:
 
         return im
 
-    def wait_until_should_redraw(self) -> None:
-        self.should_redraw_event.wait()
+    def wait_until_should_redraw(self, timeout=0) -> None:
+        self.should_redraw_event.wait(timeout)
 
         if self.should_redraw_event.is_set():
             self.should_redraw_event.clear()
