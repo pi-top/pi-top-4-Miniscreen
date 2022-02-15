@@ -224,7 +224,11 @@ class App:
     def reset(self) -> None:
         logger.info("Forcing full state refresh...")
         self.state_manager.wake()
-        self.miniscreen.reset()
+        try:
+            self.miniscreen.reset()
+        except RuntimeError as e:
+            logger.error(f"Error resetting miniscreen: {e}")
+
         if self.last_shown_image is not None:
             self.display(self.last_shown_image)
         logger.info("OLED control restored")
