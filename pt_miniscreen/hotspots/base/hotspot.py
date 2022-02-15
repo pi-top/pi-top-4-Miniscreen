@@ -20,6 +20,9 @@ def have_differences(image_one: Image.Image, image_two: Image.Image) -> bool:
 
 
 class Hotspot:
+    def __del__(self):
+        logger.info(f"Garbage collect Hotspot: {self}")
+
     def __init__(self, interval: float, size: Coordinate):
         self._interval: float = interval
         self.size: Coordinate = size
@@ -36,12 +39,16 @@ class Hotspot:
         self._active: bool = False
         self.is_active_event = Event()
 
+        self._stop_event = Event()
         self.caching_thread = Thread(
             target=self._cache_image_on_interval_when_active, args=(), daemon=True
         )
 
     def start(self):
         self.caching_thread.start()
+
+    def cleanup(self):
+        self._stop_event.set()
 
     @property
     def active(self) -> bool:
@@ -124,7 +131,7 @@ class Hotspot:
 
     def _cache_image_on_interval_when_active(self):
         self._cached_image = self._raw_image
-        while True:
+        while not self._stop_event.is_set():
             self._wait_until_active()
             self._update_cached_image_if_new()
 

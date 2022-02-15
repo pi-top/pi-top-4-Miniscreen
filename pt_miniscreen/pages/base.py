@@ -1,10 +1,16 @@
+import logging
 from typing import List, Tuple
 
 from ..hotspots.base import HotspotInstance
 from ..types import Coordinate
 
+logger = logging.getLogger(__name__)
+
 
 class Page:
+    def __del__(self):
+        logger.info(f"Garbage collect Page: {self}")
+
     def __init__(self, size: Coordinate, child_menu_cls=None) -> None:
         self._size = size
         self.child_menu_cls = child_menu_cls
@@ -19,6 +25,9 @@ class Page:
         self.short_section_width = self.width - self.long_section_width
 
         self.hotspot_instances: List[HotspotInstance] = list()
+
+    def cleanup(self):
+        pass
 
     @property
     def size(self) -> Tuple:
