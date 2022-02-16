@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (6.2.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (6.3.0-1) bullseye; urgency=medium
 
   * feat: add IP to overview page (#224)
 
