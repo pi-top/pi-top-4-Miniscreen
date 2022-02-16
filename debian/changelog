@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (6.3.1-1) bullseye; urgency=medium
+
+  * Improve action page error handling (#226)
+  * Skip button presses if user has control of the miniscreen (#227)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 16 Feb 2022 19:54:49 +0000
+
 pi-top-4-miniscreen (6.3.0-1) bullseye; urgency=medium
 
   * feat: add IP to overview page (#224)
