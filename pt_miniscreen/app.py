@@ -104,6 +104,10 @@ class App:
             CANCEL = auto()
 
         def handle_button_press(button: MiniscreenButton):
+            if self.user_has_control:
+                logger.info("Skipping button press event - user has control of the miniscreen")
+                return
+
             logger.debug(
                 f"Handling button {button} for tile group {self.current_tile_group}"
             )
