@@ -1,5 +1,5 @@
 import logging
-from threading import Thread
+from threading import Event, Thread
 from time import sleep
 from typing import Callable
 
@@ -31,16 +31,21 @@ class Hotspot(MarqueeHotspotBase):
             interval=interval,
         )
         self.update_interval = update_interval
+        self._text_update_stop_event = Event()
 
         def _update_text():
-            while True:
-                self._wait_until_active()
-                self.text = self.text_func()
+            while not self._text_update_stop_event.is_set():
+                if self.active:
+                    self.text = self.text_func()
 
                 sleep(self.update_interval)
 
-        self.thread = Thread(target=_update_text, args=(), daemon=True)
+        self.thread = Thread(target=_update_text, daemon=True)
 
     def start(self):
         super().start()
         self.thread.start()
+
+    def cleanup(self):
+        self._text_update_stop_event.set()
+        super().cleanup()
