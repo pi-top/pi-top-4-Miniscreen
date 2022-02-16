@@ -161,13 +161,13 @@ class App:
 
     def wait_for_stop(self) -> None:
         self.__stop_event.wait()
-        error = getattr(self, "__stop_error", None)
+        error = getattr(self, "_stop_error", None)
         if isinstance(error, Exception):
             raise error
 
     def stop(self, error: Optional[Exception] = None) -> None:
         logger.info("Stopping app...")
-        self.__stop_error = error
+        self._stop_error = error
         self.__stop_event.set()
 
     @property
@@ -219,6 +219,7 @@ class App:
             self.miniscreen.device.display(image)
         except (RuntimeError, BrokenPipeError) as e:
             # can't draw to miniscreen, reset won't help, just die
+            logger.error(f"app.display: {e}")
             self.stop(e)
 
     def reset(self) -> None:
