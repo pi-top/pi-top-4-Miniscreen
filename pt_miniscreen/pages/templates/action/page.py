@@ -106,4 +106,5 @@ class Page(PageBase):
         try:
             self.set_state_method()
         except Exception as e:
-            logger.error(e)
+            self.action_state = ActionState.UNKNOWN
+            logger.error(f"Failed to start action: {e}")
