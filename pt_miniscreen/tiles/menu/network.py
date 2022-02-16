@@ -8,12 +8,9 @@ class NetworkMenuTile(MenuTile):
             size=size,
             pos=pos,
             pages=[
-                Page(size)
-                for Page in (
-                    WifiPage,
-                    EthernetPage,
-                    APPage,
-                    USBPage,
-                )
+                WifiPage,
+                EthernetPage,
+                APPage,
+                USBPage,
             ],
         )

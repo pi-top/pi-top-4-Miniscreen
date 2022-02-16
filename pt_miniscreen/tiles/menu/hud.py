@@ -8,12 +8,9 @@ class HUDMenuTile(MenuTile):
             size=size,
             pos=pos,
             pages=[
-                Page(size)
-                for Page in (
-                    OverviewPage,
-                    SystemMenuPage,
-                    NetworkMenuPage,
-                    SettingsMenuPage,
-                )
+                OverviewPage,
+                SystemMenuPage,
+                NetworkMenuPage,
+                SettingsMenuPage,
             ],
         )
