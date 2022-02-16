@@ -105,7 +105,9 @@ class App:
 
         def handle_button_press(button: MiniscreenButton):
             if self.user_has_control:
-                logger.info("Skipping button press event - user has control of the miniscreen")
+                logger.info(
+                    "Skipping button press event - user has control of the miniscreen"
+                )
                 return
 
             logger.debug(
