@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (6.1.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (6.2.0-1) bullseye; urgency=medium
 
   * stop & disable AP mode on action page (#217)
   * Os 1239 Hotspot and BatteryPage memory leaks (#219)
