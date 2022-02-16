@@ -5,9 +5,9 @@ from ...utils import get_image_file_path
 from ..base import Page as PageBase
 
 ICON_SIZE = 38
-ICON_LEFT_MARGIN = 5
+ICON_LEFT_MARGIN = 8
 CPU_BARS_LEFT_MARGIN = 5
-CPU_BARS_TOTAL_WIDTH = 60
+CPU_BARS_TOTAL_WIDTH = 50
 
 
 class Page(PageBase):
