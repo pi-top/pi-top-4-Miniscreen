@@ -87,11 +87,6 @@ class Page(PageBase):
         if state == self.status_icon_hotspot.action_state:
             return
 
-        if state == ActionState.UNKNOWN:
-            # If unknown state is entered into after initialisation
-            # stay in that state until page is reset
-            return
-
         self.status_icon_hotspot.action_state = state
 
     def start_action(self) -> None:
