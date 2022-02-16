@@ -1,3 +1,14 @@
+pi-top-4-miniscreen (6.2.0-1) bullseye; urgency=medium
+
+  * stop & disable AP mode on action page (#217)
+  * Os 1239 Hotspot and BatteryPage memory leaks (#219)
+  * Recover from user code that uses the miniscreen (#221)
+  * Try except miniscreen reset (#222)
+  * feat: add scrollbar to PaginatedTile (#212)
+  * feat: add indicators for right buttons (#223)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 16 Feb 2022 13:54:36 +0000
+
 pi-top-4-miniscreen (6.1.0-1) bullseye; urgency=medium
 
   * feat: organise pages into sub-menus (#209)
