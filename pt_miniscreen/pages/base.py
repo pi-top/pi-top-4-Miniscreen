@@ -11,13 +11,13 @@ class Page:
     def __del__(self):
         logger.info(f"Garbage collect Page: {self}")
 
-    def __init__(self, size: Coordinate, child_menu_cls=None) -> None:
+    def __init__(self, size: Coordinate, font_size=14, child_menu_cls=None) -> None:
         self._size = size
         self.child_menu_cls = child_menu_cls
 
         self.invert = False
         self.visible = True
-        self.font_size = 14
+        self.font_size = font_size
         self.wrap = True
 
         golden_ratio = (1 + 5**0.5) / 2
