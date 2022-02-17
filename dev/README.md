@@ -19,7 +19,7 @@ It also watches this repo for any file changes and resyncs.
 
 This installs the local version of `pt_miniscreen`.
 
-5. On the pi run `sudo python3 ~/pi-top-4-Miniscreen/dev/run.py`
+5. On the pi run `sudo python3 ~/pi-top-4-Miniscreen/dev-start.py`
 
 This starts the miniscreen with logging to stdout.
 
