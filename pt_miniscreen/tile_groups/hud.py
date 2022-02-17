@@ -44,7 +44,8 @@ class HUDTileGroup(TileGroup):
 
     def handle_go_to_child(self, ChildMenuTile) -> None:
         previous_menu_tile = self.current_menu_tile
-        self.menu_tile_stack.append(ChildMenuTile(size=self.size, pos=(0, 0)))
+        child_tile_size = (self.size[0] - self.right_gutter_width, self.size[1])
+        self.menu_tile_stack.append(ChildMenuTile(size=child_tile_size, pos=(0, 0)))
         previous_menu_tile.active = False
         self.current_menu_tile.active = True
         self.set_gutter_icons()
