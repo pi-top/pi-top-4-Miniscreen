@@ -42,7 +42,7 @@ class NetworkPageLayout:
     DEFAULT_FONT_SIZE = 12
     ICON_X_POS = 10
     MARGIN_X_LEFT = 30
-    MARGIN_X_RIGHT = 15
+    MARGIN_X_RIGHT = 5
     ICON_WIDTH = 12
     ICON_HEIGHT = 12
     icon_size = (ICON_WIDTH, ICON_HEIGHT)

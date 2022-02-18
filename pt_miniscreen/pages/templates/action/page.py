@@ -50,7 +50,6 @@ class Page(PageBase):
         FIRST_COLUMN_WIDTH = 50
 
         SECOND_COLUMN_POS = FIRST_COLUMN_POS + FIRST_COLUMN_WIDTH + SPACING
-        SECOND_COLUMN_WIDTH = self.size[0] - SECOND_COLUMN_POS
 
         if not callable(self.get_state_method):
             self.action_state = ActionState.IDLE
@@ -62,7 +61,7 @@ class Page(PageBase):
         self.hotspot_instances = [
             HotspotInstance(
                 TextHotspot(
-                    size=(SECOND_COLUMN_WIDTH, FONT_SIZE * 2),
+                    size=(FIRST_COLUMN_WIDTH, FONT_SIZE * 2),
                     text=self.text,
                     font_size=FONT_SIZE,
                     align="right",
