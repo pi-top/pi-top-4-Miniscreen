@@ -10,5 +10,6 @@ class APActionPage(ActionPage):
             set_state_method=change_wifi_mode,
             # TODO: use correct icon
             icon="ssh",
-            text="Access Point",
+            text="Wi-Fi Hotspot",
+            font_size=13,
         )

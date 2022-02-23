@@ -9,8 +9,8 @@ class Page(PageBase):
     def __init__(self, size):
         row_data = NetworkPageData(
             second_row=RowDataText(
-                icon_path="sys_info/networking/home.png",
+                icon_path="sys_info/networking/home-small.png",
                 text=lambda: get_internal_ip(iface="eth0"),
             ),
         )
-        super().__init__(size=size, row_data=row_data)
+        super().__init__(size=size, row_data=row_data, title="Ethernet")

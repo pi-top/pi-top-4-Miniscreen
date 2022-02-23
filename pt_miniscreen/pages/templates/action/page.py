@@ -23,6 +23,7 @@ class Page(PageBase):
         set_state_method: Callable,
         icon: str,
         text: str,
+        font_size=14,
     ) -> None:
         self.text = text
         self.icon = icon
@@ -39,16 +40,13 @@ class Page(PageBase):
         subscribe(AppEvent.ACTION_TIMEOUT, reset_if_processing)
         subscribe(AppEvent.ACTION_FINISH, reset_if_processing)
 
-        super().__init__(size=size)
+        super().__init__(size=size, font_size=font_size)
         self.reset()
 
     def reset(self) -> None:
-        SPACING = 5
-        FONT_SIZE = 14
-
-        FIRST_COLUMN_POS = 10
-        FIRST_COLUMN_WIDTH = 50
-
+        SPACING = 8
+        FIRST_COLUMN_POS = SPACING
+        FIRST_COLUMN_WIDTH = 52
         SECOND_COLUMN_POS = FIRST_COLUMN_POS + FIRST_COLUMN_WIDTH + SPACING
 
         if not callable(self.get_state_method):
@@ -61,13 +59,13 @@ class Page(PageBase):
         self.hotspot_instances = [
             HotspotInstance(
                 TextHotspot(
-                    size=(FIRST_COLUMN_WIDTH, FONT_SIZE * 2),
+                    size=(FIRST_COLUMN_WIDTH, self.size[1]),
                     text=self.text,
-                    font_size=FONT_SIZE,
+                    font_size=self.font_size,
                     align="right",
                     vertical_align="center",
                 ),
-                (FIRST_COLUMN_POS, int(self.size[1] / 2) - FONT_SIZE),
+                (FIRST_COLUMN_POS, 0),
             ),
             HotspotInstance(
                 self.status_icon_hotspot,
