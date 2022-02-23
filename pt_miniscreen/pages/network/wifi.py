@@ -12,7 +12,7 @@ class Page(PageBase):
     def __init__(self, size):
         def get_ssid():
             ssid = get_wifi_network_ssid()
-            if ssid == "error":
+            if ssid == "Error":
                 return "Not connected"
 
             return ssid
