@@ -65,6 +65,7 @@ class Page(PageBase):
                     text=self.text,
                     font_size=FONT_SIZE,
                     align="right",
+                    vertical_align="center",
                 ),
                 (FIRST_COLUMN_POS, int(self.size[1] / 2) - FONT_SIZE),
             ),

@@ -93,8 +93,6 @@ class Page(PageBase):
             size=CAPACITY_TEXT_SIZE,
             text=get_capacity_text(),
             font_size=CAPACITY_FONT_SIZE,
-            anchor="lt",
-            xy=(0, 0),
         )
 
         self.ip_icon_hotspot = ImageHotspot(

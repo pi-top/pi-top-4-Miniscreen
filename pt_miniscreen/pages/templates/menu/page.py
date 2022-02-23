@@ -44,8 +44,6 @@ class Page(PageBase):
                     size=(self.width - TEXT_LEFT, FONT_SIZE),
                     text=self.text,
                     font_size=FONT_SIZE,
-                    anchor="lt",
-                    xy=(0, 0),
                 ),
                 (TEXT_LEFT, self.offset_pos_for_vertical_center(FONT_SIZE)),
             ),
