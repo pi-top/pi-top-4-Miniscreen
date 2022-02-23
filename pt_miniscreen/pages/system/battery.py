@@ -60,8 +60,6 @@ class Page(PageBase):
             size=TEXT_SIZE,
             text=get_capacity_text(),
             font_size=FONT_SIZE,
-            anchor="lt",
-            xy=(0, 0),
         )
 
         self.battery_hotspot = ImageHotspot(

@@ -1,8 +1,9 @@
 import logging
+from functools import lru_cache
 
+import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...state import Speeds
 from ..base import Hotspot as HotspotBase
@@ -10,66 +11,150 @@ from ..base import Hotspot as HotspotBase
 logger = logging.getLogger(__name__)
 
 
+def get_text_size(text, font, font_size):
+    draw = PIL.ImageDraw.Draw(PIL.Image.new("1", (0, 0), color="black"))
+    bounding_box = draw.textbbox(
+        (0, 0),
+        text=text,
+        font=PIL.ImageFont.truetype(font, size=font_size),
+    )
+    return (
+        bounding_box[2] - bounding_box[0],
+        bounding_box[3] - bounding_box[1],
+    )
+
+
+def create_wrapped_text(text, font, font_size, max_width):
+    words = text.split(" ")
+    words.reverse()  # reverse words to avoid costly list operations later
+    lines = [words.pop()]  # setup first line to equal first word
+
+    while len(words) > 0:
+        word = words.pop()
+
+        # try adding word to the current line and move onto next word if it fits
+        line = f"{lines[-1]} {word}"
+        if get_text_size(line, font, font_size)[0] < max_width:
+            lines[-1] = line
+            continue
+
+        # word doesn't fit on current line so use it to create next line
+        lines.append(word)
+
+    return "\n".join(lines)
+
+
 class Hotspot(HotspotBase):
     def __init__(
         self,
         size,
         text,
-        font_size=20,
-        xy=None,
         font=None,
+        font_size=20,
         fill=1,
-        anchor=None,
-        align=None,
+        align="left",
+        vertical_align="top",
+        bold=False,
+        italics=False,
+        spacing=0,
+        wrap=True,
         interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
     ):
         super().__init__(interval=interval, size=size)
 
-        self.assistant = MiniscreenAssistant("1", self.size)
-
         self._text = text
-        self.font_size = font_size
-
-        if xy is None:
-            xy = (int(size[0] / 2), int(size[1] / 2))
-        self.xy = xy
-        self.anchor = anchor
-        self.align = align
-
-        if font is None:
-            font = self.assistant.get_recommended_font_path(self.font_size)
         self.font = font
+        self.font_size = font_size
         self.fill = fill
+        self.bold = bold
+        self.italics = italics
+        self.align = align
+        self.vertical_align = vertical_align
+        self.spacing = spacing
+        self.wrap = wrap
 
-    def render(self, image):
-        self.assistant.render_text(
-            image,
-            text=self.text,
-            xy=self.xy,
-            font_size=self.font_size,
-            font=self.font,
-            fill=self.fill,
-            anchor=self.anchor,
-            align=self.align,
-        )
+        # Memoize expensive methods
+        self.get_text_size = lru_cache(get_text_size)
+        self.create_wrapped_text = lru_cache(create_wrapped_text)
+
+    @property
+    def default_font(self):
+        if self.font_size >= 12:
+            return "Roboto-Regular.ttf"
+
+        if self.bold and not self.italics:
+            return "VeraMoBd.ttf"
+
+        if not self.bold and self.italics:
+            return "VeraMoIt.ttf"
+
+        if self.bold and self.italics:
+            return "VeraMoBI.ttf"
+
+        return "VeraMono.ttf"
+
+    @property
+    def font(self):
+        if self._font:
+            return self._font
+
+        return self.default_font
+
+    @font.setter
+    def font(self, _font):
+        self._font = _font
 
     @property
     def text(self):
+        if self.wrap:
+            return self.create_wrapped_text(
+                self._text, self.font, self.font_size, self.size[0]
+            )
+
         return self._text
 
     @text.setter
-    def text(self, value_or_callback):
-        self._text = value_or_callback
+    def text(self, _text):
+        self._text = _text
 
     @property
     def text_size(self):
-        draw = PIL.ImageDraw.Draw(PIL.Image.new("1", self.size, color="black"))
-        text_bounding_box = draw.textbbox(
-            (0, 0),
+        return self.get_text_size(self.text, self.font, self.font_size)
+
+    @property
+    def text_x(self):
+        if self.align == "center":
+            return int((self.size[0] - self.text_size[0]) / 2)
+
+        if self.align == "right":
+            return self.size[0] - self.text_size[0]
+
+        return 0
+
+    @property
+    def text_y(self):
+        if self.vertical_align == "center":
+            return int((self.size[1] - self.text_size[1]) / 2)
+
+        if self.vertical_align == "bottom":
+            return self.size[1] - self.text_size[1]
+
+        return 0
+
+    @property
+    def text_pos(self):
+        return (self.text_x, self.text_y)
+
+    def render(self, image):
+        # multiline doesn't support anchor so pass none if any newlines found
+        anchor = "lt" if "\n" not in self.text else None
+
+        PIL.ImageDraw.Draw(image).text(
             text=self.text,
+            xy=self.text_pos,
             font=PIL.ImageFont.truetype(self.font, size=self.font_size),
-        )
-        return (
-            text_bounding_box[2] - text_bounding_box[0],
-            min(text_bounding_box[3] - text_bounding_box[1], self.height),
+            fill=self.fill,
+            spacing=self.spacing,
+            align=self.align,
+            anchor=anchor,
         )
