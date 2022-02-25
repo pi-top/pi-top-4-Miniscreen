@@ -18,7 +18,7 @@ class Hotspot(HotspotBase):
         interval: float = Speeds.DYNAMIC_PAGE_REDRAW.value,
     ):
         self.progress = progress
-        super().__init__(interval=interval / 2, size=size)
+        super().__init__(interval=interval, size=size)
 
     def render(self, image):
         margin = 1
