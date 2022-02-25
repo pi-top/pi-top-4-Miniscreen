@@ -1,4 +1,4 @@
-from ...pages.system import BatteryPage, CPUPage, LoginPage
+from ...pages.system import BatteryPage, CPUPage, LoginPage, MemoryPage
 from ..templates import MenuTile
 
 
@@ -11,5 +11,6 @@ class SystemMenuTile(MenuTile):
                 LoginPage,
                 BatteryPage,
                 CPUPage,
+                MemoryPage,
             ],
         )
