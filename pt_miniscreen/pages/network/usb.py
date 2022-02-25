@@ -1,7 +1,5 @@
-from getpass import getuser
 from ipaddress import ip_address
 
-from pitop.common.pt_os import is_pi_using_default_password
 from pitop.common.sys_info import get_internal_ip
 
 from .network_page_base import NetworkPageData
@@ -18,12 +16,6 @@ class Page(PageBase):
             ),
         )
         super().__init__(size=size, row_data=row_data, title="USB")
-
-    def get_user(self):
-        return "pi" if getuser() == "root" else getuser()
-
-    def get_password(self):
-        return "pi-top" if is_pi_using_default_password() is True else "********"
 
     def get_ip_address(self):
         ip_addr = ""
