@@ -1,3 +1,5 @@
+from typing import Callable
+
 import psutil
 from pitop.common.formatting import bytes2human
 
@@ -24,18 +26,18 @@ class Page(PageBase):
         self.reset()
 
     def reset(self):
-        try:
-            memory = psutil.virtual_memory()
-            swap = psutil.swap_memory()
-        except Exception:
-            memory = None
-            swap = None
-
-        def get_available_capacity(obj) -> str:
+        def get_usage_string(func: Callable) -> str:
             try:
-                return f"{bytes2human(obj.used)}/{bytes2human(obj.total)}"
+                memory_object = func()
+                return f"{bytes2human(memory_object.used)}/{bytes2human(memory_object.total)}"
             except Exception:
                 return ""
+
+        def get_usage_percentage(func: Callable) -> float:
+            try:
+                return func().percent
+            except Exception:
+                return 0.0
 
         self.hotspot_instances = [
             HotspotInstance(
@@ -49,14 +51,14 @@ class Page(PageBase):
             HotspotInstance(
                 ProgressBarHotspot(
                     size=(self.size[0] - SUB_TITLE_WIDTH - X_MARGIN * 2, ROW_HEIGHT),
-                    progress=lambda: memory.percent,
+                    progress=lambda: get_usage_percentage(func=psutil.virtual_memory),
                 ),
                 (X_MARGIN + SUB_TITLE_WIDTH, MARGIN_Y),
             ),
             HotspotInstance(
                 MarqueeDynamicTextHotspot(
                     size=(self.size[0] - X_MARGIN * 2, ROW_HEIGHT),
-                    text=lambda: get_available_capacity(memory),
+                    text=lambda: get_usage_string(func=psutil.virtual_memory),
                     font_size=TEXT_FONT_SIZE,
                 ),
                 (X_MARGIN, MARGIN_Y + ROW_HEIGHT + SPACING_Y),
@@ -72,14 +74,14 @@ class Page(PageBase):
             HotspotInstance(
                 ProgressBarHotspot(
                     size=(self.size[0] - SUB_TITLE_WIDTH - X_MARGIN * 2, ROW_HEIGHT),
-                    progress=lambda: swap.percent,
+                    progress=lambda: get_usage_percentage(func=psutil.swap_memory),
                 ),
                 (X_MARGIN + SUB_TITLE_WIDTH, int(self.size[1] / 2) + MARGIN_Y),
             ),
             HotspotInstance(
                 MarqueeDynamicTextHotspot(
                     size=(self.size[0] - X_MARGIN * 2, ROW_HEIGHT),
-                    text=lambda: get_available_capacity(swap),
+                    text=lambda: get_usage_string(func=psutil.swap_memory),
                     font_size=TEXT_FONT_SIZE,
                 ),
                 (X_MARGIN, int(self.size[1] / 2) + MARGIN_Y + ROW_HEIGHT + SPACING_Y),
