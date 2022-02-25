@@ -1,4 +1,4 @@
-from ...pages.network import APPage, EthernetPage, LoginPage, USBPage, WifiPage
+from ...pages.network import APPage, EthernetPage, USBPage, WifiPage
 from ..templates import MenuTile
 
 
@@ -8,7 +8,6 @@ class NetworkMenuTile(MenuTile):
             size=size,
             pos=pos,
             pages=[
-                LoginPage,
                 WifiPage,
                 EthernetPage,
                 APPage,

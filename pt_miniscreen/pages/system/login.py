@@ -2,9 +2,9 @@ from getpass import getuser
 
 from pitop.common.pt_os import is_pi_using_default_password
 
-from .network_page_base import NetworkPageData
-from .network_page_base import Page as PageBase
-from .network_page_base import RowDataText
+from ..network.network_page_base import NetworkPageData
+from ..network.network_page_base import Page as PageBase
+from ..network.network_page_base import RowDataText
 
 
 class Page(PageBase):
