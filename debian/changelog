@@ -1,3 +1,14 @@
+pi-top-4-miniscreen (6.4.1-1) bullseye; urgency=medium
+
+  * Run script not using local installation (#229)
+  * Fix HUD giving children the wrong size (#230)
+  * Add boundary alignment to text hotspot (#233)
+  * Add titles and defaults to network pages (#232)
+  * Add 'login' page to 'system' menu (#235)
+  * Add 'memory' page to 'system' menu (#234)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 25 Feb 2022 18:36:58 +0000
+
 pi-top-4-miniscreen (6.3.1-1) bullseye; urgency=medium
 
   * Improve action page error handling (#226)
