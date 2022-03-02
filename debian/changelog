@@ -1,9 +1,9 @@
-pi-top-4-miniscreen (6.3.1-2) bullseye; urgency=medium
+pi-top-4-miniscreen (6.4.1-1) bullseye; urgency=medium
 
-  * fix: run script not using local installation (#229)
-  * refactor: fix HUD giving children the wrong size (#230)
-  * feat: add boundary alignment to text hotspot (#233)
-  * feat: add titles and defaults to network pages (#232)
+  * Run script not using local installation (#229)
+  * Fix HUD giving children the wrong size (#230)
+  * Add boundary alignment to text hotspot (#233)
+  * Add titles and defaults to network pages (#232)
   * Add 'login' page to 'system' menu (#235)
   * Add 'memory' page to 'system' menu (#234)
 
