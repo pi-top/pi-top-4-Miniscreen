@@ -1,0 +1,110 @@
+from itertools import repeat
+from os import path
+from pathlib import Path
+from sys import modules
+from unittest.mock import MagicMock
+
+import pytest
+from PIL import ImageFont
+
+from pt_miniscreen.state import ScheduledAppEvent
+from pt_miniscreen.utils import get_image_file_path
+
+pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
+
+
+def patch_packages():
+    modules_to_patch = [
+        "pitop",
+        "pitop.common.formatting",
+        "pitop.common.command_runner",
+        "pitop.common.pt_os",
+    ]
+    for module in modules_to_patch:
+        modules[module] = MagicMock()
+
+    # packages that need to be patched in tests
+    from tests.mocks import battery, pitop, sys_info
+
+    modules["pitop.common.sys_info"] = sys_info
+    modules["pitop.battery"] = battery
+    modules["pitop"] = pitop
+
+
+def use_test_font(mocker):
+    font_dir = f"{path.dirname(path.realpath(__file__))}/tests/fonts"
+    vera_dir = f"{font_dir}/ttf-bitstream-vera"
+    roboto_dir = f"{font_dir}/roboto"
+
+    def get_mono_font(size, bold=False, italics=False):
+        if bold and not italics:
+            return ImageFont.truetype(f"{vera_dir}/VeraMoBd.ttf", size=size)
+
+        if not bold and italics:
+            return ImageFont.truetype(f"{vera_dir}/VeraMoIt.ttf", size=size)
+
+        if bold and italics:
+            return ImageFont.truetype(f"{vera_dir}/VeraMoBI.ttf", size=size)
+
+        return ImageFont.truetype(f"{vera_dir}/VeraMono.ttf", size=size)
+
+    def get_font(size, bold=False, italics=False):
+        if size >= 12:
+            return ImageFont.truetype(
+                font=f"{roboto_dir}/Roboto-Regular.ttf", size=size
+            )
+
+        return get_mono_font(size, bold, italics)
+
+    mocker.patch("pt_miniscreen.utils.get_font", get_font)
+    mocker.patch("pt_miniscreen.utils.get_mono_font", get_mono_font)
+
+
+def use_test_images(mocker):
+    def get_path(relative_path):
+        real_image = get_image_file_path(relative_path)
+        test_image = real_image.replace("pt_miniscreen", "tests")
+        return test_image if path.exists(test_image) else real_image
+
+    mocker.patch("pt_miniscreen.utils.get_image_file_path", get_path)
+
+
+def freeze_marquee_text(mocker):
+    def carousel(max_value, min_value=0, resolution=1):
+        return repeat(min_value)
+
+    mocker.patch("pt_miniscreen.hotspots.templates.marquee_text.carousel", carousel)
+
+
+def turn_off_bootsplash():
+    bootsplash_breadcrumb = Path("/tmp/.com.pi-top.pt_miniscreen.boot-played")
+    if not bootsplash_breadcrumb.is_file():
+        bootsplash_breadcrumb.touch()
+
+
+@pytest.fixture(autouse=True)
+def app(mocker):
+    patch_packages()
+    turn_off_bootsplash()
+    use_test_font(mocker)
+    use_test_images(mocker)
+    freeze_marquee_text(mocker)
+
+    from pt_miniscreen.app import App
+
+    app = App()
+    app.start()
+
+    # turn off dimming and therefore screensaver
+    app.state_manager.sched_event_manager.cancel_sched_event(
+        ScheduledAppEvent.ACTIVATE_DIMMING
+    )
+
+    yield app
+
+    app.stop()
+
+
+@pytest.fixture
+def miniscreen(app):
+    yield app.miniscreen
