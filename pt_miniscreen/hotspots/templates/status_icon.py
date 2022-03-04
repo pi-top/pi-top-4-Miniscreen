@@ -2,7 +2,8 @@ import logging
 from math import ceil, floor
 
 import PIL.Image
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
+
+from pt_miniscreen.utils import get_font
 
 from ...pages.templates.action.state import ActionState
 from ...state import Speeds
@@ -24,7 +25,7 @@ def unknown_image(size):
         xy=center,
         text="?",
         fill="black",
-        font=MiniscreenAssistant("1", size).get_recommended_font(size=22),
+        font=get_font(size=22),
         anchor="mm",
     )
     return image

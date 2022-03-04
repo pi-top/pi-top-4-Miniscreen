@@ -1,6 +1,6 @@
 import logging
 
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
+from pt_miniscreen.utils import get_mono_font
 
 from ...hotspots.base import HotspotInstance
 from ...hotspots.templates.marquee_text import Hotspot as MarqueeTextHotspot
@@ -28,12 +28,11 @@ class SettingsTitleBarTile(Tile):
         self.reset()
 
     def reset(self) -> None:
-        asst = MiniscreenAssistant("1", self.size)
         margin = 2
         marquee_text_hotspot = MarqueeTextHotspot(
             size=(self.size[0] - 2 * margin, self.size[1]),
             text=self.text,
-            font=asst.get_mono_font(
+            font=get_mono_font(
                 size=14,
                 bold=True,
             ),
