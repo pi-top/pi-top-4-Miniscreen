@@ -4,6 +4,7 @@ from functools import lru_cache
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
+from PIL import Image
 
 from pt_miniscreen.utils import get_font
 
@@ -78,6 +79,11 @@ class Hotspot(HotspotBase):
         # Memoize expensive methods
         self.get_text_size = lru_cache(get_text_size)
         self.create_wrapped_text = lru_cache(create_wrapped_text)
+
+        # setup cached image
+        initial_image = Image.new("1", self.size)
+        self.render(initial_image)
+        self._cached_image = initial_image
 
     @property
     def font(self):
