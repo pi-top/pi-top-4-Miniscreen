@@ -44,3 +44,8 @@ def post_event(event_type: AppEvent, data: Any = None) -> None:
             fn()
         else:
             fn(data)
+
+
+def unsubscribe_all():
+    global subscribers
+    subscribers = dict()
