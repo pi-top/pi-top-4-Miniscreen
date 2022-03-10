@@ -139,7 +139,6 @@ class Page(PageBase):
         battery.when_discharging = self.update_battery_properties
 
     def cleanup(self):
-        self._ip_update_stop_event.set()
         battery.on_capacity_change = None
         battery.when_charging = None
         battery.when_full = None
