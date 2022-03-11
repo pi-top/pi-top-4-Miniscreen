@@ -22,12 +22,12 @@ def reset_status():
 
 
 def start_service(service_to_enable):
-    sleep(0.75)
+    sleep(1)
     service_state[service_to_enable] = "Enabled"
 
 
 def stop_service(service_to_disable):
-    sleep(0.75)
+    sleep(1)
     service_state[service_to_disable] = "Disabled"
 
 
@@ -40,7 +40,7 @@ def get_ap_mode_status():
 
 
 def change_wifi_mode():
-    sleep(0.75)
+    sleep(1)
     current_state = ap_mode_status["state"]
     ap_mode_status["state"] = "Inactive" if current_state == "Active" else "Active"
 
@@ -175,7 +175,6 @@ def test_hdmi_reset(miniscreen, snapshot):
 
     # reset screen
     miniscreen.select_button.release()
-    sleep(0.1)
     snapshot.assert_match(miniscreen.device.display_image, "resetting.png")
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "reset.png")

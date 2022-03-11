@@ -24,10 +24,10 @@ class Hotspot(HotspotBase):
 
         self.xy = xy
         self._im = None
-        self.image_path = image_path
         self._frame_no = 0
         self.loop = loop
         self.playback_speed = 1.0
+        self.image_path = image_path
 
     def update_frame_no(self):
         if self._im.is_animated:
@@ -64,8 +64,13 @@ class Hotspot(HotspotBase):
     def image_path(self, path):
         self._im_path = path
         self._setup_image()
+        new_image = self._raw_image
+        self.render(new_image)
+        self._cached_image = new_image
 
     def _setup_image(self):
+        self._frame_no = 0
+
         if self.image_path is None:
             return
         try:
