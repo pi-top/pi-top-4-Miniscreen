@@ -4,6 +4,7 @@
 __pycache__
 .DS_Store
 venv/
+.virtualenv
 .mypy_cache
 pt_miniscreen.egg-info
 .coverage
