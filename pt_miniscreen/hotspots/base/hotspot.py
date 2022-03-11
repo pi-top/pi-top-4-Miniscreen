@@ -3,7 +3,6 @@ from threading import Event, Thread
 from time import sleep
 
 from PIL import Image, ImageChops, ImageOps
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
 
 from ...event import AppEvent, post_event
 from ...types import Coordinate
@@ -30,7 +29,6 @@ class Hotspot:
         self.draw_white: bool = True
         self.draw_black: bool = False
 
-        self.invert: bool = False
         self.width: int = size[0]
         self.height: int = size[1]
 
@@ -104,9 +102,6 @@ class Hotspot:
             return im
 
         self.render(im)
-
-        if self.invert:
-            im = MiniscreenAssistant("1", self.size).invert(im)
 
         return im
 

@@ -10,7 +10,7 @@ from typing import Optional
 
 from pitop import Pitop
 
-from .event import AppEvent, post_event, subscribe
+from .event import AppEvent, post_event, subscribe, unsubscribe_all
 from .state import StateManager
 from .tile_groups import (
     HUDTileGroup,
@@ -175,6 +175,8 @@ class App:
         logger.info("Stopping app...")
         self._stop_error = error
         self.__stop_event.set()
+        self.__thread.join()
+        unsubscribe_all()
 
     @property
     def user_has_control(self) -> bool:

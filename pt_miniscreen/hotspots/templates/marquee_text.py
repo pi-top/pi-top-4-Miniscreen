@@ -2,7 +2,8 @@ import logging
 from typing import Iterator
 
 from PIL import Image, ImageDraw
-from pitop.miniscreen.oled.assistant import MiniscreenAssistant
+
+from pt_miniscreen.utils import get_font
 
 from ...generators import carousel, pause_every
 from ...state import Speeds
@@ -26,15 +27,13 @@ class Hotspot(HotspotBase):
         super().__init__(interval=interval, size=size)
 
         self.coordinate_generator: Iterator = iter(())
-
-        self.assistant = MiniscreenAssistant("1", self.size)
         self.text_image = Image.new("1", self.size, color="black")
 
         self._interval = interval
         self.font_size = font_size
 
         if font is None:
-            font = self.assistant.get_recommended_font(font_size)
+            font = get_font(font_size)
         self.font = font
         self._text = text
         self._update_text_image()

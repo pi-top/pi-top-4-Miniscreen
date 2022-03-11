@@ -4,6 +4,9 @@ from functools import lru_cache
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
+from PIL import Image
+
+from pt_miniscreen.utils import get_font
 
 from ...state import Speeds
 from ..base import Hotspot as HotspotBase
@@ -11,12 +14,12 @@ from ..base import Hotspot as HotspotBase
 logger = logging.getLogger(__name__)
 
 
-def get_text_size(text, font, font_size):
+def get_text_size(text, font):
     draw = PIL.ImageDraw.Draw(PIL.Image.new("1", (0, 0), color="black"))
     bounding_box = draw.textbbox(
         (0, 0),
         text=text,
-        font=PIL.ImageFont.truetype(font, size=font_size),
+        font=font,
     )
     return (
         bounding_box[2] - bounding_box[0],
@@ -24,7 +27,7 @@ def get_text_size(text, font, font_size):
     )
 
 
-def create_wrapped_text(text, font, font_size, max_width):
+def create_wrapped_text(text, font, max_width):
     words = text.split(" ")
     words.reverse()  # reverse words to avoid costly list operations later
     lines = [words.pop()]  # setup first line to equal first word
@@ -34,7 +37,7 @@ def create_wrapped_text(text, font, font_size, max_width):
 
         # try adding word to the current line and move onto next word if it fits
         line = f"{lines[-1]} {word}"
-        if get_text_size(line, font, font_size)[0] < max_width:
+        if get_text_size(line, font)[0] < max_width:
             lines[-1] = line
             continue
 
@@ -77,28 +80,17 @@ class Hotspot(HotspotBase):
         self.get_text_size = lru_cache(get_text_size)
         self.create_wrapped_text = lru_cache(create_wrapped_text)
 
-    @property
-    def default_font(self):
-        if self.font_size >= 12:
-            return "Roboto-Regular.ttf"
-
-        if self.bold and not self.italics:
-            return "VeraMoBd.ttf"
-
-        if not self.bold and self.italics:
-            return "VeraMoIt.ttf"
-
-        if self.bold and self.italics:
-            return "VeraMoBI.ttf"
-
-        return "VeraMono.ttf"
+        # setup cached image
+        initial_image = Image.new("1", self.size)
+        self.render(initial_image)
+        self._cached_image = initial_image
 
     @property
     def font(self):
         if self._font:
             return self._font
 
-        return self.default_font
+        return get_font(self.font_size, self.bold, self.italics)
 
     @font.setter
     def font(self, _font):
@@ -107,9 +99,7 @@ class Hotspot(HotspotBase):
     @property
     def text(self):
         if self.wrap:
-            return self.create_wrapped_text(
-                self._text, self.font, self.font_size, self.size[0]
-            )
+            return self.create_wrapped_text(self._text, self.font, self.size[0])
 
         return self._text
 
@@ -119,7 +109,7 @@ class Hotspot(HotspotBase):
 
     @property
     def text_size(self):
-        return self.get_text_size(self.text, self.font, self.font_size)
+        return self.get_text_size(self.text, self.font)
 
     @property
     def text_x(self):
@@ -152,7 +142,7 @@ class Hotspot(HotspotBase):
         PIL.ImageDraw.Draw(image).text(
             text=self.text,
             xy=self.text_pos,
-            font=PIL.ImageFont.truetype(self.font, size=self.font_size),
+            font=self.font,
             fill=self.fill,
             spacing=self.spacing,
             align=self.align,

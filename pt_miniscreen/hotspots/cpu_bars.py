@@ -1,5 +1,5 @@
 import PIL.ImageDraw
-import psutil
+from psutil import cpu_percent
 
 from ..state import Speeds
 from .base import Hotspot as HotspotBase
@@ -11,10 +11,11 @@ class Hotspot(HotspotBase):
         super().__init__(interval=interval / 2, size=size)
 
     def render(self, image):
-        percentages = psutil.cpu_percent(interval=self.interval, percpu=True)
+        percentages = cpu_percent(interval=self.interval, percpu=True)
 
         space_between_bars = 4
-        width_cpu = self.size[0] / len(percentages)
+        num_bars = len(percentages)
+        width_cpu = self.size[0] / num_bars if num_bars > 0 else 1
         bar_width = width_cpu - space_between_bars
 
         x = 0
