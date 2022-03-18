@@ -224,3 +224,4 @@ class StateManager:
             logger.debug("Waking up...")
             self.contrast_change_func(255)
             self.state = State.WAKING
+        self.reset_dim_timer()
