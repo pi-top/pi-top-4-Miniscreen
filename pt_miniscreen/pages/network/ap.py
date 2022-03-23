@@ -1,24 +1,38 @@
+from functools import partial
+from math import ceil
+
 from pitop.common.sys_info import get_ap_mode_status
 
-from .network_page_base import NetworkPageData
-from .network_page_base import Page as PageBase
-from .network_page_base import RowDataText
+from pt_miniscreen.hotspots.table import IconTextRow
+from pt_miniscreen.hotspots.table_page import TablePageHotspot
+from pt_miniscreen.utils import get_image_file_path
 
 
-class Page(PageBase):
-    def __init__(self, size):
-        row_data = NetworkPageData(
-            first_row=RowDataText(
-                icon_path="sys_info/networking/wifi-small.png",
-                text=lambda: get_ap_mode_status().get("ssid", "Not active"),
-            ),
-            second_row=RowDataText(
-                icon_path="sys_info/networking/padlock-small.png",
-                text=lambda: get_ap_mode_status().get("passphrase", ""),
-            ),
-            third_row=RowDataText(
-                icon_path="sys_info/networking/home-small.png",
-                text=lambda: get_ap_mode_status().get("ip_address", ""),
-            ),
+class APPage(TablePageHotspot):
+    def __init__(self, **kwargs):
+        super().__init__(
+            **kwargs,
+            title="Wi-Fi Hotspot",
+            Rows=[
+                partial(
+                    IconTextRow,
+                    icon_path=get_image_file_path("sys_info/networking/wifi-small.png"),
+                    get_text=lambda: get_ap_mode_status().get("ssid", "Not active"),
+                    text_align_rounding_fn=ceil,
+                ),
+                partial(
+                    IconTextRow,
+                    icon_path=get_image_file_path(
+                        "sys_info/networking/padlock-small.png"
+                    ),
+                    get_text=lambda: get_ap_mode_status().get("passphrase", ""),
+                    text_align_rounding_fn=ceil,
+                ),
+                partial(
+                    IconTextRow,
+                    icon_path=get_image_file_path("sys_info/networking/home-small.png"),
+                    get_text=lambda: get_ap_mode_status().get("ip_address", ""),
+                    text_align_rounding_fn=ceil,
+                ),
+            ]
         )
-        super().__init__(size=size, row_data=row_data, title="Wi-Fi Hotspot")

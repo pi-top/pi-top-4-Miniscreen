@@ -1,15 +1,15 @@
 from pitop.common.sys_info import get_pt_further_link_enabled_state
 
+from pt_miniscreen.hotspots.action_page import ActionPage
+
 from ...actions import change_further_link_enabled_state
-from ..templates.action import Page as ActionPage
 
 
 class FurtherLinkActionPage(ActionPage):
-    def __init__(self, size):
+    def __init__(self, **kwargs):
         super().__init__(
-            size=size,
-            get_state_method=get_pt_further_link_enabled_state,
-            set_state_method=change_further_link_enabled_state,
-            icon="further_link",
             text="Further Link",
+            action=change_further_link_enabled_state,
+            get_enabled_state=get_pt_further_link_enabled_state,
+            **kwargs,
         )

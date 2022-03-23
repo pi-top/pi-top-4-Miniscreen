@@ -1,3 +1,5 @@
+import logging
+import sys
 from itertools import repeat
 from os import path
 from pathlib import Path
@@ -7,10 +9,11 @@ from unittest.mock import MagicMock
 import pytest
 from PIL import ImageFont
 
-from pt_miniscreen.state import ScheduledAppEvent
 from pt_miniscreen.utils import get_image_file_path
 
 pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 def patch_packages():
@@ -73,7 +76,7 @@ def freeze_marquee_text(mocker):
     def carousel(max_value, min_value=0, resolution=1):
         return repeat(min_value)
 
-    mocker.patch("pt_miniscreen.hotspots.templates.marquee_text.carousel", carousel)
+    mocker.patch("pt_miniscreen.hotspots.marquee_text.carousel", carousel)
 
 
 def turn_off_bootsplash():
@@ -94,11 +97,6 @@ def app(mocker):
 
     app = App()
     app.start()
-
-    # turn off dimming and therefore screensaver
-    app.state_manager.sched_event_manager.cancel_sched_event(
-        ScheduledAppEvent.ACTIVATE_DIMMING
-    )
 
     yield app
 

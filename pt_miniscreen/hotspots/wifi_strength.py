@@ -1,16 +1,24 @@
 import PIL.ImageDraw
 from pitop.common.sys_info import get_network_strength
 
-from ..state import Speeds
-from .base import Hotspot as HotspotBase
+from pt_miniscreen.core.hotspot import Hotspot
 
 
-class Hotspot(HotspotBase):
-    def __init__(self, size, interval=Speeds.DYNAMIC_PAGE_REDRAW.value):
-        super().__init__(interval=interval, size=size)
+def get_wifi_strength():
+    return int(get_network_strength("wlan0")[:-1]) / 100
+
+
+class WifiStrengthHotspot(Hotspot):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs, initial_state={"wifi_strength": get_wifi_strength()})
+
+        self.create_interval(self.update_wifi_strength)
+
+    def update_wifi_strength(self):
+        self.state.update({"wifi_strength": get_wifi_strength()})
 
     def render(self, image):
-        wifi_strength = int(get_network_strength("wlan0")[:-1]) / 100
+        wifi_strength = self.state["wifi_strength"]
 
         number_of_bars = 4
         filled_bars = 4
@@ -24,16 +32,19 @@ class Hotspot(HotspotBase):
             filled_bars = 3
 
         space_between_bars = 4
-        width_cpu = self.size[0] / number_of_bars
+        right_padding = int(image.width * 0.16)
+        width_cpu = (image.width - right_padding) / number_of_bars
         bar_width = width_cpu - space_between_bars
 
         x = 0
         draw = PIL.ImageDraw.Draw(image)
         for i in range(number_of_bars):
             draw.rectangle(
-                (x, self.size[1] * (1 - (i + 1) / number_of_bars))
-                + (x + bar_width, self.size[1] - 1),
+                (x, image.height * (1 - (i + 1) / number_of_bars))
+                + (x + bar_width, image.height - 1),
                 "white" if i + 1 <= filled_bars else "black",
                 "white",
             )
             x += width_cpu
+
+        return image

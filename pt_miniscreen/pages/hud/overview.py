@@ -5,21 +5,18 @@ from pitop.battery import Battery
 from pitop.common.formatting import is_url
 from pitop.common.sys_info import get_internal_ip
 
-from ...hotspots.base import HotspotInstance
-from ...hotspots.templates.image import Hotspot as ImageHotspot
-from ...hotspots.templates.marquee_dynamic_text import (
-    Hotspot as DynamicMarqueeTextHotspot,
-)
-from ...hotspots.templates.rectangle import Hotspot as RectangleHotspot
-from ...hotspots.templates.text import Hotspot as TextHotspot
-from ...utils import get_image_file_path
-from ..base import Page as PageBase
+from pt_miniscreen.core import Hotspot
+from pt_miniscreen.core.utils import apply_layers, layer, rectangle
+from pt_miniscreen.hotspots.image import ImageHotspot
+from pt_miniscreen.hotspots.marquee_text import MarqueeTextHotspot
+from pt_miniscreen.hotspots.text import TextHotspot
+from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
 
 BATTERY_SIZE = (48, 22)  # must match image size
-CAPACITY_SIZE = (37, 14)  # must match size of inner rectangle of charging image
-BATTERY_LEFT = 10
+MAX_CAPACITY_SIZE = (38, 14)  # must match size of inner rectangle of charging image
+BATTERY_LEFT = 9
 CAPACITY_LEFT_MARGIN = 4  # must match left margin for capacity in charging image
 CAPACITY_LEFT = BATTERY_LEFT + CAPACITY_LEFT_MARGIN
 
@@ -50,12 +47,12 @@ def get_capacity_text():
     return "Unknown" if battery.capacity is None else f"{battery.capacity}%"
 
 
-def get_capacity_bounding_box():
+def get_capacity_size():
     if cable_connected():
-        return (0, 0, 0, 0)
+        return (0, 0)
 
-    capacity_width = int(CAPACITY_SIZE[0] * battery.capacity / 100)
-    return (0, 0, capacity_width, CAPACITY_SIZE[1])
+    capacity_width = int(MAX_CAPACITY_SIZE[0] * battery.capacity / 100)
+    return (capacity_width, MAX_CAPACITY_SIZE[1])
 
 
 def get_battery_image_path():
@@ -75,44 +72,64 @@ def get_ip():
     return "No IP address"
 
 
-class Page(PageBase):
-    def __init__(self, size):
-        super().__init__(size)
+def offset_pos_for_vertical_center(page_height, height: int) -> int:
+    return int((page_height - height) / 2)
 
-        self.battery_hotspot = ImageHotspot(
-            size=BATTERY_SIZE,
+
+class OverviewPageHotspot(Hotspot):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs, initial_state={"capacity_size": get_capacity_size()})
+
+        self.battery_image = self.create_hotspot(
+            ImageHotspot,
             image_path=get_battery_image_path(),
         )
 
-        self.capacity_hotspot = RectangleHotspot(
-            size=CAPACITY_SIZE,
-            bounding_box=get_capacity_bounding_box(),
-        )
-
-        self.capacity_text_hotspot = TextHotspot(
-            size=CAPACITY_TEXT_SIZE,
+        self.capacity_text = self.create_hotspot(
+            TextHotspot,
             text=get_capacity_text(),
             font_size=CAPACITY_FONT_SIZE,
         )
 
-        self.ip_icon_hotspot = ImageHotspot(
-            size=IP_ICON_SIZE,
+        self.ip_icon = self.create_hotspot(
+            ImageHotspot,
             image_path=get_image_file_path("sys_info/networking/antenna.png"),
         )
 
-        self.ip_text_hotspot = DynamicMarqueeTextHotspot(
-            size=IP_TEXT_SIZE,
-            text=get_ip,
+        self.ip_text = self.create_hotspot(
+            MarqueeTextHotspot,
+            get_text=get_ip,
+            get_text_interval=3,
             font_size=IP_FONT_SIZE,
-            update_interval=3,
         )
 
+        # setup battery callbacks
+        battery.on_capacity_change = lambda _: self.update_battery_properties()
+        battery.when_charging = self.update_battery_properties
+        battery.when_full = self.update_battery_properties
+        battery.when_discharging = self.update_battery_properties
+
+    # use proxy and __del__ instead of unimplemented cleanup method
+    def cleanup(self):
+        battery.on_capacity_change = None
+        battery.when_charging = None
+        battery.when_full = None
+        battery.when_discharging = None
+
+    def update_battery_properties(self):
+        self.capacity_text.state.update({"text": get_capacity_text()})
+        self.battery_image.state.update({"image_path": get_battery_image_path()})
+        self.state.update({"capacity_size": get_capacity_size()})
+
+    def render(self, image):
         BATTERY_OFFSET = -10  # offset from the vertical center of the page
         BATTERY_TOP = (
-            self.offset_pos_for_vertical_center(BATTERY_SIZE[1]) + BATTERY_OFFSET
+            offset_pos_for_vertical_center(image.height, BATTERY_SIZE[1])
+            + BATTERY_OFFSET
         )
         CAPACITY_TOP = (
-            self.offset_pos_for_vertical_center(CAPACITY_SIZE[1]) + BATTERY_OFFSET
+            offset_pos_for_vertical_center(image.height, MAX_CAPACITY_SIZE[1])
+            + BATTERY_OFFSET
         )
         CAPACITY_TEXT_TOP = BATTERY_TOP + 4
         IP_ICON_TOP = BATTERY_TOP + BATTERY_SIZE[1] + ROW_SPACING
@@ -124,27 +141,17 @@ class Page(PageBase):
         IP_ICON_POS = (IP_ICON_LEFT, IP_ICON_TOP)
         IP_TEXT_POS = (IP_TEXT_LEFT, IP_TEXT_TOP)
 
-        self.hotspot_instances = [
-            HotspotInstance(self.battery_hotspot, BATTERY_POS),
-            HotspotInstance(self.capacity_hotspot, CAPACITY_POS),
-            HotspotInstance(self.capacity_text_hotspot, CAPACITY_TEXT_POS),
-            HotspotInstance(self.ip_icon_hotspot, IP_ICON_POS),
-            HotspotInstance(self.ip_text_hotspot, IP_TEXT_POS),
-        ]
-
-        # setup battery callbacks
-        battery.on_capacity_change = lambda _: self.update_battery_properties()
-        battery.when_charging = self.update_battery_properties
-        battery.when_full = self.update_battery_properties
-        battery.when_discharging = self.update_battery_properties
-
-    def cleanup(self):
-        battery.on_capacity_change = None
-        battery.when_charging = None
-        battery.when_full = None
-        battery.when_discharging = None
-
-    def update_battery_properties(self):
-        self.battery_hotspot.image_path = get_battery_image_path()
-        self.capacity_hotspot.bounding_box = get_capacity_bounding_box()
-        self.capacity_text_hotspot.text = get_capacity_text()
+        return apply_layers(
+            image,
+            [
+                layer(self.battery_image.render, size=BATTERY_SIZE, pos=BATTERY_POS),
+                layer(rectangle, size=self.state["capacity_size"], pos=CAPACITY_POS),
+                layer(
+                    self.capacity_text.render,
+                    size=CAPACITY_TEXT_SIZE,
+                    pos=CAPACITY_TEXT_POS,
+                ),
+                layer(self.ip_icon.render, size=IP_ICON_SIZE, pos=IP_ICON_POS),
+                layer(self.ip_text.render, size=IP_TEXT_SIZE, pos=IP_TEXT_POS),
+            ],
+        )

@@ -1,31 +1,28 @@
+# from functools import partial
 from typing import Callable
 
 import psutil
 from pitop.common.formatting import bytes2human
 
-from ...hotspots.base import HotspotInstance
-from ...hotspots.progress_bar import Hotspot as ProgressBarHotspot
-from ...hotspots.templates.marquee_dynamic_text import (
-    Hotspot as MarqueeDynamicTextHotspot,
-)
-from ...hotspots.templates.text import Hotspot as TextHotspot
-from ..base import Page as PageBase
+from pt_miniscreen.core.hotspot import Hotspot
+from pt_miniscreen.core.utils import apply_layers, layer
+from pt_miniscreen.hotspots.marquee_text import MarqueeTextHotspot
+from pt_miniscreen.hotspots.progress_bar import ProgressBar
+from pt_miniscreen.hotspots.text import TextHotspot
 
-X_MARGIN = 5
+X_MARGIN = 4
 SUB_TITLE_WIDTH = 40
 ROW_HEIGHT = 10
 TITLE_FONT_SIZE = 12
 TEXT_FONT_SIZE = 10
 MARGIN_Y = 5
-SPACING_Y = 2
+SPACING_Y = 3
 
 
-class Page(PageBase):
-    def __init__(self, size):
-        super().__init__(size=size)
-        self.reset()
+class MemoryPage(Hotspot):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-    def reset(self):
         def get_usage_string(func: Callable) -> str:
             try:
                 memory_object = func()
@@ -39,51 +36,67 @@ class Page(PageBase):
             except Exception:
                 return 0.0
 
-        self.hotspot_instances = [
-            HotspotInstance(
-                TextHotspot(
+        self.ram_title = self.create_hotspot(
+            TextHotspot, text="RAM", font_size=TITLE_FONT_SIZE
+        )
+        self.ram_progress_bar = self.create_hotspot(
+            ProgressBar,
+            progress=lambda: get_usage_percentage(func=psutil.virtual_memory),
+        )
+        self.ram_text = self.create_hotspot(
+            MarqueeTextHotspot,
+            font_size=TEXT_FONT_SIZE,
+            get_text=lambda: get_usage_string(func=psutil.virtual_memory),
+        )
+
+        self.swap_title = self.create_hotspot(
+            TextHotspot, text="SWAP", font_size=TITLE_FONT_SIZE
+        )
+        self.swap_progress_bar = self.create_hotspot(
+            ProgressBar, progress=lambda: get_usage_percentage(func=psutil.swap_memory)
+        )
+        self.swap_text = self.create_hotspot(
+            MarqueeTextHotspot,
+            font_size=TEXT_FONT_SIZE,
+            get_text=lambda: get_usage_string(func=psutil.swap_memory),
+        )
+
+    def render(self, image):
+        return apply_layers(
+            image,
+            [
+                layer(
+                    self.ram_title.render,
                     size=(SUB_TITLE_WIDTH, ROW_HEIGHT),
-                    font_size=TITLE_FONT_SIZE,
-                    text="RAM",
+                    pos=(X_MARGIN, MARGIN_Y),
                 ),
-                (X_MARGIN, MARGIN_Y),
-            ),
-            HotspotInstance(
-                ProgressBarHotspot(
-                    size=(self.size[0] - SUB_TITLE_WIDTH - X_MARGIN * 2, ROW_HEIGHT),
-                    progress=lambda: get_usage_percentage(func=psutil.virtual_memory),
+                layer(
+                    self.ram_progress_bar.render,
+                    size=(image.width - SUB_TITLE_WIDTH - X_MARGIN * 2, ROW_HEIGHT),
+                    pos=(X_MARGIN + SUB_TITLE_WIDTH, MARGIN_Y),
                 ),
-                (X_MARGIN + SUB_TITLE_WIDTH, MARGIN_Y),
-            ),
-            HotspotInstance(
-                MarqueeDynamicTextHotspot(
-                    size=(self.size[0] - X_MARGIN * 2, ROW_HEIGHT),
-                    text=lambda: get_usage_string(func=psutil.virtual_memory),
-                    font_size=TEXT_FONT_SIZE,
+                layer(
+                    self.ram_text.render,
+                    size=(image.width - X_MARGIN * 2, ROW_HEIGHT),
+                    pos=(X_MARGIN, MARGIN_Y + ROW_HEIGHT + SPACING_Y),
                 ),
-                (X_MARGIN, MARGIN_Y + ROW_HEIGHT + SPACING_Y),
-            ),
-            HotspotInstance(
-                TextHotspot(
+                layer(
+                    self.swap_title.render,
                     size=(SUB_TITLE_WIDTH, ROW_HEIGHT),
-                    font_size=TITLE_FONT_SIZE,
-                    text="SWAP",
+                    pos=(X_MARGIN, int(image.height / 2) + MARGIN_Y),
                 ),
-                (X_MARGIN, int(self.size[1] / 2) + MARGIN_Y),
-            ),
-            HotspotInstance(
-                ProgressBarHotspot(
-                    size=(self.size[0] - SUB_TITLE_WIDTH - X_MARGIN * 2, ROW_HEIGHT),
-                    progress=lambda: get_usage_percentage(func=psutil.swap_memory),
+                layer(
+                    self.swap_progress_bar.render,
+                    size=(image.width - SUB_TITLE_WIDTH - X_MARGIN * 2, ROW_HEIGHT),
+                    pos=(X_MARGIN + SUB_TITLE_WIDTH, int(image.height / 2) + MARGIN_Y),
                 ),
-                (X_MARGIN + SUB_TITLE_WIDTH, int(self.size[1] / 2) + MARGIN_Y),
-            ),
-            HotspotInstance(
-                MarqueeDynamicTextHotspot(
-                    size=(self.size[0] - X_MARGIN * 2, ROW_HEIGHT),
-                    text=lambda: get_usage_string(func=psutil.swap_memory),
-                    font_size=TEXT_FONT_SIZE,
+                layer(
+                    self.swap_text.render,
+                    size=(image.width - X_MARGIN * 2, ROW_HEIGHT),
+                    pos=(
+                        X_MARGIN,
+                        int(image.height / 2) + MARGIN_Y + ROW_HEIGHT + SPACING_Y,
+                    ),
                 ),
-                (X_MARGIN, int(self.size[1] / 2) + MARGIN_Y + ROW_HEIGHT + SPACING_Y),
-            ),
-        ]
+            ],
+        )

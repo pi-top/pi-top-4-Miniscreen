@@ -20,7 +20,8 @@ def internal_ip(mocker):
             lambda interface: ip if interface == _interface else "None",
         )
         mocker.patch(
-            "pt_miniscreen.pages.hud.overview.is_url", lambda url: url == f"http://{ip}"
+            "pt_miniscreen.pages.hud.overview.is_url",
+            lambda url: url == f"http://{ip}",
         )
 
     return patch

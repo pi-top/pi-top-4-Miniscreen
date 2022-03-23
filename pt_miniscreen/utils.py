@@ -30,3 +30,7 @@ def get_font(size, bold=False, italics=False):
         return ImageFont.truetype("Roboto-Regular.ttf", size=size)
 
     return get_mono_font(size, bold, italics)
+
+
+def offset_to_center(container, element, rounding_function=int):
+    return rounding_function((container - element) / 2)

@@ -1,7 +1,10 @@
+import logging
 from functools import partial
 from time import sleep
 
 import pytest
+
+logger = logging.getLogger(__name__)
 
 service_state = {
     "ssh": "Disabled",
@@ -22,12 +25,12 @@ def reset_status():
 
 
 def start_service(service_to_enable):
-    sleep(1)
+    sleep(0.5)
     service_state[service_to_enable] = "Enabled"
 
 
 def stop_service(service_to_disable):
-    sleep(1)
+    sleep(0.5)
     service_state[service_to_disable] = "Disabled"
 
 
@@ -40,7 +43,7 @@ def get_ap_mode_status():
 
 
 def change_wifi_mode():
-    sleep(1)
+    sleep(0.5)
     current_state = ap_mode_status["state"]
     ap_mode_status["state"] = "Inactive" if current_state == "Active" else "Active"
 
@@ -70,7 +73,7 @@ def setup(miniscreen, mocker):
     mocker.patch("pt_miniscreen.pages.settings.ap.change_wifi_mode", change_wifi_mode)
     mocker.patch(
         "pt_miniscreen.pages.settings.hdmi_reset.reset_hdmi_configuration",
-        lambda: sleep(1),
+        lambda: sleep(0.5),
     )
 
     # enter settings menu

@@ -1,15 +1,15 @@
 from pitop.common.sys_info import get_vnc_enabled_state
 
+from pt_miniscreen.hotspots.action_page import ActionPage
+
 from ...actions import change_vnc_enabled_state
-from ..templates.action import Page as ActionPage
 
 
 class VNCActionPage(ActionPage):
-    def __init__(self, size):
+    def __init__(self, **kwargs):
         super().__init__(
-            size=size,
-            get_state_method=get_vnc_enabled_state,
-            set_state_method=change_vnc_enabled_state,
-            icon="vnc",
             text="VNC",
+            action=change_vnc_enabled_state,
+            get_enabled_state=get_vnc_enabled_state,
+            **kwargs,
         )

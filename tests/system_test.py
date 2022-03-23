@@ -80,7 +80,7 @@ def test_login(miniscreen, snapshot, user):
     snapshot.assert_match(miniscreen.device.display_image, "default.png")
 
     user("olivier", default_pass=False)
-    sleep(1.5)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "custom.png")
 
 
@@ -123,7 +123,7 @@ def test_cpu(miniscreen, snapshot, cpu_percent):
     snapshot.assert_match(miniscreen.device.display_image, "default.png")
 
     cpu_percent([55.5, 30, 10, 100])
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "levels-change.png")
 
 
@@ -139,5 +139,5 @@ def test_memory(miniscreen, snapshot, memory):
     snapshot.assert_match(miniscreen.device.display_image, "default.png")
 
     memory(virtual=999, swap=127.9876655)
-    sleep(1.5)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "memory-change.png")
