@@ -4,10 +4,9 @@ from enum import Enum, auto
 from typing import Callable, Optional
 
 from pt_miniscreen.core.hotspot import Hotspot
-from pt_miniscreen.core.utils import apply_layers, layer
-from pt_miniscreen.hotspots.image import ImageHotspot
-from pt_miniscreen.hotspots.text import TextHotspot
-from pt_miniscreen.utils import get_image_file_path, offset_to_center
+from pt_miniscreen.core.hotspots import Image, Text
+from pt_miniscreen.core.utils import apply_layers, layer, offset_to_center
+from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -52,14 +51,14 @@ class ActionPage(Hotspot):
         super().__init__(**kwargs, initial_state={"action_state": action_state})
 
         self.text_hotspot = self.create_hotspot(
-            TextHotspot,
+            Text,
             text=text,
             font_size=font_size,
             align="right",
             vertical_align="center",
         )
         self.status_icon_hotspot = self.create_hotspot(
-            ImageHotspot, image_path=get_image_file_path(image_paths[action_state])
+            Image, image_path=get_image_file_path(image_paths[action_state])
         )
 
     def _calculate_action_state(self):

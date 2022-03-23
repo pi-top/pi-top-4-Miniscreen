@@ -1,48 +1,76 @@
 import logging
 
 from pt_miniscreen.core.hotspot import Hotspot
-from pt_miniscreen.core.hotspots import NavigationControllerHotspot, PaginatedHotspot
+from pt_miniscreen.core.hotspots import PageList, Stack
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.hotspots.action_page import ActionPage
-from pt_miniscreen.hotspots.menu_cover import MenuCoverHotspot
-from pt_miniscreen.hotspots.right_gutter import RightGutterHotspot
-from pt_miniscreen.menus.hud import HUDMenuHotspot
+from pt_miniscreen.hotspots.menu_page import MenuPage
+from pt_miniscreen.hotspots.right_gutter import RightGutter
+from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
+from pt_miniscreen.pages.root.overview import OverviewPage
+from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
+from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
 
 
+class RootPageList(PageList):
+    def __init__(self, **kwargs):
+        super().__init__(
+            **kwargs,
+            Pages=[
+                OverviewPage,
+                SystemMenuPage,
+                NetworkMenuPage,
+                SettingsMenuPage,
+            ],
+        )
+
+
+# class DemoList(List):
+#     transition_duration = 0.1
+
+#     def __init__(self, **kwargs):
+#         super().__init__(
+#             **kwargs,
+#             num_visible_rows=5,
+#             scrollbar_vertical_padding=0,
+#             row_gap=1,
+#             Rows=[partial(IconTextRow, icon_path=get_image_file_path('sys_info/networking/home-small.png'), text="hello there")
+#                   for _ in range(0, 100)]
+#         )
+
+
 class RootHotspot(Hotspot):
     right_gutter_width = 10
+    gutter_icon_padding = (3, 7)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        gutter_icon_padding = (3, 7)
+        self.stack = self.create_hotspot(Stack, initial_stack=[RootPageList])
         self.right_gutter = self.create_hotspot(
-            RightGutterHotspot,
-            upper_icon_padding=gutter_icon_padding,
-            lower_icon_padding=gutter_icon_padding,
-        )
-        self.navigation_controller = self.create_hotspot(
-            NavigationControllerHotspot, initial_stack=[HUDMenuHotspot]
+            RightGutter,
+            upper_icon_padding=self.gutter_icon_padding,
+            lower_icon_padding=self.gutter_icon_padding,
         )
 
     @property
     def active_page(self):
-        if isinstance(self.navigation_controller.active_hotspot, PaginatedHotspot):
-            return self.navigation_controller.active_hotspot.current_page
+        if isinstance(self.stack.active_hotspot, PageList):
+            return self.stack.active_hotspot.current_page
 
     @property
     def can_enter_menu(self):
-        return self.active_page and isinstance(self.active_page, MenuCoverHotspot)
+        return self.active_page and isinstance(self.active_page, MenuPage)
 
     @property
     def can_exit_menu(self):
-        return self.navigation_controller.active_index > 0
+        return self.stack.active_index > 0
 
     @property
     def can_scroll(self):
-        return isinstance(self.navigation_controller.active_hotspot, PaginatedHotspot)
+        return isinstance(self.stack.active_hotspot, PageList)
 
     @property
     def can_perform_action(self):
@@ -69,21 +97,21 @@ class RootHotspot(Hotspot):
 
     def enter_menu(self):
         if self.can_enter_menu:
-            self.navigation_controller.push(self.active_page.Menu)
+            self.stack.push(self.active_page.PageList)
             self._set_gutter_icons()
 
     def exit_menu(self):
-        self.navigation_controller.pop()
+        self.stack.pop()
         self._set_gutter_icons()
 
     def scroll_up(self):
         if self.can_scroll:
-            self.navigation_controller.active_hotspot.scroll_up()
+            self.stack.active_hotspot.scroll_up()
             self._set_gutter_icons()
 
     def scroll_down(self):
         if self.can_scroll:
-            self.navigation_controller.active_hotspot.scroll_down()
+            self.stack.active_hotspot.scroll_down()
             self._set_gutter_icons()
 
     def perform_action(self):
@@ -95,7 +123,7 @@ class RootHotspot(Hotspot):
             image,
             [
                 layer(
-                    self.navigation_controller.render,
+                    self.stack.render,
                     size=(image.width - self.right_gutter_width, image.height),
                 ),
                 layer(

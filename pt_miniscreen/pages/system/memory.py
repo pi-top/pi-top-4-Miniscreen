@@ -1,14 +1,13 @@
-# from functools import partial
 from typing import Callable
 
 import psutil
 from pitop.common.formatting import bytes2human
 
 from pt_miniscreen.core.hotspot import Hotspot
+from pt_miniscreen.core.hotspots.marquee_text import MarqueeText
+from pt_miniscreen.core.hotspots.text import Text
 from pt_miniscreen.core.utils import apply_layers, layer
-from pt_miniscreen.hotspots.marquee_text import MarqueeTextHotspot
 from pt_miniscreen.hotspots.progress_bar import ProgressBar
-from pt_miniscreen.hotspots.text import TextHotspot
 
 X_MARGIN = 4
 SUB_TITLE_WIDTH = 40
@@ -37,26 +36,26 @@ class MemoryPage(Hotspot):
                 return 0.0
 
         self.ram_title = self.create_hotspot(
-            TextHotspot, text="RAM", font_size=TITLE_FONT_SIZE
+            Text, text="RAM", font_size=TITLE_FONT_SIZE
         )
         self.ram_progress_bar = self.create_hotspot(
             ProgressBar,
             progress=lambda: get_usage_percentage(func=psutil.virtual_memory),
         )
         self.ram_text = self.create_hotspot(
-            MarqueeTextHotspot,
+            MarqueeText,
             font_size=TEXT_FONT_SIZE,
             get_text=lambda: get_usage_string(func=psutil.virtual_memory),
         )
 
         self.swap_title = self.create_hotspot(
-            TextHotspot, text="SWAP", font_size=TITLE_FONT_SIZE
+            Text, text="SWAP", font_size=TITLE_FONT_SIZE
         )
         self.swap_progress_bar = self.create_hotspot(
             ProgressBar, progress=lambda: get_usage_percentage(func=psutil.swap_memory)
         )
         self.swap_text = self.create_hotspot(
-            MarqueeTextHotspot,
+            MarqueeText,
             font_size=TEXT_FONT_SIZE,
             get_text=lambda: get_usage_string(func=psutil.swap_memory),
         )

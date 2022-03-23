@@ -8,7 +8,7 @@ def get_wifi_strength():
     return int(get_network_strength("wlan0")[:-1]) / 100
 
 
-class WifiStrengthHotspot(Hotspot):
+class WifiStrength(Hotspot):
     def __init__(self, **kwargs):
         super().__init__(**kwargs, initial_state={"wifi_strength": get_wifi_strength()})
 

@@ -1,13 +1,13 @@
 import logging
 
 from pt_miniscreen.core.hotspot import Hotspot
+from pt_miniscreen.core.hotspots.image import Image
 from pt_miniscreen.core.utils import apply_layers, layer, rectangle
-from pt_miniscreen.hotspots.image import ImageHotspot
 
 logger = logging.getLogger(__name__)
 
 
-class RightGutterHotspot(Hotspot):
+class RightGutter(Hotspot):
     def __init__(
         self,
         upper_icon_path=None,
@@ -24,8 +24,8 @@ class RightGutterHotspot(Hotspot):
             },
         )
 
-        self.upper_icon = self.create_hotspot(ImageHotspot, image_path=upper_icon_path)
-        self.lower_icon = self.create_hotspot(ImageHotspot, image_path=lower_icon_path)
+        self.upper_icon = self.create_hotspot(Image, image_path=upper_icon_path)
+        self.lower_icon = self.create_hotspot(Image, image_path=lower_icon_path)
 
     def render(self, image):
         border_width = 1

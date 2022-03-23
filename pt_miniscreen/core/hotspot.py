@@ -103,8 +103,10 @@ class Hotspot:
         self._unmodified_render = self.render
 
         def render(image):
-            # set size of hotspot to input image for use by calculations
+            # set size of hotspot to input image for use in calculations
             self.size = image.size
+            self.width = image.width
+            self.height = image.height
 
             # return cached output if input is the same
             if is_same_image(image, self._render_cache.input):
@@ -117,16 +119,6 @@ class Hotspot:
             return output
 
         self.render = render
-
-    @property
-    def size(self):
-        return self._size
-
-    @size.setter
-    def size(self, next_size):
-        self._size = next_size
-        self.width = self._size[0]
-        self.height = self._size[1]
 
     def _reconcile(self):
         # bail if parent no longer exists

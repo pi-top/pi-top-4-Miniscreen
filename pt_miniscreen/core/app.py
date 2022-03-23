@@ -18,7 +18,7 @@ class App:
         self.display()
 
     def stop(self):
-        self.root.cleanup()
+        self.root._cleanup()
 
     def display(self):
         logger.debug("update display image")

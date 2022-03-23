@@ -1,8 +1,9 @@
+from itertools import cycle, repeat
 from logging import getLogger
 from math import ceil, floor
 from time import sleep, time
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 logger = getLogger(__name__)
 
@@ -49,6 +50,29 @@ def offset_to_center(container, element, rounding_function=int):
     return rounding_function((container - element) / 2)
 
 
+# text
+
+
+def get_mono_font(size, bold=False, italics=False):
+    if bold and not italics:
+        return ImageFont.truetype("VeraMoBd.ttf", size=size)
+
+    if not bold and italics:
+        return ImageFont.truetype("VeraMoIt.ttf", size=size)
+
+    if bold and italics:
+        return ImageFont.truetype("VeraMoBI.ttf", size=size)
+
+    return ImageFont.truetype("VeraMono.ttf", size=size)
+
+
+def get_font(size, bold=False, italics=False):
+    if size >= 12:
+        return ImageFont.truetype("Roboto-Regular.ttf", size=size)
+
+    return get_mono_font(size, bold, italics)
+
+
 # image
 
 
@@ -89,3 +113,12 @@ def transition(distance, duration, base_step=1):
         travelled = travelled + clamped_step
 
     logger.debug(f"transition took {time() - start_time} seconds")
+
+
+def carousel(max_value, min_value=0, resolution=1):
+    if max_value <= 0:
+        return repeat(min_value)
+
+    forwards = list(range(min_value, max_value, resolution))
+    backwards = list(range(max_value, min_value, -resolution))
+    return cycle(forwards + backwards)

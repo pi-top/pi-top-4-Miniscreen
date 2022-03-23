@@ -1,15 +1,15 @@
 from pt_miniscreen.core.hotspot import Hotspot
-from pt_miniscreen.core.utils import apply_layers, layer
+from pt_miniscreen.core.hotspots.image import Image
+from pt_miniscreen.core.utils import apply_layers, layer, offset_to_center
 from pt_miniscreen.hotspots.cpu_bars import CPUBars
-from pt_miniscreen.hotspots.image import ImageHotspot
-from pt_miniscreen.utils import get_image_file_path, offset_to_center
+from pt_miniscreen.utils import get_image_file_path
 
 
 class CPUPage(Hotspot):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.icon_hotspot = self.create_hotspot(
-            ImageHotspot, image_path=get_image_file_path("sys_info/cpu.png")
+            Image, image_path=get_image_file_path("sys_info/cpu.png")
         )
         self.cpu_bars_hotspot = self.create_hotspot(CPUBars)
 
