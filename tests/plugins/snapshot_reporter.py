@@ -84,7 +84,6 @@ class SnapshotReporter:
 
             if failed_snapshot["received"] and failed_snapshot["expected"]:
                 try:
-
                     image_received = Image.open(BytesIO(failed_snapshot["received"]))
                     image_expected = Image.open(BytesIO(failed_snapshot["expected"]))
                     difference = ImageChops.difference(image_received, image_expected)
