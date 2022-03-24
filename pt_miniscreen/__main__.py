@@ -1,4 +1,5 @@
 import logging
+from signal import pause
 
 import click
 import click_logging
@@ -25,7 +26,7 @@ logging.getLogger("pitop").setLevel(logging.INFO)
 def main() -> None:
     app = App()
     app.start()
-    app.wait_for_stop()
+    pause()
 
 
 if __name__ == "__main__":

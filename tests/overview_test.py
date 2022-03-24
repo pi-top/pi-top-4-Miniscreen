@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture
 def battery():
-    from pt_miniscreen.pages.hud.overview import battery
+    from pt_miniscreen.pages.root.overview import battery
 
     yield battery
 
