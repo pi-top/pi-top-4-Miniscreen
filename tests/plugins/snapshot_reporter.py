@@ -1,7 +1,9 @@
 import pickle
+from io import BytesIO
 
 import pytest
 from imgcat import imgcat
+from PIL import Image, ImageChops
 
 
 def is_master(config):
@@ -79,3 +81,14 @@ class SnapshotReporter:
                 imgcat(failed_snapshot["expected"])
             else:
                 terminalreporter.write_line("None")
+
+            if failed_snapshot["received"] and failed_snapshot["expected"]:
+                try:
+                    image_received = Image.open(BytesIO(failed_snapshot["received"]))
+                    image_expected = Image.open(BytesIO(failed_snapshot["expected"]))
+                    difference = ImageChops.difference(image_received, image_expected)
+
+                    terminalreporter.write_line("Difference:")
+                    imgcat(difference)
+                except Exception:
+                    pass
