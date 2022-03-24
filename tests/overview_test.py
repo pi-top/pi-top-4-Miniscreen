@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture
 def battery():
-    from pt_miniscreen.pages.hud.overview import battery
+    from pt_miniscreen.pages.root.overview import battery
 
     yield battery
 
@@ -16,11 +16,12 @@ def battery():
 def internal_ip(mocker):
     def patch(_interface, ip=""):
         mocker.patch(
-            "pt_miniscreen.pages.hud.overview.get_internal_ip",
+            "pt_miniscreen.pages.root.overview.get_internal_ip",
             lambda interface: ip if interface == _interface else "None",
         )
         mocker.patch(
-            "pt_miniscreen.pages.hud.overview.is_url", lambda url: url == f"http://{ip}"
+            "pt_miniscreen.pages.root.overview.is_url",
+            lambda url: url == f"http://{ip}",
         )
 
     return patch

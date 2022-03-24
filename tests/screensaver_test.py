@@ -28,6 +28,7 @@ def setup(mocker):
     mocker.patch("pt_miniscreen.hotspots.starfield_screensaver.Hotspot.Z_MOVE", 0)
 
 
+@pytest.mark.skip(reason="screensaver not yet implemented")
 def test_screensaver(screensaver_app, snapshot):
     sleep(1)
     snapshot.assert_match(
@@ -35,6 +36,7 @@ def test_screensaver(screensaver_app, snapshot):
     )
 
 
+@pytest.mark.skip(reason="dimming not yet implemented")
 def test_dim_state(screensaver_app, setup):
     sleep(0.3)
     assert screensaver_app.miniscreen._contrast == 0

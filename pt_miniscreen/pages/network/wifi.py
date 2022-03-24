@@ -1,45 +1,64 @@
+from functools import partial
 from ipaddress import ip_address
 
 from pitop.common.sys_info import get_internal_ip, get_wifi_network_ssid
 
-from ...hotspots.wifi_strength import Hotspot as WifiStrengthHotspot
-from .network_page_base import NetworkPageData
-from .network_page_base import Page as PageBase
-from .network_page_base import RowDataGeneric, RowDataText
+from pt_miniscreen.components.icon_text_row import IconTextRow, Row
+from pt_miniscreen.components.info_page import InfoPage
+from pt_miniscreen.components.wifi_strength import WifiStrength
+from pt_miniscreen.core.components.image import Image
+from pt_miniscreen.utils import get_image_file_path
 
 
-class Page(PageBase):
-    def __init__(self, size):
-        def get_ssid():
-            ssid = get_wifi_network_ssid()
-            if ssid == "Error":
-                return "Not connected"
+def get_ssid():
+    ssid = get_wifi_network_ssid()
+    if ssid == "Error":
+        return "Not connected"
 
-            return ssid
+    return ssid
 
-        row_data = NetworkPageData(
-            first_row=RowDataGeneric(
-                icon_path="sys_info/networking/antenna-small.png",
-                hotspot_type=WifiStrengthHotspot,
-            ),
-            second_row=RowDataText(
-                icon_path="sys_info/networking/wifi-small.png",
-                text=get_ssid,
-            ),
-            third_row=RowDataText(
-                icon_path="sys_info/networking/home-small.png",
-                text=self.get_ip_address,
-            ),
+
+def get_ip_address():
+    ip = ""
+    try:
+        network_ip_candidate = get_internal_ip(iface="wlan0")
+        ip_address(network_ip_candidate)
+        ip = network_ip_candidate
+    except ValueError:
+        pass
+    finally:
+        return ip
+
+
+class WifiPage(InfoPage):
+    def __init__(self, **kwargs):
+        super().__init__(
+            **kwargs,
+            title="Wi-Fi",
+            Rows=[
+                partial(
+                    Row,
+                    column_widths=[15, "auto"],
+                    Columns=[
+                        partial(
+                            Image,
+                            vertical_align="center",
+                            image_path=get_image_file_path(
+                                "sys_info/networking/antenna-small.png"
+                            ),
+                        ),
+                        WifiStrength,
+                    ],
+                ),
+                partial(
+                    IconTextRow,
+                    get_text=get_ssid,
+                    icon_path=get_image_file_path("sys_info/networking/wifi-small.png"),
+                ),
+                partial(
+                    IconTextRow,
+                    get_text=get_ip_address,
+                    icon_path=get_image_file_path("sys_info/networking/home-small.png"),
+                ),
+            ]
         )
-        super().__init__(size=size, row_data=row_data, title="Wi-Fi")
-
-    def get_ip_address(self):
-        ip = ""
-        try:
-            network_ip_candidate = get_internal_ip(iface="wlan0")
-            ip_address(network_ip_candidate)
-            ip = network_ip_candidate
-        except ValueError:
-            pass
-        finally:
-            return ip

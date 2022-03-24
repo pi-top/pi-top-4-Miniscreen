@@ -63,23 +63,23 @@ def setup(miniscreen, mocker):
         "pt_miniscreen.actions.get_ap_mode_status", settings_manager.get_ap_mode_status
     )
     mocker.patch(
-        "pt_miniscreen.pages.settings.ssh.get_ssh_enabled_state",
+        "pt_miniscreen.pages.settings.ssh_toggle.get_ssh_enabled_state",
         partial(settings_manager.get_status, "ssh"),
     )
     mocker.patch(
-        "pt_miniscreen.pages.settings.vnc.get_vnc_enabled_state",
+        "pt_miniscreen.pages.settings.vnc_toggle.get_vnc_enabled_state",
         partial(settings_manager.get_status, "vncserver-x11-serviced.service"),
     )
     mocker.patch(
-        "pt_miniscreen.pages.settings.further_link.get_pt_further_link_enabled_state",
+        "pt_miniscreen.pages.settings.further_link_toggle.get_pt_further_link_enabled_state",
         partial(settings_manager.get_status, "further-link.service"),
     )
     mocker.patch(
-        "pt_miniscreen.pages.settings.ap.change_wifi_mode",
+        "pt_miniscreen.pages.settings.ap_toggle.change_wifi_mode",
         settings_manager.change_wifi_mode,
     )
     mocker.patch(
-        "pt_miniscreen.pages.settings.hdmi_reset.reset_hdmi_configuration",
+        "pt_miniscreen.pages.settings.display_reset.reset_hdmi_configuration",
         settings_manager.reset_hdmi_configuration,
     )
 

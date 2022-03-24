@@ -55,8 +55,8 @@ def use_test_font(mocker):
 
         return get_mono_font(size, bold, italics)
 
-    mocker.patch("pt_miniscreen.utils.get_font", get_font)
-    mocker.patch("pt_miniscreen.utils.get_mono_font", get_mono_font)
+    mocker.patch("pt_miniscreen.core.utils.get_font", get_font)
+    mocker.patch("pt_miniscreen.core.utils.get_mono_font", get_mono_font)
 
 
 def use_test_images(mocker):
@@ -72,7 +72,7 @@ def freeze_marquee_text(mocker):
     def carousel(max_value, min_value=0, resolution=1):
         return repeat(min_value)
 
-    mocker.patch("pt_miniscreen.hotspots.templates.marquee_text.carousel", carousel)
+    mocker.patch("pt_miniscreen.core.components.marquee_text.carousel", carousel)
 
 
 def turn_off_bootsplash():
@@ -81,11 +81,13 @@ def turn_off_bootsplash():
         bootsplash_breadcrumb.touch()
 
 
+# TODO:- update tests for new screensaver implementation
 def mock_timeouts(timeout):
-    from pt_miniscreen.state import State, timeouts
+    pass
+    # from pt_miniscreen.state import State, timeouts
 
-    timeouts[State.DIM] = timeout
-    timeouts[State.SCREENSAVER] = timeout
+    # timeouts[State.DIM] = timeout
+    # timeouts[State.SCREENSAVER] = timeout
 
 
 def setup_test(mocker, screensaver_timeout):
