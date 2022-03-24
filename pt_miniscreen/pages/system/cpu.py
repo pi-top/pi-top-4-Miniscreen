@@ -1,41 +1,36 @@
-from ...hotspots.base import HotspotInstance
-from ...hotspots.cpu_bars import Hotspot as CpuBarsHotspot
-from ...hotspots.templates.image import Hotspot as ImageHotspot
-from ...utils import get_image_file_path
-from ..base import Page as PageBase
-
-ICON_SIZE = 38
-ICON_LEFT_MARGIN = 8
-CPU_BARS_LEFT_MARGIN = 5
-CPU_BARS_TOTAL_WIDTH = 50
+from pt_miniscreen.components.cpu_bars import CPUBars
+from pt_miniscreen.core.component import Component
+from pt_miniscreen.core.components.image import Image
+from pt_miniscreen.core.utils import apply_layers, layer, offset_to_center
+from pt_miniscreen.utils import get_image_file_path
 
 
-class Page(PageBase):
-    def __init__(self, size):
-        super().__init__(size=size)
-        self.reset()
+class CPUPage(Component):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.icon_component = self.create_child(
+            Image, image_path=get_image_file_path("sys_info/cpu.png")
+        )
+        self.cpu_bars_component = self.create_child(CPUBars)
 
-    def reset(self):
-        cpu_bar_hotspot_height = int(self.height * 0.7)
+    def render(self, image):
+        icon_left_margin = 7
+        icon_size = (38, 38)
+        icon_pos = (icon_left_margin, offset_to_center(image.height, icon_size[1]))
 
-        self.hotspot_instances = [
-            HotspotInstance(
-                ImageHotspot(
-                    size=(ICON_SIZE, ICON_SIZE),
-                    image_path=get_image_file_path("sys_info/cpu.png"),
+        cpu_bars_left_margin = 5
+        cpu_bars_size = (50, int(image.height * 0.7))
+        cpu_bars_pos = (
+            icon_pos[0] + icon_size[0] + cpu_bars_left_margin,
+            offset_to_center(image.height, cpu_bars_size[1]),
+        )
+
+        return apply_layers(
+            image,
+            [
+                layer(self.icon_component.render, size=icon_size, pos=icon_pos),
+                layer(
+                    self.cpu_bars_component.render, size=cpu_bars_size, pos=cpu_bars_pos
                 ),
-                (ICON_LEFT_MARGIN, self.offset_pos_for_vertical_center(ICON_SIZE)),
-            ),
-            HotspotInstance(
-                CpuBarsHotspot(
-                    size=(
-                        CPU_BARS_TOTAL_WIDTH,
-                        cpu_bar_hotspot_height,
-                    ),
-                ),
-                (
-                    CPU_BARS_LEFT_MARGIN + ICON_SIZE + ICON_LEFT_MARGIN,
-                    self.offset_pos_for_vertical_center(cpu_bar_hotspot_height),
-                ),
-            ),
-        ]
+            ],
+        )
