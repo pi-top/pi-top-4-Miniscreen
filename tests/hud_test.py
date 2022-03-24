@@ -1,6 +1,9 @@
+import logging
 from time import sleep
 
 import pytest
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(autouse=True)

@@ -31,7 +31,8 @@ def test_wifi(miniscreen, snapshot, internal_ip, mocker):
         return_value="VM3409662",
     )
     mocker.patch(
-        "pt_miniscreen.hotspots.wifi_strength.get_network_strength", return_value="80%"
+        "pt_miniscreen.components.wifi_strength.get_network_strength",
+        return_value="80%",
     )
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "connected.png")
