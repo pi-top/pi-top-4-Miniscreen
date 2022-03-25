@@ -93,18 +93,18 @@ def setup(miniscreen, mocker):
     miniscreen.select_button.release()
     sleep(1)
 
-    yield
-
 
 def test_ssh(miniscreen, snapshot):
     # enable ssh
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
 
     # disable ssh
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
@@ -117,14 +117,16 @@ def test_vnc(miniscreen, snapshot):
 
     # enable vnc
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
 
     # disable vnc
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
@@ -137,14 +139,16 @@ def test_further_link(miniscreen, snapshot):
 
     # enable further link
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
 
     # disable further link
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
@@ -159,14 +163,16 @@ def test_ap(miniscreen, snapshot):
 
     # enable ap
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
 
     # disable ap
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
@@ -185,6 +191,7 @@ def test_hdmi_reset(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "reset.png")
 
     miniscreen.select_button.release()
+    sleep(0.5)
     snapshot.assert_match(miniscreen.device.display_image, "resetting.png")
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "reset.png")
