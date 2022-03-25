@@ -1,10 +1,12 @@
 import io
+from threading import Thread
 
 
 class Button:
     def release(self):
         if hasattr(self, "when_released") and callable(self.when_released):
-            self.when_released()
+            t = Thread(target=self.when_released, args=(), daemon=True)
+            t.start()
 
 
 class Device:
