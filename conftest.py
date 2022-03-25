@@ -81,21 +81,25 @@ def turn_off_bootsplash():
         bootsplash_breadcrumb.touch()
 
 
-@pytest.fixture(autouse=True)
-def mock_timeouts():
+def mock_timeouts(timeout):
     from pt_miniscreen.state import State, timeouts
 
-    timeouts[State.DIM] = 900
-    timeouts[State.SCREENSAVER] = 900
+    timeouts[State.DIM] = timeout
+    timeouts[State.SCREENSAVER] = timeout
 
 
-@pytest.fixture(autouse=True)
-def app(mock_timeouts, mocker):
+def setup_test(mocker, screensaver_timeout):
+    mock_timeouts(timeout=screensaver_timeout)
     patch_packages()
     turn_off_bootsplash()
     use_test_font(mocker)
     use_test_images(mocker)
     freeze_marquee_text(mocker)
+
+
+@pytest.fixture(autouse=True)
+def app(mocker):
+    setup_test(mocker, screensaver_timeout=3600)
 
     from pt_miniscreen.app import App
 

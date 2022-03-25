@@ -1,76 +1,86 @@
 from functools import partial
 from time import sleep
+from typing import Dict
 
 import pytest
 
-service_state = {
-    "ssh": "Disabled",
-    "further-link.service": "Disabled",
-    "vncserver-x11-serviced.service": "Disabled",
-}
-ap_mode_status = {"state": "Inactive"}
 
-initial_service_state = service_state.copy()
-initial_ap_mode_status = ap_mode_status.copy()
+class SettingsState:
+    def __init__(self) -> None:
+        self.service_state: Dict = {}
+        self.ap_mode_status: Dict = {}
+        self.reset_status()
 
+    def reset_status(self):
+        for service in (
+            "ssh",
+            "further-link.service",
+            "vncserver-x11-serviced.service",
+        ):
+            self.service_state[service] = "Disabled"
+        self.ap_mode_status["state"] = "Inactive"
 
-def reset_status():
-    global service_state
-    global ap_mode_status
-    service_state = initial_service_state.copy()
-    ap_mode_status = initial_ap_mode_status.copy()
+    def start_service(self, service_to_enable):
+        sleep(1)
+        self.service_state[service_to_enable] = "Enabled"
 
+    def stop_service(self, service_to_disable):
+        sleep(1)
+        self.service_state[service_to_disable] = "Disabled"
 
-def start_service(service_to_enable):
-    sleep(1)
-    service_state[service_to_enable] = "Enabled"
+    def get_status(self, service):
+        return self.service_state[service]
 
+    def get_ap_mode_status(self):
+        return self.ap_mode_status
 
-def stop_service(service_to_disable):
-    sleep(1)
-    service_state[service_to_disable] = "Disabled"
+    def change_wifi_mode(self):
+        sleep(1)
+        current_state = self.ap_mode_status["state"]
+        self.ap_mode_status["state"] = (
+            "Inactive" if current_state == "Active" else "Active"
+        )
 
-
-def get_status(service):
-    return service_state[service]
-
-
-def get_ap_mode_status():
-    return ap_mode_status
-
-
-def change_wifi_mode():
-    sleep(1)
-    current_state = ap_mode_status["state"]
-    ap_mode_status["state"] = "Inactive" if current_state == "Active" else "Active"
+    def reset_hdmi_configuration(self):
+        sleep(1)
 
 
 @pytest.fixture(autouse=True)
 def setup(miniscreen, mocker):
+    settings_manager = SettingsState()
     mocker.patch(
-        "pt_miniscreen.actions.__enable_and_start_systemd_service", start_service
+        "pt_miniscreen.actions.__enable_and_start_systemd_service",
+        settings_manager.start_service,
     )
     mocker.patch(
-        "pt_miniscreen.actions.__disable_and_stop_systemd_service", stop_service
+        "pt_miniscreen.actions.__disable_and_stop_systemd_service",
+        settings_manager.stop_service,
     )
-    mocker.patch("pt_miniscreen.actions.get_systemd_enabled_state", get_status)
-    mocker.patch("pt_miniscreen.actions.get_ap_mode_status", get_ap_mode_status)
+    mocker.patch(
+        "pt_miniscreen.actions.get_systemd_enabled_state", settings_manager.get_status
+    )
+    mocker.patch(
+        "pt_miniscreen.actions.get_ap_mode_status", settings_manager.get_ap_mode_status
+    )
     mocker.patch(
         "pt_miniscreen.pages.settings.ssh.get_ssh_enabled_state",
-        partial(get_status, "ssh"),
+        partial(settings_manager.get_status, "ssh"),
     )
     mocker.patch(
         "pt_miniscreen.pages.settings.vnc.get_vnc_enabled_state",
-        partial(get_status, "vncserver-x11-serviced.service"),
+        partial(settings_manager.get_status, "vncserver-x11-serviced.service"),
     )
     mocker.patch(
         "pt_miniscreen.pages.settings.further_link.get_pt_further_link_enabled_state",
-        partial(get_status, "further-link.service"),
+        partial(settings_manager.get_status, "further-link.service"),
     )
-    mocker.patch("pt_miniscreen.pages.settings.ap.change_wifi_mode", change_wifi_mode)
+    mocker.patch(
+        "pt_miniscreen.pages.settings.ap.change_wifi_mode",
+        settings_manager.change_wifi_mode,
+    )
     mocker.patch(
         "pt_miniscreen.pages.settings.hdmi_reset.reset_hdmi_configuration",
-        lambda: sleep(1),
+        settings_manager.reset_hdmi_configuration,
     )
 
     # enter settings menu
@@ -84,8 +94,6 @@ def setup(miniscreen, mocker):
     sleep(1)
 
     yield
-
-    reset_status()
 
 
 def test_ssh(miniscreen, snapshot):
@@ -174,6 +182,8 @@ def test_hdmi_reset(miniscreen, snapshot):
     sleep(1)
 
     # reset screen
+    snapshot.assert_match(miniscreen.device.display_image, "reset.png")
+
     miniscreen.select_button.release()
     snapshot.assert_match(miniscreen.device.display_image, "resetting.png")
     sleep(1)

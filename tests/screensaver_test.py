@@ -2,13 +2,20 @@ from time import sleep
 
 import pytest
 
+from conftest import setup_test
 
-@pytest.fixture(autouse=True)
-def mock_timeouts(mocker):
-    from pt_miniscreen.state import State, timeouts
 
-    timeouts[State.DIM] = 0.1
-    timeouts[State.SCREENSAVER] = 0.5
+@pytest.fixture
+def screensaver_app(mocker):
+    setup_test(mocker, screensaver_timeout=0.2)
+    from pt_miniscreen.app import App
+
+    app = App()
+    app.start()
+
+    yield app
+
+    app.stop()
 
 
 @pytest.fixture(autouse=True)
@@ -21,13 +28,17 @@ def setup(mocker):
     mocker.patch("pt_miniscreen.hotspots.starfield_screensaver.Hotspot.Z_MOVE", 0)
 
 
-def test_screensaver(miniscreen, snapshot):
+def test_screensaver(screensaver_app, snapshot):
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "screensaver.png")
+    snapshot.assert_match(
+        screensaver_app.miniscreen.device.display_image, "screensaver.png"
+    )
 
 
-def test_dim_state(app):
-    sleep(0.4)
-    from pt_miniscreen.state import State
+def test_dim_state(screensaver_app, setup):
+    sleep(0.3)
+    assert screensaver_app.miniscreen._contrast == 0
 
-    assert app.state_manager._state == State.DIM
+
+def test_miniscreen_default_contrast(app):
+    assert app.miniscreen._contrast == 255
