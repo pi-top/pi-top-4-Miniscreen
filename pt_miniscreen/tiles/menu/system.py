@@ -1,9 +1,10 @@
 from ...pages.system import (
     BatteryPage,
     CPUPage,
-    HardwarePage,
     LoginPage,
     MemoryPage,
+    PitopHardwarePage,
+    RPiHardwarePage,
     SoftwarePage,
 )
 from ..templates import MenuTile
@@ -16,7 +17,8 @@ class SystemMenuTile(MenuTile):
             pos=pos,
             pages=[
                 SoftwarePage,
-                HardwarePage,
+                PitopHardwarePage,
+                RPiHardwarePage,
                 LoginPage,
                 BatteryPage,
                 CPUPage,

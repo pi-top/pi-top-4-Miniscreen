@@ -1,10 +1,11 @@
+from pathlib import Path
+from re import match
+
 from pitop.common.pt_os import get_pitopOS_info
 
-from ...hotspots.base import HotspotInstance
-from ...hotspots.templates.marquee_dynamic_text import (
-    Hotspot as MarqueeDynamicTextHotspot,
-)
-from ..base import Page as PageBase
+from ..network.network_page_base import NetworkPageData
+from ..network.network_page_base import Page as PageBase
+from ..network.network_page_base import RowDataText
 
 
 def get_package_version(package_name: str) -> str:
@@ -23,46 +24,51 @@ def get_package_version(package_name: str) -> str:
     return ""
 
 
+def get_apt_repositories():
+    def find_repo_in_file(file):
+        for line in file:
+            match_obj = match(
+                r"^(.*)pi-top[.]com\/(?P<repository>[a-z-]*)\/debian(.*)$", line
+            )
+            if match_obj and match_obj.group("repository"):
+                return match_obj.group("repository")
+
+    repos = []
+    sources_dir = Path("/etc/apt/sources.list.d")
+
+    if not sources_dir.is_dir():
+        return repos
+
+    for filename in sources_dir.iterdir():
+        with open(filename) as file:
+            repo = find_repo_in_file(file)
+            if repo:
+                repos.append(repo)
+    return repos
+
+
 class SoftwarePageInfo:
     def __init__(self):
         self._info = get_pitopOS_info()
-        self.os_version = f"OS Version: {self._info.build_os_version}"
-        self.os_build_number = f"Build Number: {self._info.build_run_number}"
+        self.os = ""
+        if self._info:
+            self.os = (
+                f"pi-topOS {self._info.build_os_version}-{self._info.build_run_number}"
+            )
         self.sdk_version = f"SDK Version: {get_package_version('python3-pitop')}"
-        self.pitopd_version = f"Build Type: {get_package_version('pi-topd')}"
-        # TODO: pi-top repos, last update date
+        self.pitopd_version = f"pi-topd Version: {get_package_version('pi-topd')}"
+        self.repos = f"Repositories: {', '.join(get_apt_repositories())}"
 
 
-X_MARGIN = 5
-ROW_HEIGHT = 10
-TEXT_FONT_SIZE = 10
-MARGIN_Y = 5
+info = SoftwarePageInfo()
 
 
 class Page(PageBase):
     def __init__(self, size):
-        super().__init__(size=size)
-        self.info = SoftwarePageInfo()
-        self.reset()
-
-    def reset(self):
-        self.hotspot_instances = []
-
-        for i, data in enumerate(
-            (
-                self.info.os_version,
-                self.info.os_build_number,
-                self.info.sdk_version,
-                self.info.pitopd_version,
-            )
-        ):
-            self.hotspot_instances.append(
-                HotspotInstance(
-                    MarqueeDynamicTextHotspot(
-                        size=(self.width - 2 * X_MARGIN, ROW_HEIGHT),
-                        font_size=TEXT_FONT_SIZE,
-                        text=lambda: data,
-                    ),
-                    (X_MARGIN, MARGIN_Y + ROW_HEIGHT * i),
-                ),
-            )
+        row_data = NetworkPageData(
+            first_row=RowDataText(text=lambda: info.repos),
+            second_row=RowDataText(text=lambda: info.sdk_version),
+            third_row=RowDataText(text=lambda: info.pitopd_version),
+        )
+        title = info.os if len(info.os) > 0 else "OS Information"
+        super().__init__(size=size, row_data=row_data, title=title)
