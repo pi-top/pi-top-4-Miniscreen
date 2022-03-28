@@ -16,12 +16,12 @@ class SystemMenuTile(MenuTile):
             size=size,
             pos=pos,
             pages=[
-                SoftwarePage,
-                PitopHardwarePage,
-                RPiHardwarePage,
                 LoginPage,
                 BatteryPage,
                 CPUPage,
                 MemoryPage,
+                SoftwarePage,
+                PitopHardwarePage,
+                RPiHardwarePage,
             ],
         )
