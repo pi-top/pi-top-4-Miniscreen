@@ -38,7 +38,3 @@ def test_screensaver(screensaver_app, snapshot):
 def test_dim_state(screensaver_app, setup):
     sleep(0.3)
     assert screensaver_app.miniscreen._contrast == 0
-
-
-def test_miniscreen_default_contrast(app):
-    assert app.miniscreen._contrast == 255
