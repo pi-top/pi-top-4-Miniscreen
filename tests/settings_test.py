@@ -97,14 +97,14 @@ def setup(miniscreen, mocker):
 def test_ssh(miniscreen, snapshot):
     # enable ssh
     miniscreen.select_button.release()
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
 
     # disable ssh
     miniscreen.select_button.release()
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
@@ -191,7 +191,7 @@ def test_hdmi_reset(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "reset.png")
 
     miniscreen.select_button.release()
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "resetting.png")
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "reset.png")
