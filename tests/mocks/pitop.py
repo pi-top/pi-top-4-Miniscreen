@@ -1,10 +1,12 @@
 import io
+from threading import Thread
 
 
 class Button:
     def release(self):
         if hasattr(self, "when_released") and callable(self.when_released):
-            self.when_released()
+            t = Thread(target=self.when_released, args=(), daemon=True)
+            t.start()
 
 
 class Device:
@@ -19,6 +21,7 @@ class Device:
 class Miniscreen:
     size = (128, 64)
     is_active = False
+    _contrast = 255
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,8 +31,8 @@ class Miniscreen:
         self.down_button = Button()
         self.device = Device()
 
-    def contrast(self, _):
-        None
+    def contrast(self, value):
+        self._contrast = value
 
 
 class Pitop:
