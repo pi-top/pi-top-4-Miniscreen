@@ -37,3 +37,4 @@ def test_miniscreen_fixture(miniscreen):
     # test default values
     assert miniscreen.size == (128, 64)
     assert not miniscreen.is_active
+    assert miniscreen._contrast == 255

@@ -176,6 +176,7 @@ class App:
         self._stop_error = error
         self.__stop_event.set()
         self.__thread.join()
+        self.state_manager.cleanup()
         unsubscribe_all()
 
     @property

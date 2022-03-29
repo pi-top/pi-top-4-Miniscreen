@@ -81,6 +81,12 @@ class ScheduledEventManager:
             event_thread.do_action = False
             self.sched_event_threads.pop(type)
 
+    def cleanup(self):
+        events = list(self.sched_event_threads.keys())
+        for event in events:
+            logger.debug(f"ScheduledEventManager - cleaning up {event}")
+            self.cancel_sched_event(event)
+
 
 class StateManager:
     def __init__(self, contrast_change_func: Callable):
@@ -224,3 +230,7 @@ class StateManager:
             logger.debug("Waking up...")
             self.contrast_change_func(255)
             self.state = State.WAKING
+        self.reset_dim_timer()
+
+    def cleanup(self) -> None:
+        self.sched_event_manager.cleanup()
