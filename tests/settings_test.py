@@ -94,6 +94,7 @@ def setup(miniscreen, mocker):
     sleep(1)
 
 
+@pytest.mark.flaky(reruns=3)
 def test_ssh(miniscreen, snapshot):
     # enable ssh
     miniscreen.select_button.release()
@@ -110,6 +111,7 @@ def test_ssh(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
+@pytest.mark.flaky(reruns=3)
 def test_vnc(miniscreen, snapshot):
     # scroll down to vnc page
     miniscreen.down_button.release()
@@ -130,6 +132,7 @@ def test_vnc(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
+@pytest.mark.flaky(reruns=3)
 def test_further_link(miniscreen, snapshot):
     # scroll down to further link page
     miniscreen.down_button.release()
@@ -152,6 +155,7 @@ def test_further_link(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
+@pytest.mark.flaky(reruns=3)
 def test_ap(miniscreen, snapshot):
     # scroll down to ap page
     miniscreen.down_button.release()
@@ -176,6 +180,7 @@ def test_ap(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
+@pytest.mark.flaky(reruns=3)
 def test_hdmi_reset(miniscreen, snapshot):
     # scroll down to screen reset
     miniscreen.down_button.release()
