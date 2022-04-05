@@ -43,6 +43,32 @@ def corners(image):
     return image
 
 
+def checkered(image, box_size=4):
+    draw = ImageDraw.Draw(image)
+    y = 0
+    x = 0
+    offset_box = False
+
+    while y < image.height:
+        while x < image.width:
+            # offset by a box size if offset_box is true
+            x_pos = x + box_size if offset_box else x
+
+            draw.rectangle(
+                (x_pos, y, x_pos + box_size - 1, y + box_size - 1), fill="white"
+            )
+
+            # skip a box size so we checker the row
+            x += box_size * 2
+
+        # move down a row, back to left edge and change box offset for next row
+        y += box_size
+        x = 0
+        offset_box = not offset_box
+
+    return image
+
+
 # positioning
 
 

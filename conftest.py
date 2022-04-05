@@ -1,3 +1,4 @@
+import io
 from itertools import repeat
 from os import path
 from pathlib import Path
@@ -5,7 +6,7 @@ from sys import modules
 from unittest.mock import MagicMock
 
 import pytest
-from PIL import ImageFont
+from PIL import Image, ImageFont
 
 from pt_miniscreen.utils import get_image_file_path
 
@@ -88,7 +89,7 @@ def mock_timeouts(timeout):
     timeouts[State.SCREENSAVER] = timeout
 
 
-def setup_test(mocker, screensaver_timeout):
+def setup_test(mocker, screensaver_timeout=3600):
     mock_timeouts(timeout=screensaver_timeout)
     patch_packages()
     turn_off_bootsplash()
@@ -99,7 +100,7 @@ def setup_test(mocker, screensaver_timeout):
 
 @pytest.fixture(autouse=True)
 def app(mocker):
-    setup_test(mocker, screensaver_timeout=3600)
+    setup_test(mocker)
 
     from pt_miniscreen.app import App
 
@@ -114,3 +115,40 @@ def app(mocker):
 @pytest.fixture
 def miniscreen(app):
     yield app.miniscreen
+
+
+# Core test fixtures
+@pytest.fixture
+def render():
+    def render(component, size=(128, 64)):
+        image = component.render(Image.new("1", size))
+        img_byte_arr = io.BytesIO()
+        image.save(img_byte_arr, format="PNG")
+        return img_byte_arr.getvalue()
+
+    return render
+
+
+@pytest.fixture
+def create_component_factory():
+    def create_component_factory(Component):
+        class ParentlessComponent(Component):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs, on_rerender=self.dummy)
+
+            def dummy(self):
+                pass
+
+        return ParentlessComponent
+
+    return create_component_factory
+
+
+@pytest.fixture
+def get_test_image_path():
+    def get_test_image_path(image_name):
+        return path.abspath(
+            path.join(Path(__file__).parent, "tests/images", image_name)
+        )
+
+    return get_test_image_path

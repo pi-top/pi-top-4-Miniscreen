@@ -36,8 +36,7 @@ class Interval(threading.Timer):
     def run(self):
         execution_time = 0
 
-        # stop executing function when cancel method is called.
-        while not self.finished.is_set():
+        while True:
             # take execution time into account when waiting to produce a more
             # accurate interval time
             wait_time = self.interval - execution_time
@@ -46,8 +45,8 @@ class Interval(threading.Timer):
 
             sleep(max(wait_time, 0))
 
-            # stop interval if parent has been garbage collected
-            if self.function is None:
+            # stop interval if cancel called or if parent has been cleaned up
+            if self.finished.is_set() or self.function is None:
                 return
 
             start_time = time()
@@ -147,14 +146,17 @@ class Component:
         # subclass specific cleanup
         self.cleanup()
 
-        for interval in self._intervals:
-            interval.cancel()
+        if hasattr(self, "_intervals"):
+            for interval in self._intervals:
+                interval.cancel()
 
-        for child in self._children:
-            child._cleanup()
+            self._intervals = []
 
-        self._intervals = []
-        self._children = []
+        if hasattr(self, "_children"):
+            for child in self._children:
+                child._cleanup()
+
+            self._children = []
 
     def _reconcile(self):
         if self._reconciliation_queued:
