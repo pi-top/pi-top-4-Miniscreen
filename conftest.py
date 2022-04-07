@@ -7,7 +7,6 @@ from unittest.mock import MagicMock
 import pytest
 from PIL import ImageFont
 
-from pt_miniscreen.state import ScheduledAppEvent
 from pt_miniscreen.utils import get_image_file_path
 
 pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
@@ -84,23 +83,30 @@ def turn_off_bootsplash():
         bootsplash_breadcrumb.touch()
 
 
-@pytest.fixture(autouse=True)
-def app(mocker):
+def mock_timeouts(timeout):
+    from pt_miniscreen.state import State, timeouts
+
+    timeouts[State.DIM] = timeout
+    timeouts[State.SCREENSAVER] = timeout
+
+
+def setup_test(mocker, screensaver_timeout):
+    mock_timeouts(timeout=screensaver_timeout)
     patch_packages()
     turn_off_bootsplash()
     use_test_font(mocker)
     use_test_images(mocker)
     freeze_marquee_text(mocker)
 
+
+@pytest.fixture(autouse=True)
+def app(mocker):
+    setup_test(mocker, screensaver_timeout=3600)
+
     from pt_miniscreen.app import App
 
     app = App()
     app.start()
-
-    # turn off dimming and therefore screensaver
-    app.state_manager.sched_event_manager.cancel_sched_event(
-        ScheduledAppEvent.ACTIVATE_DIMMING
-    )
 
     yield app
 
