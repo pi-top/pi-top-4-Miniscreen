@@ -2,7 +2,7 @@ import logging
 import sys
 from signal import pause
 
-from pt_miniscreen.app import App
+from pt_miniscreen.asteroids.app import App
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
