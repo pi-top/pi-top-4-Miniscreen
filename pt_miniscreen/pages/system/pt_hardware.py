@@ -36,9 +36,9 @@ def get_pt_serial():
 
 @dataclass
 class HardwarePageInfo:
-    fw_version: str = f"Firmware Version: {get_fw_version()}"
-    hw_version: str = f"Hardware Version: {get_hw_version()}"
-    pt_serial: str = f"pi-top Serial Number: {get_pt_serial()}"
+    fw_version: str = f"Firmware {get_fw_version()}"
+    hw_version: str = f"Hardware {get_hw_version()}"
+    pt_serial: str = f"Serial {get_pt_serial()}"
 
 
 info = HardwarePageInfo()

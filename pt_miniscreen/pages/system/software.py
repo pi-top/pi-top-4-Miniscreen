@@ -55,9 +55,9 @@ class SoftwarePageInfo:
             self.os = (
                 f"pi-topOS {self._info.build_os_version}-{self._info.build_run_number}"
             )
-        self.sdk_version = f"SDK Version: {get_package_version('python3-pitop')}"
-        self.pitopd_version = f"pi-topd Version: {get_package_version('pi-topd')}"
-        self.repos = f"Repositories: {', '.join(get_apt_repositories())}"
+        self.sdk_version = f"SDK {get_package_version('python3-pitop')}"
+        self.pitopd_version = f"pi-topd {get_package_version('pi-topd')}"
+        self.repos = f"Repos: {', '.join(get_apt_repositories())}"
 
 
 info = SoftwarePageInfo()

@@ -40,7 +40,7 @@ def rpi_serial():
 class HardwarePageInfo:
     rpi_model: str = f"Model: {rpi_model()}"
     rpi_ram: str = f"RAM: {rpi_ram()}"
-    rpi_serial: str = f"Serial Number: {rpi_serial()}"
+    rpi_serial: str = f"Serial: {rpi_serial()}"
 
 
 info = HardwarePageInfo()
