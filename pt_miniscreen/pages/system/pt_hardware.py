@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 
 from pitop.common.common_ids import FirmwareDeviceID
@@ -34,18 +33,16 @@ def get_pt_serial():
     return ", ".join(lines)
 
 
-@dataclass
 class HardwarePageInfo:
-    fw_version: str = f"Firmware {get_fw_version()}"
-    hw_version: str = f"Hardware {get_hw_version()}"
-    pt_serial: str = f"Serial {get_pt_serial()}"
-
-
-info = HardwarePageInfo()
+    def __init__(self):
+        self.fw_version = f"Firmware {get_fw_version()}"
+        self.hw_version = f"Hardware {get_hw_version()}"
+        self.pt_serial = f"Serial {get_pt_serial()}"
 
 
 class Page(PageBase):
     def __init__(self, size):
+        info = HardwarePageInfo()
         row_data = NetworkPageData(
             first_row=RowDataText(text=lambda: info.fw_version),
             second_row=RowDataText(text=lambda: info.hw_version),

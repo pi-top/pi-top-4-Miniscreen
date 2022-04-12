@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 
 import psutil
@@ -36,18 +35,16 @@ def rpi_serial():
     return cpuserial
 
 
-@dataclass
 class HardwarePageInfo:
-    rpi_model: str = f"Model: {rpi_model()}"
-    rpi_ram: str = f"RAM: {rpi_ram()}"
-    rpi_serial: str = f"Serial: {rpi_serial()}"
-
-
-info = HardwarePageInfo()
+    def __init__(self):
+        self.rpi_model = f"Model: {rpi_model()}"
+        self.rpi_ram = f"RAM: {rpi_ram()}"
+        self.rpi_serial = f"Serial: {rpi_serial()}"
 
 
 class Page(PageBase):
     def __init__(self, size):
+        info = HardwarePageInfo()
         row_data = NetworkPageData(
             first_row=RowDataText(text=lambda: info.rpi_model),
             second_row=RowDataText(text=lambda: info.rpi_ram),

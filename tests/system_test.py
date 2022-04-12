@@ -64,25 +64,33 @@ def memory(mocker):
 
 @pytest.fixture
 def software_page_mocks(mocker):
-    class SoftwarePageInfoMock:
-        def __init__(self, os_version, run_number, sdk_version, pitopd_version, repos):
-            self.os = f"pi-topOS {os_version}-{run_number}"
-            self.sdk_version = f"SDK Version: {sdk_version}"
-            self.pitopd_version = f"pi-topd Version: {pitopd_version}"
-            self.repos = f"Repositories: {', '.join(repos)}"
-
     def set_software_page_mocks(
         os_version, run_number, sdk_version, pitopd_version, repos
     ):
+        def get_package_version_mock(package_name):
+            if package_name == "python3-pitop":
+                return sdk_version
+            elif package_name == "pi-topd":
+                return pitopd_version
+
+        def get_apt_repositories_mock():
+            return repos
+
+        class OsInfoMock:
+            build_os_version = os_version
+            build_run_number = run_number
+
         mocker.patch(
-            "pt_miniscreen.pages.system.software.info",
-            SoftwarePageInfoMock(
-                os_version=os_version,
-                run_number=run_number,
-                sdk_version=sdk_version,
-                pitopd_version=pitopd_version,
-                repos=repos,
-            ),
+            "pt_miniscreen.pages.system.software.get_pitopOS_info",
+            return_value=OsInfoMock,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.software.get_package_version",
+            get_package_version_mock,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.software.get_apt_repositories",
+            get_apt_repositories_mock,
         )
 
     return set_software_page_mocks
@@ -90,18 +98,18 @@ def software_page_mocks(mocker):
 
 @pytest.fixture
 def pitop_hardware_page_mocks(mocker):
-    class PtHardwarePageInfoMock:
-        def __init__(self, fw_version, hw_version, pt_serial):
-            self.fw_version = "Firmware Version: {fw_version}"
-            self.hw_version = "Hardware Version: {hw_version}"
-            self.pt_serial = "pi-top Serial Number: {pt_serial}"
-
     def set_pitop_hardware_page_mocks(fw_version, hw_version, pt_serial):
         mocker.patch(
-            "pt_miniscreen.pages.system.pt_hardware.info",
-            PtHardwarePageInfoMock(
-                fw_version=fw_version, hw_version=hw_version, pt_serial=pt_serial
-            ),
+            "pt_miniscreen.pages.system.pt_hardware.get_fw_version",
+            return_value=fw_version,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.pt_hardware.get_hw_version",
+            return_value=hw_version,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.pt_hardware.get_pt_serial",
+            return_value=pt_serial,
         )
 
     return set_pitop_hardware_page_mocks
@@ -109,18 +117,16 @@ def pitop_hardware_page_mocks(mocker):
 
 @pytest.fixture
 def rpi_hardware_page_mocks(mocker):
-    class RPiHardwarePageInfoMock:
-        def __init__(self, rpi_model, rpi_ram, rpi_serial):
-            self.rpi_model: str = f"Model: {rpi_model}"
-            self.rpi_ram: str = f"RAM: {rpi_ram}"
-            self.rpi_serial: str = f"Serial Number: {rpi_serial}"
-
     def set_rpi_hardware_page_mocks(rpi_model, rpi_ram, rpi_serial):
         mocker.patch(
-            "pt_miniscreen.pages.system.rpi_hardware.info",
-            RPiHardwarePageInfoMock(
-                rpi_model=rpi_model, rpi_ram=rpi_ram, rpi_serial=rpi_serial
-            ),
+            "pt_miniscreen.pages.system.rpi_hardware.rpi_model", return_value=rpi_model
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.rpi_hardware.rpi_ram", return_value=rpi_ram
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.rpi_hardware.rpi_serial",
+            return_value=rpi_serial,
         )
 
     return set_rpi_hardware_page_mocks
@@ -151,7 +157,7 @@ def setup(
     rpi_hardware_page_mocks(
         rpi_model="Raspberry Pi 4 Model B Rev 1.2",
         rpi_ram="3.7 GB",
-        rpi_serial="1000000123123",
+        rpi_serial="98798777",
     )
 
     # enter system menu

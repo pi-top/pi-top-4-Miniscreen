@@ -60,11 +60,9 @@ class SoftwarePageInfo:
         self.repos = f"Repos: {', '.join(get_apt_repositories())}"
 
 
-info = SoftwarePageInfo()
-
-
 class Page(PageBase):
     def __init__(self, size):
+        info = SoftwarePageInfo()
         row_data = NetworkPageData(
             first_row=RowDataText(text=lambda: info.repos),
             second_row=RowDataText(text=lambda: info.sdk_version),
