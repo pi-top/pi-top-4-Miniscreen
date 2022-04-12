@@ -16,10 +16,10 @@ def patch_packages():
     modules_to_patch = [
         "pitop",
         "pitop.common.common_ids",
+        "pitop.common.firmware_device",
         "pitop.common.formatting",
         "pitop.common.command_runner",
         "pitop.common.pt_os",
-        "pt_fw_updater.update",
     ]
     for module in modules_to_patch:
         modules[module] = MagicMock()

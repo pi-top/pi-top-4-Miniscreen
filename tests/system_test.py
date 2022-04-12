@@ -99,13 +99,16 @@ def software_page_mocks(mocker):
 @pytest.fixture
 def pitop_hardware_page_mocks(mocker):
     def set_pitop_hardware_page_mocks(fw_version, hw_version, pt_serial):
+        class FirmwareDeviceMock:
+            def get_fw_version():
+                return fw_version
+
+            def get_sch_hardware_version_major():
+                return hw_version
+
         mocker.patch(
-            "pt_miniscreen.pages.system.pt_hardware.get_fw_version",
-            return_value=fw_version,
-        )
-        mocker.patch(
-            "pt_miniscreen.pages.system.pt_hardware.get_hw_version",
-            return_value=hw_version,
+            "pt_miniscreen.pages.system.pt_hardware.FirmwareDevice",
+            return_value=FirmwareDeviceMock,
         )
         mocker.patch(
             "pt_miniscreen.pages.system.pt_hardware.get_pt_serial",
