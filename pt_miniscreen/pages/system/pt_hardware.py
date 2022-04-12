@@ -1,27 +1,12 @@
 from pathlib import Path
+from threading import Thread
 
 from pitop.common.common_ids import FirmwareDeviceID
-from pt_fw_updater.update import create_firmware_device
+from pitop.common.firmware_device import FirmwareDevice
 
 from ..network.network_page_base import NetworkPageData
 from ..network.network_page_base import Page as PageBase
 from ..network.network_page_base import RowDataText
-
-
-def get_fw_version():
-    try:
-        device = create_firmware_device(FirmwareDeviceID.pt4_hub, 1)
-        return device.get_fw_version()
-    except Exception:
-        return ""
-
-
-def get_hw_version():
-    try:
-        device = create_firmware_device(FirmwareDeviceID.pt4_hub, 1)
-        return device.get_sch_hardware_version_major()
-    except Exception:
-        return ""
 
 
 def get_pt_serial():
@@ -35,9 +20,29 @@ def get_pt_serial():
 
 class HardwarePageInfo:
     def __init__(self):
-        self.fw_version = f"Firmware {get_fw_version()}"
-        self.hw_version = f"Hardware {get_hw_version()}"
+        self._fw_version = "Unknown"
+        self._hw_version = "Unknown"
+
         self.pt_serial = f"Serial {get_pt_serial()}"
+
+        def update_params():
+            try:
+                device = FirmwareDevice(FirmwareDeviceID.pt4_hub, 0.1)
+                self._fw_version = device.get_fw_version()
+                self._hw_version = device.get_sch_hardware_version_major()
+            except Exception:
+                pass
+
+        thread = Thread(target=update_params, args=(), daemon=True)
+        thread.start()
+
+    @property
+    def fw_version(self):
+        return f"Firmware {self._fw_version}"
+
+    @property
+    def hw_version(self):
+        return f"Hardware {self._hw_version}"
 
 
 class Page(PageBase):
