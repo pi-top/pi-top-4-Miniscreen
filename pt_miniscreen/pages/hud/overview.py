@@ -2,8 +2,7 @@ import logging
 from math import ceil
 
 from pitop.battery import Battery
-from pitop.common.formatting import is_url
-from pitop.common.sys_info import get_internal_ip
+from pitop.common.sys_info import get_pi_top_ip
 
 from ...hotspots.base import HotspotInstance
 from ...hotspots.templates.image import Hotspot as ImageHotspot
@@ -67,11 +66,9 @@ def get_battery_image_path():
 
 
 def get_ip():
-    for interface in ("wlan0", "eth0", "ptusb0", "lo"):
-        ip_address = get_internal_ip(interface)
-        if is_url("http://" + ip_address):
-            return ip_address
-
+    ip_address = get_pi_top_ip()
+    if len(ip_address) > 0:
+        return ip_address
     return "No IP address"
 
 

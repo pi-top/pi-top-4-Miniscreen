@@ -28,3 +28,7 @@ def get_ssh_enabled_state():
 
 def get_vnc_enabled_state():
     return "Disabled"
+
+
+def get_pi_top_ip():
+    return ""
