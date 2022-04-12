@@ -14,13 +14,10 @@ def battery():
 
 @pytest.fixture
 def internal_ip(mocker):
-    def patch(_interface, ip=""):
+    def patch(ip=""):
         mocker.patch(
-            "pt_miniscreen.pages.hud.overview.get_internal_ip",
-            lambda interface: ip if interface == _interface else "None",
-        )
-        mocker.patch(
-            "pt_miniscreen.pages.hud.overview.is_url", lambda url: url == f"http://{ip}"
+            "pt_miniscreen.pages.hud.overview.get_pi_top_ip",
+            return_value=ip,
         )
 
     return patch
@@ -52,18 +49,18 @@ def test_overview_battery(battery, miniscreen, snapshot):
 
 
 def test_overview_network(miniscreen, snapshot, internal_ip):
-    internal_ip("wlan0", "192.168.192.168")
+    internal_ip("192.168.192.168")
     sleep(4.5)
     snapshot.assert_match(miniscreen.device.display_image, "wifi.png")
 
-    internal_ip("eth0", "10.255.10.255")
+    internal_ip("10.255.10.255")
     sleep(4.5)
     snapshot.assert_match(miniscreen.device.display_image, "ethernet.png")
 
-    internal_ip("ptusb0", "172.31.172.31")
+    internal_ip("172.31.172.31")
     sleep(4.5)
     snapshot.assert_match(miniscreen.device.display_image, "usb.png")
 
-    internal_ip("lo", "127.0.0.1")
+    internal_ip("127.0.0.1")
     sleep(4.5)
     snapshot.assert_match(miniscreen.device.display_image, "localhost.png")
