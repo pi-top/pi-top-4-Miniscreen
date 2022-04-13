@@ -73,6 +73,7 @@ class Text(Component):
         super().__init__(
             **kwargs,
             initial_state={
+                **initial_state,
                 "text": text,
                 "font": font,
                 "fill": fill,
@@ -80,7 +81,6 @@ class Text(Component):
                 "vertical_align": vertical_align,
                 "spacing": spacing,
                 "wrap": wrap,
-                **initial_state,
             },
         )
 

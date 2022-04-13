@@ -11,6 +11,14 @@ from .utils import is_same_image
 logger = logging.getLogger(__name__)
 
 
+class CreateComponentException(Exception):
+    pass
+
+
+class RenderException(Exception):
+    pass
+
+
 # Inherit from Timer so that Interval shares the same API
 class Interval(threading.Timer):
     def __init__(
@@ -36,8 +44,7 @@ class Interval(threading.Timer):
     def run(self):
         execution_time = 0
 
-        # stop executing function when cancel method is called.
-        while not self.finished.is_set():
+        while True:
             # take execution time into account when waiting to produce a more
             # accurate interval time
             wait_time = self.interval - execution_time
@@ -46,8 +53,8 @@ class Interval(threading.Timer):
 
             sleep(max(wait_time, 0))
 
-            # stop interval if parent has been garbage collected
-            if self.function is None:
+            # stop interval if cancel called or if parent has been cleaned up
+            if self.finished.is_set() or self.function is None:
                 return
 
             start_time = time()
@@ -107,7 +114,12 @@ class Component:
         logger.debug(f"Garbage collect {self}")
         self._cleanup()
 
-    def __init__(self, on_rerender, initial_state={}):
+    def __init__(self, on_rerender=None, initial_state={}):
+        if on_rerender is None:
+            raise CreateComponentException(
+                "Component must be created with create_child method. This error might be because kwargs not passed to super in component init method."
+            )
+
         self._children = []
         self._intervals = []
         self._render_cache = RenderCache()
@@ -118,11 +130,19 @@ class Component:
         )
         self._reconciliation_lock = threading.Lock()
         self._reconciliation_queued = False
+        self.width = None
+        self.height = None
+        self.size = None
 
         # wrap subclass render method to track image properties and optimise
         self._unmodified_render = self.render
 
         def render(image):
+            if image.height == 0 or image.width == 0:
+                raise RenderException(
+                    "Image passed to render must have non-zero height and width"
+                )
+
             # set size of component to input image for use in calculations
             self.size = image.size
             self.width = image.width
@@ -134,8 +154,20 @@ class Component:
 
             logger.debug(f"{self} rendering")
             self._render_cache.input = image
-            output = self._unmodified_render(image.copy())
+            output = self._unmodified_render(self._render_cache.input)
+
+            if not isinstance(output, Image.Image):
+                raise RenderException(
+                    f"Pillow Image must be returned from render, returned {output}"
+                )
+
+            if image.size != output.size:
+                raise RenderException(
+                    f"Image returned from render must be same size as the passed image: passed {image.size}, returned {output.size}"
+                )
+
             self._render_cache.output = output
+
             return output
 
         self.render = render
@@ -147,14 +179,17 @@ class Component:
         # subclass specific cleanup
         self.cleanup()
 
-        for interval in self._intervals:
-            interval.cancel()
+        if hasattr(self, "_intervals"):
+            for interval in self._intervals:
+                interval.cancel()
 
-        for child in self._children:
-            child._cleanup()
+            self._intervals = []
 
-        self._intervals = []
-        self._children = []
+        if hasattr(self, "_children"):
+            for child in self._children:
+                child._cleanup()
+
+            self._children = []
 
     def _reconcile(self):
         if self._reconciliation_queued:
