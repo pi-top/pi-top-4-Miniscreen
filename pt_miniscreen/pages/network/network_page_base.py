@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RowDataGeneric:
-    icon_path: str
     hotspot_type: Any
+    icon_path: str = ""
     hotspot_size: Optional[Coordinate] = None
 
 
@@ -146,30 +146,51 @@ class Page(PageBase):
                 self.hotspot_instances.append(hotspot_instance)
 
     def _hotspot_instances_for_row(self, row_number, row_data):
+        hotspot_size = self.rows_layout_manager.hotspot_size()
+        hotspot_position = self.rows_layout_manager.hotspot_position(row_number)
+
+        has_icon = len(row_data.icon_path) > 0
+        if not has_icon:
+            hotspot_size = [
+                hotspot_size[0]
+                + self.rows_layout_manager.icon_size[0]
+                + self.rows_layout_manager.icon_position(row_number)[0],
+                hotspot_size[1]
+                + self.rows_layout_manager.icon_size[1]
+                + self.rows_layout_manager.icon_position(row_number)[1],
+            ]
+            hotspot_position = [
+                self.rows_layout_manager.PADDING_LEFT,
+                hotspot_position[1],
+            ]
+
         if isinstance(row_data, RowDataText):
             content_hotspot = MarqueeDynamicTextHotspot(
                 interval=Speeds.MARQUEE.value,
-                size=self.rows_layout_manager.hotspot_size(),
+                size=hotspot_size,
                 text=row_data.text,
                 font_size=self.rows_layout_manager.DEFAULT_FONT_SIZE,
             )
         else:
             content_hotspot = row_data.hotspot_type(
                 interval=Speeds.MARQUEE.value,
-                size=self.rows_layout_manager.hotspot_size(),
+                size=hotspot_size,
             )
 
-        image_hotspot = ImageHotspot(
-            interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
-            size=self.rows_layout_manager.icon_size,
-            image_path=get_image_file_path(row_data.icon_path),
-        )
-
-        return [
-            HotspotInstance(
-                image_hotspot, self.rows_layout_manager.icon_position(row_number)
-            ),
-            HotspotInstance(
-                content_hotspot, self.rows_layout_manager.hotspot_position(row_number)
-            ),
+        hotspot_instances = [
+            HotspotInstance(content_hotspot, hotspot_position),
         ]
+
+        if has_icon:
+            hotspot_instances.append(
+                HotspotInstance(
+                    ImageHotspot(
+                        interval=Speeds.DYNAMIC_PAGE_REDRAW.value,
+                        size=self.rows_layout_manager.icon_size,
+                        image_path=get_image_file_path(row_data.icon_path),
+                    ),
+                    self.rows_layout_manager.icon_position(row_number),
+                ),
+            )
+
+        return hotspot_instances

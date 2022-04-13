@@ -2,3 +2,6 @@ from .battery import Page as BatteryPage
 from .cpu import Page as CPUPage
 from .login import Page as LoginPage
 from .memory import Page as MemoryPage
+from .pt_hardware import Page as PitopHardwarePage
+from .rpi_hardware import Page as RPiHardwarePage
+from .software import Page as SoftwarePage

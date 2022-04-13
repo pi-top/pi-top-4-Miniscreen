@@ -62,12 +62,106 @@ def memory(mocker):
     return set_memory
 
 
+@pytest.fixture
+def software_page_mocks(mocker):
+    def set_software_page_mocks(
+        os_version, run_number, sdk_version, pitopd_version, repos
+    ):
+        def get_package_version_mock(package_name):
+            if package_name == "python3-pitop":
+                return sdk_version
+            elif package_name == "pi-topd":
+                return pitopd_version
+
+        def get_apt_repositories_mock():
+            return repos
+
+        class OsInfoMock:
+            build_os_version = os_version
+            build_run_number = run_number
+
+        mocker.patch(
+            "pt_miniscreen.pages.system.software.get_pitopOS_info",
+            return_value=OsInfoMock,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.software.get_package_version",
+            get_package_version_mock,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.software.get_apt_repositories",
+            get_apt_repositories_mock,
+        )
+
+    return set_software_page_mocks
+
+
+@pytest.fixture
+def pitop_hardware_page_mocks(mocker):
+    def set_pitop_hardware_page_mocks(fw_version, hw_version, pt_serial):
+        class FirmwareDeviceMock:
+            def get_fw_version():
+                return fw_version
+
+            def get_sch_hardware_version_major():
+                return hw_version
+
+        mocker.patch(
+            "pt_miniscreen.pages.system.pt_hardware.FirmwareDevice",
+            return_value=FirmwareDeviceMock,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.pt_hardware.get_pt_serial",
+            return_value=pt_serial,
+        )
+
+    return set_pitop_hardware_page_mocks
+
+
+@pytest.fixture
+def rpi_hardware_page_mocks(mocker):
+    def set_rpi_hardware_page_mocks(rpi_model, rpi_ram, rpi_serial):
+        mocker.patch(
+            "pt_miniscreen.pages.system.rpi_hardware.rpi_model", return_value=rpi_model
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.rpi_hardware.rpi_ram", return_value=rpi_ram
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.system.rpi_hardware.rpi_serial",
+            return_value=rpi_serial,
+        )
+
+    return set_rpi_hardware_page_mocks
+
+
 @pytest.fixture(autouse=True)
-def setup(miniscreen, cpu_percent, user, memory):
+def setup(
+    miniscreen,
+    cpu_percent,
+    user,
+    memory,
+    software_page_mocks,
+    pitop_hardware_page_mocks,
+    rpi_hardware_page_mocks,
+):
     # setup default mock values
     cpu_percent([90, 10, 20, 50])
     user("root", default_pass=True)
     memory(virtual=500, swap=100)
+    software_page_mocks(
+        sdk_version="0.8.1-2",
+        pitopd_version="13.4.4-0",
+        os_version="3.0",
+        run_number="322",
+        repos=["pi-top-os", "pi-top-os-testing"],
+    )
+    pitop_hardware_page_mocks(fw_version="5.4", hw_version="8", pt_serial="5219233")
+    rpi_hardware_page_mocks(
+        rpi_model="Raspberry Pi 4 Model B Rev 1.2",
+        rpi_ram="3.7 GB",
+        rpi_serial="98798777",
+    )
 
     # enter system menu
     miniscreen.down_button.release()
@@ -141,3 +235,51 @@ def test_memory(miniscreen, snapshot, memory):
     memory(virtual=999, swap=127.9876655)
     sleep(1.5)
     snapshot.assert_match(miniscreen.device.display_image, "memory-change.png")
+
+
+def test_software(miniscreen, snapshot):
+    # scroll to software page
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+
+    snapshot.assert_match(miniscreen.device.display_image, "software.png")
+
+
+def test_pitop_hardware(miniscreen, snapshot):
+    # scroll to pi-top hardware page
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+
+    snapshot.assert_match(miniscreen.device.display_image, "pt_hardware.png")
+
+
+def test_rpi_hardware(miniscreen, snapshot):
+    # scroll to raspberry pi hardware page
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+
+    snapshot.assert_match(miniscreen.device.display_image, "rpi_hardware.png")

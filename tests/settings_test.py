@@ -142,14 +142,14 @@ def test_further_link(miniscreen, snapshot):
 
     # enable further link
     miniscreen.select_button.release()
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
 
     # disable further link
     miniscreen.select_button.release()
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
@@ -167,7 +167,7 @@ def test_ap(miniscreen, snapshot):
 
     # enable ap
     miniscreen.select_button.release()
-    sleep(0.5)
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
