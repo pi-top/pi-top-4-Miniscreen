@@ -72,11 +72,11 @@ class SoftwarePageInfo:
 
     @property
     def sdk_version(self):
-        return f"SDK {self._sdk_version}"
+        return f"SDK: {self._sdk_version}"
 
     @property
     def pitopd_version(self):
-        return f"pi-topd {self._pitopd_version}"
+        return f"pi-topd: {self._pitopd_version}"
 
     @property
     def repos(self):

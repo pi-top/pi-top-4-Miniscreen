@@ -23,7 +23,7 @@ class HardwarePageInfo:
         self._fw_version = "Unknown"
         self._hw_version = "Unknown"
 
-        self.pt_serial = f"Serial {get_pt_serial()}"
+        self.pt_serial = f"Serial: {get_pt_serial()}"
 
         def update_params():
             try:
@@ -38,11 +38,11 @@ class HardwarePageInfo:
 
     @property
     def fw_version(self):
-        return f"Firmware {self._fw_version}"
+        return f"Firmware: {self._fw_version}"
 
     @property
     def hw_version(self):
-        return f"Hardware {self._hw_version}"
+        return f"Hardware: {self._hw_version}"
 
 
 class Page(PageBase):
