@@ -20,8 +20,8 @@ def get_pt_serial():
 
 class HardwarePageInfo:
     def __init__(self):
-        self._fw_version = "Unknown"
-        self._hw_version = "Unknown"
+        self._fw_version = "Loading"
+        self._hw_version = "Loading"
 
         self.pt_serial = f"Serial: {get_pt_serial()}"
 

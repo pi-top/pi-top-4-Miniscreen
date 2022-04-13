@@ -57,8 +57,8 @@ class SoftwarePageInfo:
                 f"pi-topOS {self._info.build_os_version}-{self._info.build_run_number}"
             )
 
-        self._sdk_version = "Unknown"
-        self._pitopd_version = "Unknown"
+        self._sdk_version = "Loading"
+        self._pitopd_version = "Loading"
 
         def update_params():
             try:
