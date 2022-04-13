@@ -2,12 +2,13 @@ from time import sleep
 
 import pytest
 
-from conftest import setup_test
+from conftest import setup_app
 
 
 @pytest.fixture
 def screensaver_app(mocker):
-    setup_test(mocker, screensaver_timeout=0.2)
+    setup_app(mocker, screensaver_timeout=0.2)
+
     from pt_miniscreen.app import App
 
     app = App()
