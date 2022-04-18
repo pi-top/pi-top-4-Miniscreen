@@ -43,6 +43,7 @@ class List(Component):
             },
         )
 
+        self._visible = True
         self._rows_snap = None
         self._cancel_transition = threading.Event()
         self.use_snapshot_when_scrolling = use_snapshot_when_scrolling
@@ -53,6 +54,24 @@ class List(Component):
 
     def cleanup(self):
         self._cancel_transition.set()
+
+    @property
+    def visible_scrollbar(self):
+        return self._visible
+
+    @visible_scrollbar.setter
+    def visible_scrollbar(self, value):
+        self._visible = value
+
+    @property
+    def can_scroll_down(self):
+        next_top_row_index = self.state["top_row_index"] + 1
+        max_top_row_index = len(self.Rows) - self.state["num_visible_rows"]
+        return next_top_row_index != max_top_row_index
+
+    @property
+    def can_scroll_up(self):
+        return self.state["top_row_index"] > 0
 
     @property
     def visible_rows(self):
@@ -100,11 +119,11 @@ class List(Component):
             logger.debug(f"{self} currently scrolling, ignoring scroll up")
             return
 
-        next_top_row_index = self.state["top_row_index"] - 1
-        if next_top_row_index < 0:
+        if not self.can_scroll_up:
             logger.debug(f"{self} has no more rows, ignoring scroll up")
             return
 
+        next_top_row_index = self.state["top_row_index"] - 1
         Row = self.Rows[next_top_row_index]
         self.rows.insert(0, self.create_child(Row))
 
@@ -118,12 +137,11 @@ class List(Component):
             logger.debug(f"{self} currently scrolling, ignoring scroll down")
             return
 
-        next_top_row_index = self.state["top_row_index"] + 1
-        max_top_row_index = len(self.Rows) - self.state["num_visible_rows"]
-        if next_top_row_index > max_top_row_index:
+        if not self.can_scroll_down:
             logger.debug(f"{self} has no more rows, ignoring scroll down")
             return
 
+        next_top_row_index = self.state["top_row_index"] + 1
         Row = self.Rows[next_top_row_index + self.state["num_visible_rows"] - 1]
         self.rows.append(self.create_child(Row))
 
@@ -219,7 +237,10 @@ class List(Component):
         pages_width = image.width - scrollbar_width - border_width
 
         # don't render scrollbar when all rows are visible
-        if len(self.Rows) <= self.state["num_visible_rows"]:
+        if (
+            not self.visible_scrollbar
+            or len(self.Rows) <= self.state["num_visible_rows"]
+        ):
             return self._render_rows(image)
 
         return apply_layers(
