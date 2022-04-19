@@ -35,6 +35,10 @@ class Stack(Component):
     def active_index(self):
         return self.state["stack"].index(self.active_component)
 
+    @property
+    def components(self):
+        return self.state["stack"]
+
     def _push_transition(self):
         for step in transition(self.width, self.transition_duration):
             self.state.update({"x_position": self.state["x_position"] - step})

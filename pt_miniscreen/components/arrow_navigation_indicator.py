@@ -25,14 +25,10 @@ class ArrowDrawing(Component):
         )
 
     def render(self, image):
-        if (
-            self.state.get("position", "").upper() == ArrowPosition.TOP.name
-            and self.state["visible"]
-        ):
+        if self.state.get("position") == ArrowPosition.TOP and self.state["visible"]:
             ImageDraw.Draw(image).regular_polygon(((3, 3), 4), 3, fill=1)
         elif (
-            self.state.get("position", "").upper() == ArrowPosition.BOTTOM.name
-            and self.state["visible"]
+            self.state.get("position") == ArrowPosition.BOTTOM and self.state["visible"]
         ):
             ImageDraw.Draw(image).regular_polygon(
                 ((3, image.size[1] - 4), 4),
@@ -61,11 +57,11 @@ class ArrowNavigationIndicator(Component):
         )
 
         self.upper_arrow = self.create_child(
-            ArrowDrawing, position=ArrowPosition.TOP.value, visible=top_arrow_visible
+            ArrowDrawing, position=ArrowPosition.TOP, visible=top_arrow_visible
         )
         self.lower_arrow = self.create_child(
             ArrowDrawing,
-            position=ArrowPosition.BOTTOM.value,
+            position=ArrowPosition.BOTTOM,
             visible=bottom_arrow_visible,
         )
 
