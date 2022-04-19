@@ -53,11 +53,30 @@ class List(Component):
 
         self._rows_snapshot = None
         self._cleanup_transition = threading.Event()
+        self.visible_scrollbar = True
 
         # setup initial rows
         start_index = self.state["top_row_index"]
         end_index = self.state["num_visible_rows"] + self.state["top_row_index"]
         self.rows = [self.create_child(Row) for Row in Rows[start_index:end_index]]
+
+    @property
+    def visible_scrollbar(self):
+        return self._visible
+
+    @visible_scrollbar.setter
+    def visible_scrollbar(self, value):
+        self._visible = value
+
+    @property
+    def can_scroll_down(self):
+        next_top_row_index = self.state["top_row_index"] + 1
+        max_top_row_index = len(self.state["Rows"]) - self.state["num_visible_rows"]
+        return next_top_row_index <= max_top_row_index
+
+    @property
+    def can_scroll_up(self):
+        return self.state["top_row_index"] > 0
 
     @property
     def visible_rows(self):
@@ -91,43 +110,40 @@ class List(Component):
         self._rows_snapshot = None
         self.state.update({"active_transition": None, "transition_progress": 0})
 
-    def scroll_up(self):
+    def scroll_to(self, direction, distance=1):
         if self.state["active_transition"] is not None:
-            logger.debug(f"{self} currently scrolling, ignoring scroll up")
+            logger.info(f"{self} currently scrolling, ignoring scroll")
             return
 
-        next_top_row_index = self.state["top_row_index"] - 1
-        if next_top_row_index < 0:
-            logger.debug(f"{self} has no more rows, ignoring scroll up")
-            return
+        if direction == "UP":
+            if not self.can_scroll_up:
+                logger.info(f"{self} has no more rows, ignoring scroll up")
+                return
 
-        Row = self.state["Rows"][next_top_row_index]
-        self.rows.insert(0, self.create_child(Row))
+            next_top_row_index = self.state["top_row_index"] - distance
+            Row = self.state["Rows"][next_top_row_index]
+            self.rows.insert(0, self.create_child(Row))
+        elif direction == "DOWN":
+            if not self.can_scroll_down:
+                logger.info(f"{self} has no more rows, ignoring scroll down")
+                return
+
+            next_top_row_index = self.state["top_row_index"] + distance
+            Row = self.state["Rows"][
+                next_top_row_index + self.state["num_visible_rows"] - 1
+            ]
+            self.rows.append(self.create_child(Row))
 
         self.state.update(
-            {"active_transition": "UP", "top_row_index": next_top_row_index}
+            {"active_transition": direction, "top_row_index": next_top_row_index}
         )
         threading.Thread(target=self._scroll_transition).start()
+
+    def scroll_up(self):
+        self.scroll_to(direction="UP", distance=1)
 
     def scroll_down(self):
-        if self.state["active_transition"] is not None:
-            logger.debug(f"{self} currently scrolling, ignoring scroll down")
-            return
-
-        Rows = self.state["Rows"]
-        next_top_row_index = self.state["top_row_index"] + 1
-        max_top_row_index = len(Rows) - self.state["num_visible_rows"]
-        if next_top_row_index > max_top_row_index:
-            logger.debug(f"{self} has no more rows, ignoring scroll down")
-            return
-
-        Row = Rows[next_top_row_index + self.state["num_visible_rows"] - 1]
-        self.rows.append(self.create_child(Row))
-
-        self.state.update(
-            {"active_transition": "DOWN", "top_row_index": next_top_row_index}
-        )
-        threading.Thread(target=self._scroll_transition).start()
+        self.scroll_to(direction="DOWN", distance=1)
 
     def _get_row_height(self):
         # height is 0 if there are no rows
@@ -240,7 +256,10 @@ class List(Component):
         pages_width = image.width - scrollbar_width - border_width
 
         # don't render scrollbar when all rows are visible
-        if len(self.state["Rows"]) <= self.state["num_visible_rows"]:
+        if (
+            not self.visible_scrollbar
+            or len(self.state["Rows"]) <= self.state["num_visible_rows"]
+        ):
             image.paste(self._render_rows(image))
             return image
 
