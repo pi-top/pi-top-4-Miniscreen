@@ -114,41 +114,36 @@ class List(Component):
         self._rows_snap = None
         self.state.update({"active_transition": None, "transition_progress": 0})
 
-    def scroll_up(self):
+    def scroll_to(self, direction, distance=1):
         if self.state["active_transition"] is not None:
-            logger.debug(f"{self} currently scrolling, ignoring scroll up")
+            logger.info(f"{self} currently scrolling, ignoring scroll")
             return
 
-        if not self.can_scroll_up:
-            logger.debug(f"{self} has no more rows, ignoring scroll up")
-            return
-
-        next_top_row_index = self.state["top_row_index"] - 1
-        Row = self.Rows[next_top_row_index]
-        self.rows.insert(0, self.create_child(Row))
+        if direction == "UP":
+            if not self.can_scroll_up:
+                logger.info(f"{self} has no more rows, ignoring scroll up")
+                return
+            next_top_row_index = self.state["top_row_index"] - distance
+            Row = self.Rows[next_top_row_index]
+            self.rows.insert(0, self.create_child(Row))
+        elif direction == "DOWN":
+            if not self.can_scroll_down:
+                logger.info(f"{self} has no more rows, ignoring scroll down")
+                return
+            next_top_row_index = self.state["top_row_index"] + distance
+            Row = self.Rows[next_top_row_index + self.state["num_visible_rows"] - 1]
+            self.rows.append(self.create_child(Row))
 
         self.state.update(
-            {"active_transition": "UP", "top_row_index": next_top_row_index}
+            {"active_transition": direction, "top_row_index": next_top_row_index}
         )
         threading.Thread(target=self._scroll_transition).start()
+
+    def scroll_up(self):
+        self.scroll_to(direction="UP", distance=1)
 
     def scroll_down(self):
-        if self.state["active_transition"] is not None:
-            logger.debug(f"{self} currently scrolling, ignoring scroll down")
-            return
-
-        if not self.can_scroll_down:
-            logger.debug(f"{self} has no more rows, ignoring scroll down")
-            return
-
-        next_top_row_index = self.state["top_row_index"] + 1
-        Row = self.Rows[next_top_row_index + self.state["num_visible_rows"] - 1]
-        self.rows.append(self.create_child(Row))
-
-        self.state.update(
-            {"active_transition": "DOWN", "top_row_index": next_top_row_index}
-        )
-        threading.Thread(target=self._scroll_transition).start()
+        self.scroll_to(direction="DOWN", distance=1)
 
     def _get_scrollbar_y(self, bar_height):
         bar_y = int(
