@@ -61,6 +61,11 @@ class List(Component):
         self.rows = [self.create_child(Row) for Row in Rows[start_index:end_index]]
 
     @property
+    def components_to_top_row(self):
+        max_top_row_index = len(self.state["Rows"]) - self.state["num_visible_rows"]
+        return max_top_row_index - self.state["top_row_index"]
+
+    @property
     def visible_scrollbar(self):
         return self._visible
 
