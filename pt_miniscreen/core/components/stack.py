@@ -53,7 +53,7 @@ class Stack(Component):
             return None
 
     @property
-    def components(self):
+    def stack(self):
         return self.state["stack"]
 
     def _push_transition(self):
