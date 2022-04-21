@@ -149,11 +149,11 @@ class List(Component):
         )
         threading.Thread(target=self._scroll_transition).start()
 
-    def scroll_up(self):
-        self.scroll_to(direction="UP", distance=1)
+    def scroll_up(self, distance=1):
+        self.scroll_to(direction="UP", distance=distance)
 
-    def scroll_down(self):
-        self.scroll_to(direction="DOWN", distance=1)
+    def scroll_down(self, distance=1):
+        self.scroll_to(direction="DOWN", distance=distance)
 
     def _get_row_height(self):
         # height is 0 if there are no rows
