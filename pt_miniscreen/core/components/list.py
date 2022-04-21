@@ -27,6 +27,7 @@ class List(Component):
         use_snapshot_when_scrolling=True,
         transition_duration=0.25,
         initial_top_row_index=0,
+        visible_scrollbar=True,
         initial_state={},
         **kwargs,
     ):
@@ -47,18 +48,26 @@ class List(Component):
                 "transition_progress": 0,
                 "transition_duration": transition_duration,
                 "use_snapshot_when_scrolling": use_snapshot_when_scrolling,
+                "visible_scrollbar": visible_scrollbar,
                 **initial_state,
             },
         )
 
         self._rows_snapshot = None
         self._cleanup_transition = threading.Event()
-        self.visible_scrollbar = True
 
         # setup initial rows
         start_index = self.state["top_row_index"]
         end_index = self.state["num_visible_rows"] + self.state["top_row_index"]
         self.rows = [self.create_child(Row) for Row in Rows[start_index:end_index]]
+
+    @property
+    def visible_scrollbar(self):
+        return self.state["visible_scrollbar"]
+
+    @visible_scrollbar.setter
+    def visible_scrollbar(self, value):
+        self.state.update({"visible_scrollbar": value})
 
     @property
     def components_to_top_row(self):
