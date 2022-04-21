@@ -98,12 +98,12 @@ class List(Component):
 
         return self.rows
 
-    def _scroll_transition(self):
+    def _scroll_transition(self, distance):
         # only animate transition if we know our height
         # use height for distance since that is the max possible distance
         if self.height:
             for step in transition(
-                distance=self.height,
+                distance=self.height * distance,
                 duration=self.state["transition_duration"],
             ):
                 if self._cleanup_transition.is_set():
@@ -114,9 +114,14 @@ class List(Component):
                 self.state.update({"transition_progress": progress + progress_step})
 
         active_transition = self.state["active_transition"]
-        row_to_remove = self.rows[0 if active_transition == "DOWN" else -1]
-        self.rows.remove(row_to_remove)
-        self.remove_child(row_to_remove)
+        if active_transition == "DOWN":
+            rows_to_remove = self.rows[:distance]
+        else:
+            rows_to_remove = self.rows[-distance:]
+
+        for row in rows_to_remove:
+            self.rows.remove(row)
+            self.remove_child(row)
         self._rows_snapshot = None
         self.state.update({"active_transition": None, "transition_progress": 0})
 
@@ -127,27 +132,27 @@ class List(Component):
 
         if direction == "UP":
             if not self.can_scroll_up:
-                logger.info(f"{self} has no more rows, ignoring scroll up")
                 return
 
-            next_top_row_index = self.state["top_row_index"] - distance
-            Row = self.state["Rows"][next_top_row_index]
-            self.rows.insert(0, self.create_child(Row))
+            for i in range(distance):
+                next_top_row_index = self.state["top_row_index"] - (i + 1)
+                Row = self.state["Rows"][next_top_row_index]
+                self.rows.insert(0, self.create_child(Row))
         elif direction == "DOWN":
             if not self.can_scroll_down:
-                logger.info(f"{self} has no more rows, ignoring scroll down")
                 return
 
-            next_top_row_index = self.state["top_row_index"] + distance
-            Row = self.state["Rows"][
-                next_top_row_index + self.state["num_visible_rows"] - 1
-            ]
-            self.rows.append(self.create_child(Row))
+            for i in range(distance):
+                next_top_row_index = self.state["top_row_index"] + (i + 1)
+                Row = self.state["Rows"][
+                    next_top_row_index + self.state["num_visible_rows"] - 1
+                ]
+                self.rows.append(self.create_child(Row))
 
         self.state.update(
             {"active_transition": direction, "top_row_index": next_top_row_index}
         )
-        threading.Thread(target=self._scroll_transition).start()
+        threading.Thread(target=self._scroll_transition, args=(distance,)).start()
 
     def scroll_up(self, distance=1):
         self.scroll_to(direction="UP", distance=distance)
