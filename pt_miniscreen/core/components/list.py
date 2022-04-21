@@ -261,34 +261,43 @@ class List(Component):
         )
 
     def render(self, image):
-        scrollbar_width = self.state["scrollbar_width"]
-        border_width = self.state["scrollbar_border_width"]
-        pages_width = image.width - scrollbar_width - border_width
+        scrollbar_width = self.state["scrollbar_width"] if self.visible_scrollbar else 0
+        border_width = (
+            self.state["scrollbar_border_width"] if self.visible_scrollbar else 0
+        )
+        pages_width = (
+            image.width
+            if self.visible_scrollbar
+            else image.width - scrollbar_width - border_width
+        )
 
         # don't render scrollbar when all rows are visible
-        if (
-            not self.visible_scrollbar
-            or len(self.state["Rows"]) <= self.state["num_visible_rows"]
-        ):
+        if len(self.state["Rows"]) <= self.state["num_visible_rows"]:
             image.paste(self._render_rows(image))
             return image
 
-        return apply_layers(
-            image,
-            [
+        layers_arr = []
+        if self.visible_scrollbar:
+            layers_arr.append(
                 layer(
                     self._render_scrollbar,
                     size=(scrollbar_width - border_width, image.height),
-                ),
+                )
+            )
+            layers_arr.append(
                 layer(
                     rectangle,
                     size=(border_width, image.height),
                     pos=(scrollbar_width, 0),
-                ),
-                layer(
-                    self._render_rows_window,
-                    size=(pages_width, image.height),
-                    pos=(scrollbar_width + border_width, 0),
-                ),
-            ],
+                )
+            )
+
+        layers_arr.append(
+            layer(
+                self._render_rows_window,
+                size=(pages_width, image.height),
+                pos=(scrollbar_width + border_width, 0),
+            ),
         )
+
+        return apply_layers(image, layers_arr)
