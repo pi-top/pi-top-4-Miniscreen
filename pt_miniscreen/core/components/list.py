@@ -70,9 +70,13 @@ class List(Component):
         self.state.update({"visible_scrollbar": value})
 
     @property
-    def components_to_top_row(self):
+    def distance_to_bottom(self):
         max_top_row_index = len(self.state["Rows"]) - self.state["num_visible_rows"]
         return max_top_row_index - self.state["top_row_index"]
+
+    @property
+    def distance_to_top(self):
+        return self.state["top_row_index"]
 
     @property
     def can_scroll_down(self):
