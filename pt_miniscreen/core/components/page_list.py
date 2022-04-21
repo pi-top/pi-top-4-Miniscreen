@@ -9,10 +9,10 @@ class PageList(List):
     def __init__(
         self,
         Pages,
+        num_visible_rows=None,  # take num_visible_rows out of kwargs
+        row_gap=None,  # take row_gap out of kwargs
         **kwargs,
     ):
-        assert len(Pages) > 0
-
         super().__init__(
             **kwargs,
             Rows=Pages,

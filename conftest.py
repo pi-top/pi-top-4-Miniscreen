@@ -1,11 +1,12 @@
+import io
 from itertools import repeat
 from os import path
 from pathlib import Path
 from sys import modules
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
-from PIL import ImageFont
+from PIL import Image, ImageFont
 
 from pt_miniscreen.utils import get_image_file_path
 
@@ -32,7 +33,7 @@ def patch_packages():
     modules["pitop"] = pitop
 
 
-def use_test_font(mocker):
+def use_test_font(mocker, module):
     font_dir = f"{path.dirname(path.realpath(__file__))}/tests/fonts"
     vera_dir = f"{font_dir}/ttf-bitstream-vera"
     roboto_dir = f"{font_dir}/roboto"
@@ -51,14 +52,25 @@ def use_test_font(mocker):
 
     def get_font(size, bold=False, italics=False):
         if size >= 12:
+            if bold and not italics:
+                return ImageFont.truetype(f"{roboto_dir}/Roboto-Bold.ttf", size=size)
+
+            if not bold and italics:
+                return ImageFont.truetype(f"{roboto_dir}/Roboto-Italic.ttf", size=size)
+
+            if bold and italics:
+                return ImageFont.truetype(
+                    f"{roboto_dir}/Roboto-BoldItalic.ttf", size=size
+                )
+
             return ImageFont.truetype(
                 font=f"{roboto_dir}/Roboto-Regular.ttf", size=size
             )
 
         return get_mono_font(size, bold, italics)
 
-    mocker.patch("pt_miniscreen.utils.get_font", get_font)
-    mocker.patch("pt_miniscreen.utils.get_mono_font", get_mono_font)
+    mocker.patch(f"{module}.get_font", get_font)
+    mocker.patch(f"{module}.get_mono_font", get_mono_font)
 
 
 def use_test_images(mocker):
@@ -90,18 +102,23 @@ def mock_timeouts(timeout):
     timeouts[State.SCREENSAVER] = timeout
 
 
-def setup_test(mocker, screensaver_timeout):
-    mock_timeouts(timeout=screensaver_timeout)
+@pytest.fixture(autouse=True)
+def setup(mocker):
     patch_packages()
-    turn_off_bootsplash()
-    use_test_font(mocker)
     use_test_images(mocker)
+    use_test_font(mocker, "pt_miniscreen.core.utils")
+
+
+def setup_app(mocker, screensaver_timeout=3600):
+    use_test_font(mocker, "pt_miniscreen.utils")
+    turn_off_bootsplash()
+    mock_timeouts(timeout=screensaver_timeout)
     freeze_marquee_text(mocker)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def app(mocker):
-    setup_test(mocker, screensaver_timeout=3600)
+    setup_app(mocker)
 
     from pt_miniscreen.app import App
 
@@ -116,3 +133,49 @@ def app(mocker):
 @pytest.fixture
 def miniscreen(app):
     yield app.miniscreen
+
+
+# Core test fixtures
+@pytest.fixture
+def parent():
+    from pt_miniscreen.core import Component
+
+    class Parent(Component):
+        def __init__(self):
+            self.on_rerender_spy = Mock()
+            super().__init__(self.dummy)
+
+        def _reconcile(self):
+            self.on_rerender_spy()
+
+        # dummy method to use as on_rerender or interval method
+        def dummy(self):
+            pass
+
+    return Parent()
+
+
+@pytest.fixture
+def create_component(parent):
+    return lambda Component, **kwargs: Component(on_rerender=parent.dummy, **kwargs)
+
+
+@pytest.fixture
+def render():
+    def render(component, size=(128, 64)):
+        image = component.render(Image.new("1", size))
+        img_byte_arr = io.BytesIO()
+        image.save(img_byte_arr, format="PNG")
+        return img_byte_arr.getvalue()
+
+    return render
+
+
+@pytest.fixture
+def get_test_image_path():
+    def get_test_image_path(image_name):
+        return path.abspath(
+            path.join(Path(__file__).parent, "tests/images", image_name)
+        )
+
+    return get_test_image_path

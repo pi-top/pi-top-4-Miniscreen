@@ -22,6 +22,11 @@ class Miniscreen:
     size = (128, 64)
     is_active = False
     _contrast = 255
+    device: Device
+    cancel_button: Button
+    select_button: Button
+    up_button: Button
+    down_button: Button
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,6 +41,8 @@ class Miniscreen:
 
 
 class Pitop:
+    miniscreen: Miniscreen
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.miniscreen = Miniscreen()
