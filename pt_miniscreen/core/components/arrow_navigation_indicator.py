@@ -11,7 +11,7 @@ class ArrowNavigationIndicator(Component):
     def __init__(
         self,
         upper_arrow_padding=(0, 0),
-        lower_arrow_padding=(0, 0),
+        bottom_arrow_padding=(0, 0),
         upper_arrow_visible=True,
         bottom_arrow_visible=True,
         **kwargs
@@ -20,7 +20,7 @@ class ArrowNavigationIndicator(Component):
             **kwargs,
             initial_state={
                 "upper_arrow_padding": upper_arrow_padding,
-                "lower_arrow_padding": lower_arrow_padding,
+                "bottom_arrow_padding": bottom_arrow_padding,
                 "upper_arrow_visible": upper_arrow_visible,
                 "bottom_arrow_visible": bottom_arrow_visible,
             },
@@ -56,7 +56,7 @@ class ArrowNavigationIndicator(Component):
             )
 
         if self.bottom_arrow_visible:
-            icon_padding = self.state["lower_arrow_padding"]
+            icon_padding = self.state["bottom_arrow_padding"]
             icon_pos = (icon_padding[0], image.height - arrow_size[1] - icon_padding[1])
 
             layers.append(
