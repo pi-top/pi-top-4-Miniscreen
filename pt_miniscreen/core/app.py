@@ -18,6 +18,7 @@ class App:
 
     def stop(self):
         self.root._cleanup()
+        self.root = None
 
     # This should use `miniscreen.display_image` but that method attempts to
     # import opencv when it's called. We can catch the raised error but cannot

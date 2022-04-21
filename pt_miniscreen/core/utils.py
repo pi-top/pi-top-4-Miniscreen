@@ -1,4 +1,4 @@
-from itertools import cycle, repeat
+from itertools import cycle
 from logging import getLogger
 from math import ceil, floor
 from time import sleep, time
@@ -43,6 +43,32 @@ def corners(image):
     return image
 
 
+def checkered(image, box_size=4):
+    draw = ImageDraw.Draw(image)
+    y = 0
+    x = 0
+    offset_box = False
+
+    while y < image.height:
+        while x < image.width:
+            # offset by a box size if offset_box is true
+            x_pos = x + box_size if offset_box else x
+
+            draw.rectangle(
+                (x_pos, y, x_pos + box_size - 1, y + box_size - 1), fill="white"
+            )
+
+            # skip a box size so we checker the row
+            x += box_size * 2
+
+        # move down a row, back to left edge and change box offset for next row
+        y += box_size
+        x = 0
+        offset_box = not offset_box
+
+    return image
+
+
 # positioning
 
 
@@ -68,6 +94,15 @@ def get_mono_font(size, bold=False, italics=False):
 
 def get_font(size, bold=False, italics=False):
     if size >= 12:
+        if bold and not italics:
+            return ImageFont.truetype("Roboto-Bold.ttf", size=size)
+
+        if not bold and italics:
+            return ImageFont.truetype("Roboto-Italic.ttf", size=size)
+
+        if bold and italics:
+            return ImageFont.truetype("Roboto-BoldItalic.ttf", size=size)
+
         return ImageFont.truetype("Roboto-Regular.ttf", size=size)
 
     return get_mono_font(size, bold, italics)
@@ -117,10 +152,7 @@ def transition(distance, duration, base_step=1):
     logger.debug(f"transition took {time() - start_time} seconds")
 
 
-def carousel(max_value, min_value=0, resolution=1):
-    if max_value <= 0:
-        return repeat(min_value)
-
-    forwards = list(range(min_value, max_value, resolution))
-    backwards = list(range(max_value, min_value, -resolution))
+def carousel(end, start=0, step=1):
+    forwards = list(range(start + step, end, step))
+    backwards = list(range(end, start, -step))
     return cycle(forwards + backwards)

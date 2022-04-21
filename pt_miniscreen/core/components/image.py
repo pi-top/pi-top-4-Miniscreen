@@ -17,10 +17,13 @@ class Image(Component):
         loop=True,
         align="left",
         vertical_align="top",
+        resize=False,
+        resize_resampling=None,
         initial_state={},
         **kwargs,
     ):
         self._image = open_image(image_path) if image_path else None
+        self._stop_animating_event = Event()
 
         super().__init__(
             **kwargs,
@@ -30,17 +33,24 @@ class Image(Component):
                 "loop": loop,
                 "align": align,
                 "vertical_align": vertical_align,
+                "resize": resize,
+                "resize_resampling": resize_resampling,
                 **initial_state,
             },
         )
 
-        self._stop_animating_event = Event()
-        if self.image and self.image.is_animated:
+        if self._image and self._image.is_animated:
             self._start_animating()
 
     @property
     def image(self):
-        return self._image
+        if not self._image:
+            return None
+
+        if self.state["resize"] and self.size:
+            return self._image.resize(self.size, self.state["resize_resampling"])
+
+        return self._image.copy()
 
     @image.setter
     def image(self, _):
@@ -62,53 +72,58 @@ class Image(Component):
         ).start()
 
     def _animate(self, stop_event):
-        if not self.image.is_animated:
+        if not self._image.is_animated:
             logger.debug("image is not animated, unable to start animating")
             return
 
         while True:
-            sleep(self.image.info["duration"] / 1000)
+            sleep(self._image.info["duration"] / 1000)
 
             if stop_event.is_set():
                 return
 
             next_frame = self.state["frame"] + 1
-            if self.state["loop"] and next_frame >= self.image.n_frames:
+            if self.state["loop"] and next_frame >= self._image.n_frames:
                 next_frame = 0
 
             try:
-                self.image.seek(next_frame)
+                self._image.seek(next_frame)
                 self.state.update({"frame": next_frame})
             except EOFError:
                 # bail if image has no more frames
                 return
 
     def on_state_change(self, previous_state):
+        # on loop change
+        loop = self.state["loop"]
+        if self.state["loop"] != previous_state["loop"]:
+            if loop and self._image.is_animated:
+                self._start_animating()
+
+            if not loop and self._stop_animating_event:
+                self._stop_animating_event.set()
+
+        # on image_path change
         image_path = self.state["image_path"]
+        if image_path != previous_state["image_path"]:
+            if self._stop_animating_event:
+                self._stop_animating_event.set()
 
-        # do nothing if image_path hasn't changed
-        if image_path == previous_state["image_path"]:
-            return
+            # bail if image_path is now None
+            if image_path is None:
+                self._image = None
+                return
 
-        # stop animating gif if image has changed
-        if self._stop_animating_event:
-            self._stop_animating_event.set()
+            # update self.image
+            self._image = open_image(image_path)
 
-        # bail if image_path is now None
-        if image_path is None:
-            self._image = None
-            return
+            # reset frame state if needed
+            if self.state["frame"] != 0:
+                self.state.update({"frame": 0})
 
-        # update self.image
-        self._image = open_image(image_path)
-
-        # reset frame state if needed
-        if self.state["frame"] != 0:
-            self.state.update({"frame": 0})
-
-        # start animating image if it is animated
-        if self._image.is_animated:
-            self._start_animating()
+            # start animating image if it is animated
+            if self._image.is_animated:
+                self._start_animating()
 
     def _get_x_pos(self, container_width):
         if self.state["align"] == "center":
@@ -135,5 +150,5 @@ class Image(Component):
         if not self._image:
             return image
 
-        image.paste(self._image, self._get_pos(image.size))
+        image.paste(self.image, self._get_pos(image.size))
         return image

@@ -12,23 +12,26 @@ logger = logging.getLogger(__name__)
 
 
 class MarqueeText(Text):
+    def cleanup(self):
+        if self._stop_scroll_event:
+            self._stop_scroll_event.set()
+
     def __init__(
         self,
         step=1,
         step_time=0.1,
-        vertical_align="bottom",  # use bottom to match previous impl
         initial_state={},
+        wrap=None,  # take wrap out of kwargs
         **kwargs
     ):
         super().__init__(
             **kwargs,
+            wrap=False,
             initial_state={
+                **initial_state,
                 "offset": 0,
                 "step": step,
-                "vertical_align": vertical_align,
                 "step_time": step_time,
-                "wrap": False,
-                **initial_state,
             },
         )
 
@@ -54,16 +57,12 @@ class MarqueeText(Text):
         text_size = self.get_text_size(self.state["text"], self.state["font"])
         scroll_len = max(text_size[0] - self.width, 0)
 
-        for offset in carousel(max_value=scroll_len, resolution=self.state["step"]):
+        for offset in carousel(scroll_len, step=self.state["step"]):
             sleep(self.state["step_time"])
             if stop_event.is_set():
                 return
 
             self.state.update({"offset": -offset})
-
-    def cleanup(self):
-        if self._stop_scroll_event:
-            self._stop_scroll_event.set()
 
     def render(self, image):
         if not self.scrolling and self.needs_scrolling:
@@ -73,8 +72,10 @@ class MarqueeText(Text):
             self._stop_scroll_event.set()
 
         text_size = self.get_text_size(self.state["text"], self.state["font"])
+        offset = self.state["offset"] if self.needs_scrolling else 0
+
         image.paste(
             super().render(Image.new("1", size=(text_size[0], image.height))),
-            (self.state["offset"], 0),
+            (offset, 0),
         )
         return image
