@@ -78,15 +78,13 @@ class List(Component):
     def distance_to_top(self):
         return self.state["top_row_index"]
 
-    @property
-    def can_scroll_down(self):
-        next_top_row_index = self.state["top_row_index"] + 1
+    def can_scroll_down(self, distance=1):
+        next_top_row_index = self.state["top_row_index"] + distance
         max_top_row_index = len(self.state["Rows"]) - self.state["num_visible_rows"]
         return next_top_row_index <= max_top_row_index
 
-    @property
-    def can_scroll_up(self):
-        return self.state["top_row_index"] > 0
+    def can_scroll_up(self, distance=1):
+        return self.state["top_row_index"] + 1 > distance
 
     @property
     def visible_rows(self):
@@ -114,10 +112,9 @@ class List(Component):
                 self.state.update({"transition_progress": progress + progress_step})
 
         active_transition = self.state["active_transition"]
+        rows_to_remove = self.rows[-distance:]
         if active_transition == "DOWN":
             rows_to_remove = self.rows[:distance]
-        else:
-            rows_to_remove = self.rows[-distance:]
 
         for row in rows_to_remove:
             self.rows.remove(row)
@@ -131,7 +128,7 @@ class List(Component):
             return
 
         if direction == "UP":
-            if not self.can_scroll_up:
+            if not self.can_scroll_up(distance):
                 return
 
             for i in range(distance):
@@ -139,7 +136,7 @@ class List(Component):
                 Row = self.state["Rows"][next_top_row_index]
                 self.rows.insert(0, self.create_child(Row))
         elif direction == "DOWN":
-            if not self.can_scroll_down:
+            if not self.can_scroll_down(distance):
                 return
 
             for i in range(distance):
