@@ -49,6 +49,7 @@ class List(Component):
                 "transition_duration": transition_duration,
                 "use_snapshot_when_scrolling": use_snapshot_when_scrolling,
                 "visible_scrollbar": visible_scrollbar,
+                "transition_distance": 0,
                 **initial_state,
             },
         )
@@ -97,19 +98,17 @@ class List(Component):
         return self.rows
 
     def _scroll_transition(self, distance):
-        # only animate transition if we know our height
-        # use height for distance since that is the max possible distance
-        if self.height:
-            for step in transition(
-                distance=self.height * distance,
-                duration=self.state["transition_duration"],
-            ):
-                if self._cleanup_transition.is_set():
-                    return
+        scroll_distance = self._get_rows_height(num_rows=distance)
+        for step in transition(
+            distance=scroll_distance,
+            duration=self.state["transition_duration"],
+        ):
+            if self._cleanup_transition.is_set():
+                return
 
-                progress = self.state["transition_progress"]
-                progress_step = step / self.height
-                self.state.update({"transition_progress": progress + progress_step})
+            progress = self.state["transition_progress"]
+            progress_step = step / scroll_distance
+            self.state.update({"transition_progress": progress + progress_step})
 
         active_transition = self.state["active_transition"]
         rows_to_remove = self.rows[-distance:]
@@ -120,7 +119,13 @@ class List(Component):
             self.rows.remove(row)
             self.remove_child(row)
         self._rows_snapshot = None
-        self.state.update({"active_transition": None, "transition_progress": 0})
+        self.state.update(
+            {
+                "active_transition": None,
+                "transition_progress": 0,
+                "transition_distance": 0,
+            }
+        )
 
     def scroll_to(self, direction, distance=1):
         if self.state["active_transition"] is not None:
@@ -147,7 +152,11 @@ class List(Component):
                 self.rows.append(self.create_child(Row))
 
         self.state.update(
-            {"active_transition": direction, "top_row_index": next_top_row_index}
+            {
+                "active_transition": direction,
+                "top_row_index": next_top_row_index,
+                "transition_distance": distance,
+            }
         )
         threading.Thread(target=self._scroll_transition, args=(distance,)).start()
 
@@ -167,27 +176,27 @@ class List(Component):
         total_gap = max((num_visible_rows - 1) * row_gap, 0)
         return ceil((self.height - total_gap) / num_visible_rows)
 
-    def _get_rows_height(self):
+    def _get_rows_height(self, num_rows):
         row_height = self._get_row_height()
         row_gap = self.state["row_gap"]
-        num_rows = len(self.rows)
         num_row_gaps = max(num_rows - 1, 0)
         return row_height * num_rows + row_gap * num_row_gaps
 
     def _get_scrollbar_y(self):
         Rows = self.state["Rows"]
         bar_y = int(self.state["top_row_index"] * self.height / len(Rows))
-        bar_scroll_distance = int(self.height / len(Rows))
+        transition_distance = self.state.get("transition_distance")
+        bar_scroll_distance = int(transition_distance * self.height / len(Rows))
 
         # Offset the scrollbar according to transition progress.
         # Use the inverse of progress since offset decreases as it increases
         transition_progress = self.state["transition_progress"]
 
         if self.state["active_transition"] == "UP":
-            return bar_y + int((1 - transition_progress) * bar_scroll_distance)
+            bar_y += int((1 - transition_progress) * bar_scroll_distance)
 
         if self.state["active_transition"] == "DOWN":
-            return bar_y - int((1 - transition_progress) * bar_scroll_distance)
+            bar_y -= int((1 - transition_progress) * bar_scroll_distance)
 
         return bar_y
 
@@ -221,7 +230,7 @@ class List(Component):
 
         row_gap = self.state["row_gap"]
         row_height = self._get_row_height()
-        rows_height = self._get_rows_height()
+        rows_height = self._get_rows_height(num_rows=len(self.rows))
 
         return apply_layers(
             Image.new("1", size=(image.width, rows_height)),
@@ -246,11 +255,13 @@ class List(Component):
         # being scrolled into view. Crop the rows according to scroll distance
         # and transition progress so the height of visible rows remains the same
         scroll_distance = self._get_row_height() + self.state["row_gap"]
-        rows_height = self._get_rows_height()
+        rows_height = self._get_rows_height(num_rows=len(self.rows))
         window_height = rows_height - scroll_distance
 
         progress = self.state["transition_progress"]
+        transition_distance = self.state["transition_distance"]
         progress_correction = (1 - progress) if active_transition == "UP" else progress
+        progress_correction *= transition_distance
 
         window_top = int(scroll_distance * progress_correction)
         window_bottom = window_top + window_height
