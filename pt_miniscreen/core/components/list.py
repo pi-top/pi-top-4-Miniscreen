@@ -173,6 +173,12 @@ class List(Component):
     def scroll_down(self, distance=1):
         self.scroll_to(direction="DOWN", distance=distance)
 
+    def scroll_to_top(self):
+        self.scroll_up(distance=self.distance_to_top)
+
+    def scroll_to_bottom(self):
+        self.scroll_down(distance=self.distance_to_bottom)
+
     def _get_row_height(self):
         # height is 0 if there are no rows
         num_visible_rows = self.state["num_visible_rows"]
