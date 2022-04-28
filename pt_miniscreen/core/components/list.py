@@ -118,6 +118,7 @@ class List(Component):
         for row in self.invisible_rows:
             self.rows.remove(row)
             self.remove_child(row)
+
         self._rows_snapshot = None
         self.state.update(
             {
@@ -134,6 +135,9 @@ class List(Component):
 
         if direction == "UP":
             if not self.can_scroll_up(distance):
+                logger.info(
+                    f"{self} can't scroll distance {distance} up, ignoring scroll"
+                )
                 return
 
             for i in range(distance):
@@ -142,6 +146,9 @@ class List(Component):
                 self.rows.insert(0, self.create_child(Row))
         elif direction == "DOWN":
             if not self.can_scroll_down(distance):
+                logger.info(
+                    f"{self} can't scroll distance {distance} down, ignoring scroll"
+                )
                 return
 
             for i in range(distance):
