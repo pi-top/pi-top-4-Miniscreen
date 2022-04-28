@@ -93,9 +93,14 @@ class List(Component):
             return self.rows[: self.state["num_visible_rows"]]
 
         if self.state["active_transition"] == "DOWN":
-            return self.rows[1:]
+            distance = self.state["transition_distance"]
+            return self.rows[distance:]
 
         return self.rows
+
+    @property
+    def invisible_rows(self):
+        return list(filter(lambda row: row not in self.visible_rows, self.rows))
 
     def _scroll_transition(self, distance):
         scroll_distance = self._get_rows_height(num_rows=distance)
@@ -110,12 +115,7 @@ class List(Component):
             progress_step = step / scroll_distance
             self.state.update({"transition_progress": progress + progress_step})
 
-        active_transition = self.state["active_transition"]
-        rows_to_remove = self.rows[-distance:]
-        if active_transition == "DOWN":
-            rows_to_remove = self.rows[:distance]
-
-        for row in rows_to_remove:
+        for row in self.invisible_rows:
             self.rows.remove(row)
             self.remove_child(row)
         self._rows_snapshot = None
