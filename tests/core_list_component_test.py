@@ -44,11 +44,35 @@ def CheckeredRow():
 
 
 @pytest.fixture
+def NumberedRow():
+    from pt_miniscreen.core.components import Text
+
+    class NumberedRow(Text):
+        def __init__(self, text, **kwargs):
+            super().__init__(
+                **kwargs,
+                text=text,
+                align="center",
+                vertical_align="center",
+            )
+
+    return NumberedRow
+
+
+@pytest.fixture
 def create_rows(ImageRow, CheckeredRow):
     def create_rows(length, row_types=[ImageRow, CheckeredRow]):
         return [row_types[i % len(row_types)] for i in range(length)]
 
     return create_rows
+
+
+@pytest.fixture
+def create_numbered_rows(NumberedRow):
+    def create_numbered_rows(length):
+        return [partial(NumberedRow, text=f"{i+ 1}") for i in range(length)]
+
+    return create_numbered_rows
 
 
 def test_rows(create_list, create_rows, render, snapshot):
@@ -402,3 +426,82 @@ def test_cleanup(parent, create_rows, render):
 
     # rows should be cleaned up
     assert row() is None
+
+
+def test_scroll_with_distance_parameter(
+    create_list, create_numbered_rows, render, snapshot
+):
+    component = create_list(Rows=create_numbered_rows(5), num_visible_rows=2)
+
+    # render component so transitions are run
+    render(component)
+
+    def assert_in_position(position):
+        snapshot.assert_match(render(component), f"position-{position}.png")
+
+    def assert_scrolling_down_moves_to(distance, position):
+        component.scroll_down(distance=distance)
+        sleep(0.3)
+        assert_in_position(position)
+
+    def assert_scrolling_up_moves_to(distance, position):
+        component.scroll_up(distance=distance)
+        sleep(0.3)
+        assert_in_position(position)
+
+    # check initial render is correct
+    assert_in_position(1)
+
+    # scrolling up when at top does nothing
+    assert_scrolling_up_moves_to(distance=3, position=1)
+
+    # can scroll down using the distance parameter
+    assert_scrolling_down_moves_to(distance=1, position=2)
+    assert_scrolling_down_moves_to(distance=2, position=4)
+
+    # can scroll up when in middle of list using the distance parameter
+    assert_scrolling_up_moves_to(distance=1, position=3)
+    assert_scrolling_up_moves_to(distance=2, position=1)
+
+    # can continue scrolling down after scrolling up
+    assert_scrolling_down_moves_to(distance=3, position=4)
+
+    # scrolling down when at bottom does nothing
+    assert_scrolling_down_moves_to(distance=2, position=4)
+
+
+def test_scroll_to_top_and_bottom_methods(
+    create_list, create_numbered_rows, render, snapshot
+):
+    component = create_list(Rows=create_numbered_rows(5), num_visible_rows=2)
+
+    # render component so transitions are run
+    render(component)
+
+    def assert_in_position(position):
+        snapshot.assert_match(render(component), f"position-{position}.png")
+
+    def assert_to_bottom_moves_to(position):
+        component.scroll_to_bottom()
+        sleep(0.3)
+        assert_in_position(position)
+
+    def assert_to_top_moves_to(position):
+        component.scroll_to_top()
+        sleep(0.3)
+        assert_in_position(position)
+
+    # check initial render is correct
+    assert_in_position(1)
+
+    # scrolling to bottom moves to last position
+    assert_to_bottom_moves_to(position=4)
+
+    # scrolling to bottom again does nothing
+    assert_to_bottom_moves_to(position=4)
+
+    # scrolling to top moves to initial position
+    assert_to_top_moves_to(position=1)
+
+    # scrolling to top again does nothing
+    assert_to_top_moves_to(position=1)

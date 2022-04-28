@@ -135,6 +135,9 @@ class List(Component):
             logger.info(f"{self} currently scrolling, ignoring scroll")
             return
 
+        if distance == 0:
+            return
+
         if direction == "UP":
             if not self.can_scroll_up(distance):
                 logger.info(
