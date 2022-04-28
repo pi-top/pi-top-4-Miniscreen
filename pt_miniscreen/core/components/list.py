@@ -103,17 +103,19 @@ class List(Component):
         return list(filter(lambda row: row not in self.visible_rows, self.rows))
 
     def _scroll_transition(self, distance):
-        scroll_distance = self._get_rows_height(num_rows=distance)
-        for step in transition(
-            distance=scroll_distance,
-            duration=self.state["transition_duration"],
-        ):
-            if self._cleanup_transition.is_set():
-                return
+        # only animate transition if list has been rendered before
+        if self.height:
+            scroll_distance = self._get_rows_height(num_rows=distance)
+            for step in transition(
+                distance=scroll_distance,
+                duration=self.state["transition_duration"],
+            ):
+                if self._cleanup_transition.is_set():
+                    return
 
-            progress = self.state["transition_progress"]
-            progress_step = step / scroll_distance
-            self.state.update({"transition_progress": progress + progress_step})
+                progress = self.state["transition_progress"]
+                progress_step = step / scroll_distance
+                self.state.update({"transition_progress": progress + progress_step})
 
         for row in self.invisible_rows:
             self.rows.remove(row)
@@ -293,7 +295,7 @@ class List(Component):
         )
         pages_width = (
             image.width
-            if self.visible_scrollbar
+            if not self.visible_scrollbar
             else image.width - scrollbar_width - border_width
         )
 
