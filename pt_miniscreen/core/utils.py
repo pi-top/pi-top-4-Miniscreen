@@ -69,6 +69,15 @@ def checkered(image, box_size=4):
     return image
 
 
+def arrow(image, rotation=0, fill=1):
+    center = (int(image.width / 2), int(image.height / 2))
+    radius = int(min(image.width, image.height) / 2)
+    ImageDraw.Draw(image).regular_polygon(
+        (center, radius), 3, fill=fill, rotation=rotation
+    )
+    return image
+
+
 # positioning
 
 

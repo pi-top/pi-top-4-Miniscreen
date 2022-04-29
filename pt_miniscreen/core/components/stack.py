@@ -52,6 +52,10 @@ class Stack(Component):
         except ValueError:
             return None
 
+    @property
+    def stack(self):
+        return self.state["stack"]
+
     def _push_transition(self):
         # only animate transition if we know our width
         if self.width:

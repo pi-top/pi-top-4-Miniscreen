@@ -27,6 +27,7 @@ class List(Component):
         use_snapshot_when_scrolling=True,
         transition_duration=0.25,
         initial_top_row_index=0,
+        visible_scrollbar=True,
         initial_state={},
         **kwargs,
     ):
@@ -47,6 +48,8 @@ class List(Component):
                 "transition_progress": 0,
                 "transition_duration": transition_duration,
                 "use_snapshot_when_scrolling": use_snapshot_when_scrolling,
+                "visible_scrollbar": visible_scrollbar,
+                "transition_distance": 0,
                 **initial_state,
             },
         )
@@ -60,74 +63,126 @@ class List(Component):
         self.rows = [self.create_child(Row) for Row in Rows[start_index:end_index]]
 
     @property
+    def visible_scrollbar(self):
+        return self.state["visible_scrollbar"]
+
+    @visible_scrollbar.setter
+    def visible_scrollbar(self, value):
+        self.state.update({"visible_scrollbar": value})
+
+    @property
+    def distance_to_bottom(self):
+        max_top_row_index = len(self.state["Rows"]) - self.state["num_visible_rows"]
+        return max_top_row_index - self.state["top_row_index"]
+
+    @property
+    def distance_to_top(self):
+        return self.state["top_row_index"]
+
+    def can_scroll_down(self, distance=1):
+        next_top_row_index = self.state["top_row_index"] + distance
+        max_top_row_index = len(self.state["Rows"]) - self.state["num_visible_rows"]
+        return next_top_row_index <= max_top_row_index
+
+    def can_scroll_up(self, distance=1):
+        return self.state["top_row_index"] + 1 > distance
+
+    @property
     def visible_rows(self):
         if self.state["active_transition"] == "UP":
             return self.rows[: self.state["num_visible_rows"]]
 
         if self.state["active_transition"] == "DOWN":
-            return self.rows[1:]
+            distance = self.state["transition_distance"]
+            return self.rows[distance:]
 
         return self.rows
 
-    def _scroll_transition(self):
-        # only animate transition if we know our height
-        # use height for distance since that is the max possible distance
+    @property
+    def invisible_rows(self):
+        return list(filter(lambda row: row not in self.visible_rows, self.rows))
+
+    def _scroll_transition(self, distance):
+        # only animate transition if list has been rendered before
         if self.height:
+            scroll_distance = self._get_rows_height(num_rows=distance)
             for step in transition(
-                distance=self.height,
+                distance=scroll_distance,
                 duration=self.state["transition_duration"],
             ):
                 if self._cleanup_transition.is_set():
                     return
 
                 progress = self.state["transition_progress"]
-                progress_step = step / self.height
+                progress_step = step / scroll_distance
                 self.state.update({"transition_progress": progress + progress_step})
 
-        active_transition = self.state["active_transition"]
-        row_to_remove = self.rows[0 if active_transition == "DOWN" else -1]
-        self.rows.remove(row_to_remove)
-        self.remove_child(row_to_remove)
+        for row in self.invisible_rows:
+            self.rows.remove(row)
+            self.remove_child(row)
+
         self._rows_snapshot = None
-        self.state.update({"active_transition": None, "transition_progress": 0})
+        self.state.update(
+            {
+                "active_transition": None,
+                "transition_progress": 0,
+                "transition_distance": 0,
+            }
+        )
 
-    def scroll_up(self):
+    def scroll_to(self, direction, distance=1):
         if self.state["active_transition"] is not None:
-            logger.debug(f"{self} currently scrolling, ignoring scroll up")
+            logger.info(f"{self} currently scrolling, ignoring scroll")
             return
 
-        next_top_row_index = self.state["top_row_index"] - 1
-        if next_top_row_index < 0:
-            logger.debug(f"{self} has no more rows, ignoring scroll up")
+        if distance == 0:
             return
 
-        Row = self.state["Rows"][next_top_row_index]
-        self.rows.insert(0, self.create_child(Row))
+        if direction == "UP":
+            if not self.can_scroll_up(distance):
+                logger.info(
+                    f"{self} can't scroll distance {distance} up, ignoring scroll"
+                )
+                return
+
+            for i in range(distance):
+                next_top_row_index = self.state["top_row_index"] - (i + 1)
+                Row = self.state["Rows"][next_top_row_index]
+                self.rows.insert(0, self.create_child(Row))
+        elif direction == "DOWN":
+            if not self.can_scroll_down(distance):
+                logger.info(
+                    f"{self} can't scroll distance {distance} down, ignoring scroll"
+                )
+                return
+
+            for i in range(distance):
+                next_top_row_index = self.state["top_row_index"] + (i + 1)
+                Row = self.state["Rows"][
+                    next_top_row_index + self.state["num_visible_rows"] - 1
+                ]
+                self.rows.append(self.create_child(Row))
 
         self.state.update(
-            {"active_transition": "UP", "top_row_index": next_top_row_index}
+            {
+                "active_transition": direction,
+                "top_row_index": next_top_row_index,
+                "transition_distance": distance,
+            }
         )
-        threading.Thread(target=self._scroll_transition).start()
+        threading.Thread(target=self._scroll_transition, args=(distance,)).start()
 
-    def scroll_down(self):
-        if self.state["active_transition"] is not None:
-            logger.debug(f"{self} currently scrolling, ignoring scroll down")
-            return
+    def scroll_up(self, distance=1):
+        self.scroll_to(direction="UP", distance=distance)
 
-        Rows = self.state["Rows"]
-        next_top_row_index = self.state["top_row_index"] + 1
-        max_top_row_index = len(Rows) - self.state["num_visible_rows"]
-        if next_top_row_index > max_top_row_index:
-            logger.debug(f"{self} has no more rows, ignoring scroll down")
-            return
+    def scroll_down(self, distance=1):
+        self.scroll_to(direction="DOWN", distance=distance)
 
-        Row = Rows[next_top_row_index + self.state["num_visible_rows"] - 1]
-        self.rows.append(self.create_child(Row))
+    def scroll_to_top(self):
+        self.scroll_up(distance=self.distance_to_top)
 
-        self.state.update(
-            {"active_transition": "DOWN", "top_row_index": next_top_row_index}
-        )
-        threading.Thread(target=self._scroll_transition).start()
+    def scroll_to_bottom(self):
+        self.scroll_down(distance=self.distance_to_bottom)
 
     def _get_row_height(self):
         # height is 0 if there are no rows
@@ -139,27 +194,27 @@ class List(Component):
         total_gap = max((num_visible_rows - 1) * row_gap, 0)
         return ceil((self.height - total_gap) / num_visible_rows)
 
-    def _get_rows_height(self):
+    def _get_rows_height(self, num_rows):
         row_height = self._get_row_height()
         row_gap = self.state["row_gap"]
-        num_rows = len(self.rows)
         num_row_gaps = max(num_rows - 1, 0)
         return row_height * num_rows + row_gap * num_row_gaps
 
     def _get_scrollbar_y(self):
         Rows = self.state["Rows"]
         bar_y = int(self.state["top_row_index"] * self.height / len(Rows))
-        bar_scroll_distance = int(self.height / len(Rows))
+        transition_distance = self.state.get("transition_distance")
+        bar_scroll_distance = int(transition_distance * self.height / len(Rows))
 
         # Offset the scrollbar according to transition progress.
         # Use the inverse of progress since offset decreases as it increases
         transition_progress = self.state["transition_progress"]
 
         if self.state["active_transition"] == "UP":
-            return bar_y + int((1 - transition_progress) * bar_scroll_distance)
+            bar_y += int((1 - transition_progress) * bar_scroll_distance)
 
         if self.state["active_transition"] == "DOWN":
-            return bar_y - int((1 - transition_progress) * bar_scroll_distance)
+            bar_y -= int((1 - transition_progress) * bar_scroll_distance)
 
         return bar_y
 
@@ -193,7 +248,7 @@ class List(Component):
 
         row_gap = self.state["row_gap"]
         row_height = self._get_row_height()
-        rows_height = self._get_rows_height()
+        rows_height = self._get_rows_height(num_rows=len(self.rows))
 
         return apply_layers(
             Image.new("1", size=(image.width, rows_height)),
@@ -218,11 +273,13 @@ class List(Component):
         # being scrolled into view. Crop the rows according to scroll distance
         # and transition progress so the height of visible rows remains the same
         scroll_distance = self._get_row_height() + self.state["row_gap"]
-        rows_height = self._get_rows_height()
+        rows_height = self._get_rows_height(num_rows=len(self.rows))
         window_height = rows_height - scroll_distance
 
         progress = self.state["transition_progress"]
+        transition_distance = self.state["transition_distance"]
         progress_correction = (1 - progress) if active_transition == "UP" else progress
+        progress_correction *= transition_distance
 
         window_top = int(scroll_distance * progress_correction)
         window_bottom = window_top + window_height
@@ -235,31 +292,43 @@ class List(Component):
         )
 
     def render(self, image):
-        scrollbar_width = self.state["scrollbar_width"]
-        border_width = self.state["scrollbar_border_width"]
-        pages_width = image.width - scrollbar_width - border_width
+        scrollbar_width = self.state["scrollbar_width"] if self.visible_scrollbar else 0
+        border_width = (
+            self.state["scrollbar_border_width"] if self.visible_scrollbar else 0
+        )
+        pages_width = (
+            image.width
+            if not self.visible_scrollbar
+            else image.width - scrollbar_width - border_width
+        )
 
         # don't render scrollbar when all rows are visible
         if len(self.state["Rows"]) <= self.state["num_visible_rows"]:
             image.paste(self._render_rows(image))
             return image
 
-        return apply_layers(
-            image,
-            [
+        layers_arr = []
+        if self.visible_scrollbar:
+            layers_arr.append(
                 layer(
                     self._render_scrollbar,
                     size=(scrollbar_width - border_width, image.height),
-                ),
+                )
+            )
+            layers_arr.append(
                 layer(
                     rectangle,
                     size=(border_width, image.height),
                     pos=(scrollbar_width, 0),
-                ),
-                layer(
-                    self._render_rows_window,
-                    size=(pages_width, image.height),
-                    pos=(scrollbar_width + border_width, 0),
-                ),
-            ],
+                )
+            )
+
+        layers_arr.append(
+            layer(
+                self._render_rows_window,
+                size=(pages_width, image.height),
+                pos=(scrollbar_width + border_width, 0),
+            ),
         )
+
+        return apply_layers(image, layers_arr)
