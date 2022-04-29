@@ -360,8 +360,8 @@ def test_visible_rows_attribute(
 
     # returns the correct initial rows
     component = create_list(Rows=create_rows(5), num_visible_rows=2)
-    assert isinstance(component.visible_rows[0], ImageRow)
-    assert isinstance(component.visible_rows[1], CheckeredRow)
+    assert component.visible_rows[0] is component.rows[0]
+    assert component.visible_rows[1] is component.rows[1]
 
     # render component so transition is animated
     render(component)
@@ -371,16 +371,17 @@ def test_visible_rows_attribute(
     sleep(0.05)
 
     # returns the same number of rows as visible
+    assert len(component.rows) == 3
     assert len(component.visible_rows) == 2
 
     # returns the same rows as when the down scroll transition is finished
-    assert isinstance(component.visible_rows[0], CheckeredRow)
-    assert isinstance(component.visible_rows[1], ImageRow)
+    assert component.visible_rows[0] is component.rows[1]
+    assert component.visible_rows[1] is component.rows[2]
 
     # returns the correct rows when scroll is finished
     sleep(0.25)
-    assert isinstance(component.visible_rows[0], CheckeredRow)
-    assert isinstance(component.visible_rows[1], ImageRow)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
 
     # when scrolling up
     component.scroll_up()
@@ -390,13 +391,47 @@ def test_visible_rows_attribute(
     assert len(component.visible_rows) == 2
 
     # returns the same rows as when the up scroll transition is finished
-    assert isinstance(component.visible_rows[0], ImageRow)
-    assert isinstance(component.visible_rows[1], CheckeredRow)
+    assert component.visible_rows[0] is component.rows[0]
+    assert component.visible_rows[1] is component.rows[1]
 
     # returns the correct rows when scroll is finished
     sleep(0.25)
-    assert isinstance(component.visible_rows[0], ImageRow)
-    assert isinstance(component.visible_rows[1], CheckeredRow)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
+
+    # when scrolling down with a distance greater than one
+    component.scroll_down(distance=2)
+    sleep(0.05)
+
+    # returns the same number of rows as num_visible_rows
+    assert len(component.rows) == 4
+    assert len(component.visible_rows) == 2
+
+    # returns the last two rows
+    assert component.visible_rows[0] is component.rows[2]
+    assert component.visible_rows[1] is component.rows[3]
+
+    # returns the correct rows after scrolling is finished
+    sleep(0.25)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
+
+    # when scrolling up a distance greater than one
+    component.scroll_up(distance=2)
+    sleep(0.05)
+
+    # returns the same number of rows as num_visible_rows
+    assert len(component.rows) == 4
+    assert len(component.visible_rows) == 2
+
+    # returns the first two rows
+    assert component.visible_rows[0] is component.rows[0]
+    assert component.visible_rows[1] is component.rows[1]
+
+    # returns the correct rows when scroll is finished
+    sleep(0.25)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
 
 
 def test_cleanup(parent, create_rows, render):
