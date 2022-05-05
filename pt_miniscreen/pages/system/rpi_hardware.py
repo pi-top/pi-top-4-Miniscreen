@@ -1,11 +1,11 @@
+from functools import partial
 from pathlib import Path
 
 import psutil
 from pitop.common.formatting import bytes2human
 
-from ..network.network_page_base import NetworkPageData
-from ..network.network_page_base import Page as PageBase
-from ..network.network_page_base import RowDataText
+from pt_miniscreen.components.info_page import InfoPage
+from pt_miniscreen.core.components.marquee_text import MarqueeText
 
 
 def rpi_model():
@@ -42,12 +42,17 @@ class HardwarePageInfo:
         self.rpi_serial = f"Serial: {rpi_serial()}"
 
 
-class Page(PageBase):
-    def __init__(self, size):
+class RPiHardwarePage(InfoPage):
+    def __init__(self, **kwargs):
         info = HardwarePageInfo()
-        row_data = NetworkPageData(
-            first_row=RowDataText(text=lambda: info.rpi_model),
-            second_row=RowDataText(text=lambda: info.rpi_ram),
-            third_row=RowDataText(text=lambda: info.rpi_serial),
+        Row = partial(MarqueeText, font_size=10, vertical_align="center")
+
+        super().__init__(
+            **kwargs,
+            title="Raspberry Pi",
+            Rows=[
+                partial(Row, text=info.rpi_model),
+                partial(Row, text=info.rpi_ram),
+                partial(Row, text=info.rpi_serial),
+            ],
         )
-        super().__init__(size=size, row_data=row_data, title="Raspberry Pi")

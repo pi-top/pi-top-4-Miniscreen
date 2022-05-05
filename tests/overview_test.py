@@ -16,7 +16,7 @@ def battery():
 def internal_ip(mocker):
     def patch(ip=""):
         mocker.patch(
-            "pt_miniscreen.pages.hud.overview.get_pi_top_ip",
+            "pt_miniscreen.pages.root.overview.get_pi_top_ip",
             return_value=ip,
         )
 
