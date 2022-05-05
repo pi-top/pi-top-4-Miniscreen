@@ -1,20 +1,27 @@
+from functools import partial
 from pathlib import Path
 from re import match
 from threading import Thread
 
 from pitop.common.pt_os import get_pitopOS_info
 
-from ..network.network_page_base import NetworkPageData
-from ..network.network_page_base import Page as PageBase
-from ..network.network_page_base import RowDataText
+from pt_miniscreen.components.info_page import InfoPage
+from pt_miniscreen.core.components.marquee_text import MarqueeText
+
+# creating apt_cache locks app even when done in a thread, do it at app import
+# so it does not impact performance while user is interacting with the device.
+try:
+    from apt import Cache
+
+    apt_cache = Cache()
+except ModuleNotFoundError:
+    apt_cache = None
 
 
 def get_package_version(package_name: str) -> str:
-    try:
-        from apt import Cache
-    except ModuleNotFoundError:
+    if apt_cache is None:
         return ""
-    apt_cache = Cache()
+
     package = apt_cache.get(package_name)
     if (
         package
@@ -48,48 +55,41 @@ def get_apt_repositories():
     return repos
 
 
-class SoftwarePageInfo:
-    def __init__(self):
-        self._info = get_pitopOS_info()
-        self.os = ""
-        if self._info:
-            self.os = (
-                f"pi-topOS {self._info.build_os_version}-{self._info.build_run_number}"
-            )
+class SoftwarePage(InfoPage):
+    sdk = ""
+    pitopd = ""
+    repos = ""
+    os = "OS Information"
 
-        self._sdk_version = "Loading"
-        self._pitopd_version = "Loading"
+    def __init__(self, **kwargs):
+        Row = partial(MarqueeText, font_size=10, vertical_align="center")
 
-        def update_params():
+        super().__init__(
+            **kwargs,
+            title=SoftwarePage.os,
+            Rows=[
+                partial(Row, text=SoftwarePage.repos or "Loading..."),
+                partial(Row, text=SoftwarePage.sdk),
+                partial(Row, text=SoftwarePage.pitopd),
+            ],
+        )
+
+        def update_info():
             try:
-                self._sdk_version = get_package_version("python3-pitop")
-                self._pitopd_version = get_package_version("pi-topd")
+                SoftwarePage.sdk = f"SDK: {get_package_version('python3-pitop')}"
+                SoftwarePage.pitopd = f"pi-topd: {get_package_version('pi-topd')}"
+                SoftwarePage.repos = f"Repos: {', '.join(get_apt_repositories())}"
+                os_info = get_pitopOS_info()
+
+                if os_info:
+                    SoftwarePage.os = f"pi-topOS {os_info.build_os_version}-{os_info.build_run_number}"
+                    self.title.state.update({"text": SoftwarePage.os})
+
+                self.list.rows[0].state.update({"text": SoftwarePage.repos})
+                self.list.rows[1].state.update({"text": SoftwarePage.sdk})
+                self.list.rows[2].state.update({"text": SoftwarePage.pitopd})
+
             except Exception:
                 pass
 
-        thread = Thread(target=update_params, args=(), daemon=True)
-        thread.start()
-
-    @property
-    def sdk_version(self):
-        return f"SDK: {self._sdk_version}"
-
-    @property
-    def pitopd_version(self):
-        return f"pi-topd: {self._pitopd_version}"
-
-    @property
-    def repos(self):
-        return f"Repos: {', '.join(get_apt_repositories())}"
-
-
-class Page(PageBase):
-    def __init__(self, size):
-        info = SoftwarePageInfo()
-        row_data = NetworkPageData(
-            first_row=RowDataText(text=lambda: info.repos),
-            second_row=RowDataText(text=lambda: info.sdk_version),
-            third_row=RowDataText(text=lambda: info.pitopd_version),
-        )
-        title = info.os if len(info.os) > 0 else "OS Information"
-        super().__init__(size=size, row_data=row_data, title=title)
+        Thread(target=update_info, daemon=True).start()

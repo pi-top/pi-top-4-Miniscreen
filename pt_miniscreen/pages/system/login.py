@@ -35,6 +35,7 @@ class LoginDetailsPage(InfoPage):
                     IconTextRow,
                     text=get_password(),
                     get_text=get_password,
+                    text_vertical_align="bottom",
                     icon_path=get_image_file_path(
                         "sys_info/networking/padlock-small.png"
                     ),

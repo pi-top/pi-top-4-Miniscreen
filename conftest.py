@@ -83,8 +83,8 @@ def use_test_images(mocker):
 
 
 def freeze_marquee_text(mocker):
-    def carousel(max_value, min_value=0, resolution=1):
-        return repeat(min_value)
+    def carousel(end, start=0, step=1):
+        return repeat(start)
 
     mocker.patch("pt_miniscreen.core.components.marquee_text.carousel", carousel)
 
@@ -112,8 +112,8 @@ def setup(mocker):
 
 
 def setup_app(mocker, screensaver_timeout=3600):
-    use_test_font(mocker, "pt_miniscreen.utils")
     turn_off_bootsplash()
+    use_test_images(mocker)
     mock_timeouts(timeout=screensaver_timeout)
     freeze_marquee_text(mocker)
 
