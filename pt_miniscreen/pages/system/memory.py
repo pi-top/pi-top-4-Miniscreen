@@ -42,6 +42,7 @@ class MemoryPage(Component):
         )
         self.ram_text = self.create_child(
             MarqueeText,
+            vertical_align="bottom",
             font_size=TEXT_FONT_SIZE,
             text=get_usage_string(func=psutil.virtual_memory),
             get_text=lambda: get_usage_string(func=psutil.virtual_memory),
@@ -55,6 +56,7 @@ class MemoryPage(Component):
         )
         self.swap_text = self.create_child(
             MarqueeText,
+            vertical_align="bottom",
             font_size=TEXT_FONT_SIZE,
             text=get_usage_string(func=psutil.swap_memory),
             get_text=lambda: get_usage_string(func=psutil.swap_memory),

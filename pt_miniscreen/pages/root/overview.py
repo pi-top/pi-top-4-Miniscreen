@@ -99,6 +99,7 @@ class OverviewPage(Component):
             get_text=get_ip,
             get_text_interval=3,
             font_size=IP_FONT_SIZE,
+            vertical_align="bottom",
         )
 
         # setup battery callbacks

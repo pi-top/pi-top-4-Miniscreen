@@ -1,12 +1,12 @@
+from functools import partial
 from pathlib import Path
 from threading import Thread
 
 from pitop.common.common_ids import FirmwareDeviceID
 from pitop.common.firmware_device import FirmwareDevice
 
-from ..network.network_page_base import NetworkPageData
-from ..network.network_page_base import Page as PageBase
-from ..network.network_page_base import RowDataText
+from pt_miniscreen.components.info_page import InfoPage
+from pt_miniscreen.core.components.marquee_text import MarqueeText
 
 
 def get_pt_serial():
@@ -18,39 +18,37 @@ def get_pt_serial():
     return ", ".join(lines)
 
 
-class HardwarePageInfo:
-    def __init__(self):
-        self._fw_version = "Loading"
-        self._hw_version = "Loading"
+class PitopHardwarePage(InfoPage):
+    firmware = ""
+    hardware = ""
+    serial = ""
 
-        self.pt_serial = f"Serial: {get_pt_serial()}"
+    def __init__(self, **kwargs):
+        Row = partial(MarqueeText, font_size=10, vertical_align="center")
 
-        def update_params():
+        super().__init__(
+            **kwargs,
+            title="pi-top Hardware",
+            Rows=[
+                partial(Row, text=PitopHardwarePage.firmware or "Loading..."),
+                partial(Row, text=PitopHardwarePage.hardware),
+                partial(Row, text=PitopHardwarePage.serial),
+            ],
+        )
+
+        def update_info():
             try:
                 device = FirmwareDevice(FirmwareDeviceID.pt4_hub, 0.1)
-                self._fw_version = device.get_fw_version()
-                self._hw_version = device.get_sch_hardware_version_major()
+                PitopHardwarePage.firmware = f"Firmware: {device.get_fw_version()}"
+                PitopHardwarePage.hardware = (
+                    f"Hardware: {device.get_sch_hardware_version_major()}"
+                )
+                PitopHardwarePage.serial = f"Serial: {get_pt_serial()}"
+
+                self.list.rows[0].state.update({"text": PitopHardwarePage.firmware})
+                self.list.rows[1].state.update({"text": PitopHardwarePage.hardware})
+                self.list.rows[2].state.update({"text": PitopHardwarePage.serial})
             except Exception:
                 pass
 
-        thread = Thread(target=update_params, args=(), daemon=True)
-        thread.start()
-
-    @property
-    def fw_version(self):
-        return f"Firmware: {self._fw_version}"
-
-    @property
-    def hw_version(self):
-        return f"Hardware: {self._hw_version}"
-
-
-class Page(PageBase):
-    def __init__(self, size):
-        info = HardwarePageInfo()
-        row_data = NetworkPageData(
-            first_row=RowDataText(text=lambda: info.fw_version),
-            second_row=RowDataText(text=lambda: info.hw_version),
-            third_row=RowDataText(text=lambda: info.pt_serial),
-        )
-        super().__init__(size=size, row_data=row_data, title="pi-top Hardware")
+        Thread(target=update_info, daemon=True).start()
