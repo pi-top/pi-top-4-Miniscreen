@@ -1,3 +1,4 @@
+from .arrow_navigation_indicator import ArrowNavigationIndicator
 from .image import Image
 from .list import List
 from .marquee_text import MarqueeText

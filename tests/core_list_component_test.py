@@ -44,11 +44,35 @@ def CheckeredRow():
 
 
 @pytest.fixture
+def NumberedRow():
+    from pt_miniscreen.core.components import Text
+
+    class NumberedRow(Text):
+        def __init__(self, text, **kwargs):
+            super().__init__(
+                **kwargs,
+                text=text,
+                align="center",
+                vertical_align="center",
+            )
+
+    return NumberedRow
+
+
+@pytest.fixture
 def create_rows(ImageRow, CheckeredRow):
     def create_rows(length, row_types=[ImageRow, CheckeredRow]):
         return [row_types[i % len(row_types)] for i in range(length)]
 
     return create_rows
+
+
+@pytest.fixture
+def create_numbered_rows(NumberedRow):
+    def create_numbered_rows(length):
+        return [partial(NumberedRow, text=f"{i+ 1}") for i in range(length)]
+
+    return create_numbered_rows
 
 
 def test_rows(create_list, create_rows, render, snapshot):
@@ -336,8 +360,8 @@ def test_visible_rows_attribute(
 
     # returns the correct initial rows
     component = create_list(Rows=create_rows(5), num_visible_rows=2)
-    assert isinstance(component.visible_rows[0], ImageRow)
-    assert isinstance(component.visible_rows[1], CheckeredRow)
+    assert component.visible_rows[0] is component.rows[0]
+    assert component.visible_rows[1] is component.rows[1]
 
     # render component so transition is animated
     render(component)
@@ -347,16 +371,17 @@ def test_visible_rows_attribute(
     sleep(0.05)
 
     # returns the same number of rows as visible
+    assert len(component.rows) == 3
     assert len(component.visible_rows) == 2
 
     # returns the same rows as when the down scroll transition is finished
-    assert isinstance(component.visible_rows[0], CheckeredRow)
-    assert isinstance(component.visible_rows[1], ImageRow)
+    assert component.visible_rows[0] is component.rows[1]
+    assert component.visible_rows[1] is component.rows[2]
 
     # returns the correct rows when scroll is finished
     sleep(0.25)
-    assert isinstance(component.visible_rows[0], CheckeredRow)
-    assert isinstance(component.visible_rows[1], ImageRow)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
 
     # when scrolling up
     component.scroll_up()
@@ -366,13 +391,47 @@ def test_visible_rows_attribute(
     assert len(component.visible_rows) == 2
 
     # returns the same rows as when the up scroll transition is finished
-    assert isinstance(component.visible_rows[0], ImageRow)
-    assert isinstance(component.visible_rows[1], CheckeredRow)
+    assert component.visible_rows[0] is component.rows[0]
+    assert component.visible_rows[1] is component.rows[1]
 
     # returns the correct rows when scroll is finished
     sleep(0.25)
-    assert isinstance(component.visible_rows[0], ImageRow)
-    assert isinstance(component.visible_rows[1], CheckeredRow)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
+
+    # when scrolling down with a distance greater than one
+    component.scroll_down(distance=2)
+    sleep(0.05)
+
+    # returns the same number of rows as num_visible_rows
+    assert len(component.rows) == 4
+    assert len(component.visible_rows) == 2
+
+    # returns the last two rows
+    assert component.visible_rows[0] is component.rows[2]
+    assert component.visible_rows[1] is component.rows[3]
+
+    # returns the correct rows after scrolling is finished
+    sleep(0.25)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
+
+    # when scrolling up a distance greater than one
+    component.scroll_up(distance=2)
+    sleep(0.05)
+
+    # returns the same number of rows as num_visible_rows
+    assert len(component.rows) == 4
+    assert len(component.visible_rows) == 2
+
+    # returns the first two rows
+    assert component.visible_rows[0] is component.rows[0]
+    assert component.visible_rows[1] is component.rows[1]
+
+    # returns the correct rows when scroll is finished
+    sleep(0.25)
+    assert len(component.rows) == 2
+    assert component.rows == component.visible_rows
 
 
 def test_cleanup(parent, create_rows, render):
@@ -402,3 +461,82 @@ def test_cleanup(parent, create_rows, render):
 
     # rows should be cleaned up
     assert row() is None
+
+
+def test_scroll_with_distance_parameter(
+    create_list, create_numbered_rows, render, snapshot
+):
+    component = create_list(Rows=create_numbered_rows(5), num_visible_rows=2)
+
+    # render component so transitions are run
+    render(component)
+
+    def assert_in_position(position):
+        snapshot.assert_match(render(component), f"position-{position}.png")
+
+    def assert_scrolling_down_moves_to(distance, position):
+        component.scroll_down(distance=distance)
+        sleep(0.3)
+        assert_in_position(position)
+
+    def assert_scrolling_up_moves_to(distance, position):
+        component.scroll_up(distance=distance)
+        sleep(0.3)
+        assert_in_position(position)
+
+    # check initial render is correct
+    assert_in_position(1)
+
+    # scrolling up when at top does nothing
+    assert_scrolling_up_moves_to(distance=3, position=1)
+
+    # can scroll down using the distance parameter
+    assert_scrolling_down_moves_to(distance=1, position=2)
+    assert_scrolling_down_moves_to(distance=2, position=4)
+
+    # can scroll up when in middle of list using the distance parameter
+    assert_scrolling_up_moves_to(distance=1, position=3)
+    assert_scrolling_up_moves_to(distance=2, position=1)
+
+    # can continue scrolling down after scrolling up
+    assert_scrolling_down_moves_to(distance=3, position=4)
+
+    # scrolling down when at bottom does nothing
+    assert_scrolling_down_moves_to(distance=2, position=4)
+
+
+def test_scroll_to_top_and_bottom_methods(
+    create_list, create_numbered_rows, render, snapshot
+):
+    component = create_list(Rows=create_numbered_rows(5), num_visible_rows=2)
+
+    # render component so transitions are run
+    render(component)
+
+    def assert_in_position(position):
+        snapshot.assert_match(render(component), f"position-{position}.png")
+
+    def assert_to_bottom_moves_to(position):
+        component.scroll_to_bottom()
+        sleep(0.3)
+        assert_in_position(position)
+
+    def assert_to_top_moves_to(position):
+        component.scroll_to_top()
+        sleep(0.3)
+        assert_in_position(position)
+
+    # check initial render is correct
+    assert_in_position(1)
+
+    # scrolling to bottom moves to last position
+    assert_to_bottom_moves_to(position=4)
+
+    # scrolling to bottom again does nothing
+    assert_to_bottom_moves_to(position=4)
+
+    # scrolling to top moves to initial position
+    assert_to_top_moves_to(position=1)
+
+    # scrolling to top again does nothing
+    assert_to_top_moves_to(position=1)
