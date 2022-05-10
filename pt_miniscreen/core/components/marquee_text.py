@@ -1,6 +1,5 @@
 import logging
-from multiprocessing import Event
-from threading import Thread
+from threading import Event, Thread
 from time import sleep
 
 from PIL import Image
