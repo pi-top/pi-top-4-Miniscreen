@@ -52,7 +52,6 @@ class Text(Component):
         self,
         text="",
         get_text=None,
-        get_text_lazily=False,
         font=None,
         font_size=20,
         fill=1,
@@ -66,7 +65,6 @@ class Text(Component):
         initial_state={},
         **kwargs,
     ):
-        text = get_text() if callable(get_text) and not get_text_lazily else text
         font = get_font(font_size, bold, italics) if font is None else font
         self._get_text = get_text
 

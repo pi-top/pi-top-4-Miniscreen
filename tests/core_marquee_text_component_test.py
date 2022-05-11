@@ -32,14 +32,11 @@ def create_marquee_text(create_component):
 def TextStore():
     class TextStore:
         def __init__(self):
-            self.text = "Text updated 0 times"
             self.update_count = 0
 
         def get_text(self):
-            text = self.text
             self.update_count += 1
-            self.text = f"Text updated {self.update_count} times"
-            return text
+            return f"get_text called \n{self.update_count} times"
 
     return TextStore
 
@@ -195,12 +192,11 @@ def test_get_text_interval(
     snapshot.assert_match(render(component), "updated-text-2.png")
 
 
-def test_get_text_lazily(freeze_text, create_marquee_text, TextStore, render, snapshot):
-    # doesn't call get_text to populate text when get_text_lazily passed
-    component = create_marquee_text(get_text=TextStore().get_text, get_text_lazily=True)
-    snapshot.assert_match(render(component), "not-populated.png")
+def test_text_and_get_text_together(create_marquee_text, TextStore, render, snapshot):
+    component = create_marquee_text(text="Initial text", get_text=TextStore().get_text)
+    snapshot.assert_match(render(component), "initial_text.png")
 
-    # text populated after one second
+    # text updated after one second
     sleep(1.1)
     snapshot.assert_match(render(component), "populated.png")
 
@@ -265,29 +261,29 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     # scroll to end of text and back repeatedly when text is wider than image
     component = create_marquee_text(text="Medium width text")
     snapshot.assert_match(render(component), "medium-width-1.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-2.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-3.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-2.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-1.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-2.png")
 
     # works for very wide text
     component = create_marquee_text(text="Very wide text that is super long")
     snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-3.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep(0.11)
+    sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
 
     # stops scrolling when text changes to be thinner than image

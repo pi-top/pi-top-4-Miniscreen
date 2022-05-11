@@ -22,14 +22,11 @@ def create_text(create_component):
 def TextStore():
     class TextStore:
         def __init__(self):
-            self.text = "Text updated 0 times"
             self.update_count = 0
 
         def get_text(self):
-            text = self.text
             self.update_count += 1
-            self.text = f"Text updated {self.update_count} times"
-            return text
+            return f"get_text called {self.update_count} times"
 
     return TextStore
 
@@ -167,12 +164,11 @@ def test_get_text_interval(create_text, TextStore, render, snapshot):
     snapshot.assert_match(render(component), "updated-text-2.png")
 
 
-def test_get_text_lazily(create_text, TextStore, render, snapshot):
-    # doesn't call get_text to populate text when get_text_lazily passed
-    component = create_text(get_text=TextStore().get_text, get_text_lazily=True)
-    snapshot.assert_match(render(component), "not-populated.png")
+def test_text_and_get_text_together(create_text, TextStore, render, snapshot):
+    component = create_text(text="Initial text", get_text=TextStore().get_text)
+    snapshot.assert_match(render(component), "initial_text.png")
 
-    # text populated after one second
+    # text updated after one second
     sleep(1.1)
     snapshot.assert_match(render(component), "populated.png")
 
