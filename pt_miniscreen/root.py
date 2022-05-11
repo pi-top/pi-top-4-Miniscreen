@@ -8,6 +8,7 @@ from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
+from pt_miniscreen.pages.root.screensaver import ScreensaverPage
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import get_image_file_path
@@ -25,6 +26,15 @@ class RootPageList(PageList):
                 NetworkMenuPage,
                 SettingsMenuPage,
             ],
+        )
+
+
+class Screensaver(PageList):
+    def __init__(self, **kwargs):
+        super().__init__(
+            **kwargs,
+            visible_scrollbar=False,
+            Pages=[ScreensaverPage],
         )
 
 
@@ -103,6 +113,18 @@ class RootComponent(Component):
     def perform_action(self):
         if self.can_perform_action:
             self.active_page.perform_action()
+
+    def start_screensaver(self):
+        if not self.is_screensaver_running:
+            self.stack.push(ScreensaverPage)
+
+    def stop_screensaver(self):
+        if self.is_screensaver_running:
+            self.stack.pop()
+
+    @property
+    def is_screensaver_running(self):
+        return isinstance(self.stack.active_component, ScreensaverPage)
 
     def render(self, image):
         return apply_layers(

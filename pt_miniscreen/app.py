@@ -1,6 +1,6 @@
 import logging
 from os import environ
-from threading import Event
+from threading import Event, Timer
 
 from pitop import Pitop
 
@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class App(BaseApp):
+    DIMMING_TIMEOUT = 20
+    SCREENSAVER_TIMEOUT = 20
+
     def __init__(self):
         logger.debug("Setting ENV VAR to use miniscreen as system...")
         environ["PT_MINISCREEN_SYSTEM"] = "1"
@@ -35,10 +38,32 @@ class App(BaseApp):
         miniscreen.up_button.when_released = self.handle_up_button_release
         miniscreen.down_button.when_released = self.handle_down_button_release
 
-        logger.debug("Initialising app...")
+        self.timer = None
+        self._contrast = 255
+        self.configure_timing_events()
+
+        logger.error("Initialising app...")
         super().__init__(miniscreen, Root=RootComponent)
 
+    def handle_inactive_state(self) -> bool:
+        should_handle_button_press = True
+
+        if self.miniscreen.get_contrast() == 0:
+            self.miniscreen.contrast(255)
+            self.configure_timing_events()
+            should_handle_button_press = False
+
+        if self.root.is_screensaver_running:
+            self.root.stop_screensaver()
+            should_handle_button_press = False
+
+        return should_handle_button_press
+
     def handle_select_button_release(self):
+        should_handle_button_press = self.handle_inactive_state()
+        if not should_handle_button_press:
+            return
+
         if self.root.can_enter_menu:
             return self.root.enter_menu()
 
@@ -46,12 +71,24 @@ class App(BaseApp):
             return self.root.perform_action()
 
     def handle_cancel_button_release(self):
+        should_handle_button_press = self.handle_inactive_state()
+        if not should_handle_button_press:
+            return
+
         self.root.exit_menu()
 
     def handle_up_button_release(self):
+        should_handle_button_press = self.handle_inactive_state()
+        if not should_handle_button_press:
+            return
+
         self.root.scroll_up()
 
     def handle_down_button_release(self):
+        should_handle_button_press = self.handle_inactive_state()
+        if not should_handle_button_press:
+            return
+
         self.root.scroll_down()
 
     def display(self):
@@ -66,3 +103,15 @@ class App(BaseApp):
     @property
     def user_has_control(self) -> bool:
         return self.miniscreen.is_active
+
+    def configure_timing_events(self) -> None:
+        if self.timer and isinstance(self.timer, Timer):
+            self.timer.cancel()
+
+        def dim_and_start_screensaver_timer():
+            self.miniscreen.contrast(0)
+            self.timer = Timer(self.SCREENSAVER_TIMEOUT, self.root.start_screensaver)
+            self.timer.start()
+
+        self.timer = Timer(self.DIMMING_TIMEOUT, dim_and_start_screensaver_timer)
+        self.timer.start()
