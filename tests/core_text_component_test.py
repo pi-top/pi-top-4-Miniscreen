@@ -144,7 +144,7 @@ def test_get_text(create_text, TextStore, render, snapshot):
     snapshot.assert_match(render(component), "updated-text-1.png")
 
     # text updated again after another second
-    sleep(1)
+    sleep(1.1)
     snapshot.assert_match(render(component), "updated-text-2.png")
 
 
@@ -160,7 +160,7 @@ def test_get_text_interval(create_text, TextStore, render, snapshot):
     snapshot.assert_match(render(component), "updated-text-1.png")
 
     # text updated again after another half a second
-    sleep(0.5)
+    sleep(0.6)
     snapshot.assert_match(render(component), "updated-text-2.png")
 
 
