@@ -78,6 +78,28 @@ def test_creation(parent):
     assert hasattr(component, "state")
 
 
+def test_updates_during_creation(parent, SpotComponent):
+    from pt_miniscreen.core import Component
+
+    class MovingSpot(SpotComponent):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.state.update({"spot_pos": (1, 1)})
+
+    class Spots(Component):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.spot_one = self.create_child(MovingSpot)
+            self.spot_two = self.create_child(MovingSpot)
+
+        def render(self, image):
+            image = self.spot_one.render(image)
+            return self.spot_two.render(image)
+
+    # creating component tree that updates during creation does not error
+    parent.create_child(Spots)
+
+
 def test_render(parent, SpotComponent):
     component = parent.create_child(SpotComponent)
 
@@ -150,20 +172,19 @@ def test_rerendering(parent, SpotComponent):
     component.state.update({"spot_pos": (0, 0)})
     parent.on_rerender_spy.assert_not_called()
 
-    # on_rerender method not called if state is changed by assignment
-    component.state["foo"] = "BAR"
-    parent.on_rerender_spy.assert_not_called()
-
-    # on_rerender method called if state is changed with update method
+    # on_rerender method not called if state is changed before initial render
     component.state.update({"foo": "bar"})
-    parent.on_rerender_spy.assert_called_once()
-    parent.on_rerender_spy.reset_mock()
+    parent.on_rerender_spy.assert_not_called()
 
     # trigger initial render
     component.render(Image.new("1", (128, 64)))
 
     # on_rerender method not called if update does not result in new output
     component.state.update({"new": "state"})
+    parent.on_rerender_spy.assert_not_called()
+
+    # on_rerender method not called if state is changed by assignment
+    component.state["foo"] = "BAR"
     parent.on_rerender_spy.assert_not_called()
 
     # on_rerender method called if update results in new output
@@ -179,6 +200,9 @@ def test_rerendering(parent, SpotComponent):
 
 def test_concurrent_reconciliation(parent, SpotComponent):
     component = parent.create_child(SpotComponent)
+
+    # trigger initial render so state changes cause reconciliation
+    component.render(Image.new("1", (128, 64)))
 
     # acquire reconciliation lock to simulate an update being in-progress
     component._reconciliation_lock.acquire()

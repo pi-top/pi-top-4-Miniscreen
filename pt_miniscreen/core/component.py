@@ -19,6 +19,10 @@ class RenderException(Exception):
     pass
 
 
+class StateAccessException(Exception):
+    pass
+
+
 # Inherit from Timer so that Interval shares the same API
 class Interval(threading.Timer):
     def __init__(
@@ -130,6 +134,7 @@ class Component:
         )
         self._reconciliation_lock = threading.Lock()
         self._reconciliation_queued = False
+        self.rendered = False
         self.width = None
         self.height = None
         self.size = None
@@ -168,6 +173,9 @@ class Component:
 
             self._render_cache.output = output
 
+            # mark component as rendered
+            self.rendered = True
+
             return output
 
         self.render = render
@@ -202,16 +210,14 @@ class Component:
             self._reconciliation_queued = self._reconciliation_lock.locked()
             self._reconciliation_lock.acquire()
 
-            # bail if parent no longer exists
+            # do nothing if parent no longer exists
             on_rerender = self._get_on_rerender()
             if not callable(on_rerender):
                 return
 
-            # If render has never been called always notify parent about
-            # rerender. This necessary if parent is relying on child state to
-            # conditionally render it.
-            if not isinstance(self._render_cache.input, Image.Image):
-                return on_rerender()
+            # do nothing if component has never been rendered
+            if not self.rendered:
+                return
 
             render_output = self._unmodified_render(self._render_cache.input)
 
@@ -230,7 +236,9 @@ class Component:
     def _on_state_update(self, previous_state):
         if self.state != previous_state:
             self.on_state_change(previous_state)
-            self._reconcile()
+
+            if self.rendered:
+                self._reconcile()
 
     # lifecycle hooks
     def cleanup(self):
