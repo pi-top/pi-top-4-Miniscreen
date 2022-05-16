@@ -39,10 +39,9 @@ class App(BaseApp):
         miniscreen.down_button.when_released = self.handle_down_button_release
 
         self.timer = None
-        self._contrast = 255
         self.configure_timing_events()
 
-        logger.error("Initialising app...")
+        logger.debug("Initialising app...")
         super().__init__(miniscreen, Root=RootComponent)
 
     def handle_inactive_state(self) -> bool:
