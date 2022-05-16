@@ -39,6 +39,9 @@ class Miniscreen:
     def contrast(self, value):
         self._contrast = value
 
+    def get_contrast(self):
+        return self._contrast
+
 
 class Pitop:
     miniscreen: Miniscreen

@@ -52,7 +52,7 @@ class App(BaseApp):
             self.configure_timing_events()
             should_handle_button_press = False
 
-        if self.root.is_screensaver_running:
+        if self.is_screensaver_running:
             self.root.stop_screensaver()
             should_handle_button_press = False
 
@@ -105,6 +105,10 @@ class App(BaseApp):
     @property
     def user_has_control(self) -> bool:
         return self.miniscreen.is_active
+
+    @property
+    def is_screensaver_running(self) -> bool:
+        return self.root.is_screensaver_running
 
     def configure_timing_events(self) -> None:
         if self.timer and isinstance(self.timer, Timer):
