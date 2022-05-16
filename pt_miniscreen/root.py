@@ -118,17 +118,27 @@ class RootComponent(Component):
         return isinstance(self.stack.active_component, StarfieldScreensaver)
 
     def render(self, image):
-        return apply_layers(
-            image,
-            [
+        layer_arr = []
+        if self.is_screensaver_running:
+            layer_arr.append(
                 layer(
                     self.stack.render,
-                    size=(image.width - self.right_gutter_width, image.height),
-                ),
-                layer(
-                    self.right_gutter.render,
-                    size=(self.right_gutter_width, image.height),
-                    pos=(image.size[0] - self.right_gutter_width, 0),
-                ),
-            ],
-        )
+                    size=(image.width, image.height),
+                )
+            )
+        else:
+            layer_arr.extend(
+                (
+                    layer(
+                        self.stack.render,
+                        size=(image.width - self.right_gutter_width, image.height),
+                    ),
+                    layer(
+                        self.right_gutter.render,
+                        size=(self.right_gutter_width, image.height),
+                        pos=(image.size[0] - self.right_gutter_width, 0),
+                    ),
+                )
+            )
+
+        return apply_layers(image, layer_arr)

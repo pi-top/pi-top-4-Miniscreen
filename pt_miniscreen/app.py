@@ -57,6 +57,9 @@ class App(BaseApp):
             self.root.stop_screensaver()
             should_handle_button_press = False
 
+        if should_handle_button_press:
+            self.configure_timing_events()
+
         return should_handle_button_press
 
     def handle_select_button_release(self):
