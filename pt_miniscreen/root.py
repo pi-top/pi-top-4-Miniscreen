@@ -107,11 +107,11 @@ class RootComponent(Component):
 
     def start_screensaver(self):
         if not self.is_screensaver_running:
-            self.stack.push(StarfieldScreensaver)
+            self.stack.push(StarfieldScreensaver, animate_transition=False)
 
     def stop_screensaver(self):
         if self.is_screensaver_running:
-            self.stack.pop()
+            self.stack.pop(animate_transition=False)
 
     @property
     def is_screensaver_running(self):

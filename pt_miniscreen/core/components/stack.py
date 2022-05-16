@@ -84,23 +84,23 @@ class Stack(Component):
         self.remove_child(stack.pop())
         self.state.update({"stack": stack, "active_transition": None})
 
-    def push(self, Component):
+    def push(self, Component, animate_transition=True):
         if self.state["active_transition"] is not None:
             logger.debug(f"Currently transitioning, ignoring push of {Component}")
             return
 
         logger.debug(f"Starting a new push transition with component {Component}")
-        self.state.update(
-            {
-                "active_transition": "PUSH",
-                "x_position": self.width or 0,  # use 0 if self.width is None
-                "stack": self.state["stack"] + [self.create_child(Component)],
-            }
-        )
+        state_update = {
+            "x_position": self.width or 0,  # use 0 if self.width is None
+            "stack": self.state["stack"] + [self.create_child(Component)],
+        }
+        if animate_transition:
+            state_update.update({"active_transition": "PUSH"})
+        self.state.update(state_update)
 
         threading.Thread(target=self._push_transition).start()
 
-    def pop(self):
+    def pop(self, animate_transition=True):
         if self.state["active_transition"] is not None:
             logger.debug("Currently transitioning, ignoring pop")
             return
@@ -110,12 +110,12 @@ class Stack(Component):
             return
 
         logger.debug("Starting a new pop transition")
-        self.state.update(
-            {
-                "active_transition": "POP",
-                "x_position": 0,
-            }
-        )
+
+        state_update = {"x_position": 0}
+        if animate_transition:
+            state_update.update({"active_transition": "PUSH"})
+
+        self.state.update(state_update)
 
         threading.Thread(target=self._pop_transition).start()
 
