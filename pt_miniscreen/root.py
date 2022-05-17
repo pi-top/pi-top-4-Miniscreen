@@ -34,13 +34,14 @@ class RootComponent(Component):
     gutter_icon_padding = (3, 7)
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, initial_state={"show_screensaver": False})
         self.stack = self.create_child(Stack, initial_stack=[RootPageList])
         self.right_gutter = self.create_child(
             RightGutter,
             upper_icon_padding=self.gutter_icon_padding,
             lower_icon_padding=self.gutter_icon_padding,
         )
+        self.screensaver = self.create_child(StarfieldScreensaver)
 
     @property
     def active_page(self):
@@ -107,39 +108,40 @@ class RootComponent(Component):
             self.active_page.perform_action()
 
     def start_screensaver(self):
-        if not self.is_screensaver_running:
-            self.stack.push(StarfieldScreensaver)
+        self.state.update({"show_screensaver": True})
 
     def stop_screensaver(self):
-        if self.is_screensaver_running:
-            self.stack.pop()
+        self.state.update({"show_screensaver": False})
 
     @property
     def is_screensaver_running(self):
-        return isinstance(self.stack.active_component, StarfieldScreensaver)
+        return self.state["show_screensaver"]
+
+    def on_state_change(self, previous_state):
+        show_screensaver = self.state["show_screensaver"]
+        prev_show_screensaver = previous_state["show_screensaver"]
+
+        if show_screensaver and not prev_show_screensaver:
+            self.screensaver.start_animating()
+
+        if not show_screensaver and prev_show_screensaver:
+            self.screensaver.stop_animating()
 
     def render(self, image):
-        layer_arr = []
         if self.is_screensaver_running:
-            layer_arr.append(
+            return self.screensaver.render(image)
+
+        return apply_layers(
+            image,
+            (
                 layer(
                     self.stack.render,
-                    size=(image.width, image.height),
-                )
-            )
-        else:
-            layer_arr.extend(
-                (
-                    layer(
-                        self.stack.render,
-                        size=(image.width - self.right_gutter_width, image.height),
-                    ),
-                    layer(
-                        self.right_gutter.render,
-                        size=(self.right_gutter_width, image.height),
-                        pos=(image.size[0] - self.right_gutter_width, 0),
-                    ),
-                )
-            )
-
-        return apply_layers(image, layer_arr)
+                    size=(image.width - self.right_gutter_width, image.height),
+                ),
+                layer(
+                    self.right_gutter.render,
+                    size=(self.right_gutter_width, image.height),
+                    pos=(image.size[0] - self.right_gutter_width, 0),
+                ),
+            ),
+        )

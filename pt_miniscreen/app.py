@@ -38,33 +38,24 @@ class App(BaseApp):
         miniscreen.up_button.when_released = self.handle_up_button_release
         miniscreen.down_button.when_released = self.handle_down_button_release
 
-        self.timer = None
-        self.configure_timing_events()
+        self.screensaver_timer = None
+        self.dimming_timer = None
+        self.start_dimming_timer()
 
         logger.debug("Initialising app...")
         super().__init__(miniscreen, Root=RootComponent)
 
-    def handle_inactive_state(self) -> bool:
-        should_handle_button_press = True
-
-        if self.miniscreen.get_contrast() == 0:
+    def on_button_press(self):
+        if self.dimmed:
             self.miniscreen.contrast(255)
-            self.configure_timing_events()
-            should_handle_button_press = False
 
-        if self.is_screensaver_running:
-            self.root.stop_screensaver()
-            should_handle_button_press = False
-
-        if should_handle_button_press:
-            self.configure_timing_events()
-
-        return should_handle_button_press
+        self.restart_dimming_timer()
 
     def handle_select_button_release(self):
-        should_handle_button_press = self.handle_inactive_state()
-        if not should_handle_button_press:
-            return
+        self.on_button_press()
+
+        if self.root.is_screensaver_running:
+            return self.root.stop_screensaver()
 
         if self.root.can_enter_menu:
             return self.root.enter_menu()
@@ -73,23 +64,26 @@ class App(BaseApp):
             return self.root.perform_action()
 
     def handle_cancel_button_release(self):
-        should_handle_button_press = self.handle_inactive_state()
-        if not should_handle_button_press:
-            return
+        self.on_button_press()
+
+        if self.root.is_screensaver_running:
+            return self.root.stop_screensaver()
 
         self.root.exit_menu()
 
     def handle_up_button_release(self):
-        should_handle_button_press = self.handle_inactive_state()
-        if not should_handle_button_press:
-            return
+        self.on_button_press()
+
+        if self.root.is_screensaver_running:
+            return self.root.stop_screensaver()
 
         self.root.scroll_up()
 
     def handle_down_button_release(self):
-        should_handle_button_press = self.handle_inactive_state()
-        if not should_handle_button_press:
-            return
+        self.on_button_press()
+
+        if self.root.is_screensaver_running:
+            return self.root.stop_screensaver()
 
         self.root.scroll_down()
 
@@ -106,18 +100,33 @@ class App(BaseApp):
     def user_has_control(self) -> bool:
         return self.miniscreen.is_active
 
-    @property
-    def is_screensaver_running(self) -> bool:
-        return self.root.is_screensaver_running
+    def start_screensaver_timer(self):
+        self.screensaver_timer = Timer(
+            self.SCREENSAVER_TIMEOUT, self.root.start_screensaver
+        )
+        self.screensaver_timer.start()
 
-    def configure_timing_events(self) -> None:
-        if self.timer and isinstance(self.timer, Timer):
-            self.timer.cancel()
-
+    def start_dimming_timer(self):
         def dim_and_start_screensaver_timer():
             self.miniscreen.contrast(0)
-            self.timer = Timer(self.SCREENSAVER_TIMEOUT, self.root.start_screensaver)
-            self.timer.start()
+            self.start_screensaver_timer()
 
-        self.timer = Timer(self.DIMMING_TIMEOUT, dim_and_start_screensaver_timer)
-        self.timer.start()
+        self.dimming_timer = Timer(
+            self.DIMMING_TIMEOUT, dim_and_start_screensaver_timer
+        )
+        self.dimming_timer.start()
+
+    def restart_dimming_timer(self):
+        for timer in (self.dimming_timer, self.screensaver_timer):
+            if timer and isinstance(timer, Timer):
+                timer.cancel()
+
+        self.start_dimming_timer()
+
+    @property
+    def dimmed(self):
+        return (
+            self.screensaver_timer
+            and self.screensaver_timer.is_alive()
+            or self.root.is_screensaver_running
+        )
