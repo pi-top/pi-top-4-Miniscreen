@@ -88,8 +88,9 @@ class RootComponent(Component):
             self._set_gutter_icons()
 
     def exit_menu(self):
-        self.stack.pop()
-        self._set_gutter_icons()
+        if self.can_exit_menu:
+            self.stack.pop()
+            self._set_gutter_icons()
 
     def scroll_up(self):
         if self.can_scroll:
