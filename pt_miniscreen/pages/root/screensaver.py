@@ -21,7 +21,7 @@ class StarfieldScreensaver(Component):
         self.star_array = self.create_child(
             StarArray, star_number=self.SCREENSAVER_MAX_NO_OF_STARS
         )
-        self.create_interval(self.star_array.update, timeout=0.05)
+        self.create_interval(self.star_array.update_positions, timeout=0.05)
 
     def render(self, image):
         return apply_layers(
@@ -43,32 +43,44 @@ class Star:
         self.y = randrange(-25, 25)
         self.z = randrange(1, self.MAX_DEPTH)
 
-    def update(self):
-        new_z = self.z - self.DELTA_Z
+    @property
+    def position(self):
+        return (self.x, self.y, self.z)
+
+    @position.setter
+    def position(self, value):
+        self.x, self.y, self.z = value
+
+    def move(self):
+        x = self.x
+        y = self.y
+        z = self.z - self.DELTA_Z
 
         # Star has moved 'past the display'
-        if new_z <= 0:
+        if z <= 0:
             # Reposition far away from the screen (Z=max_depth)
             # with random X and Y coordinates
-            self.x = randrange(-25, 25)
-            self.y = randrange(-25, 25)
-            self.z = self.MAX_DEPTH
-        else:
-            self.z = new_z
+            x = randrange(-25, 25)
+            y = randrange(-25, 25)
+            z = self.MAX_DEPTH
+
+        self.position = (x, y, z)
+        return (x, y, z)
 
 
 class StarArray(Component):
     SCREENSAVER_MAX_DEPTH = 32
 
     def __init__(self, star_number, **kwargs):
-        super().__init__(**kwargs, initial_state={})
-
         self.stars = [Star() for _ in range(star_number)]
 
-    def update(self):
-        for star in self.stars:
-            star.update()
-        self.state.update({"x": randrange(1, 10000)})
+        super().__init__(
+            **kwargs,
+            initial_state={"positions": [star.position for star in self.stars]}
+        )
+
+    def update_positions(self):
+        self.state.update({"positions": [star.move() for star in self.stars]})
 
     def render(self, image):
         origin_x = image.width // 2
