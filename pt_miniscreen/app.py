@@ -1,6 +1,6 @@
 import logging
 from os import environ
-from threading import Event
+from threading import Event, Timer
 
 from pitop import Pitop
 
@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class App(BaseApp):
+    DIMMING_TIMEOUT = 20
+    SCREENSAVER_TIMEOUT = 20
+
     def __init__(self):
         logger.debug("Setting ENV VAR to use miniscreen as system...")
         environ["PT_MINISCREEN_SYSTEM"] = "1"
@@ -30,13 +33,51 @@ class App(BaseApp):
 
         miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
         miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
-        miniscreen.select_button.when_released = self.handle_select_button_release
-        miniscreen.cancel_button.when_released = self.handle_cancel_button_release
-        miniscreen.up_button.when_released = self.handle_up_button_release
-        miniscreen.down_button.when_released = self.handle_down_button_release
+        miniscreen.select_button.when_released = self.create_button_handler(
+            self.handle_select_button_release
+        )
+        miniscreen.cancel_button.when_released = self.create_button_handler(
+            self.handle_cancel_button_release
+        )
+        miniscreen.up_button.when_released = self.create_button_handler(
+            self.handle_up_button_release
+        )
+        miniscreen.down_button.when_released = self.create_button_handler(
+            self.handle_down_button_release
+        )
+
+        self.dimmed = False
+        self.screensaver_timer = None
+        self.dimming_timer = None
+        self.start_dimming_timer()
 
         logger.debug("Initialising app...")
         super().__init__(miniscreen, Root=RootComponent)
+
+    def brighten(self):
+        self.miniscreen.contrast(255)
+        self.dimmed = False
+
+    def dim(self):
+        self.miniscreen.contrast(0)
+        self.dimmed = True
+
+    def create_button_handler(self, func):
+        def handler():
+            self.restart_dimming_timer()
+
+            if self.root.is_screensaver_running:
+                self.root.stop_screensaver()
+                self.brighten()
+                return
+
+            if callable(func):
+                func()
+
+            if self.dimmed:
+                self.brighten()
+
+        return handler
 
     def handle_select_button_release(self):
         if self.root.can_enter_menu:
@@ -66,3 +107,26 @@ class App(BaseApp):
     @property
     def user_has_control(self) -> bool:
         return self.miniscreen.is_active
+
+    def start_screensaver_timer(self):
+        self.screensaver_timer = Timer(
+            self.SCREENSAVER_TIMEOUT, self.root.start_screensaver
+        )
+        self.screensaver_timer.start()
+
+    def start_dimming_timer(self):
+        def dim_and_start_screensaver_timer():
+            self.dim()
+            self.start_screensaver_timer()
+
+        self.dimming_timer = Timer(
+            self.DIMMING_TIMEOUT, dim_and_start_screensaver_timer
+        )
+        self.dimming_timer.start()
+
+    def restart_dimming_timer(self):
+        for timer in (self.dimming_timer, self.screensaver_timer):
+            if timer and isinstance(timer, Timer):
+                timer.cancel()
+
+        self.start_dimming_timer()

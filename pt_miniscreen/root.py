@@ -8,6 +8,7 @@ from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
+from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import get_image_file_path
@@ -33,13 +34,14 @@ class RootComponent(Component):
     gutter_icon_padding = (3, 7)
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, initial_state={"show_screensaver": False})
         self.stack = self.create_child(Stack, initial_stack=[RootPageList])
         self.right_gutter = self.create_child(
             RightGutter,
             upper_icon_padding=self.gutter_icon_padding,
             lower_icon_padding=self.gutter_icon_padding,
         )
+        self.screensaver = self.create_child(StarfieldScreensaver)
 
     @property
     def active_page(self):
@@ -87,8 +89,9 @@ class RootComponent(Component):
             self._set_gutter_icons()
 
     def exit_menu(self):
-        self.stack.pop()
-        self._set_gutter_icons()
+        if self.can_exit_menu:
+            self.stack.pop()
+            self._set_gutter_icons()
 
     def scroll_up(self):
         if self.can_scroll:
@@ -104,10 +107,33 @@ class RootComponent(Component):
         if self.can_perform_action:
             self.active_page.perform_action()
 
+    def start_screensaver(self):
+        self.state.update({"show_screensaver": True})
+
+    def stop_screensaver(self):
+        self.state.update({"show_screensaver": False})
+
+    @property
+    def is_screensaver_running(self):
+        return self.state["show_screensaver"]
+
+    def on_state_change(self, previous_state):
+        show_screensaver = self.state["show_screensaver"]
+        prev_show_screensaver = previous_state["show_screensaver"]
+
+        if show_screensaver and not prev_show_screensaver:
+            self.screensaver.start_animating()
+
+        if not show_screensaver and prev_show_screensaver:
+            self.screensaver.stop_animating()
+
     def render(self, image):
+        if self.is_screensaver_running:
+            return self.screensaver.render(image)
+
         return apply_layers(
             image,
-            [
+            (
                 layer(
                     self.stack.render,
                     size=(image.width - self.right_gutter_width, image.height),
@@ -117,5 +143,5 @@ class RootComponent(Component):
                     size=(self.right_gutter_width, image.height),
                     pos=(image.size[0] - self.right_gutter_width, 0),
                 ),
-            ],
+            ),
         )

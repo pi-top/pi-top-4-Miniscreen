@@ -95,13 +95,11 @@ def turn_off_bootsplash():
         bootsplash_breadcrumb.touch()
 
 
-# TODO:- update tests for new screensaver implementation
 def mock_timeouts(timeout):
-    pass
-    # from pt_miniscreen.state import State, timeouts
+    from pt_miniscreen.app import App
 
-    # timeouts[State.DIM] = timeout
-    # timeouts[State.SCREENSAVER] = timeout
+    App.DIMMING_TIMEOUT = timeout
+    App.SCREENSAVER_TIMEOUT = timeout
 
 
 @pytest.fixture(autouse=True)
