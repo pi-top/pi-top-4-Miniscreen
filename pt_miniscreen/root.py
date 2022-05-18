@@ -1,10 +1,15 @@
 import logging
+from configparser import ConfigParser
+from os import path
+from pathlib import Path
+from threading import Thread
 
 from pt_miniscreen.components.action_page import ActionPage
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components import PageList, Stack
+from pt_miniscreen.core.components.image import Image
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
@@ -14,6 +19,17 @@ from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
+
+
+def get_bootsplash_image_path():
+    try:
+        config = ConfigParser()
+        config.read("/etc/pt-miniscreen/settings.ini")
+        return config.get("Bootsplash", "Path")
+    except Exception:
+        pass
+
+    return get_image_file_path("startup/pi-top_startup.gif")
 
 
 class RootPageList(PageList):
@@ -30,11 +46,19 @@ class RootPageList(PageList):
 
 
 class RootComponent(Component):
+    bootsplash_breadcrumb = "/tmp/.com.pi-top.pt_miniscreen.boot-played"
     right_gutter_width = 10
     gutter_icon_padding = (3, 7)
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs, initial_state={"show_screensaver": False})
+        super().__init__(
+            **kwargs,
+            initial_state={
+                "show_bootsplash": not path.exists(self.bootsplash_breadcrumb),
+                "show_screensaver": False,
+            },
+        )
+
         self.stack = self.create_child(Stack, initial_stack=[RootPageList])
         self.right_gutter = self.create_child(
             RightGutter,
@@ -42,6 +66,12 @@ class RootComponent(Component):
             lower_icon_padding=self.gutter_icon_padding,
         )
         self.screensaver = self.create_child(StarfieldScreensaver)
+        self.bootsplash = self.create_child(
+            Image, loop=False, image_path=get_bootsplash_image_path()
+        )
+
+        if self.state["show_bootsplash"]:
+            Thread(target=self._wait_for_bootsplash_finish, daemon=True).start()
 
     @property
     def active_page(self):
@@ -63,6 +93,19 @@ class RootComponent(Component):
     @property
     def can_perform_action(self):
         return isinstance(self.active_page, ActionPage)
+
+    def _wait_for_bootsplash_finish(self):
+        # wait for bootsplash animation to finish
+        self.bootsplash.stop_animating_event.wait(10)
+
+        # try to create breadcrumb so the bootsplash is not shown next start
+        try:
+            Path(self.bootsplash_breadcrumb).touch()
+        except Exception:
+            pass
+
+        # start showing main app
+        self.state.update({"show_bootsplash": False})
 
     def _get_upper_icon_path(self):
         if self.can_exit_menu:
@@ -128,6 +171,9 @@ class RootComponent(Component):
             self.screensaver.stop_animating()
 
     def render(self, image):
+        if self.state["show_bootsplash"]:
+            return self.bootsplash.render(image)
+
         if self.is_screensaver_running:
             return self.screensaver.render(image)
 
