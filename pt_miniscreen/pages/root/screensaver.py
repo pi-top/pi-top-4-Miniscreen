@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class StarfieldScreensaver(Component):
-    SCREENSAVER_MAX_NO_OF_STARS = 150
+    SCREENSAVER_MAX_NO_OF_STARS = 75
     SCREENSAVER_MAX_DEPTH = 32
 
     def __init__(self, **kwargs):
@@ -27,7 +27,7 @@ class StarfieldScreensaver(Component):
 
     def start_animating(self):
         self.animation_interval = self.create_interval(
-            self.update_positions, timeout=0.05
+            self.update_positions, timeout=0.1
         )
 
     def stop_animating(self):
