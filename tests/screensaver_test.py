@@ -23,13 +23,12 @@ def screensaver_app(mocker):
 def setup(mocker):
     # patch screensaver to display only one star in a fixed position
     mocker.patch(
-        "pt_miniscreen.hotspots.starfield_screensaver.randrange",
+        "pt_miniscreen.pages.root.screensaver.randrange",
         side_effect=lambda x, y: 1 if x == -25 else 10,
     )
-    mocker.patch("pt_miniscreen.hotspots.starfield_screensaver.Hotspot.Z_MOVE", 0)
+    mocker.patch("pt_miniscreen.pages.root.screensaver.Star.DELTA_Z", 0)
 
 
-@pytest.mark.skip(reason="screensaver not yet implemented")
 def test_screensaver(screensaver_app, snapshot):
     sleep(1)
     snapshot.assert_match(
@@ -37,7 +36,6 @@ def test_screensaver(screensaver_app, snapshot):
     )
 
 
-@pytest.mark.skip(reason="dimming not yet implemented")
 def test_dim_state(screensaver_app, setup):
     sleep(0.3)
     assert screensaver_app.miniscreen._contrast == 0
