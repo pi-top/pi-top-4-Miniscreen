@@ -54,13 +54,6 @@ class App(BaseApp):
         logger.debug("Initialising app...")
         super().__init__(miniscreen, Root=RootComponent)
 
-    def on_button_press(self):
-        if self.dimmed:
-            self.miniscreen.contrast(255)
-            self.dimmed = False
-
-        self.restart_dimming_timer()
-
     def brighten(self):
         self.miniscreen.contrast(255)
         self.dimmed = False
@@ -71,6 +64,8 @@ class App(BaseApp):
 
     def create_button_handler(self, func):
         def handler():
+            self.restart_dimming_timer()
+
             if self.root.is_screensaver_running:
                 self.root.stop_screensaver()
                 self.brighten()
@@ -78,8 +73,6 @@ class App(BaseApp):
 
             if callable(func):
                 func()
-
-            self.restart_dimming_timer()
 
             if self.dimmed:
                 self.brighten()
