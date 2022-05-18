@@ -23,7 +23,7 @@ class Image(Component):
         **kwargs,
     ):
         self._image = open_image(image_path) if image_path else None
-        self._stop_animating_event = Event()
+        self.stop_animating_event = Event()
 
         super().__init__(
             **kwargs,
@@ -59,16 +59,16 @@ class Image(Component):
         )
 
     def cleanup(self):
-        self._stop_animating_event.set()
+        self.stop_animating_event.set()
 
     def _start_animating(self):
         # stop previous animation if it exists
-        self._stop_animating_event.set()
+        self.stop_animating_event.set()
 
         # create stop event for new thread
-        self._stop_animating_event = Event()
+        self.stop_animating_event = Event()
         Thread(
-            target=self._animate, args=[self._stop_animating_event], daemon=True
+            target=self._animate, args=[self.stop_animating_event], daemon=True
         ).start()
 
     def _animate(self, stop_event):
@@ -91,6 +91,7 @@ class Image(Component):
                 self.state.update({"frame": next_frame})
             except EOFError:
                 # bail if image has no more frames
+                stop_event.set()
                 return
 
     def on_state_change(self, previous_state):
@@ -100,14 +101,14 @@ class Image(Component):
             if loop and self._image.is_animated:
                 self._start_animating()
 
-            if not loop and self._stop_animating_event:
-                self._stop_animating_event.set()
+            if not loop and self.stop_animating_event:
+                self.stop_animating_event.set()
 
         # on image_path change
         image_path = self.state["image_path"]
         if image_path != previous_state["image_path"]:
-            if self._stop_animating_event:
-                self._stop_animating_event.set()
+            if self.stop_animating_event:
+                self.stop_animating_event.set()
 
             # bail if image_path is now None
             if image_path is None:
