@@ -64,6 +64,10 @@ class App(BaseApp):
 
     def create_button_handler(self, func):
         def handler():
+            if self.user_has_control:
+                logger.debug("User has control of miniscreen, omitting button press...")
+                return
+
             self.restart_dimming_timer()
 
             if self.root.is_screensaver_running:
