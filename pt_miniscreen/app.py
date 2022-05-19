@@ -96,11 +96,23 @@ class App(BaseApp):
         self.root.scroll_down()
 
     def display(self):
+        def restore_miniscreen():
+            try:
+                self.miniscreen.reset()
+            except RuntimeError as e:
+                logger.error(f"Error resetting miniscreen: {e}")
+
+            if self.root.is_screensaver_running:
+                self.root.stop_screensaver()
+            self.brighten()
+            self.restart_dimming_timer()
+
         if self.user_has_control:
+            self.stop_timers()
             logger.info("User has control. Waiting for user to give control back...")
             self.user_gave_back_control_event.wait()
             self.user_gave_back_control_event.clear()
-            self.miniscreen.reset()
+            restore_miniscreen()
 
         super().display()
 
@@ -125,8 +137,10 @@ class App(BaseApp):
         self.dimming_timer.start()
 
     def restart_dimming_timer(self):
+        self.stop_timers()
+        self.start_dimming_timer()
+
+    def stop_timers(self):
         for timer in (self.dimming_timer, self.screensaver_timer):
             if timer and isinstance(timer, Timer):
                 timer.cancel()
-
-        self.start_dimming_timer()
