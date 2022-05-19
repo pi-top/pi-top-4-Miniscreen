@@ -100,7 +100,7 @@ class App(BaseApp):
             logger.info("User has control. Waiting for user to give control back...")
             self.user_gave_back_control_event.wait()
             self.user_gave_back_control_event.clear()
-            self.display()
+            self.miniscreen.reset()
 
         super().display()
 
