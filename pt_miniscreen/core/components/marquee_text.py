@@ -57,6 +57,8 @@ class MarqueeText(Text):
         scroll_len = max(text_size[0] - self.width, 0)
 
         for offset in carousel(scroll_len, step=self.state["step"]):
+            self.active_event.wait()
+
             sleep(self.state["step_time"])
             if stop_event.is_set():
                 return

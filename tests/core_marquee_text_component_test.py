@@ -286,6 +286,20 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
 
+    # stops scrolling when component is paused
+    component._set_active(False)
+    sleep(0.115)
+    snapshot.assert_match(render(component), "wide-text-3.png")
+    sleep(0.115)
+    snapshot.assert_match(render(component), "wide-text-3.png")
+
+    # starts scrolling again when component is unpaused
+    component._set_active(True)
+    sleep(0.115)
+    snapshot.assert_match(render(component), "wide-text-2.png")
+    sleep(0.115)
+    snapshot.assert_match(render(component), "wide-text-1.png")
+
     # stops scrolling when text changes to be thinner than image
     component.state.update({"text": "Small width"})
     sleep(0.15)
