@@ -99,24 +99,24 @@ class App(BaseApp):
     def handle_down_button_release(self):
         self.root.scroll_down()
 
+    def restore_miniscreen(self):
+        try:
+            self.miniscreen.reset()
+        except RuntimeError as e:
+            logger.error(f"Error resetting miniscreen: {e}")
+
+        if self.root.is_screensaver_running:
+            self.root.stop_screensaver()
+        self.brighten()
+        self.restart_dimming_timer()
+
     def display(self):
-        def restore_miniscreen():
-            try:
-                self.miniscreen.reset()
-            except RuntimeError as e:
-                logger.error(f"Error resetting miniscreen: {e}")
-
-            if self.root.is_screensaver_running:
-                self.root.stop_screensaver()
-            self.brighten()
-            self.restart_dimming_timer()
-
         if self.user_has_control:
             self.stop_timers()
             logger.info("User has control. Waiting for user to give control back...")
             self.user_gave_back_control_event.wait()
             self.user_gave_back_control_event.clear()
-            restore_miniscreen()
+            self.restore_miniscreen()
 
         super().display()
 
