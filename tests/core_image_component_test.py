@@ -87,6 +87,20 @@ def test_animated_image(create_image, render, get_test_image_path, snapshot):
     sleep(0.55)
     snapshot.assert_match(render(component), "frame-1.png")
 
+    # stops animating when component is paused
+    component._set_active(False)
+    sleep(0.55)
+    snapshot.assert_match(render(component), "frame-1.png")
+    sleep(0.55)
+    snapshot.assert_match(render(component), "frame-1.png")
+
+    # starts animating again when component is unpaused
+    component._set_active(True)
+    sleep(0.55)
+    snapshot.assert_match(render(component), "frame-1.png")
+    sleep(0.55)
+    snapshot.assert_match(render(component), "frame-2.png")
+
     # can create image without looping
     component = create_image(image_path=get_test_image_path("test.gif"), loop=False)
     snapshot.assert_match(render(component), "frame-1.png")
