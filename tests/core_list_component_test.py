@@ -773,6 +773,54 @@ def test_virtual_list_visible_rows_attribute(
     assert component.rows == component.visible_rows
 
 
+def test_row_pausing(create_list, create_rows, render):
+    component = create_list(Rows=create_rows(4), num_visible_rows=2)
+
+    # rows are not active before list is rendered
+    for row in component.rows:
+        assert row.active_event.is_set() is False
+
+    # only visible rows become active when rendered
+    render(component)
+
+    assert component.rows[0].active_event.is_set()
+    assert component.rows[1].active_event.is_set()
+    assert component.rows[2].active_event.is_set() is False
+    assert component.rows[3].active_event.is_set() is False
+
+    # correct rows are active after scrolling down
+    component.scroll_down()
+    sleep(0.30)
+    assert component.rows[0].active_event.is_set() is False
+    assert component.rows[1].active_event.is_set()
+    assert component.rows[2].active_event.is_set()
+    assert component.rows[3].active_event.is_set() is False
+
+    # correct rows are active after scrolling up
+    component.scroll_up()
+    sleep(0.30)
+    assert component.rows[0].active_event.is_set()
+    assert component.rows[1].active_event.is_set()
+    assert component.rows[2].active_event.is_set() is False
+    assert component.rows[3].active_event.is_set() is False
+
+    # correct rows are active after scrolling down with a distance more than one
+    component.scroll_down(distance=2)
+    sleep(0.30)
+    assert component.rows[0].active_event.is_set() is False
+    assert component.rows[1].active_event.is_set() is False
+    assert component.rows[2].active_event.is_set()
+    assert component.rows[3].active_event.is_set()
+
+    # correct rows are active after scrolling up with a distance more than one
+    component.scroll_up(distance=2)
+    sleep(0.30)
+    assert component.rows[0].active_event.is_set()
+    assert component.rows[1].active_event.is_set()
+    assert component.rows[2].active_event.is_set() is False
+    assert component.rows[3].active_event.is_set() is False
+
+
 def test_cleanup(parent, create_rows, render):
     from pt_miniscreen.core.components import List
 
