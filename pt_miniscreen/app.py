@@ -1,6 +1,6 @@
 import logging
 from os import environ
-from threading import Event, Timer
+from threading import Timer
 
 from pitop import Pitop
 
@@ -21,11 +21,11 @@ class App(BaseApp):
         logger.debug("Initializing miniscreen...")
         miniscreen = Pitop().miniscreen
 
-        self.user_gave_back_control_event = Event()
-
         def set_is_user_controlled(user_has_control) -> None:
-            if not user_has_control:
-                self.user_gave_back_control_event.set()
+            if user_has_control:
+                self.stop_timers()
+            else:
+                self.restore_miniscreen()
 
             logger.info(
                 f"User has {'taken' if user_has_control else 'given back'} control of the miniscreen"
@@ -64,6 +64,10 @@ class App(BaseApp):
 
     def create_button_handler(self, func):
         def handler():
+            if self.user_has_control:
+                logger.debug("User has control of miniscreen, omitting button press...")
+                return
+
             self.restart_dimming_timer()
 
             if self.root.is_screensaver_running:
@@ -95,12 +99,22 @@ class App(BaseApp):
     def handle_down_button_release(self):
         self.root.scroll_down()
 
+    def restore_miniscreen(self):
+        try:
+            self.miniscreen.reset()
+        except RuntimeError as e:
+            logger.error(f"Error resetting miniscreen: {e}")
+
+        if self.root.is_screensaver_running:
+            self.root.stop_screensaver()
+
+        self.brighten()
+        self.restart_dimming_timer()
+        self.display()
+
     def display(self):
         if self.user_has_control:
-            logger.info("User has control. Waiting for user to give control back...")
-            self.user_gave_back_control_event.wait()
-            self.user_gave_back_control_event.clear()
-            self.display()
+            return
 
         super().display()
 
@@ -125,8 +139,10 @@ class App(BaseApp):
         self.dimming_timer.start()
 
     def restart_dimming_timer(self):
+        self.stop_timers()
+        self.start_dimming_timer()
+
+    def stop_timers(self):
         for timer in (self.dimming_timer, self.screensaver_timer):
             if timer and isinstance(timer, Timer):
                 timer.cancel()
-
-        self.start_dimming_timer()
