@@ -79,6 +79,8 @@ class Image(Component):
         while True:
             sleep(self._image.info["duration"] / 1000)
 
+            self.active_event.wait()
+
             if stop_event.is_set():
                 return
 
