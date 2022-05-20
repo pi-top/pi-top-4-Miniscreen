@@ -156,12 +156,25 @@ def parent():
         def dummy(self):
             pass
 
-    return Parent()
+        def render(self, image):
+            for child in self._children:
+                image = child.render(image)
+
+            return image
+
+    parent = Parent()
+    parent._set_active(True)
+    return parent
 
 
 @pytest.fixture
 def create_component(parent):
-    return lambda Component, **kwargs: Component(on_rerender=parent.dummy, **kwargs)
+    def create(Component, **kwargs):
+        component = Component(on_rerender=parent.dummy, **kwargs)
+        component._set_active(True)
+        return component
+
+    return create
 
 
 @pytest.fixture

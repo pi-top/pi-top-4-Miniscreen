@@ -109,10 +109,10 @@ def test_render(parent, SpotComponent):
     assert render_output == expected_output
 
     # returns cached image instead rendering when input is unchanged
-    with patch.object(component, "_unmodified_render", return_value=expected_output):
+    with patch.object(component, "_original_render", return_value=expected_output):
         render_output = component.render(Image.new("1", (128, 64)))
         assert render_output == expected_output
-        component._unmodified_render.assert_not_called()
+        component._original_render.assert_not_called()
 
     # bypasses cache when when input image changes
     expected_output = create_spot_image((0, 0), size=(80, 40))
@@ -223,10 +223,13 @@ def test_concurrent_reconciliation(parent, SpotComponent):
     parent.on_rerender_spy.assert_called_once()
 
 
-def test_intervals(parent, SpotComponent):
+def test_intervals(parent, SpotComponent, render):
     from pt_miniscreen.core.component import Interval
 
     component = parent.create_child(SpotComponent)
+
+    # render so component becomes active
+    render(parent)
 
     # returns an Interval instance
     move_right_interval = component.create_interval(component.move_spot_right)
@@ -267,6 +270,77 @@ def test_intervals(parent, SpotComponent):
     sleep(1.05)
     output = component.render(Image.new("1", (128, 64)))
     assert output == create_spot_image((3, 2))
+
+
+def test_pausing(parent, SpotComponent):
+    from pt_miniscreen.core.component import Component
+
+    class MovingRightSpot(SpotComponent):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.create_interval(self.move_spot_right)
+
+    class MovingDownSpot(SpotComponent):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.create_interval(self.move_spot_down)
+
+    class Spots(Component):
+        def __init__(self, **kwargs):
+            super().__init__(
+                **kwargs, initial_state={"spot_attribute": "moving_right_spot"}
+            )
+            self.moving_right_spot = self.create_child(MovingRightSpot)
+            self.moving_down_spot = self.create_child(MovingDownSpot)
+
+        def render(self, image):
+            return getattr(self, self.state["spot_attribute"]).render(image)
+
+    spots = parent.create_child(Spots)
+
+    # when parent not rendered child active event should not be set
+    assert not spots.moving_right_spot.active_event.is_set()
+    assert not spots.moving_down_spot.active_event.is_set()
+
+    # when not active intervals should not run
+    sleep(1.05)
+    output = spots.moving_right_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((0, 0))
+    output = spots.moving_down_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((0, 0))
+
+    # when parent rendered only children that were rendered should be active
+    parent.render(Image.new("1", (128, 64)))
+    assert spots.moving_right_spot.active_event.is_set()
+    assert not spots.moving_down_spot.active_event.is_set()
+
+    # only active children have their intervals run
+    sleep(1.05)
+    output = spots.moving_right_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((1, 0))
+    output = spots.moving_down_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((0, 0))
+
+    # when an update hides or shows a component their active state is updated
+    spots.state.update({"spot_attribute": "moving_down_spot"})
+    assert not spots.moving_right_spot.active_event.is_set()
+    assert spots.moving_down_spot.active_event.is_set()
+
+    # when pausing a component the interval runs once more
+    sleep(1.05)
+    output = spots.moving_right_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((2, 0))
+
+    # newly active components also run their intervals
+    output = spots.moving_down_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((0, 1))
+
+    # paused components don't run their interval another time
+    sleep(1.05)
+    output = spots.moving_right_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((2, 0))
+    output = spots.moving_down_spot.render(Image.new("1", (128, 64)))
+    assert output == create_spot_image((0, 2))
 
 
 def test_render_exceptions(parent, SpotComponent, render):
@@ -364,7 +438,33 @@ def test_removing_unknown_child(mocker, parent):
     unknown_child.cleanup.assert_not_called()
 
 
-def test_remove_child_cleanup(parent, SpotComponent):
+def test_remove_active_child_cleanup(parent, SpotComponent, render):
+    # store created objects in refs so we don't create references to them
+    component = ref(parent.create_child(SpotComponent))
+    child = ref(component().create_child(SpotComponent))
+    interval = ref(component().create_interval(component().move_spot_right))
+
+    # render parent so children are active
+    render(parent)
+
+    # removing child calls cleanup method
+    with patch.object(component(), "cleanup"):
+        parent.remove_child(component())
+        component().cleanup.assert_called_once()
+
+    # component can be garbage collected after being removed
+    gc.collect()
+    assert component() is None
+
+    # component children are also garbage collected
+    assert child() is None
+
+    # after a second the interval stops and is collected
+    sleep(1.1)
+    assert interval() is None
+
+
+def test_remove_paused_child_cleanup(parent, SpotComponent, render):
     # store created objects in refs so we don't create references to them
     component = ref(parent.create_child(SpotComponent))
     child = ref(component().create_child(SpotComponent))
@@ -383,11 +483,11 @@ def test_remove_child_cleanup(parent, SpotComponent):
     assert child() is None
 
     # after a second the interval stops and is collected
-    sleep(1)
+    sleep(1.1)
     assert interval() is None
 
 
-def test_no_references_cleanup():
+def test_no_references_active_component_cleanup():
     from pt_miniscreen.core import Component
 
     # use event rather than spy so reference count not influenced
@@ -410,6 +510,9 @@ def test_no_references_cleanup():
     child = ref(component.create_child(Component))
     interval = ref(component.create_interval(component.dummy))
 
+    # set component active
+    component._set_active(True)
+
     # component cleanup method is called when it is garbage collected
     del component
     gc.collect()
@@ -418,6 +521,45 @@ def test_no_references_cleanup():
     # component children are also garbage collected
     assert child() is None
 
-    # after a second the interval stops and is collected
-    sleep(1)
+    # after about a second the interval stops and is collected
+    sleep(1.1)
+    assert interval() is None
+
+
+def test_no_references_paused_component_cleanup():
+    from pt_miniscreen.core import Component
+
+    # use event rather than spy so reference count not influenced
+    # event is easier than boolean due to scope issues
+    cleanup_called = Event()
+
+    class Parentless(Component):
+        def __init__(self):
+            super().__init__(self.dummy)
+
+        def cleanup(self):
+            logger.debug("cleanup called")
+            cleanup_called.set()
+
+        # add a dummy method to use for on_rerender and interval
+        def dummy(self):
+            pass
+
+    component = Parentless()
+    child = ref(component.create_child(Component))
+    interval = ref(component.create_interval(component.dummy))
+
+    # pause component
+    component._set_active(False)
+
+    # component cleanup method is called when it is garbage collected
+    del component
+    gc.collect()
+    assert cleanup_called.is_set()
+
+    # component children are also garbage collected
+    assert child() is None
+
+    # after about a second the interval stops and is collected
+    sleep(1.1)
     assert interval() is None
