@@ -256,6 +256,21 @@ class List(Component):
         )
         return image
 
+    def _get_rows_needed_for_render(self):
+        if self._virtual:
+            return self.rows
+
+        start_index = self.state["top_row_index"]
+        end_index = start_index + self.state["num_visible_rows"]
+
+        if self.state["active_transition"] == "DOWN":
+            start_index -= self.state["transition_distance"]
+
+        if self.state["active_transition"] == "UP":
+            end_index += self.state["transition_distance"]
+
+        return self.rows[start_index:end_index]
+
     def _render_rows(self, image):
         # bail if there are no rows to render
         num_rows = len(self.rows)
@@ -265,6 +280,7 @@ class List(Component):
         row_gap = self.state["row_gap"]
         row_height = self._get_row_height()
         rows_height = self._get_rows_height(num_rows)
+        rows = self._get_rows_needed_for_render()
 
         return apply_layers(
             Image.new("1", size=(image.width, rows_height)),
@@ -274,21 +290,17 @@ class List(Component):
                     size=(image.width, row_height),
                     pos=(0, (row_height + row_gap) * row_index),
                 )
-                for (row_index, row) in enumerate(self.rows)
+                for (row_index, row) in enumerate(rows)
             ],
         )
 
     def _render_rows_window(self, image):
         transition = self.state["active_transition"]
-        top_row_index = self.state["top_row_index"]
 
-        # in virtual lists the top row index depends on the transition
-        if self._virtual:
-            top_row_index = (
-                self.state["transition_distance"] if transition == "DOWN" else 0
-            )
-
-        window_top = self._get_rows_height(top_row_index)
+        window_top_index = (
+            self.state["transition_distance"] if transition == "DOWN" else 0
+        )
+        window_top = self._get_rows_height(window_top_index)
 
         # correct window_top for current scroll progress if transitioning
         if transition:
