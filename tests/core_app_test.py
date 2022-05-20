@@ -117,6 +117,6 @@ def test_stop(app):
     assert root_child() is None
 
     # intervals are cleaned up after their wait time elapses
-    sleep(1)
+    sleep(1.1)
     assert root_interval() is None
     assert child_interval() is None

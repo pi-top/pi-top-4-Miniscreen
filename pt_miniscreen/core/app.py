@@ -25,6 +25,7 @@ class App:
 
     def start(self):
         self.root = self.Root(on_rerender=self.display)
+        self.root._set_active(True)
         self.display()
 
     def stop(self):

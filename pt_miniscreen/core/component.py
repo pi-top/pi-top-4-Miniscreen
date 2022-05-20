@@ -2,7 +2,7 @@ import logging
 import threading
 from time import sleep, time
 from typing import Any, Dict
-from weakref import WeakMethod
+from weakref import WeakMethod, ref
 
 from PIL import Image
 
@@ -28,9 +28,11 @@ class Interval(threading.Timer):
     def __init__(
         self,
         *args,
+        active_event=None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+        self.get_active_event = ref(active_event)
         self.daemon = True  # Intervals shouldn't keep the process alive
 
     @property
@@ -49,6 +51,11 @@ class Interval(threading.Timer):
         execution_time = 0
 
         while True:
+            # wait for active event to be set before continuing
+            active_event = self.get_active_event()
+            if isinstance(active_event, threading.Event):
+                active_event.wait()
+
             # take execution time into account when waiting to produce a more
             # accurate interval time
             wait_time = self.interval - execution_time
@@ -134,51 +141,17 @@ class Component:
         )
         self._reconciliation_lock = threading.Lock()
         self._reconciliation_queued = False
+
+        self.active_event = threading.Event()
+        self.mounted = False
         self.rendered = False
         self.width = None
         self.height = None
         self.size = None
 
-        # wrap subclass render method to track image properties and optimise
-        self._unmodified_render = self.render
-
-        def render(image):
-            if image.height == 0 or image.width == 0:
-                raise RenderException(
-                    "Image passed to render must have non-zero height and width"
-                )
-
-            # set size of component to input image for use in calculations
-            self.size = image.size
-            self.width = image.width
-            self.height = image.height
-
-            # return cached output if input is the same
-            if is_same_image(image, self._render_cache.input):
-                return self._render_cache.output
-
-            logger.debug(f"{self} rendering")
-            self._render_cache.input = image
-            output = self._unmodified_render(self._render_cache.input)
-
-            if not isinstance(output, Image.Image):
-                raise RenderException(
-                    f"Pillow Image must be returned from render, returned {output}"
-                )
-
-            if image.size != output.size:
-                raise RenderException(
-                    f"Image returned from render must be same size as the passed image: passed {image.size}, returned {output.size}"
-                )
-
-            self._render_cache.output = output
-
-            # mark component as rendered
-            self.rendered = True
-
-            return output
-
-        self.render = render
+        # replace subclass render method to add custom behaviour
+        self._original_render = self.render
+        self.render = self._render
 
     def _cleanup(self):
         # stop notifying parent of updates immediately
@@ -199,6 +172,81 @@ class Component:
 
             self._children = []
 
+        # set active_event so that threads that are waiting are cleaned up
+        if hasattr(self, "active_event"):
+            self.active_event.set()
+
+    def _set_active(self, active):
+        if active:
+            self.active_event.set()
+        else:
+            self.active_event.clear()
+
+        # also set children to have the correct active state
+        for child in self._children:
+            child._set_active(active and child.rendered)
+
+    def _internal_render(self, image):
+        # mark children as not rendered, when original render is called the ones
+        # that have their render methods called will switch it back to True.
+        for child in self._children:
+            child.rendered = False
+
+        output = self._original_render(image)
+
+        # set children that were rendered to active, otherwise pause them
+        # if self is not rendered all children should be paused
+        for child in self._children:
+            child._set_active(self.rendered and child.rendered)
+
+        return output
+
+    def _render(self, image):
+        if image.height == 0 or image.width == 0:
+            raise RenderException(
+                "Image passed to render must have non-zero height and width"
+            )
+
+        # set size of component to input image for use in calculations
+        self.size = image.size
+        self.width = image.width
+        self.height = image.height
+
+        # mark component as rendered
+        self.rendered = True
+
+        # return cached output if input is the same
+        if is_same_image(image, self._render_cache.input):
+            return self._render_cache.output
+
+        logger.debug(f"{self} rendering")
+        self._render_cache.input = image
+        output = self._internal_render(self._render_cache.input)
+
+        if not isinstance(output, Image.Image):
+            raise RenderException(
+                f"Pillow Image must be returned from render, returned {output}"
+            )
+
+        if image.size != output.size:
+            raise RenderException(
+                f"Image returned from render must be same size as the passed image: passed {image.size}, returned {output.size}"
+            )
+
+        self._render_cache.output = output
+
+        # mark the component as mounted once the render cache is populated
+        self.mounted = True
+
+        return output
+
+    def _on_state_update(self, previous_state):
+        if self.state != previous_state:
+            self.on_state_change(previous_state)
+
+            if self.mounted:
+                self._reconcile()
+
     def _reconcile(self):
         if self._reconciliation_queued:
             # since state is always up-to-date we can let the queued reconcile
@@ -216,10 +264,10 @@ class Component:
                 return
 
             # do nothing if component has never been rendered
-            if not self.rendered:
+            if not self.mounted:
                 return
 
-            render_output = self._unmodified_render(self._render_cache.input)
+            render_output = self._internal_render(self._render_cache.input)
 
             # do nothing if render output is unchanged
             if is_same_image(render_output, self._render_cache.output):
@@ -232,13 +280,6 @@ class Component:
         finally:
             self._reconciliation_queued = False
             self._reconciliation_lock.release()
-
-    def _on_state_update(self, previous_state):
-        if self.state != previous_state:
-            self.on_state_change(previous_state)
-
-            if self.rendered:
-                self._reconcile()
 
     # lifecycle hooks
     def cleanup(self):
@@ -254,7 +295,7 @@ class Component:
         return child
 
     def create_interval(self, callback, timeout=1):
-        interval = Interval(timeout, callback)
+        interval = Interval(timeout, callback, active_event=self.active_event)
         interval.start()
         self._intervals.append(interval)
         return interval

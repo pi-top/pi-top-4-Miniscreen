@@ -103,13 +103,13 @@ def test_smoke(snapshot, Root):
     snapshot.assert_match(app.miniscreen.device.display_image, "update.png")
 
     # shows updates from an interval
-    sleep(1)
+    sleep(1.1)
     snapshot.assert_match(app.miniscreen.device.display_image, "interval-update.png")
 
     # does not show changes when stopped
     app.stop()
     counter.state.update({"count": 1})
-    sleep(1)
+    sleep(1.1)
     snapshot.assert_match(app.miniscreen.device.display_image, "stopped.png")
 
     # can start app again
