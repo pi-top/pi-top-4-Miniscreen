@@ -102,16 +102,20 @@ def mock_timeouts(timeout):
     App.SCREENSAVER_TIMEOUT = timeout
 
 
-@pytest.fixture(autouse=True)
-def setup(mocker):
+def global_setup(mocker):
     patch_packages()
     use_test_images(mocker)
     use_test_font(mocker, "pt_miniscreen.core.utils")
 
 
+@pytest.fixture(autouse=True)
+def setup(mocker):
+    global_setup(mocker)
+
+
 def setup_app(mocker, screensaver_timeout=3600):
+    global_setup(mocker)
     turn_off_bootsplash()
-    use_test_images(mocker)
     mock_timeouts(timeout=screensaver_timeout)
     freeze_marquee_text(mocker)
 
