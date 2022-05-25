@@ -2,6 +2,7 @@ import datetime
 import logging
 from os import environ
 from pathlib import Path
+from threading import Event
 
 from PIL import Image
 
@@ -15,6 +16,7 @@ class App:
         self.miniscreen = miniscreen
         self.Root = Root
 
+        self._stop_event = Event()
         self.saved_cache_frame_no = 0
         self.timestamp = (
             str(datetime.datetime.now())
@@ -28,9 +30,17 @@ class App:
         self.root._set_active(True)
         self.display()
 
-    def stop(self):
+    def stop(self, error=None):
         self.root._cleanup()
         self.root = None
+        self._stop_error = error
+        self._stop_event.set()
+
+    def wait_for_stop(self) -> None:
+        self._stop_event.wait()
+        error = getattr(self, "_stop_error", None)
+        if isinstance(error, Exception):
+            raise error
 
     # This should use `miniscreen.display_image` but that method attempts to
     # import opencv when it's called. We can catch the raised error but cannot

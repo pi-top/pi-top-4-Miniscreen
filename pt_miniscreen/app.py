@@ -116,7 +116,21 @@ class App(BaseApp):
         if self.user_has_control:
             return
 
-        super().display()
+        try:
+            super().display()
+
+        # When performing actions sometimes the spi addresses can change; this
+        # causes a BrokenPipeError because the miniscreen instance tries to send
+        # commands to an old SPI address.
+        except BrokenPipeError as e:
+            logger.error(e)
+
+            # stop the app so that systemd can restart the service
+            self.stop(e)
+
+    def stop(self, error=None):
+        super().stop(error)
+        self.stop_timers()
 
     @property
     def user_has_control(self) -> bool:
@@ -143,6 +157,10 @@ class App(BaseApp):
         self.start_dimming_timer()
 
     def stop_timers(self):
-        for timer in (self.dimming_timer, self.screensaver_timer):
-            if timer and isinstance(timer, Timer):
-                timer.cancel()
+        if isinstance(self.dimming_timer, Timer):
+            self.dimming_timer.cancel()
+            self.dimming_timer = None
+
+        if isinstance(self.screensaver_timer, Timer):
+            self.screensaver_timer.cancel()
+            self.screensaver_timer = None
