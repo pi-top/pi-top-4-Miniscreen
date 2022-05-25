@@ -55,7 +55,7 @@ class ActionPage(Component):
         )
 
         # get initial state in background
-        threading.Thread(target=self._update_action_state).start()
+        threading.Thread(target=self._update_action_state, daemon=True).start()
 
     def _calculate_action_state(self):
         if not callable(self._get_enabled_state):
