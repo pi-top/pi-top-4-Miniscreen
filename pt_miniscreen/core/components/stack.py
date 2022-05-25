@@ -98,7 +98,7 @@ class Stack(Component):
             }
         )
 
-        threading.Thread(target=self._push_transition).start()
+        threading.Thread(target=self._push_transition, daemon=True).start()
 
     def pop(self):
         if self.state["active_transition"] is not None:
@@ -117,7 +117,7 @@ class Stack(Component):
             }
         )
 
-        threading.Thread(target=self._pop_transition).start()
+        threading.Thread(target=self._pop_transition, daemon=True).start()
 
     def render(self, image):
         if len(self.state["stack"]) == 0:

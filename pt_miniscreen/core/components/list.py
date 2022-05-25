@@ -186,7 +186,9 @@ class List(Component):
                 "transition_distance": distance,
             }
         )
-        threading.Thread(target=self._scroll_transition, args=(distance,)).start()
+        threading.Thread(
+            target=self._scroll_transition, args=[distance], daemon=True
+        ).start()
 
     def scroll_up(self, distance=1):
         self.scroll_to(direction="UP", distance=distance)
