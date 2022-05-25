@@ -337,32 +337,30 @@ class List(Component):
         )
 
         # don't render scrollbar when all rows are visible
-        if len(self.state["Rows"]) <= self.state["num_visible_rows"]:
-            image.paste(self._render_rows(image))
+        # don't show scrollbar if visible_scrollbar state is false
+        if (
+            len(self.state["Rows"]) <= self.state["num_visible_rows"]
+            or not self.visible_scrollbar
+        ):
+            image.paste(self._render_rows_window(image))
             return image
 
-        layers_arr = []
-        if self.visible_scrollbar:
-            layers_arr.append(
+        return apply_layers(
+            image,
+            [
                 layer(
                     self._render_scrollbar,
                     size=(scrollbar_width - border_width, image.height),
-                )
-            )
-            layers_arr.append(
+                ),
                 layer(
                     rectangle,
                     size=(border_width, image.height),
                     pos=(scrollbar_width, 0),
-                )
-            )
-
-        layers_arr.append(
-            layer(
-                self._render_rows_window,
-                size=(pages_width, image.height),
-                pos=(scrollbar_width + border_width, 0),
-            ),
+                ),
+                layer(
+                    self._render_rows_window,
+                    size=(pages_width, image.height),
+                    pos=(scrollbar_width + border_width, 0),
+                ),
+            ],
         )
-
-        return apply_layers(image, layers_arr)
