@@ -39,7 +39,7 @@ class MarqueeText(Text):
     @property
     def needs_scrolling(self) -> bool:
         text_size = self.get_text_size(self.state["text"], self.state["font"])
-        return self.width < text_size[0]
+        return self.width is not None and self.width < text_size[0]
 
     @property
     def scrolling(self) -> bool:
@@ -51,6 +51,13 @@ class MarqueeText(Text):
             Thread(
                 target=self._scroll, args=[self._stop_scroll_event], daemon=True
             ).start()
+
+    def _restart_scrolling(self):
+        if self._stop_scroll_event:
+            self._stop_scroll_event.set()
+
+        self.state.update({"offset": 0})
+        self._start_scrolling()
 
     def _scroll(self, stop_event):
         text_size = self.get_text_size(self.state["text"], self.state["font"])
@@ -64,6 +71,15 @@ class MarqueeText(Text):
                 return
 
             self.state.update({"offset": -offset})
+
+    def on_state_change(self, prev_state):
+        # restart scrolling to recreate carousel with new text size if needed
+        if (
+            self.state["text"] != prev_state["text"]
+            or self.state["font"] != prev_state["font"]
+        ):
+            if self.needs_scrolling:
+                self._restart_scrolling()
 
     def render(self, image):
         if not self.scrolling and self.needs_scrolling:

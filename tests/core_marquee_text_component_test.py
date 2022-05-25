@@ -272,8 +272,8 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-2.png")
 
-    # works for very wide text
-    component = create_marquee_text(text="Very wide text that is super long")
+    # restarts scrolling when text changes and needs scrolling
+    component.state.update({"text": "Very wide text that is super long"})
     snapshot.assert_match(render(component), "wide-text-1.png")
     sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
