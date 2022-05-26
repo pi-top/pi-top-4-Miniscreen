@@ -19,7 +19,7 @@ CAPACITY_LEFT_MARGIN = 4  # must match left margin for capacity in charging imag
 CAPACITY_LEFT = BATTERY_LEFT + CAPACITY_LEFT_MARGIN
 
 CAPACITY_FONT_SIZE = 16
-CAPACITY_TEXT_SIZE = (40, CAPACITY_FONT_SIZE)
+CAPACITY_TEXT_SIZE = (40, BATTERY_SIZE[1])
 CAPACITY_TEXT_LEFT_MARGIN = 5
 CAPACITY_TEXT_LEFT = BATTERY_LEFT + BATTERY_SIZE[0] + CAPACITY_TEXT_LEFT_MARGIN
 
@@ -81,6 +81,7 @@ class OverviewPage(Component):
             Text,
             text=get_capacity_text(),
             font_size=CAPACITY_FONT_SIZE,
+            vertical_align="center",
         )
 
         self.ip_text = self.create_child(
@@ -120,12 +121,11 @@ class OverviewPage(Component):
             offset_pos_for_vertical_center(image.height, MAX_CAPACITY_SIZE[1])
             + BATTERY_OFFSET
         )
-        CAPACITY_TEXT_TOP = BATTERY_TOP + 4
         IP_TEXT_TOP = BATTERY_TOP + BATTERY_SIZE[1] + ROW_SPACING
 
         BATTERY_POS = (BATTERY_LEFT, BATTERY_TOP)
         CAPACITY_POS = (CAPACITY_LEFT, CAPACITY_TOP)
-        CAPACITY_TEXT_POS = (CAPACITY_TEXT_LEFT, CAPACITY_TEXT_TOP)
+        CAPACITY_TEXT_POS = (CAPACITY_TEXT_LEFT, BATTERY_TOP)
         IP_TEXT_POS = (0, IP_TEXT_TOP)
 
         return apply_layers(
