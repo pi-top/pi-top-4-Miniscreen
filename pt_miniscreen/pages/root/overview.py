@@ -6,7 +6,6 @@ from pitop.common.sys_info import get_pi_top_ip
 
 from pt_miniscreen.core import Component
 from pt_miniscreen.core.components.image import Image
-from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.core.utils import apply_layers, layer, rectangle
 from pt_miniscreen.utils import get_image_file_path
@@ -24,12 +23,8 @@ CAPACITY_TEXT_SIZE = (40, CAPACITY_FONT_SIZE)
 CAPACITY_TEXT_LEFT_MARGIN = 5
 CAPACITY_TEXT_LEFT = BATTERY_LEFT + BATTERY_SIZE[0] + CAPACITY_TEXT_LEFT_MARGIN
 
-IP_ICON_SIZE = (12, 30)
-IP_ICON_LEFT = BATTERY_LEFT
-IP_ICON_MARGIN_RIGHT = 5
 IP_FONT_SIZE = 10
-IP_TEXT_SIZE = (75, IP_FONT_SIZE)
-IP_TEXT_LEFT = IP_ICON_LEFT + IP_ICON_SIZE[0] + IP_ICON_MARGIN_RIGHT
+IP_TEXT_LEFT = BATTERY_LEFT
 
 ROW_SPACING = 10
 
@@ -88,17 +83,13 @@ class OverviewPage(Component):
             font_size=CAPACITY_FONT_SIZE,
         )
 
-        self.ip_icon = self.create_child(
-            Image,
-            image_path=get_image_file_path("sys_info/networking/antenna.png"),
-        )
-
         self.ip_text = self.create_child(
-            MarqueeText,
+            Text,
             text=get_ip(),
             get_text=get_ip,
             get_text_interval=3,
             font_size=IP_FONT_SIZE,
+            align="center",
             vertical_align="bottom",
         )
 
@@ -130,14 +121,12 @@ class OverviewPage(Component):
             + BATTERY_OFFSET
         )
         CAPACITY_TEXT_TOP = BATTERY_TOP + 4
-        IP_ICON_TOP = BATTERY_TOP + BATTERY_SIZE[1] + ROW_SPACING
-        IP_TEXT_TOP = IP_ICON_TOP + ceil((IP_ICON_SIZE[0] - IP_FONT_SIZE) / 2)
+        IP_TEXT_TOP = BATTERY_TOP + BATTERY_SIZE[1] + ROW_SPACING
 
         BATTERY_POS = (BATTERY_LEFT, BATTERY_TOP)
         CAPACITY_POS = (CAPACITY_LEFT, CAPACITY_TOP)
         CAPACITY_TEXT_POS = (CAPACITY_TEXT_LEFT, CAPACITY_TEXT_TOP)
-        IP_ICON_POS = (IP_ICON_LEFT, IP_ICON_TOP)
-        IP_TEXT_POS = (IP_TEXT_LEFT, IP_TEXT_TOP)
+        IP_TEXT_POS = (0, IP_TEXT_TOP)
 
         return apply_layers(
             image,
@@ -149,7 +138,10 @@ class OverviewPage(Component):
                     size=CAPACITY_TEXT_SIZE,
                     pos=CAPACITY_TEXT_POS,
                 ),
-                layer(self.ip_icon.render, size=IP_ICON_SIZE, pos=IP_ICON_POS),
-                layer(self.ip_text.render, size=IP_TEXT_SIZE, pos=IP_TEXT_POS),
+                layer(
+                    self.ip_text.render,
+                    size=(image.width, IP_FONT_SIZE),
+                    pos=IP_TEXT_POS,
+                ),
             ],
         )
