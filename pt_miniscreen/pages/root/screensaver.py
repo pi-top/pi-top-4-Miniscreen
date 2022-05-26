@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class StarfieldScreensaver(Component):
-    SCREENSAVER_MAX_NO_OF_STARS = 75
+    SCREENSAVER_MAX_NO_OF_STARS = 50
     SCREENSAVER_MAX_DEPTH = 32
 
     def __init__(self, **kwargs):
@@ -60,11 +60,16 @@ class StarfieldScreensaver(Component):
 
 class Star:
     MAX_DEPTH = 32
-    DELTA_Z = 0.19
+    DELTA_Z = 0.38
+
+    # we only want to create stars that are visible on screen
+    # 128x64 screen, divide by 4 for coordinate system, get away with less
+    MAX_X = 25
+    MAX_Y = 14
 
     def __init__(self):
-        self.x = randrange(-25, 25)
-        self.y = randrange(-25, 25)
+        self.x = randrange(-self.MAX_X, self.MAX_X)
+        self.y = randrange(-self.MAX_Y, self.MAX_Y)
         self.z = randrange(1, self.MAX_DEPTH)
 
     @property
@@ -84,8 +89,8 @@ class Star:
         if z <= 0:
             # Reposition far away from the screen (Z=max_depth)
             # with random X and Y coordinates
-            x = randrange(-25, 25)
-            y = randrange(-25, 25)
+            x = randrange(-self.MAX_X, self.MAX_X)
+            y = randrange(-self.MAX_Y, self.MAX_Y)
             z = self.MAX_DEPTH
 
         self.position = (x, y, z)
