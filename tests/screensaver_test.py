@@ -24,7 +24,7 @@ def setup(mocker):
     # patch screensaver to display only one star in a fixed position
     mocker.patch(
         "pt_miniscreen.pages.root.screensaver.randrange",
-        side_effect=lambda x, y: 1 if x == -25 else 10,
+        side_effect=lambda x, y: 10 if x == 1 else 1,
     )
     mocker.patch("pt_miniscreen.pages.root.screensaver.Star.DELTA_Z", 0)
 
