@@ -1,6 +1,7 @@
 recursive-include pt_miniscreen *.py
 recursive-include pt_miniscreen *.gif
 recursive-include pt_miniscreen *.png
+recursive-include scripts *.sh
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
