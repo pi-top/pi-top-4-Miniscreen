@@ -1,3 +1,50 @@
+pi-top-4-miniscreen (6.4.1-2) bullseye; urgency=medium
+
+  * Os 1255 add unit tests (#236)
+  * [pre-commit.ci] pre-commit autoupdate (#238)
+  * [pre-commit.ci] pre-commit autoupdate (#240)
+  * test: add difference in images to reporter (#243)
+  * Reset DIM state timer on button press (#239)
+  * [pre-commit.ci] pre-commit autoupdate (#246)
+  * [pre-commit.ci] pre-commit autoupdate (#249)
+  * feat: add new core API for miniscreen apps (#244)
+  * Get device IP using SDK (#247)
+  * [pre-commit.ci] pre-commit autoupdate (#251)
+  * test: skip flaky settings tests (#253)
+  * Add software & hardware info pages (#245)
+  * OS-1279-core-tests (#252)
+  * [pre-commit.ci] pre-commit autoupdate (#254)
+  * Add arrow navigation component and set visibility of List component scrollbar (#255)
+  * Print/store displayed images for debugging (#256)
+  * fix: use threading.Event in marquee text (#260)
+  * feat: allow choosing if List is virtual or not (#258)
+  * feat: remove get_text_lazily from Text component (#259)
+  * test: fix flaky get_text tests
+  * feat: allow updates to Component state during init
+  * refactor: use new core API in application
+  * feat: use new core in hardware and software pages
+  * Re-add screen dimming and screensaver (#264)
+  * feat: allow waiting for images to finish animating
+  * feat: add bootsplash to new app
+  * Fix handling of miniscreen when user takes/gives control (#266)
+  * chore: remove remaining unused legacy code
+  * test: re-enable settings tests
+  * test: fix running app suites independently
+  * feat: pause components when not rendered
+  * perf: pause list rows that are not visible
+  * perf: pause image gif animations when not active
+  * perf: pause marquee text scrolling when not active
+  * fix: restart marquee scrolling when text changes
+  * fix: app crashing when miniscreen has broken pipe
+  * chore: ensure all child threads are daemon threads
+  * refactor: List component render method
+  * feat(overview page): remove ip icon to leave space for long ip addresses
+  * perf: tweak screensaver to render fewer off-screen stars
+  * fix: vertically center overview battery text
+  * fix: service restarting if miniscreen unavailable
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 27 May 2022 10:32:07 +0000
+
 pi-top-4-miniscreen (6.4.1-1) bullseye; urgency=medium
 
   * Run script not using local installation (#229)
