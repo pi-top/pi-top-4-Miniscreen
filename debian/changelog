@@ -1,3 +1,15 @@
+pi-top-4-miniscreen (7.0.0-1) bullseye; urgency=medium
+
+  * feat: add new core API for miniscreen apps (#244) (#242)
+  * refactor: use new core API in application (#242)
+  * Reset DIM state timer on button press (#239)
+  * Get device IP using SDK (#247)
+  * Add software & hardware info pages (#245)
+  * improved look and performance of several pages
+  * fix: service restarting if miniscreen unavailable
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 27 May 2022 10:32:07 +0000
+
 pi-top-4-miniscreen (6.4.1-1) bullseye; urgency=medium
 
   * Run script not using local installation (#229)
