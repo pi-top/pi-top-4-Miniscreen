@@ -111,6 +111,9 @@ class RootComponent(Component):
         if self.can_exit_menu:
             return get_image_file_path("gutter/left_arrow.png")
 
+        if self.stack.active_component.can_scroll_up:
+            return get_image_file_path("gutter/top_arrow.png")
+
     def _get_lower_icon_path(self):
         if self.can_perform_action:
             return get_image_file_path("gutter/tick.png")
