@@ -137,14 +137,24 @@ class RootComponent(Component):
             self._set_gutter_icons()
 
     def scroll_up(self):
-        if self.can_scroll:
+        if not self.can_scroll:
+            return
+
+        if self.stack.active_component.can_scroll_up():
             self.stack.active_component.scroll_up()
-            self._set_gutter_icons()
+        else:
+            self.stack.active_component.scroll_to_bottom()
+        self._set_gutter_icons()
 
     def scroll_down(self):
-        if self.can_scroll:
+        if not self.can_scroll:
+            return
+
+        if self.stack.active_component.can_scroll_down():
             self.stack.active_component.scroll_down()
-            self._set_gutter_icons()
+        else:
+            self.stack.active_component.scroll_to_top()
+        self._set_gutter_icons()
 
     def perform_action(self):
         if self.can_perform_action:
