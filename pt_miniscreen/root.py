@@ -156,6 +156,11 @@ class RootComponent(Component):
             self.stack.active_component.scroll_to_top()
         self._set_gutter_icons()
 
+    def handle_cancel_button_release(self):
+        if self.can_exit_menu:
+            return self.exit_menu()
+        self.stack.active_component.scroll_to_top()
+
     def perform_action(self):
         if self.can_perform_action:
             self.active_page.perform_action()
