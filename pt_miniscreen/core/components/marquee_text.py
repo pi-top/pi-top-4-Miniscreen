@@ -21,6 +21,7 @@ class MarqueeText(Text):
         step_time=0.1,
         initial_state={},
         wrap=None,  # take wrap out of kwargs
+        bounce_pause_time=1,
         **kwargs
     ):
         super().__init__(
@@ -31,6 +32,7 @@ class MarqueeText(Text):
                 "offset": 0,
                 "step": step,
                 "step_time": step_time,
+                "bounce_pause_time": bounce_pause_time,
             },
         )
 
@@ -67,10 +69,14 @@ class MarqueeText(Text):
             self.active_event.wait()
 
             sleep(self.state["step_time"])
+
             if stop_event.is_set():
                 return
 
             self.state.update({"offset": -offset})
+
+            if offset in (0, scroll_len):
+                sleep(self.state["bounce_pause_time"])
 
     def on_state_change(self, prev_state):
         # restart scrolling to recreate carousel with new text size if needed
