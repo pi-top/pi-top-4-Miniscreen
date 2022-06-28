@@ -154,7 +154,7 @@ def test_font(freeze_text, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "updated-font.png")
 
 
-@pytest.mark.flaky(reruns=10)
+@pytest.mark.flaky(reruns=15)
 def test_get_text(freeze_text, create_marquee_text, TextStore, render, snapshot):
     # calls get_text on creation to populate text
     component = create_marquee_text(get_text=TextStore().get_text)
@@ -241,7 +241,7 @@ def test_updating_alignment(freeze_text, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "updated_alignment.png")
 
 
-@pytest.mark.flaky(reruns=10)
+@pytest.mark.flaky(reruns=15)
 def test_scrolling(mocker, create_marquee_text, render, snapshot):
     def scroll(start, end):
         yield int((end - start) / 2)
@@ -313,6 +313,7 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "small-width.png")
 
 
+@pytest.mark.flaky(reruns=15)
 def test_scrolling_step_time(create_marquee_text, render, snapshot):
     # can change step time
     component = create_marquee_text(text="Medium width text", step_time=0.3)
@@ -323,7 +324,7 @@ def test_scrolling_step_time(create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "step-2.png")
 
 
-@pytest.mark.flaky(reruns=10)
+@pytest.mark.flaky(reruns=15)
 def test_scrolling_step(create_marquee_text, render, snapshot):
     # can change step
     component = create_marquee_text(text="Medium width text", step=30)
