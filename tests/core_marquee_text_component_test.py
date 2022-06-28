@@ -154,6 +154,7 @@ def test_font(freeze_text, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "updated-font.png")
 
 
+@pytest.mark.flaky(reruns=10)
 def test_get_text(freeze_text, create_marquee_text, TextStore, render, snapshot):
     # calls get_text on creation to populate text
     component = create_marquee_text(get_text=TextStore().get_text)
@@ -240,6 +241,7 @@ def test_updating_alignment(freeze_text, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "updated_alignment.png")
 
 
+@pytest.mark.flaky(reruns=10)
 def test_scrolling(mocker, create_marquee_text, render, snapshot):
     def scroll(start, end):
         yield int((end - start) / 2)
@@ -263,13 +265,15 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "medium-width-1.png")
     sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-2.png")
-    sleep(0.115)
+    # pauses when it gets to the end
+    sleep(1.115)
     snapshot.assert_match(render(component), "medium-width-3.png")
     sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-2.png")
-    sleep(0.115)
+    # pauses when gets back to start
+    sleep(1.115)
     snapshot.assert_match(render(component), "medium-width-1.png")
-    sleep(0.115)
+    sleep(0.2)
     snapshot.assert_match(render(component), "medium-width-2.png")
 
     # restarts scrolling when text changes and needs scrolling
@@ -277,28 +281,29 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "wide-text-1.png")
     sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep(0.115)
+    # pauses longer when it gets to the end
+    sleep(1.115)
     snapshot.assert_match(render(component), "wide-text-3.png")
     sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep(0.115)
+    # pauses longer when gets back to start
+    sleep(1.115)
     snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep(0.115)
-    snapshot.assert_match(render(component), "wide-text-2.png")
+    # sleep(0.115)
 
     # stops scrolling when component is paused
     component._set_active(False)
     sleep(0.115)
-    snapshot.assert_match(render(component), "wide-text-3.png")
-    sleep(0.115)
-    snapshot.assert_match(render(component), "wide-text-3.png")
+    snapshot.assert_match(render(component), "wide-text-2.png")
+    sleep(2)
+    snapshot.assert_match(render(component), "wide-text-2.png")
 
     # starts scrolling again when component is unpaused
     component._set_active(True)
-    sleep(0.115)
+    sleep(0.2)
+    snapshot.assert_match(render(component), "wide-text-3.png")
+    sleep(1.115)
     snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep(0.115)
-    snapshot.assert_match(render(component), "wide-text-1.png")
 
     # stops scrolling when text changes to be thinner than image
     component.state.update({"text": "Small width"})
@@ -318,6 +323,7 @@ def test_scrolling_step_time(create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "step-2.png")
 
 
+@pytest.mark.flaky(reruns=10)
 def test_scrolling_step(create_marquee_text, render, snapshot):
     # can change step
     component = create_marquee_text(text="Medium width text", step=30)
