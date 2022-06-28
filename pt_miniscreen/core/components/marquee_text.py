@@ -75,7 +75,7 @@ class MarqueeText(Text):
 
             self.state.update({"offset": -offset})
 
-            if offset in (0, scroll_len):
+            if offset in (1, scroll_len):
                 sleep(self.state["bounce_pause_time"])
 
     def on_state_change(self, prev_state):
