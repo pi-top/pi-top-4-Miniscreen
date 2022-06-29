@@ -156,25 +156,25 @@ def test_font(freeze_text, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "updated-font.png")
 
 
-@pytest.mark.flaky(reruns=15)
 def test_get_text(freeze_text, create_marquee_text, TextStore, render, snapshot):
     # calls get_text on creation to populate text
     component = create_marquee_text(get_text=TextStore().get_text)
     snapshot.assert_match(render(component), "initial-text.png")
 
     # text not updated before one second has passed
-    sleep(0.9)
+    sleep(0.8)
     snapshot.assert_match(render(component), "initial-text.png")
 
-    # text updated after one second
-    sleep(0.2)
+    # text updated after one second from instantiation
+    sleep(0.4)
     snapshot.assert_match(render(component), "updated-text-1.png")
 
-    # text updated again after another second
-    sleep(1)
+    # text updated again after another second from instantiation
+    sleep(1.3)
     snapshot.assert_match(render(component), "updated-text-2.png")
 
 
+@pytest.mark.flaky(reruns=10)
 def test_get_text_interval(
     freeze_text, create_marquee_text, TextStore, render, snapshot
 ):
@@ -187,7 +187,7 @@ def test_get_text_interval(
     snapshot.assert_match(render(component), "initial-text.png")
 
     # text updated after half a second has passed
-    sleep(0.2)
+    sleep(0.3)
     snapshot.assert_match(render(component), "updated-text-1.png")
 
     # text updated again after another half a second
@@ -200,7 +200,7 @@ def test_text_and_get_text_together(create_marquee_text, TextStore, render, snap
     snapshot.assert_match(render(component), "initial_text.png")
 
     # text updated after one second
-    sleep(1.1)
+    sleep(1.2)
     snapshot.assert_match(render(component), "populated.png")
 
 
@@ -367,15 +367,23 @@ def test_scrolling_step_time(mocker, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "step-2.png")
 
 
-@pytest.mark.flaky(reruns=15)
-def test_scrolling_step(create_marquee_text, render, snapshot):
+@pytest.mark.flaky(reruns=10)
+def test_scrolling_step(mocker, create_marquee_text, render, snapshot):
+    sleep_mocker = SleepMocker()
+    sleep_patch = mocker.patch(
+        "pt_miniscreen.core.components.marquee_text.sleep",
+        side_effect=sleep_mocker.sleep,
+    )
+
     # can change step
     component = create_marquee_text(text="Medium width text", step=30)
     snapshot.assert_match(render(component), "step-0.png")
-    sleep(0.11)
+    sleep_mocker.wait_until_next_call(sleep_patch)
     snapshot.assert_match(render(component), "step-1.png")
-    sleep(0.11)
+    sleep_mocker.wait_until_next_call(sleep_patch)
     snapshot.assert_match(render(component), "step-2.png")
+    sleep_mocker.wait_until_next_call(sleep_patch)
+    snapshot.assert_match(render(component), "step-3.png")
 
 
 def test_cleanup(parent, render):

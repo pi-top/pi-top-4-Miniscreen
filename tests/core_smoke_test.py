@@ -3,7 +3,8 @@ from functools import partial
 from time import sleep
 
 import pytest
-from mocks.pitop import Miniscreen
+
+from .mocks.pitop import Miniscreen
 
 logger = logging.getLogger(__name__)
 
