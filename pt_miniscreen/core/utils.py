@@ -163,5 +163,5 @@ def transition(distance, duration, base_step=1):
 
 def carousel(end, start=0, step=1):
     forwards = list(range(start + step, end, step))
-    backwards = list(range(end, start, -step))
+    backwards = list(range(end, start + step, -step))
     return cycle(forwards + backwards)
