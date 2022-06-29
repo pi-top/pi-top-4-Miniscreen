@@ -243,7 +243,6 @@ def test_updating_alignment(freeze_text, create_marquee_text, render, snapshot):
     snapshot.assert_match(render(component), "updated_alignment.png")
 
 
-# @pytest.mark.flaky(reruns=15)
 def test_scrolling(mocker, create_marquee_text, render, snapshot):
     def scroll(start, end, step):
         yield start + step
@@ -339,14 +338,32 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     sleep_mocker.sleep_event.set()
 
 
-@pytest.mark.flaky(reruns=15)
-def test_scrolling_step_time(create_marquee_text, render, snapshot):
+def test_scrolling_step_time(mocker, create_marquee_text, render, snapshot):
+    sleep_mocker = SleepMocker()
+    sleep_patch = mocker.patch(
+        "pt_miniscreen.core.components.marquee_text.sleep",
+        side_effect=sleep_mocker.sleep,
+    )
+
     # can change step time
-    component = create_marquee_text(text="Medium width text", step_time=0.3)
+    STEP_TIME = 0.3
+    component = create_marquee_text(text="Medium width text", step_time=STEP_TIME)
+
     snapshot.assert_match(render(component), "step-0.png")
-    sleep(0.4)
+    assert sleep_patch.call_count == 1
+    sleep_patch.assert_called_with(STEP_TIME)
+    sleep_mocker.wait_until_next_call(sleep_patch)
+    assert sleep_patch.call_count == 2
+    snapshot.assert_match(render(component), "step-0.png")
+
+    sleep_mocker.wait_until_next_call(sleep_patch)
+    assert sleep_patch.call_count == 3
+    sleep_patch.assert_called_with(STEP_TIME)
     snapshot.assert_match(render(component), "step-1.png")
-    sleep(0.4)
+
+    sleep_mocker.wait_until_next_call(sleep_patch)
+    sleep_patch.assert_called_with(STEP_TIME)
+    assert sleep_patch.call_count == 4
     snapshot.assert_match(render(component), "step-2.png")
 
 
