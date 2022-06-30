@@ -400,7 +400,7 @@ def test_cleanup(parent, render):
     parent.remove_child(component())
 
     # wait a step to let scrolling bail and then perform a collection
-    sleep(0.15)
+    sleep(1.2)
     gc.collect()
 
     # component should be cleaned up
