@@ -91,7 +91,7 @@ class App(BaseApp):
             return self.root.perform_action()
 
     def handle_cancel_button_release(self):
-        self.root.exit_menu()
+        self.root.handle_cancel_button_release()
 
     def handle_up_button_release(self):
         self.root.scroll_up()

@@ -58,3 +58,35 @@ def test_hud_navigation(miniscreen, snapshot):
     miniscreen.up_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "scroll-up.png")
+
+
+def test_hud_navigation_on_cancel_button_press(miniscreen, snapshot):
+    def press_cancel_button_and_wait():
+        miniscreen.cancel_button.release()
+        sleep(2)
+
+    def scroll_to_distance(distance):
+        for _ in range(distance):
+            miniscreen.down_button.release()
+            sleep(1)
+
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+    scroll_to_distance(distance=1)
+    snapshot.assert_match(miniscreen.device.display_image, "system.png")
+
+    press_cancel_button_and_wait()
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+    scroll_to_distance(distance=2)
+    snapshot.assert_match(miniscreen.device.display_image, "network.png")
+
+    press_cancel_button_and_wait()
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+    scroll_to_distance(distance=3)
+    snapshot.assert_match(miniscreen.device.display_image, "settings.png")
+
+    press_cancel_button_and_wait()
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
