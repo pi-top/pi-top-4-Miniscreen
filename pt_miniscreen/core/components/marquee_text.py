@@ -9,7 +9,7 @@ from .text import Text
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_OFFSET_VALUE = -1
+DEFAULT_OFFSET_VALUE = 0
 
 
 class MarqueeText(Text):
@@ -59,6 +59,7 @@ class MarqueeText(Text):
     def _restart_scrolling(self):
         if self._stop_scroll_event:
             self._stop_scroll_event.set()
+            self._stop_scroll_event = None
 
         self.state.update({"offset": DEFAULT_OFFSET_VALUE})
         self._start_scrolling()
@@ -67,13 +68,17 @@ class MarqueeText(Text):
         text_size = self.get_text_size(self.state["text"], self.state["font"])
         scroll_len = max(text_size[0] - self.width, 0)
 
+        sleep(self.state["bounce_pause_time"])
+
         for offset in carousel(scroll_len, step=self.state["step"]):
             self.active_event.wait()
             self.state.update({"offset": -offset})
 
-            sleep(self.state["step_time"])
-            if offset in (self.state["step"], scroll_len):
-                sleep(self.state["bounce_pause_time"])
+            sleep_time = self.state["step_time"]
+            if offset in (0, scroll_len):
+                sleep_time = self.state["bounce_pause_time"]
+
+            sleep(sleep_time)
 
             if stop_event.is_set():
                 return

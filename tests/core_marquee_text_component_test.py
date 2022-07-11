@@ -8,8 +8,6 @@ from weakref import ref
 import pytest
 from PIL import ImageFont
 
-from tests.mocks.utils import SleepMocker
-
 font_dir = f"{path.dirname(path.realpath(__file__))}/fonts"
 vera_dir = f"{font_dir}/ttf-bitstream-vera"
 roboto_dir = f"{font_dir}/roboto"
@@ -174,7 +172,6 @@ def test_get_text(freeze_text, create_marquee_text, TextStore, render, snapshot)
     snapshot.assert_match(render(component), "updated-text-2.png")
 
 
-@pytest.mark.flaky(reruns=10)
 def test_get_text_interval(
     freeze_text, create_marquee_text, TextStore, render, snapshot
 ):
@@ -244,20 +241,15 @@ def test_updating_alignment(freeze_text, create_marquee_text, render, snapshot):
 
 
 def test_scrolling(mocker, create_marquee_text, render, snapshot):
-    def scroll(start, end, step):
-        yield start + step
+    def scroll(start, end):
         yield int((end - start) / 2)
         yield end
         yield int((end - start) / 2)
+        yield start
 
     def carousel(end, start=0, step=1):
-        return cycle(scroll(start, end, step))
+        return cycle(scroll(start, end))
 
-    sleep_mocker = SleepMocker()
-    sleep_patch = mocker.patch(
-        "pt_miniscreen.core.components.marquee_text.sleep",
-        side_effect=sleep_mocker.sleep,
-    )
     mocker.patch("pt_miniscreen.core.components.marquee_text.carousel", carousel)
 
     # doesn't scroll when text is thinner than image
@@ -269,121 +261,97 @@ def test_scrolling(mocker, create_marquee_text, render, snapshot):
     # scroll to end of text and back repeatedly when text is wider than image
     component = create_marquee_text(text="Medium width text")
     snapshot.assert_match(render(component), "medium-width-1.png")
-
-    # pauses longer on initial position
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "medium-width-1.png")
-
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    # Wait for bounce time
+    sleep(1.015)
     snapshot.assert_match(render(component), "medium-width-2.png")
-
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-3.png")
-
-    # pauses longer when it gets to the end
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "medium-width-3.png")
-
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    # Wait for bounce time
+    sleep(1.015)
     snapshot.assert_match(render(component), "medium-width-2.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    sleep(0.115)
     snapshot.assert_match(render(component), "medium-width-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "medium-width-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    # Wait for bounce time
+    sleep(1.015)
     snapshot.assert_match(render(component), "medium-width-2.png")
+
+    sleep(0.115)
 
     # restarts scrolling when text changes and needs scrolling
     component.state.update({"text": "Very wide text that is super long"})
     snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    # Wait for bounce time
+    sleep(1.015)
+    snapshot.assert_match(render(component), "wide-text-2.png")
+    sleep(0.115)
+    snapshot.assert_match(render(component), "wide-text-3.png")
+    # Wait for bounce time
+    sleep(1.015)
+    snapshot.assert_match(render(component), "wide-text-2.png")
+    sleep(0.115)
     snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-3.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-3.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-
-    # stops scrolling when component is paused
-    component._set_active(False)
-    sleep(0.5)
-    snapshot.assert_match(render(component), "wide-text-2.png")
-    sleep(0.5)
-    snapshot.assert_match(render(component), "wide-text-2.png")
-
-    # starts scrolling again when component is unpaused
-    component._set_active(True)
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-3.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "wide-text-3.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    # Wait for bounce time
+    sleep(1.015)
     snapshot.assert_match(render(component), "wide-text-2.png")
 
     # stops scrolling when text changes to be thinner than image
     component.state.update({"text": "Small width"})
-    sleep(0.5)
+    sleep(0.15)
     snapshot.assert_match(render(component), "small-width.png")
-    sleep(0.5)
+    sleep(0.15)
     snapshot.assert_match(render(component), "small-width.png")
 
-    sleep_mocker.sleep_event.set()
+
+def test_set_active_pauses_scrolling(mocker, create_marquee_text, render, snapshot):
+    def scroll(start, end):
+        yield int((end - start) / 2)
+        yield end
+        yield int((end - start) / 2)
+        yield start
+
+    def carousel(end, start=0, step=1):
+        return cycle(scroll(start, end))
+
+    mocker.patch("pt_miniscreen.core.components.marquee_text.carousel", carousel)
+
+    component = create_marquee_text(text="Very wide text that is super long")
+    snapshot.assert_match(render(component), "wide-text-1.png")
+    sleep(1.015)
+    snapshot.assert_match(render(component), "wide-text-2.png")
+
+    # stops scrolling when component is paused
+    component._set_active(False)
+    snapshot.assert_match(render(component), "wide-text-2.png")
+    # Sleep for a time higher than bounce + step times
+    sleep(1.2)
+    snapshot.assert_match(render(component), "wide-text-2.png")
+
+    # starts scrolling again when component is unpaused
+    component._set_active(True)
+    sleep(0.015)
+    snapshot.assert_match(render(component), "wide-text-3.png")
+    sleep(1.015)
+    snapshot.assert_match(render(component), "wide-text-2.png")
 
 
-def test_scrolling_step_time(mocker, create_marquee_text, render, snapshot):
-    sleep_mocker = SleepMocker()
-    sleep_patch = mocker.patch(
-        "pt_miniscreen.core.components.marquee_text.sleep",
-        side_effect=sleep_mocker.sleep,
-    )
-
+def test_scrolling_step_time(create_marquee_text, render, snapshot):
     # can change step time
-    STEP_TIME = 0.3
-    component = create_marquee_text(text="Medium width text", step_time=STEP_TIME)
-
+    component = create_marquee_text(text="Medium width text", step_time=0.3)
     snapshot.assert_match(render(component), "step-0.png")
-    assert sleep_patch.call_count == 1
-    sleep_patch.assert_called_with(STEP_TIME)
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    assert sleep_patch.call_count == 2
-    snapshot.assert_match(render(component), "step-0.png")
-
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    assert sleep_patch.call_count == 3
-    sleep_patch.assert_called_with(STEP_TIME)
+    sleep(1.1)
     snapshot.assert_match(render(component), "step-1.png")
-
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    sleep_patch.assert_called_with(STEP_TIME)
-    assert sleep_patch.call_count == 4
+    sleep(0.4)
     snapshot.assert_match(render(component), "step-2.png")
 
 
-@pytest.mark.flaky(reruns=10)
-def test_scrolling_step(mocker, create_marquee_text, render, snapshot):
-    sleep_mocker = SleepMocker()
-    sleep_patch = mocker.patch(
-        "pt_miniscreen.core.components.marquee_text.sleep",
-        side_effect=sleep_mocker.sleep,
-    )
-
+def test_scrolling_step(create_marquee_text, render, snapshot):
     # can change step
     component = create_marquee_text(text="Medium width text", step=30)
     snapshot.assert_match(render(component), "step-0.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    sleep(1.015)
     snapshot.assert_match(render(component), "step-1.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
+    sleep(0.11)
     snapshot.assert_match(render(component), "step-2.png")
-    sleep_mocker.wait_until_next_call(sleep_patch)
-    snapshot.assert_match(render(component), "step-3.png")
 
 
 def test_cleanup(parent, render):
