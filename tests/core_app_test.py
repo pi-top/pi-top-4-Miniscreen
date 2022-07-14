@@ -5,10 +5,11 @@ from unittest.mock import MagicMock
 from weakref import ref
 
 import pytest
-from mocks.pitop import Miniscreen
 from PIL import Image
 
 from tests.mocks.pitop import Device
+
+from .mocks.pitop import Miniscreen
 
 logger = logging.getLogger(__name__)
 

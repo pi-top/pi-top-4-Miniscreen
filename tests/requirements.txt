@@ -1,6 +1,7 @@
 pytest
 pytest-cov
 pytest-mock
+pytest-rerunfailures
 pytest-xdist
 pytest-snapshot>=0.8.1
 Pillow>=8.1.2

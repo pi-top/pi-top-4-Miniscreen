@@ -9,6 +9,8 @@ from .text import Text
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_OFFSET_VALUE = 0
+
 
 class MarqueeText(Text):
     def cleanup(self):
@@ -21,6 +23,7 @@ class MarqueeText(Text):
         step_time=0.1,
         initial_state={},
         wrap=None,  # take wrap out of kwargs
+        bounce_pause_time=1,
         **kwargs
     ):
         super().__init__(
@@ -28,9 +31,10 @@ class MarqueeText(Text):
             wrap=False,
             initial_state={
                 **initial_state,
-                "offset": 0,
+                "offset": DEFAULT_OFFSET_VALUE,
                 "step": step,
                 "step_time": step_time,
+                "bounce_pause_time": bounce_pause_time,
             },
         )
 
@@ -55,22 +59,29 @@ class MarqueeText(Text):
     def _restart_scrolling(self):
         if self._stop_scroll_event:
             self._stop_scroll_event.set()
+            self._stop_scroll_event = None
 
-        self.state.update({"offset": 0})
+        self.state.update({"offset": DEFAULT_OFFSET_VALUE})
         self._start_scrolling()
 
     def _scroll(self, stop_event):
         text_size = self.get_text_size(self.state["text"], self.state["font"])
         scroll_len = max(text_size[0] - self.width, 0)
 
+        sleep(self.state["bounce_pause_time"])
+
         for offset in carousel(scroll_len, step=self.state["step"]):
             self.active_event.wait()
+            self.state.update({"offset": -offset})
 
-            sleep(self.state["step_time"])
+            sleep_time = self.state["step_time"]
+            if offset in (0, scroll_len):
+                sleep_time = self.state["bounce_pause_time"]
+
+            sleep(sleep_time)
+
             if stop_event.is_set():
                 return
-
-            self.state.update({"offset": -offset})
 
     def on_state_change(self, prev_state):
         # restart scrolling to recreate carousel with new text size if needed
@@ -89,7 +100,7 @@ class MarqueeText(Text):
             self._stop_scroll_event.set()
 
         text_size = self.get_text_size(self.state["text"], self.state["font"])
-        offset = self.state["offset"] if self.needs_scrolling else 0
+        offset = self.state["offset"] if self.needs_scrolling else DEFAULT_OFFSET_VALUE
 
         image.paste(
             super().render(Image.new("1", size=(text_size[0], image.height))),
