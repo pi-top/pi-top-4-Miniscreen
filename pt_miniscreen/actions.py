@@ -35,6 +35,12 @@ def change_ssh_enabled_state():
 def change_vnc_enabled_state():
     __change_service_enabled_state("vncserver-x11-serviced.service")
 
+    # Force vncserver-x11-serviced and pt-web-vnc-desktop services status to match
+    vncserver_state = get_systemd_enabled_state("vncserver-x11-serviced.service")
+    pt_web_vnc_state = get_systemd_enabled_state("pt-web-vnc-desktop.service")
+    if vncserver_state != pt_web_vnc_state:
+        __change_service_enabled_state("pt-web-vnc-desktop.service")
+
 
 def change_further_link_enabled_state():
     __change_service_enabled_state("further-link.service")
