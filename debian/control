@@ -19,7 +19,7 @@ Recommends:
  autorandr (>= 1.9),
  further-link,
 # Control desktop sharing via browser
- pt-web-vnc,
+ pt-web-vnc (>= 0.0.2),
 # Control Wi-Fi AP mode
  wifi-ap-sta,
 # Used for closing 'Screen Layout Editor' when resetting display
