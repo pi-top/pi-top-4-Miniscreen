@@ -16,6 +16,7 @@ class SettingsState:
             "ssh",
             "further-link.service",
             "vncserver-x11-serviced.service",
+            "pt-web-vnc-desktop.service",
         ):
             self.service_state[service] = "Disabled"
         self.ap_mode_status["state"] = "Inactive"
@@ -69,6 +70,10 @@ def setup(miniscreen, mocker):
     mocker.patch(
         "pt_miniscreen.pages.settings.vnc_toggle.get_vnc_enabled_state",
         partial(settings_manager.get_status, "vncserver-x11-serviced.service"),
+    )
+    mocker.patch(
+        "pt_miniscreen.pages.settings.vnc_toggle.get_vnc_enabled_state",
+        partial(settings_manager.get_status, "pt-web-vnc-desktop.service"),
     )
     mocker.patch(
         "pt_miniscreen.pages.settings.further_link_toggle.get_pt_further_link_enabled_state",

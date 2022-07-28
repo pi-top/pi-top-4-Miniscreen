@@ -14,7 +14,7 @@ def get_network_strength(interface):
     return "0%"
 
 
-def get_systemd_enabled_state():
+def get_systemd_enabled_state(service):
     return "Disabled"
 
 
