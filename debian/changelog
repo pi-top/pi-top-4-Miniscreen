@@ -1,3 +1,16 @@
+pi-top-4-miniscreen (7.0.0-2) bullseye; urgency=medium
+
+  * Updated master workflow files
+  * [pre-commit.ci] pre-commit autoupdate (#257)
+  * Scroll to top on cancel button press  (#269)
+  * [pre-commit.ci] pre-commit autoupdate (#271)
+  * Pause marquee scroll at ends (#270)
+  * Control pt-web-vnc-desktop in VNC action page (#272)
+  * [pre-commit.ci] pre-commit autoupdate (#273)
+  * [pre-commit.ci] pre-commit autoupdate (#274)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Tue, 09 Aug 2022 22:14:51 +0000
+
 pi-top-4-miniscreen (7.0.0-1) bullseye; urgency=medium
 
   * feat: add new core API for miniscreen apps (#244) (#242)
