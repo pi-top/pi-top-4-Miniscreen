@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (7.1.0-2) bullseye; urgency=medium
+
+  * Create app interactions in start rather than init, after root is created
+  * Catch button handler errors and stop app with error to allow reset
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 15 Aug 2022 13:33:32 +0000
+
 pi-top-4-miniscreen (7.1.0-1) bullseye; urgency=medium
 
   * Scroll to top on cancel button press  (#269)
