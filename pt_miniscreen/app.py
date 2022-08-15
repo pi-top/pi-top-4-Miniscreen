@@ -21,6 +21,12 @@ class App(BaseApp):
         logger.debug("Initializing miniscreen...")
         miniscreen = Pitop().miniscreen
 
+        logger.debug("Initialising app...")
+        super().__init__(miniscreen, Root=RootComponent)
+
+    def start():
+        super().start()
+
         def set_is_user_controlled(user_has_control) -> None:
             if user_has_control:
                 self.stop_timers()
@@ -31,18 +37,18 @@ class App(BaseApp):
                 f"User has {'taken' if user_has_control else 'given back'} control of the miniscreen"
             )
 
-        miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
-        miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
-        miniscreen.select_button.when_released = self.create_button_handler(
+        self.miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
+        self.miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
+        self.miniscreen.select_button.when_released = self.create_button_handler(
             self.handle_select_button_release
         )
-        miniscreen.cancel_button.when_released = self.create_button_handler(
+        self.miniscreen.cancel_button.when_released = self.create_button_handler(
             self.handle_cancel_button_release
         )
-        miniscreen.up_button.when_released = self.create_button_handler(
+        self.miniscreen.up_button.when_released = self.create_button_handler(
             self.handle_up_button_release
         )
-        miniscreen.down_button.when_released = self.create_button_handler(
+        self.miniscreen.down_button.when_released = self.create_button_handler(
             self.handle_down_button_release
         )
 
@@ -50,9 +56,6 @@ class App(BaseApp):
         self.screensaver_timer = None
         self.dimming_timer = None
         self.start_dimming_timer()
-
-        logger.debug("Initialising app...")
-        super().__init__(miniscreen, Root=RootComponent)
 
     def brighten(self):
         self.miniscreen.contrast(255)
