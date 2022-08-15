@@ -24,7 +24,7 @@ class App(BaseApp):
         logger.debug("Initialising app...")
         super().__init__(miniscreen, Root=RootComponent)
 
-    def start():
+    def start(self):
         super().start()
 
         def set_is_user_controlled(user_has_control) -> None:
@@ -73,13 +73,18 @@ class App(BaseApp):
 
             self.restart_dimming_timer()
 
-            if self.root.is_screensaver_running:
-                self.root.stop_screensaver()
-                self.brighten()
-                return
+            try:
+                if self.root.is_screensaver_running:
+                    self.root.stop_screensaver()
+                    self.brighten()
+                    return
 
-            if callable(func):
-                func()
+                if callable(func):
+                    func()
+
+            except Exception as e:
+                logger.error("Error in button handler: " + str(e))
+                self.stop(e)
 
             if self.dimmed:
                 self.brighten()
