@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.1.1-2) bullseye; urgency=medium
+pi-top-4-miniscreen (7.1.2-1) bullseye; urgency=medium
 
   * Set package version using environment variable (#279)
 
