@@ -10,9 +10,11 @@ from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.components.image import Image
+from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
+from pt_miniscreen.pages.root.projects import ProjectsMenuPage
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
@@ -38,6 +40,7 @@ class RootPageList(PageList):
             **kwargs,
             Pages=[
                 OverviewPage,
+                ProjectsMenuPage,
                 SystemMenuPage,
                 NetworkMenuPage,
                 SettingsMenuPage,
@@ -89,6 +92,10 @@ class RootComponent(Component):
     @property
     def can_scroll(self):
         return isinstance(self.stack.active_component, PageList)
+
+    @property
+    def can_select_row(self):
+        return isinstance(self.active_page, SelectableList)
 
     @property
     def can_perform_action(self):
@@ -148,6 +155,14 @@ class RootComponent(Component):
         if self.can_scroll:
             self.stack.active_component.scroll_down()
             self._set_gutter_icons()
+
+    def select_next_row(self):
+        if self.can_select_row:
+            self.active_page.select_next_row()
+
+    def select_previous_row(self):
+        if self.can_select_row:
+            self.active_page.select_previous_row()
 
     def handle_cancel_button_release(self):
         if self.can_exit_menu:

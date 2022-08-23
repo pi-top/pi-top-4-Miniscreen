@@ -102,10 +102,16 @@ class App(BaseApp):
         self.root.handle_cancel_button_release()
 
     def handle_up_button_release(self):
-        self.root.scroll_up()
+        if self.root.can_select_row:
+            self.root.select_previous_row()
+        elif self.root.can_scroll:
+            self.root.scroll_up()
 
     def handle_down_button_release(self):
-        self.root.scroll_down()
+        if self.root.can_select_row:
+            self.root.select_next_row()
+        elif self.root.can_scroll:
+            self.root.scroll_down()
 
     def restore_miniscreen(self):
         try:
