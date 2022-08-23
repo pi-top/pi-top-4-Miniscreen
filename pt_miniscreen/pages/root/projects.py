@@ -6,6 +6,7 @@ from typing import List
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
+from pt_miniscreen.core.components import Image
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.utils import apply_layers, layer
@@ -44,16 +45,50 @@ class ProjectConfig:
             raise InvalidConfigFile(e)
 
 
-class ProjectRow(Component):
-    def __init__(self, config_file: ProjectConfig, **kwargs) -> None:
+class ProjectPage(Component):
+    def __init__(self, project_config: ProjectConfig, **kwargs):
         super().__init__(**kwargs)
         self.text = self.create_child(
             MarqueeText,
-            text=config_file.title,
+            text=project_config.title,
+            font_size=14,
+            align="center",
+            vertical_align="center",
+        )
+        self.image = self.create_child(
+            Image,
+            image_path=get_image_file_path("menu/settings.gif"),
+        )
+
+    def render(self, image):
+        return apply_layers(
+            image,
+            [
+                layer(
+                    self.text.render,
+                    size=(120, 25),
+                    pos=(28, 0),
+                ),
+                layer(
+                    self.image.render,
+                    size=(25, 25),
+                    pos=(0, 0),
+                ),
+            ],
+        )
+
+
+class ProjectRow(Component):
+    def __init__(self, project_config: ProjectConfig, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.text = self.create_child(
+            MarqueeText,
+            text=project_config.title,
             font_size=10,
             align="center",
             vertical_align="center",
         )
+        self.page = partial(ProjectPage, project_config)
 
     def render(self, image):
         return apply_layers(

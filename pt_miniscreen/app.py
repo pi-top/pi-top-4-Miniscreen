@@ -98,6 +98,9 @@ class App(BaseApp):
         if self.root.can_perform_action:
             return self.root.perform_action()
 
+        if self.root.can_select_row:
+            return self.root.enter_selected_row()
+
     def handle_cancel_button_release(self):
         self.root.handle_cancel_button_release()
 
