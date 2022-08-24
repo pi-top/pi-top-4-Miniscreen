@@ -138,7 +138,7 @@ class RootComponent(Component):
 
     def enter_selected_row(self):
         if self.can_select_row:
-            self.stack.push(self.active_page.current_page.page)
+            self.stack.push(self.active_page.selected_row.page)
             self._set_gutter_icons()
 
     def enter_menu(self):

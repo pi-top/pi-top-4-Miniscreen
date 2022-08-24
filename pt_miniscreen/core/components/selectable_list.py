@@ -27,10 +27,6 @@ class SelectableList(List):
         ).convert("1")
 
     @property
-    def current_page(self):
-        return self.visible_rows[0]
-
-    @property
     def selected_row(self):
         return self.rows[self.state["selected_index"]]
 

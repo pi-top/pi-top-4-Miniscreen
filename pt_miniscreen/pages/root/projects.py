@@ -34,30 +34,36 @@ class ProjectConfig:
         try:
             config.read(file)
             project_config = config[cls.CONFIG_FILE_SECTION]
+
+            image = project_config.get("image")
+            if image is None or not Path(image).is_file():
+                image = get_image_file_path("menu/settings.gif")
+
             return ProjectConfig(
                 title=project_config["title"],
-                image=project_config["image"],
+                image=image,
                 start=project_config["start"],
                 exit_condition=project_config["exit_condition"],
             )
         except Exception as e:
-            logger.info(f"Error parsing file '{file}': {e}")
+            logger.warning(f"Error parsing file '{file}': {e}")
             raise InvalidConfigFile(e)
 
 
 class ProjectPage(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs):
+        self.project_config = project_config
         super().__init__(**kwargs)
         self.text = self.create_child(
             MarqueeText,
-            text=project_config.title,
+            text=self.project_config.title,
             font_size=14,
             align="center",
             vertical_align="center",
         )
         self.image = self.create_child(
             Image,
-            image_path=get_image_file_path("menu/settings.gif"),
+            image_path=self.project_config.image,
         )
 
     def render(self, image):
@@ -80,15 +86,16 @@ class ProjectPage(Component):
 
 class ProjectRow(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs) -> None:
+        self.project_config = project_config
         super().__init__(**kwargs)
         self.text = self.create_child(
             MarqueeText,
-            text=project_config.title,
+            text=self.project_config.title,
             font_size=10,
             align="center",
             vertical_align="center",
         )
-        self.page = partial(ProjectPage, project_config)
+        self.page = partial(ProjectPage, self.project_config)
 
     def render(self, image):
         return apply_layers(
