@@ -40,9 +40,9 @@ class RootPageList(PageList):
             **kwargs,
             Pages=[
                 OverviewPage,
-                ProjectsMenuPage,
                 SystemMenuPage,
                 NetworkMenuPage,
+                ProjectsMenuPage,
                 SettingsMenuPage,
             ],
         )
@@ -137,7 +137,7 @@ class RootComponent(Component):
         )
 
     def enter_selected_row(self):
-        if self.can_select_row:
+        if self.can_select_row and self.active_page.selected_row.page:
             self.stack.push(self.active_page.selected_row.page)
             self._set_gutter_icons()
 

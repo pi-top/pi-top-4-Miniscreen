@@ -2,7 +2,7 @@ import configparser
 import logging
 from functools import partial
 from pathlib import Path
-from typing import List
+from typing import List, Type, Union
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
@@ -110,6 +110,31 @@ class ProjectRow(Component):
         )
 
 
+class EmptyProjectRow(Component):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.page = None
+        self.text = self.create_child(
+            MarqueeText,
+            text="No projects found",
+            font_size=10,
+            align="center",
+            vertical_align="center",
+        )
+
+    def render(self, image):
+        return apply_layers(
+            image,
+            [
+                layer(
+                    self.text.render,
+                    size=(128, 10),
+                    pos=(0, 0),
+                ),
+            ],
+        )
+
+
 class ProjectList(SelectableList):
     def __init__(self, **kwargs) -> None:
         super().__init__(
@@ -119,16 +144,21 @@ class ProjectList(SelectableList):
         )
 
     def load_project_rows(self, directories: List) -> List:
-        pages = []
+        pages: List[Union[Type[EmptyProjectRow], partial[ProjectRow]]] = []
         for root_dir in directories:
             for file in Path(root_dir).glob("*/*.cfg"):
                 try:
-                    logger.info(f"Trying to read {root_dir}/{file}")
+                    project_config = None
+                    logger.warning(f"Trying to read {root_dir}/{file}")
                     project_config = ProjectConfig.from_file(file)
-                    logger.info(f"Found project {project_config.title}")
+                    logger.warning(f"Found project {project_config.title}")
                     pages.append(partial(ProjectRow, project_config))
                 except InvalidConfigFile as e:
                     logger.error(f"Error parsing {file}: {e}")
+
+        if len(pages) == 0:
+            pages.append(EmptyProjectRow)
+
         return pages
 
 
