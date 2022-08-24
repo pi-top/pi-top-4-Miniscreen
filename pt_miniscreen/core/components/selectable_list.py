@@ -16,7 +16,6 @@ class SelectableList(List):
         super().__init__(
             **kwargs,
             initial_state={
-                "num_visible_rows": 5,
                 "selected_index": 0,
                 **initial_state,
             },
@@ -28,16 +27,16 @@ class SelectableList(List):
 
     @property
     def selected_row(self):
-        return self.rows[self.state["selected_index"]]
+        return self._get_row_at_index(self.state["selected_index"])
 
     def select_row(self, index):
         if self.state["active_transition"] is not None:
             logger.info(f"{self} selecting new row, ignoring select")
             return
 
-        if 0 > index or index >= len(self.rows):
-            logger.error(
-                f"select_row: Invalid index {index}, should be in range 0 - {len(self.rows) - 1}"
+        if 0 > index or index >= len(self.state["Rows"]):
+            logger.info(
+                f"select_row: Invalid index {index}, should be in range 0 - {len(self.state['Rows']) - 1}"
             )
             return
 
@@ -57,13 +56,25 @@ class SelectableList(List):
     def select_previous_row(self):
         self.select_row(self.state["selected_index"] - 1)
 
+    def _get_row_at_index(self, index):
+        if not self._virtual:
+            return self.rows[index]
+
+        if self.state["active_transition"] == "DOWN":
+            return self.rows[
+                index - self.state["top_row_index"] + self.state["transition_distance"]
+            ]
+
+        return self.rows[index - self.state["top_row_index"]]
+
     def on_state_change(self, previous_state):
         if previous_state["selected_index"] != self.state["selected_index"]:
-            self.rows[
-                previous_state["selected_index"]
-            ].render = self._selected_row_unmodified_render
+            previous_row = self._get_row_at_index(previous_state["selected_index"])
+            previous_row.render = self._selected_row_unmodified_render
+
             self._selected_row_unmodified_render = self.selected_row.render
             self.selected_row.render = lambda image: ImageOps.invert(
                 self._selected_row_unmodified_render(image).convert("L")
             ).convert("1")
+
         return super().on_state_change(previous_state)

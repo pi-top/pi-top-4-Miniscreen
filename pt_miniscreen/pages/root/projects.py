@@ -114,6 +114,7 @@ class ProjectList(SelectableList):
     def __init__(self, **kwargs) -> None:
         super().__init__(
             Rows=self.load_project_rows(["/home/pi/Desktop/Projects/"]),
+            num_visible_rows=5,
             **kwargs,
         )
 
