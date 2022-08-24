@@ -1,4 +1,5 @@
 import logging
+import traceback
 from os import environ
 from threading import Timer
 
@@ -84,6 +85,7 @@ class App(BaseApp):
 
             except Exception as e:
                 logger.error("Error in button handler: " + str(e))
+                traceback.print_exc()
                 self.stop(e)
 
             if self.dimmed:
