@@ -31,6 +31,10 @@ class SelectableList(List):
         return self.rows[self.state["selected_index"]]
 
     def select_row(self, index):
+        if self.state["active_transition"] is not None:
+            logger.info(f"{self} selecting new row, ignoring select")
+            return
+
         if 0 > index or index >= len(self.rows):
             logger.error(
                 f"select_row: Invalid index {index}, should be in range 0 - {len(self.rows) - 1}"
