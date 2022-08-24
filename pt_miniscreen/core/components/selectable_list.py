@@ -20,10 +20,13 @@ class SelectableList(List):
                 **initial_state,
             },
         )
-        self._selected_row_unmodified_render = self.selected_row.render
-        self.selected_row.render = lambda image: ImageOps.invert(
-            self._selected_row_unmodified_render(image).convert("L")
-        ).convert("1")
+
+        self._selected_row_unmodified_render = None
+        if len(self.rows) != 0:
+            self._selected_row_unmodified_render = self.selected_row.render
+            self.selected_row.render = lambda image: ImageOps.invert(
+                self._selected_row_unmodified_render(image).convert("L")
+            ).convert("1")
 
     @property
     def selected_row(self):
@@ -57,6 +60,9 @@ class SelectableList(List):
         self.select_row(self.state["selected_index"] - 1)
 
     def _get_row_at_index(self, index):
+        if len(self.rows) == 0:
+            return None
+
         if not self._virtual:
             return self.rows[index]
 
