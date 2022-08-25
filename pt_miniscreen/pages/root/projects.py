@@ -1,5 +1,6 @@
 import configparser
 import logging
+import os
 from functools import partial
 from pathlib import Path
 from typing import List, Type, Union
@@ -150,12 +151,13 @@ class ProjectList(SelectableList):
     def load_project_rows(self) -> List:
         pages: List[Union[Type[EmptyProjectRow], partial[ProjectRow]]] = []
         for root_dir in self.PROJECT_DIRECTORIES:
-            for file in Path(root_dir).glob("*/*.cfg"):
+            files = Path(root_dir).glob("*/*.cfg")
+            # Sort found files by date/time of last modification
+            for file in sorted(files, key=os.path.getmtime, reverse=True):
                 try:
-                    project_config = None
-                    logger.warning(f"Trying to read {root_dir}/{file}")
+                    logger.info(f"Trying to read {root_dir}/{file}")
                     project_config = ProjectConfig.from_file(file)
-                    logger.warning(f"Found project {project_config.title}")
+                    logger.info(f"Found project {project_config.title}")
                     pages.append(partial(ProjectRow, project_config))
                 except InvalidConfigFile as e:
                     logger.error(f"Error parsing {file}: {e}")
