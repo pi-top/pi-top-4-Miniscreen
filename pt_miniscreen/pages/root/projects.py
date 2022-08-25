@@ -22,8 +22,12 @@ class InvalidConfigFile(Exception):
 class ProjectConfig:
     CONFIG_FILE_SECTION = "project"
 
-    def __init__(self, title, image, start, exit_condition, **kwargs) -> None:
+    def __init__(
+        self, title: str, image: str, start: str, exit_condition: str, **kwargs
+    ) -> None:
         self.title = title
+        if len(image) == 0 or not Path(image).is_file():
+            image = get_image_file_path("menu/settings.gif")
         self.image = image
         self.start = start
         self.exit_condition = exit_condition
@@ -35,15 +39,11 @@ class ProjectConfig:
             config.read(file)
             project_config = config[cls.CONFIG_FILE_SECTION]
 
-            image = project_config.get("image")
-            if image is None or not Path(image).is_file():
-                image = get_image_file_path("menu/settings.gif")
-
             return ProjectConfig(
                 title=project_config["title"],
-                image=image,
+                image=project_config.get("image", ""),
                 start=project_config["start"],
-                exit_condition=project_config["exit_condition"],
+                exit_condition=project_config.get("exit_condition"),
             )
         except Exception as e:
             logger.warning(f"Error parsing file '{file}': {e}")
@@ -136,16 +136,20 @@ class EmptyProjectRow(Component):
 
 
 class ProjectList(SelectableList):
+    PROJECT_DIRECTORIES = [
+        "/home/pi/Desktop/Projects/",
+    ]
+
     def __init__(self, **kwargs) -> None:
         super().__init__(
-            Rows=self.load_project_rows(["/home/pi/Desktop/Projects/"]),
+            Rows=self.load_project_rows(),
             num_visible_rows=5,
             **kwargs,
         )
 
-    def load_project_rows(self, directories: List) -> List:
+    def load_project_rows(self) -> List:
         pages: List[Union[Type[EmptyProjectRow], partial[ProjectRow]]] = []
-        for root_dir in directories:
+        for root_dir in self.PROJECT_DIRECTORIES:
             for file in Path(root_dir).glob("*/*.cfg"):
                 try:
                     project_config = None
