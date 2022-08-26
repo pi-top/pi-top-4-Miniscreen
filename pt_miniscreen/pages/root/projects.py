@@ -99,16 +99,7 @@ class ProjectRow(Component):
         self.page = partial(ProjectPage, self.project_config)
 
     def render(self, image):
-        return apply_layers(
-            image,
-            [
-                layer(
-                    self.text.render,
-                    size=(128, 10),
-                    pos=(0, 0),
-                ),
-            ],
-        )
+        return self.text.render(image)
 
 
 class EmptyProjectRow(Component):
@@ -124,16 +115,7 @@ class EmptyProjectRow(Component):
         )
 
     def render(self, image):
-        return apply_layers(
-            image,
-            [
-                layer(
-                    self.text.render,
-                    size=(128, 10),
-                    pos=(0, 0),
-                ),
-            ],
-        )
+        return self.text.render(image)
 
 
 class ProjectList(SelectableList):
