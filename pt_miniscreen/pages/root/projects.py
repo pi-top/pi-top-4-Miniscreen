@@ -131,7 +131,7 @@ class ProjectList(SelectableList):
         )
 
     def load_project_rows(self) -> List:
-        pages: List[Union[Type[EmptyProjectRow], partial[ProjectRow]]] = []
+        rows: List[Union[Type[EmptyProjectRow], partial[ProjectRow]]] = []
         for root_dir in self.PROJECT_DIRECTORIES:
             files = Path(root_dir).glob("*/*.cfg")
             # Sort found files by date/time of last modification
@@ -140,14 +140,14 @@ class ProjectList(SelectableList):
                     logger.info(f"Trying to read {root_dir}/{file}")
                     project_config = ProjectConfig.from_file(file)
                     logger.info(f"Found project {project_config.title}")
-                    pages.append(partial(ProjectRow, project_config))
+                    rows.append(partial(ProjectRow, project_config))
                 except InvalidConfigFile as e:
                     logger.error(f"Error parsing {file}: {e}")
 
-        if len(pages) == 0:
-            pages.append(EmptyProjectRow)
+        if len(rows) == 0:
+            rows.append(EmptyProjectRow)
 
-        return pages
+        return rows
 
 
 class ProjectsMenuPage(MenuPage):
