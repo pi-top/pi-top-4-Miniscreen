@@ -94,6 +94,9 @@ class App(BaseApp):
         return handler
 
     def handle_select_button_release(self):
+        if self.root.is_project_page:
+            return
+
         if self.root.can_enter_menu:
             return self.root.enter_menu()
 
@@ -101,18 +104,25 @@ class App(BaseApp):
             return self.root.perform_action()
 
         if self.root.can_select_row:
-            return self.root.enter_selected_row()
+            self.root.enter_selected_row()
+            return self.root.start_project()
 
     def handle_cancel_button_release(self):
         self.root.handle_cancel_button_release()
 
     def handle_up_button_release(self):
+        if self.root.is_project_page:
+            return
+
         if self.root.can_select_row:
             self.root.select_previous_row()
         elif self.root.can_scroll:
             self.root.scroll_up()
 
     def handle_down_button_release(self):
+        if self.root.is_project_page:
+            return
+
         if self.root.can_select_row:
             self.root.select_next_row()
         elif self.root.can_scroll:
