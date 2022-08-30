@@ -7,10 +7,8 @@ from typing import List, Type, Union
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
-from pt_miniscreen.core.components import Image
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.selectable_list import SelectableList
-from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
@@ -55,48 +53,40 @@ class ProjectPage(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
         super().__init__(**kwargs)
+
         self.text = self.create_child(
             MarqueeText,
-            text=self.project_config.title,
+            text=f"Running '{self.project_config.title}'",
             font_size=14,
             align="center",
             vertical_align="center",
         )
-        self.image = self.create_child(
-            Image,
-            image_path=self.project_config.image,
-        )
 
     def render(self, image):
-        return apply_layers(
-            image,
-            [
-                layer(
-                    self.text.render,
-                    size=(120, 25),
-                    pos=(28, 0),
-                ),
-                layer(
-                    self.image.render,
-                    size=(25, 25),
-                    pos=(0, 0),
-                ),
-            ],
+        return self.text.render(image)
+
+    def start(self):
+        print(
+            f"Starting project '{self.project_config.title}': '{self.project_config.start}'"
         )
 
 
 class ProjectRow(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs) -> None:
-        self.project_config = project_config
+        project_config = project_config
+
         super().__init__(**kwargs)
         self.text = self.create_child(
             MarqueeText,
-            text=self.project_config.title,
+            text=project_config.title,
             font_size=10,
             align="center",
             vertical_align="center",
         )
-        self.page = partial(ProjectPage, self.project_config)
+        self.page = partial(
+            ProjectPage,
+            project_config,
+        )
 
     def render(self, image):
         return self.text.render(image)
