@@ -183,6 +183,10 @@ class RootComponent(Component):
         if self.is_project_page:
             return self.active_page.start()
 
+    def wait_project(self):
+        if self.is_project_page:
+            return self.active_page.wait()
+
     def handle_cancel_button_release(self):
         if self.is_project_page:
             return

@@ -105,7 +105,9 @@ class App(BaseApp):
 
         if self.root.can_select_row:
             self.root.enter_selected_row()
-            return self.root.start_project()
+            self.root.start_project()
+            self.root.wait_project()
+            return self.root.exit_menu()
 
     def handle_cancel_button_release(self):
         self.root.handle_cancel_button_release()
