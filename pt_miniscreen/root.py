@@ -92,10 +92,6 @@ class RootComponent(Component):
         return self.active_page and isinstance(self.active_page, ProjectPage)
 
     @property
-    def project_is_running(self):
-        return self.active_page and isinstance(self.active_page, ProjectPage)
-
-    @property
     def can_enter_menu(self):
         return self.active_page and isinstance(self.active_page, MenuPage)
 
