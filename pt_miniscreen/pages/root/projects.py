@@ -128,8 +128,6 @@ class ProjectPage(Component):
 
 class ProjectRow(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs) -> None:
-        project_config = project_config
-
         super().__init__(**kwargs)
         self.text = self.create_child(
             MarqueeText,
