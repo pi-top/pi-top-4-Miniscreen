@@ -39,7 +39,11 @@ def create_project(mocker):
         pages = []
         for project in range(project_number):
             config = ProjectConfig(
-                title=f"Project #{project + 1}", start="", image="", exit_condition=""
+                file="/tmp/config.cfg",
+                title=f"Project #{project + 1}",
+                start="",
+                image="",
+                exit_condition="",
             )
             pages.append(partial(ProjectRow, config))
         return pages

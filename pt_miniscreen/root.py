@@ -14,7 +14,11 @@ from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
-from pt_miniscreen.pages.root.projects import ProjectPage, ProjectsMenuPage
+from pt_miniscreen.pages.root.projects import (
+    EmptyProjectRow,
+    ProjectPage,
+    ProjectsMenuPage,
+)
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
@@ -105,7 +109,9 @@ class RootComponent(Component):
 
     @property
     def can_select_row(self):
-        return isinstance(self.active_page, SelectableList)
+        return isinstance(self.active_page, SelectableList) and not isinstance(
+            self.active_page.selected_row, EmptyProjectRow
+        )
 
     @property
     def can_perform_action(self):
