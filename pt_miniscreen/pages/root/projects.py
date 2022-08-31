@@ -82,7 +82,6 @@ def get_project_environment():
 
 def run_project(cmd: str, cwd: str = None):
     logger.info(f"run_project(command_str='{cmd}', cwd='{cwd}')")
-
     return Popen(
         split(cmd),
         env=get_project_environment(),
@@ -112,18 +111,20 @@ class ProjectPage(Component):
             f"Starting project '{self.project_config.title}': '{self.project_config.start}'"
         )
         sleep(2)
-        self.process = run_project(
-            self.project_config.start, cwd=self.project_config.path
-        )
+        try:
+            self.process = run_project(
+                self.project_config.start, cwd=self.project_config.path
+            )
+        except Exception as e:
+            logger.error(f"Error starting project: {e}")
 
     def wait(self):
-        if self.process is None:
-            raise Exception("Nothing to wait ...")
-        exit_code = self.process.wait()
-        self.process = None
-        logger.info(
-            f"Project '{self.project_config.title}' finished with exit code {exit_code}"
-        )
+        if self.process:
+            exit_code = self.process.wait()
+            logger.info(
+                f"Project '{self.project_config.title}' finished with exit code {exit_code}"
+            )
+            self.process = None
 
 
 class ProjectRow(Component):
