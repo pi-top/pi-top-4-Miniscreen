@@ -96,7 +96,7 @@ def test_opening_project_page_runs_project(
         sleep(1)
         snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
         # wait for the project process to finish
-        sleep(3)
+        sleep(4)
 
     assert len(start_command.get_calls()) == 1
 
@@ -114,7 +114,7 @@ def test_returns_to_project_list_when_project_process_finishes(
         sleep(1)
         snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
         # wait for the project process to finish
-        sleep(3)
+        sleep(4)
 
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
@@ -133,7 +133,7 @@ def test_returns_to_project_list_when_project_process_errors(
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
     # wait for the project process to finish
-    sleep(3)
+    sleep(4)
 
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 

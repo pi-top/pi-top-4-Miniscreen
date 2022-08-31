@@ -110,7 +110,7 @@ class ProjectPage(Component):
         logger.info(
             f"Starting project '{self.project_config.title}': '{self.project_config.start}'"
         )
-        sleep(2)
+        sleep(3)
         try:
             self.process = run_project(
                 self.project_config.start, cwd=self.project_config.path
