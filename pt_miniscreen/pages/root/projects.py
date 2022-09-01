@@ -8,7 +8,10 @@ from subprocess import Popen
 from time import sleep
 from typing import List, Type, Union
 
-from pitop.common.current_session_info import get_first_display
+from pitop.common.current_session_info import (
+    get_first_display,
+    get_user_using_first_display,
+)
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
@@ -82,10 +85,13 @@ def get_project_environment():
 
 def run_project(cmd: str, cwd: str = None):
     logger.info(f"run_project(command_str='{cmd}', cwd='{cwd}')")
+    user = get_user_using_first_display()
     return Popen(
         split(cmd),
         env=get_project_environment(),
         cwd=cwd,
+        user=user,
+        group=user,
     )
 
 

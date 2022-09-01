@@ -40,7 +40,7 @@ def create_project(mocker):
         pages = []
         for project in range(project_number):
             config = ProjectConfig(
-                file="/tmp/config.cfg",
+                file=f"/tmp/config-{project + 1}.cfg",
                 title=f"Project #{project + 1}",
                 start="my-custom-start-command",
                 image="",
@@ -85,8 +85,12 @@ def test_open_project_page(miniscreen, go_to_projects_page, snapshot, create_pro
 
 
 def test_opening_project_page_runs_project(
-    miniscreen, go_to_projects_page, snapshot, create_project
+    miniscreen, go_to_projects_page, snapshot, create_project, mocker
 ):
+    mocker.patch(
+        "pt_miniscreen.pages.root.projects.get_user_using_first_display",
+        return_value=None,
+    )
     create_project(1)
     go_to_projects_page()
 
