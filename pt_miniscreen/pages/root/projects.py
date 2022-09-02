@@ -77,9 +77,6 @@ def get_project_environment():
     if first_display is not None:
         env["DISPLAY"] = first_display
 
-    # Print output of commands in english
-    env["LANG"] = "en_US.UTF-8"
-
     return env
 
 
