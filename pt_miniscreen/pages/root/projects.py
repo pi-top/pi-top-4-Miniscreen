@@ -5,8 +5,9 @@ from functools import partial
 from pathlib import Path
 from shlex import split
 from subprocess import Popen
+from threading import Thread
 from time import sleep
-from typing import List, Type, Union
+from typing import Callable, List, Type, Union
 
 from pitop.common.current_session_info import (
     get_first_display,
@@ -105,6 +106,16 @@ class ProjectPage(Component):
             align="center",
             vertical_align="center",
         )
+
+    def run(self, on_stop: Callable = None):
+        self.start()
+
+        def wait_and_run_on_stop():
+            self.wait()
+            on_stop()
+
+        if callable(on_stop):
+            Thread(target=wait_and_run_on_stop, daemon=True).run()
 
     def render(self, image):
         return self.text.render(image)

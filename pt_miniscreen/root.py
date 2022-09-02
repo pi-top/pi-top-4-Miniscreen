@@ -105,8 +105,10 @@ class RootComponent(Component):
 
     @property
     def can_select_row(self):
-        return isinstance(self.active_page, SelectableList) and not isinstance(
-            self.active_page.selected_row, EmptyProjectRow
+        return (
+            isinstance(self.active_page, SelectableList)
+            and not isinstance(self.active_page.selected_row, EmptyProjectRow)
+            and self.active_page.selected_row.page
         )
 
     @property
@@ -149,9 +151,12 @@ class RootComponent(Component):
         )
 
     def enter_selected_row(self):
-        if self.can_select_row and self.active_page.selected_row.page:
+        if self.can_select_row:
             self.stack.push(self.active_page.selected_row.page)
             self._set_gutter_icons()
+
+            if self.is_project_page:
+                self.active_page.run(on_stop=self.exit_menu)
 
     def enter_menu(self):
         if self.can_enter_menu:
