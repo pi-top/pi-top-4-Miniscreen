@@ -42,7 +42,7 @@ class ProjectConfig:
         self.path = Path(file).parent.absolute().as_posix()
         self.title = title
         if len(image) == 0 or not Path(image).is_file():
-            image = get_image_file_path("menu/settings.gif")
+            image = get_image_file_path("menu/projects.gif")
         self.image = image
         self.start = start
         self.exit_condition = exit_condition
@@ -202,6 +202,6 @@ class ProjectsMenuPage(MenuPage):
         super().__init__(
             **kwargs,
             text="Projects",
-            image_path=get_image_file_path("menu/network.gif"),
+            image_path=get_image_file_path("menu/projects.gif"),
             Pages=[ProjectList],
         )
