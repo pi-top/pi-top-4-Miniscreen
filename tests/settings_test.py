@@ -95,6 +95,8 @@ def setup(miniscreen, mocker):
     sleep(1)
     miniscreen.down_button.release()
     sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
     miniscreen.select_button.release()
     sleep(1)
 

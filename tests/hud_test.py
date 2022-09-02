@@ -45,6 +45,18 @@ def test_hud_navigation(miniscreen, snapshot):
 
     miniscreen.down_button.release()
     sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "projects.png")
+
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "enter-projects.png")
+
+    miniscreen.cancel_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "leave-projects.png")
+
+    miniscreen.down_button.release()
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "settings.png")
 
     miniscreen.select_button.release()
@@ -86,6 +98,12 @@ def test_hud_navigation_on_cancel_button_press(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "overview.png")
 
     scroll_to_distance(distance=3)
+    snapshot.assert_match(miniscreen.device.display_image, "projects.png")
+
+    press_cancel_button_and_wait()
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+    scroll_to_distance(distance=4)
     snapshot.assert_match(miniscreen.device.display_image, "settings.png")
 
     press_cancel_button_and_wait()
