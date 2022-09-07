@@ -14,7 +14,11 @@ from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
-from pt_miniscreen.pages.root.projects import ProjectsMenuPage
+from pt_miniscreen.pages.root.projects import (
+    EmptyProjectRow,
+    ProjectPage,
+    ProjectsMenuPage,
+)
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
@@ -80,6 +84,12 @@ class RootComponent(Component):
     def active_page(self):
         if isinstance(self.stack.active_component, PageList):
             return self.stack.active_component.current_page
+        elif isinstance(self.stack.active_component, ProjectPage):
+            return self.stack.active_component
+
+    @property
+    def is_project_page(self):
+        return self.active_page and isinstance(self.active_page, ProjectPage)
 
     @property
     def can_enter_menu(self):
@@ -95,7 +105,11 @@ class RootComponent(Component):
 
     @property
     def can_select_row(self):
-        return isinstance(self.active_page, SelectableList)
+        return (
+            isinstance(self.active_page, SelectableList)
+            and not isinstance(self.active_page.selected_row, EmptyProjectRow)
+            and self.active_page.selected_row.page
+        )
 
     @property
     def can_perform_action(self):
@@ -137,9 +151,12 @@ class RootComponent(Component):
         )
 
     def enter_selected_row(self):
-        if self.can_select_row and self.active_page.selected_row.page:
+        if self.can_select_row:
             self.stack.push(self.active_page.selected_row.page)
             self._set_gutter_icons()
+
+            if self.is_project_page:
+                self.active_page.run(on_stop=self.exit_menu)
 
     def enter_menu(self):
         if self.can_enter_menu:
@@ -169,9 +186,21 @@ class RootComponent(Component):
         if self.can_select_row:
             self.active_page.select_previous_row()
 
+    def start_project(self):
+        if self.is_project_page:
+            return self.active_page.start()
+
+    def wait_project(self):
+        if self.is_project_page:
+            return self.active_page.wait()
+
     def handle_cancel_button_release(self):
+        if self.is_project_page:
+            return
+
         if self.can_exit_menu:
             return self.exit_menu()
+
         self.stack.active_component.scroll_to_top()
         self._set_gutter_icons()
 
@@ -205,6 +234,9 @@ class RootComponent(Component):
 
         if self.is_screensaver_running:
             return self.screensaver.render(image)
+
+        if self.is_project_page:
+            return self.stack.render(image)
 
         return apply_layers(
             image,
