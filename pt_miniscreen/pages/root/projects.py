@@ -1,4 +1,5 @@
 import configparser
+import importlib.util
 import logging
 import os
 from functools import partial
@@ -21,6 +22,10 @@ from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
+
+
+PACKAGE_SPEC = importlib.util.find_spec("pt_miniscreen")
+PACKAGE_DIRECTORY = os.path.dirname(PACKAGE_SPEC.origin)
 
 
 class InvalidConfigFile(Exception):
@@ -199,9 +204,9 @@ class ProjectDirectoryList(SelectableList):
     PROJECT_DIRECTORY_LOOKUP = {
         "My Projects": "/home/pi/Desktop/Projects/",
         "Further": "/home/pi/further/",
-        "pi-top [4] Demos": "/usr/lib/python3/dist-packages/pt_miniscreen/demo_projects/pi_top_4/",
-        "Electronics Kit": "/usr/lib/python3/dist-packages/pt_miniscreen/demo_projects/electronics/",
-        "Robotics Kit": "/usr/lib/python3/dist-packages/pt_miniscreen/demo_projects/robotics/",
+        "pi-top [4] Demos": f"{PACKAGE_DIRECTORY}/demo_projects/pi_top_4/",
+        "Electronics Kit": f"{PACKAGE_DIRECTORY}/demo_projects/electronics/",
+        "Robotics Kit": f"{PACKAGE_DIRECTORY}/demo_projects/robotics/",
     }
 
     def __init__(self, **kwargs) -> None:
