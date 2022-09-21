@@ -17,6 +17,7 @@ from pt_miniscreen.pages.root.overview import OverviewPage
 from pt_miniscreen.pages.root.projects import (
     EmptyProjectRow,
     ProjectPage,
+    ProjectList,
     ProjectsMenuPage,
 )
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
@@ -84,7 +85,9 @@ class RootComponent(Component):
     def active_page(self):
         if isinstance(self.stack.active_component, PageList):
             return self.stack.active_component.current_page
-        elif isinstance(self.stack.active_component, ProjectPage):
+        elif isinstance(self.stack.active_component, ProjectList) or isinstance(
+            self.stack.active_component, ProjectPage
+        ):
             return self.stack.active_component
 
     @property
