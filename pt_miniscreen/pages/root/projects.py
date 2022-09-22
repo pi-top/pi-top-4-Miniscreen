@@ -1,3 +1,5 @@
+import grp
+import pwd
 import configparser
 import importlib.util
 import logging
@@ -25,7 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 PACKAGE_SPEC = importlib.util.find_spec("pt_miniscreen")
-PACKAGE_DIRECTORY = os.path.dirname(PACKAGE_SPEC.origin)
+PACKAGE_DIRECTORY = os.path.abspath(f"{__file__}/../../..")
+if PACKAGE_SPEC and PACKAGE_SPEC.origin:
+    PACKAGE_DIRECTORY = os.path.dirname(PACKAGE_SPEC.origin)
 
 
 class InvalidConfigFile(Exception):
@@ -86,15 +90,54 @@ def get_project_environment():
     return env
 
 
+def preexec(user):
+    def get_gid(user):
+        try:
+            return pwd.getpwnam(user).pw_gid
+        except (KeyError, TypeError):
+            return None
+
+    def get_grp_ids(user):
+        try:
+            groups = [g.gr_gid for g in grp.getgrall() if user in g.gr_mem]
+            gid = pwd.getpwnam(user).pw_gid
+            groups.append(gid)
+            return groups
+        except (KeyError, TypeError):
+            return None
+
+    def get_uid(user):
+        try:
+            return pwd.getpwnam(user).pw_uid
+        except (KeyError, TypeError):
+            return None
+
+    # set the process group id for user
+    os.setgid(get_gid(user))
+
+    # set the process supplemental groups for user
+    os.setgroups(get_grp_ids(user))
+
+    # set the process user id
+    # must do this after setting groups as it reduces privilege
+    os.setuid(get_uid(user))
+
+    # create a new session and process group for the user process and
+    # subprocesses. this allows us to clean them up in one go as well
+    # as allowing a shell process to be a 'controlling terminal'
+    os.setsid()
+
+
 def run_project(cmd: str, cwd: str = None):
     logger.info(f"run_project(command_str='{cmd}', cwd='{cwd}')")
     user = get_user_using_first_display()
+    env = get_project_environment()
+
     return Popen(
         split(cmd),
-        env=get_project_environment(),
+        env=env,
         cwd=cwd,
-        user=user,
-        group=user,
+        preexec_fn=lambda: preexec(user),
     )
 
 
