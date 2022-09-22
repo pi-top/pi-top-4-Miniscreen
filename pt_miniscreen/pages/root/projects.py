@@ -1,7 +1,6 @@
 import grp
 import pwd
 import configparser
-import importlib.util
 import logging
 import os
 from functools import partial
@@ -26,10 +25,7 @@ from pt_miniscreen.utils import get_image_file_path
 logger = logging.getLogger(__name__)
 
 
-PACKAGE_SPEC = importlib.util.find_spec("pt_miniscreen")
 PACKAGE_DIRECTORY = os.path.abspath(f"{__file__}/../../..")
-if PACKAGE_SPEC and PACKAGE_SPEC.origin:
-    PACKAGE_DIRECTORY = os.path.dirname(PACKAGE_SPEC.origin)
 
 
 class InvalidConfigFile(Exception):
