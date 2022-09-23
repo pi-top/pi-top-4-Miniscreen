@@ -119,25 +119,37 @@ def start_stop_project(path_to_project):
 
 
 def add_cloudfare_dns():
-    if cloudfare_dns_is_set():
+    if cloudfare_dns_is_set() == "Enabled":
         return
 
     config_file.add_section(
         filename=CLOUDFARE_DNS_FILE,
         title="pt-miniscreen-cloudfare-dns",
         description="Add Cloudfare DNS to solve connection issues with Further.",
+        content="""nameserver 1.1.1.1
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1111
+nameserver 2606:4700:4700::1001
+""",
     )
 
 
 def remove_cloudfare_dns():
-    config_file.remove_section("pt-miniscreen-cloudfare-dns")
+    config_file.remove_section(
+        filename=CLOUDFARE_DNS_FILE,
+        title="pt-miniscreen-cloudfare-dns",
+    )
 
 
 def cloudfare_dns_is_set():
-    return config_file.has_section("pt-miniscreen-cloudfare-dns")
+    is_set = config_file.has_section(
+        filename=CLOUDFARE_DNS_FILE,
+        title="pt-miniscreen-cloudfare-dns",
+    )
+    return "Enabled" if is_set else "Disabled"
 
 
 def toggle_cloudfare_dns():
-    if cloudfare_dns_is_set():
+    if cloudfare_dns_is_set() == "Enabled":
         return remove_cloudfare_dns()
     add_cloudfare_dns()
