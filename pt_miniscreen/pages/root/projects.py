@@ -1,5 +1,3 @@
-import grp
-import pwd
 import configparser
 import logging
 import os
@@ -15,6 +13,7 @@ from pitop.common.current_session_info import (
     get_first_display,
     get_user_using_first_display,
 )
+from pitop.common.switch_user import switch_user
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
@@ -86,44 +85,6 @@ def get_project_environment():
     return env
 
 
-def preexec(user):
-    def get_gid(user):
-        try:
-            return pwd.getpwnam(user).pw_gid
-        except (KeyError, TypeError):
-            return None
-
-    def get_grp_ids(user):
-        try:
-            groups = [g.gr_gid for g in grp.getgrall() if user in g.gr_mem]
-            gid = pwd.getpwnam(user).pw_gid
-            groups.append(gid)
-            return groups
-        except (KeyError, TypeError):
-            return None
-
-    def get_uid(user):
-        try:
-            return pwd.getpwnam(user).pw_uid
-        except (KeyError, TypeError):
-            return None
-
-    # set the process group id for user
-    os.setgid(get_gid(user))
-
-    # set the process supplemental groups for user
-    os.setgroups(get_grp_ids(user))
-
-    # set the process user id
-    # must do this after setting groups as it reduces privilege
-    os.setuid(get_uid(user))
-
-    # create a new session and process group for the user process and
-    # subprocesses. this allows us to clean them up in one go as well
-    # as allowing a shell process to be a 'controlling terminal'
-    os.setsid()
-
-
 def run_project(cmd: str, cwd: str = None):
     logger.info(f"run_project(command_str='{cmd}', cwd='{cwd}')")
     user = get_user_using_first_display()
@@ -133,7 +94,7 @@ def run_project(cmd: str, cwd: str = None):
         split(cmd),
         env=env,
         cwd=cwd,
-        preexec_fn=lambda: preexec(user),
+        preexec_fn=lambda: switch_user(user),
     )
 
 

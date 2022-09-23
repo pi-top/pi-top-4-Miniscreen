@@ -59,7 +59,7 @@ def create_project(mocker):
             return_value=True,
         )
         mocker.patch(
-            "pt_miniscreen.pages.root.projects.preexec",
+            "pt_miniscreen.pages.root.projects.switch_user",
             return_value=None,
         )
 
