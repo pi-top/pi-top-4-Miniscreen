@@ -3,10 +3,13 @@ import signal
 from os import kill, path, system
 from subprocess import Popen, check_output
 
+import pitop.common.configuration_file as config_file
 from pitop.common.command_runner import run_command
 from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
 
 logger = logging.getLogger(__name__)
+
+CLOUDFARE_DNS_FILE = "/etc/resolv.conf.head"
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -113,3 +116,28 @@ def start_stop_project(path_to_project):
             logger.warning("Error starting/stopping process: " + str(e))
 
     return run
+
+
+def add_cloudfare_dns():
+    if cloudfare_dns_is_set():
+        return
+
+    config_file.add_section(
+        filename=CLOUDFARE_DNS_FILE,
+        title="pt-miniscreen-cloudfare-dns",
+        description="Add Cloudfare DNS to solve connection issues with Further.",
+    )
+
+
+def remove_cloudfare_dns():
+    config_file.remove_section("pt-miniscreen-cloudfare-dns")
+
+
+def cloudfare_dns_is_set():
+    return config_file.has_section("pt-miniscreen-cloudfare-dns")
+
+
+def toggle_cloudfare_dns():
+    if cloudfare_dns_is_set():
+        return remove_cloudfare_dns()
+    add_cloudfare_dns()
