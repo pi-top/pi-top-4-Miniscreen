@@ -3,7 +3,7 @@ import signal
 from os import kill, path, system
 from subprocess import Popen, check_output
 
-import pitop.common.configuration_file as config_file
+from pitop.common.configuration_file import add_section, remove_section, has_section
 from pitop.common.command_runner import run_command
 from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
 
@@ -122,7 +122,7 @@ def add_cloudfare_dns():
     if cloudfare_dns_is_set() == "Enabled":
         return
 
-    config_file.add_section(
+    add_section(
         filename=CLOUDFARE_DNS_FILE,
         title="pt-miniscreen-cloudfare-dns",
         description="Add Cloudfare DNS to solve connection issues with Further.",
@@ -135,14 +135,14 @@ nameserver 2606:4700:4700::1001
 
 
 def remove_cloudfare_dns():
-    config_file.remove_section(
+    remove_section(
         filename=CLOUDFARE_DNS_FILE,
         title="pt-miniscreen-cloudfare-dns",
     )
 
 
 def cloudfare_dns_is_set():
-    is_set = config_file.has_section(
+    is_set = has_section(
         filename=CLOUDFARE_DNS_FILE,
         title="pt-miniscreen-cloudfare-dns",
     )
