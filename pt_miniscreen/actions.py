@@ -149,7 +149,14 @@ def cloudfare_dns_is_set():
     return "Enabled" if is_set else "Disabled"
 
 
+def update_resolvconf_configuration():
+    run_command("resolvconf -u")
+
+
 def toggle_cloudfare_dns():
     if cloudfare_dns_is_set() == "Enabled":
-        return remove_cloudfare_dns()
-    add_cloudfare_dns()
+        remove_cloudfare_dns()
+    else:
+        add_cloudfare_dns()
+
+    update_resolvconf_configuration()
