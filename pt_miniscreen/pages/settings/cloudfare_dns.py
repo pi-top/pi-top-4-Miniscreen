@@ -6,7 +6,7 @@ class CloudfareDnsPage(ActionPage):
     def __init__(self, **kwargs):
         super().__init__(
             text="Cloudfare DNS",
-            font_size=12,
+            font_size=9,
             action=toggle_cloudfare_dns,
             get_enabled_state=cloudfare_dns_is_set,
             **kwargs,
