@@ -17,6 +17,7 @@ class SettingsState:
             "further-link.service",
             "vncserver-x11-serviced.service",
             "pt-web-vnc-desktop.service",
+            "cloudfare_dns",
         ):
             self.service_state[service] = "Disabled"
         self.ap_mode_status["state"] = "Inactive"
@@ -44,6 +45,13 @@ class SettingsState:
 
     def reset_hdmi_configuration(self):
         sleep(1)
+
+    def toggle_cloudfare_dns(self):
+        sleep(1)
+        if self.get_status("cloudfare_dns") == "Enabled":
+            self.stop_service("cloudfare_dns")
+        else:
+            self.start_service("cloudfare_dns")
 
 
 @pytest.fixture(autouse=True)
@@ -86,6 +94,14 @@ def setup(miniscreen, mocker):
     mocker.patch(
         "pt_miniscreen.pages.settings.display_reset.reset_hdmi_configuration",
         settings_manager.reset_hdmi_configuration,
+    )
+    mocker.patch(
+        "pt_miniscreen.pages.settings.cloudfare_dns.cloudfare_dns_is_set",
+        partial(settings_manager.get_status, "cloudfare_dns"),
+    )
+    mocker.patch(
+        "pt_miniscreen.pages.settings.cloudfare_dns.toggle_cloudfare_dns",
+        settings_manager.toggle_cloudfare_dns,
     )
 
     # enter settings menu
@@ -200,3 +216,31 @@ def test_hdmi_reset(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "resetting.png")
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "reset.png")
+
+
+def test_cloudfare_dns(miniscreen, snapshot):
+    # scroll down to cloudfare dns
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+
+    # enable
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
+
+    # disable
+    miniscreen.select_button.release()
+    sleep(0.5)
+    snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "disabled.png")

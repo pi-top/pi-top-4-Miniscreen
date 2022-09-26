@@ -3,8 +3,8 @@ import signal
 from os import kill, path, system
 from subprocess import Popen, check_output
 
-from pitop.common.configuration_file import add_section, remove_section, has_section
 from pitop.common.command_runner import run_command
+from pitop.common.configuration_file import add_section, has_section, remove_section
 from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
 
 logger = logging.getLogger(__name__)
