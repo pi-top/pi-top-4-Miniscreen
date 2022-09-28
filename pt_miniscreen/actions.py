@@ -9,7 +9,7 @@ from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
 
 logger = logging.getLogger(__name__)
 
-CLOUDFLARE_DNS_FILE = "/etc/resolv.conf.head"
+CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE = "/etc/resolv.conf.head"
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -123,7 +123,7 @@ def add_cloudflare_dns():
         return
 
     add_section(
-        filename=CLOUDFLARE_DNS_FILE,
+        filename=CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE,
         title="pt-miniscreen-cloudflare-dns",
         description="Add Cloudflare DNS to solve connection issues with Further.",
         content="""nameserver 1.1.1.1
@@ -136,14 +136,14 @@ nameserver 2606:4700:4700::1001
 
 def remove_cloudflare_dns():
     remove_section(
-        filename=CLOUDFLARE_DNS_FILE,
+        filename=CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE,
         title="pt-miniscreen-cloudflare-dns",
     )
 
 
 def cloudflare_dns_is_set():
     is_set = has_section(
-        filename=CLOUDFLARE_DNS_FILE,
+        filename=CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE,
         title="pt-miniscreen-cloudflare-dns",
     )
     return "Enabled" if is_set else "Disabled"
