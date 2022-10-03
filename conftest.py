@@ -15,7 +15,6 @@ pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
 
 def patch_packages():
     modules_to_patch = [
-        "pitop",
         "pitop.common.common_ids",
         "pitop.common.firmware_device",
         "pitop.common.formatting",
@@ -30,7 +29,7 @@ def patch_packages():
 
     modules["pitop.common.sys_info"] = sys_info
     modules["pitop.battery"] = battery
-    modules["pitop"] = pitop
+    modules["pitop.system.pitop"] = pitop
 
 
 def use_test_font(mocker, module):
