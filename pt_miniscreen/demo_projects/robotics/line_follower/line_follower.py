@@ -1,10 +1,13 @@
 from signal import pause
+from time import sleep
 
 from pitop import Camera, DriveController, Pitop
 from pitop.processing.algorithms.line_detect import process_frame_for_line
 
 # Assemble a robot
 robot = Pitop()
+robot.miniscreen.display_multiline_text("Connect motors to M0 and M3 and a Camera")
+sleep(3)
 robot.add_component(DriveController(left_motor_port="M3", right_motor_port="M0"))
 robot.add_component(Camera())
 

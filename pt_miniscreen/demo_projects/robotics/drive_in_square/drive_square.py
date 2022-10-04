@@ -56,6 +56,10 @@ def main():
 
 goal_reached = False
 robot = Pitop()
+robot.miniscreen.display_multiline_text(
+    "Connect motors to M0 and M3 and Ultrasonic Sensor to D3"
+)
+sleep(3)
 robot.add_component(NavigationController(left_motor_port="M3", right_motor_port="M0"))
 robot.add_component(UltrasonicSensor("D3"))
 
