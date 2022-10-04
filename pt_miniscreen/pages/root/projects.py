@@ -13,6 +13,7 @@ from pitop.common.current_session_info import (
     get_first_display,
     get_user_using_first_display,
 )
+from pitop.common.switch_user import switch_user
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
@@ -21,6 +22,9 @@ from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
+
+
+PACKAGE_DIRECTORY = os.path.abspath(f"{__file__}/../../..")
 
 
 class InvalidConfigFile(Exception):
@@ -84,12 +88,13 @@ def get_project_environment():
 def run_project(cmd: str, cwd: str = None):
     logger.info(f"run_project(command_str='{cmd}', cwd='{cwd}')")
     user = get_user_using_first_display()
+    env = get_project_environment()
+
     return Popen(
         split(cmd),
-        env=get_project_environment(),
+        env=env,
         cwd=cwd,
-        user=user,
-        group=user,
+        preexec_fn=lambda: switch_user(user),
     )
 
 
@@ -176,12 +181,69 @@ class EmptyProjectRow(Component):
         return self.text.render(image)
 
 
-class ProjectList(SelectableList):
-    PROJECT_DIRECTORIES = [
-        "/home/pi/Desktop/Projects/",
-    ]
+class ProjectDirectoryRow(Component):
+    def __init__(self, title: str, projects_directory: str, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.text = self.create_child(
+            MarqueeText,
+            text=title,
+            font_size=10,
+            align="center",
+            vertical_align="center",
+        )
+        self.page = partial(
+            ProjectList,
+            projects_directory,
+        )
+
+    def render(self, image):
+        return self.text.render(image)
+
+
+class ProjectDirectoryList(SelectableList):
+    PROJECT_DIRECTORY_LOOKUP = {
+        "My Projects": "/home/pi/Desktop/Projects/",
+        "Further": "/home/pi/further/",
+        "pi-top [4] Demos": f"{PACKAGE_DIRECTORY}/demo_projects/pi_top_4/",
+        "Electronics Kit": f"{PACKAGE_DIRECTORY}/demo_projects/electronics/",
+        "Robotics Kit": f"{PACKAGE_DIRECTORY}/demo_projects/robotics/",
+    }
 
     def __init__(self, **kwargs) -> None:
+        super().__init__(
+            Rows=self.load_directory_rows(),
+            num_visible_rows=5,
+            **kwargs,
+        )
+
+    def directory_has_projects(self, directory):
+        for file in Path(directory).glob("*/*.cfg"):
+            try:
+                ProjectConfig.from_file(file)
+                return True
+            except InvalidConfigFile:
+                pass
+        return False
+
+    def load_directory_rows(self) -> List:
+        rows: List[Union[Type[EmptyProjectRow], partial[ProjectDirectoryRow]]] = []
+        for title, root_dir in self.PROJECT_DIRECTORY_LOOKUP.items():
+            if self.directory_has_projects(root_dir):
+                rows.append(
+                    partial(
+                        ProjectDirectoryRow, projects_directory=root_dir, title=title
+                    )
+                )
+
+        if len(rows) == 0:
+            rows.append(EmptyProjectRow)
+
+        return rows
+
+
+class ProjectList(SelectableList):
+    def __init__(self, directory, **kwargs) -> None:
+        self.directory = directory
         super().__init__(
             Rows=self.load_project_rows(),
             num_visible_rows=5,
@@ -190,17 +252,18 @@ class ProjectList(SelectableList):
 
     def load_project_rows(self) -> List:
         rows: List[Union[Type[EmptyProjectRow], partial[ProjectRow]]] = []
-        for root_dir in self.PROJECT_DIRECTORIES:
-            files = Path(root_dir).glob("*/*.cfg")
-            # Sort found files by date/time of last modification
-            for file in sorted(files, key=os.path.getmtime, reverse=True):
-                try:
-                    logger.info(f"Trying to read {file}")
-                    project_config = ProjectConfig.from_file(file)
-                    logger.info(f"Found project {project_config.title}")
-                    rows.append(partial(ProjectRow, project_config))
-                except InvalidConfigFile as e:
-                    logger.error(f"Error parsing {file}: {e}")
+
+        files = Path(self.directory).glob("*/*.cfg")
+
+        # Sort found files by date/time of last modification
+        for file in sorted(files, key=os.path.getmtime, reverse=True):
+            try:
+                logger.info(f"Trying to read {file}")
+                project_config = ProjectConfig.from_file(file)
+                logger.info(f"Found project {project_config.title}")
+                rows.append(partial(ProjectRow, project_config))
+            except InvalidConfigFile as e:
+                logger.error(f"Error parsing {file}: {e}")
 
         if len(rows) == 0:
             rows.append(EmptyProjectRow)
@@ -214,5 +277,5 @@ class ProjectsMenuPage(MenuPage):
             **kwargs,
             text="Projects",
             image_path=get_image_file_path("menu/projects.gif"),
-            Pages=[ProjectList],
+            Pages=[ProjectDirectoryList],
         )

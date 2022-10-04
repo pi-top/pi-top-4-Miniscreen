@@ -54,28 +54,38 @@ def create_project(mocker):
             "pt_miniscreen.pages.root.projects.ProjectList.load_project_rows",
             side_effect=lambda: create_project_rows(projects_to_create),
         )
+        mocker.patch(
+            "pt_miniscreen.pages.root.projects.ProjectDirectoryList.directory_has_projects",
+            return_value=True,
+        )
+        mocker.patch(
+            "pt_miniscreen.pages.root.projects.switch_user",
+            return_value=None,
+        )
 
     return mock_project_rows
 
 
-def test_no_projects_available(miniscreen, go_to_projects_page, snapshot, mocker):
+def test_no_user_projects_available(miniscreen, go_to_projects_page, snapshot, mocker):
     go_to_projects_page()
-    snapshot.assert_match(miniscreen.device.display_image, "no-projects.png")
+    snapshot.assert_match(miniscreen.device.display_image, "only-package-projects.png")
 
 
-def test_selecting_no_projects_message_does_nothing(
-    miniscreen, go_to_projects_page, snapshot, mocker
-):
-    go_to_projects_page()
-    snapshot.assert_match(miniscreen.device.display_image, "no-projects.png")
-    miniscreen.select_button.release()
-    sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "no-projects.png")
-
-
-def test_open_project_page(miniscreen, go_to_projects_page, snapshot, create_project):
+def test_open_projects_menu(miniscreen, go_to_projects_page, snapshot, create_project):
     create_project(1)
     go_to_projects_page()
+    snapshot.assert_match(
+        miniscreen.device.display_image, "projects-page-subsections.png"
+    )
+
+
+def test_open_user_projects(miniscreen, go_to_projects_page, snapshot, create_project):
+    create_project(1)
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
     # access project page
@@ -94,6 +104,11 @@ def test_opening_project_page_runs_project(
     create_project(1)
     go_to_projects_page()
 
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
     with MockCommand("my-custom-start-command") as start_command:
         # access project page
         miniscreen.select_button.release()
@@ -110,6 +125,10 @@ def test_returns_to_project_list_when_project_process_finishes(
 ):
     create_project(1)
     go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
     with MockCommand("my-custom-start-command"):
@@ -128,6 +147,10 @@ def test_returns_to_project_list_when_project_process_errors(
 ):
     create_project(1)
     go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
     # don't mock 'my-custom-start-command'
@@ -170,12 +193,12 @@ def test_load_project_config_raises_on_invalid_file():
 
 def test_project_list_loads_projects_from_directories(mocker, create_component):
     mocker.patch(
-        "pt_miniscreen.pages.root.projects.ProjectList.PROJECT_DIRECTORIES",
-        [f"{config_file_path}"],
+        "pt_miniscreen.pages.root.projects.ProjectDirectoryList.PROJECT_DIRECTORY_LOOKUP",
+        {"Test projects": f"{config_file_path}"},
     )
-    from pt_miniscreen.pages.root.projects import ProjectList
+    from pt_miniscreen.pages.root.projects import ProjectDirectoryList
 
-    project_list = create_component(ProjectList)
+    project_list = create_component(ProjectDirectoryList)
     assert len(project_list.rows) == 1
     selected_row = project_list.selected_row
     assert selected_row.page is not None
@@ -186,7 +209,7 @@ def test_project_list_doesnt_add_project_page_when_projects_not_found(
 ):
     from pt_miniscreen.pages.root.projects import ProjectList
 
-    project_list = create_component(ProjectList)
+    project_list = create_component(ProjectList, directory="")
     assert len(project_list.rows) == 1
     selected_row = project_list.selected_row
     assert selected_row.page is None

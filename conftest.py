@@ -22,6 +22,7 @@ def patch_packages():
         "pitop.common.firmware_device",
         "pitop.common.formatting",
         "pitop.common.pt_os",
+        "pitop.common.switch_user",
     ]
     for module in modules_to_patch:
         modules[module] = MagicMock()
