@@ -1,4 +1,3 @@
-from signal import pause
 from time import sleep
 
 from pitop import Camera, DriveController, Pitop
@@ -26,8 +25,28 @@ def drive_based_on_frame(frame):
         robot.miniscreen.display_image(processed_frame.robot_view)
 
 
+robot.miniscreen.display_multiline_text("Press any button to exit")
+sleep(3)
+
 # On each camera frame, detect a line
 robot.camera.on_frame = drive_based_on_frame
 
+# Handle exit condition
+button_pressed = False
 
-pause()
+
+def toggle_button_pressed():
+    global button_pressed
+    button_pressed = not button_pressed
+
+
+robot.miniscreen.up_button.when_pressed = toggle_button_pressed
+robot.miniscreen.down_button.when_pressed = toggle_button_pressed
+robot.miniscreen.select_button.when_pressed = toggle_button_pressed
+robot.miniscreen.cancel_button.when_pressed = toggle_button_pressed
+
+# Run!
+while not button_pressed:
+    sleep(1)
+
+robot.drive.stop()
