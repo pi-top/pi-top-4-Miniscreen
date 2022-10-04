@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.1.2-2) bullseye; urgency=medium
+pi-top-4-miniscreen (7.2.0-1) bullseye; urgency=medium
 
   * Fix workflow variable: PYTHON_PYTHON_PACKAGE_VERSION -> PYTHON_PACKAGE_VERSION
   * Update SDK imports to use subpackages (#285)
