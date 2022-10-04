@@ -8,6 +8,7 @@ from pitop import Pitop
 BALL_RADIUS = 2
 PADDLE_SIZE = (2, 20)
 PADDLE_CTRL_VEL = 4
+MAX_SCORE = 3
 
 
 class Ball:
@@ -174,9 +175,10 @@ def update_positions():
                 other_paddle = other_paddle.pop()
                 other_paddle.increase_score()
 
-                ball.init(move_right=other_paddle == r_paddle)
-                paddle.y_pos = miniscreen.height // 2
-                other_paddle.y_pos = miniscreen.height // 2
+                if not match_finished():
+                    ball.init(move_right=other_paddle == r_paddle)
+                    paddle.y_pos = miniscreen.height // 2
+                    other_paddle.y_pos = miniscreen.height // 2
 
                 round_finished = True
 
@@ -216,6 +218,25 @@ def draw(wait=False):
         align="center",
     )
 
+    if match_finished():
+        winner = "Left" if MAX_SCORE == l_paddle.score else "Right"
+        canvas.text(
+            (miniscreen.width / 2, miniscreen.height / 2),
+            f"{winner}-Paddle",
+            fill=1,
+            font=font,
+            align="center",
+            anchor="mb",
+        )
+        canvas.text(
+            (miniscreen.width / 2, miniscreen.height / 2),
+            "wins!",
+            fill=1,
+            font=font,
+            align="center",
+            anchor="ma",
+        )
+
     # Display image
     miniscreen.display_image(image)
 
@@ -239,8 +260,12 @@ image = Image.new(
 )
 
 
+def match_finished():
+    return MAX_SCORE in (l_paddle.score, r_paddle.score)
+
+
 def main():
-    while True:
+    while not match_finished():
         update_button_state()
         draw(update_positions())
 
