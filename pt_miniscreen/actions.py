@@ -150,7 +150,7 @@ def cloudflare_dns_is_set():
 
 
 def update_resolvconf_configuration():
-    run_command("resolvconf -u")
+    run_command("resolvconf -u", timeout=5)
 
 
 def toggle_cloudflare_dns():
