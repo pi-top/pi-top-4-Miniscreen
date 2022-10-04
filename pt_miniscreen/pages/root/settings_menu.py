@@ -2,6 +2,7 @@ import logging
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.pages.settings.ap_toggle import APTogglePage
+from pt_miniscreen.pages.settings.cloudflare_dns import CloudflareDnsPage
 from pt_miniscreen.pages.settings.display_reset import DisplayResetPage
 from pt_miniscreen.pages.settings.further_link_toggle import FurtherLinkTogglePage
 from pt_miniscreen.pages.settings.ssh_toggle import SSHTogglePage
@@ -24,5 +25,6 @@ class SettingsMenuPage(MenuPage):
                 FurtherLinkTogglePage,
                 APTogglePage,
                 DisplayResetPage,
+                CloudflareDnsPage,
             ],
         )

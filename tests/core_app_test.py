@@ -7,9 +7,7 @@ from weakref import ref
 import pytest
 from PIL import Image
 
-from tests.mocks.pitop import Device
-
-from .mocks.pitop import Miniscreen
+from tests.mocks.miniscreen import Device, Miniscreen
 
 logger = logging.getLogger(__name__)
 

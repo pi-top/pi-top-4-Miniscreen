@@ -3,7 +3,7 @@ import traceback
 from os import environ
 from threading import Timer
 
-from pitop import Pitop
+from pitop.system.pitop import Pitop
 
 from .core import App as BaseApp
 from .root import RootComponent

@@ -3,6 +3,8 @@ matplotlib python3-matplotlib; PEP386
 monotonic python3-monotonic; PEP386
 numpy python3-numpy(>=1:1.19.5), python3-numpy(<<1:1.20)
 Pillow python3-pil; PEP386
-pitop python3-pitop; PEP386
 psutil python3-psutil; PEP386
 pyzmq python3-zmq; PEP386
+pitop.battery python3-pitop-battery
+pitop.common python3-pitop-common
+pitop.system python3-pitop-system

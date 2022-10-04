@@ -19,6 +19,7 @@ def patch_packages():
         "pitop.common.command_runner",
         "pitop.common.common_ids",
         "pitop.common.current_session_info",
+        "pitop.common.configuration_file",
         "pitop.common.firmware_device",
         "pitop.common.formatting",
         "pitop.common.pt_os",
@@ -32,7 +33,7 @@ def patch_packages():
 
     modules["pitop.common.sys_info"] = sys_info
     modules["pitop.battery"] = battery
-    modules["pitop"] = pitop
+    modules["pitop.system.pitop"] = pitop
 
 
 def use_test_font(mocker, module):

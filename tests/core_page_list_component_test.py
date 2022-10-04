@@ -50,15 +50,8 @@ def create_pages(ImagePage, CheckeredPage):
 
 
 def test_pages(create_page_list, create_pages, render, snapshot):
-    try:
+    with pytest.raises(TypeError):
         create_page_list()
-    except Exception as e:
-        no_pages_exception = e
-    finally:
-        assert (
-            str(no_pages_exception)
-            == "__init__() missing 1 required positional argument: 'Pages'"
-        )
 
     # doesn't render anything if there are no rows
     snapshot.assert_match(render(create_page_list(Pages=[])), "no-pages.png")

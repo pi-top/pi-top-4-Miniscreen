@@ -76,15 +76,8 @@ def create_numbered_rows(NumberedRow):
 
 
 def test_rows(create_list, create_rows, render, snapshot):
-    try:
+    with pytest.raises(TypeError):
         create_list()
-    except Exception as e:
-        no_rows_exception = e
-    finally:
-        assert (
-            str(no_rows_exception)
-            == "__init__() missing 1 required positional argument: 'Rows'"
-        )
 
     # doesn't render anything if there are no rows
     snapshot.assert_match(render(create_list(Rows=[])), "no-rows.png")

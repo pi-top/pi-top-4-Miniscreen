@@ -4,9 +4,12 @@ from os import kill, path, system
 from subprocess import Popen, check_output
 
 from pitop.common.command_runner import run_command
+from pitop.common.configuration_file import add_section, has_section, remove_section
 from pitop.common.sys_info import get_ap_mode_status, get_systemd_enabled_state
 
 logger = logging.getLogger(__name__)
+
+CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE = "/etc/resolv.conf.head"
 
 
 def __enable_and_start_systemd_service(service_to_enable):
@@ -113,3 +116,47 @@ def start_stop_project(path_to_project):
             logger.warning("Error starting/stopping process: " + str(e))
 
     return run
+
+
+def add_cloudflare_dns():
+    if cloudflare_dns_is_set() == "Enabled":
+        return
+
+    add_section(
+        filename=CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE,
+        title="pt-miniscreen-cloudflare-dns",
+        description="Add Cloudflare DNS to solve connection issues with Further.",
+        content="""nameserver 1.1.1.1
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1111
+nameserver 2606:4700:4700::1001
+""",
+    )
+
+
+def remove_cloudflare_dns():
+    remove_section(
+        filename=CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE,
+        title="pt-miniscreen-cloudflare-dns",
+    )
+
+
+def cloudflare_dns_is_set():
+    is_set = has_section(
+        filename=CUSTOM_PREPEND_DNS_RESOLVER_CONFIG_FILE,
+        title="pt-miniscreen-cloudflare-dns",
+    )
+    return "Enabled" if is_set else "Disabled"
+
+
+def update_resolvconf_configuration():
+    run_command("resolvconf -u", timeout=5)
+
+
+def toggle_cloudflare_dns():
+    if cloudflare_dns_is_set() == "Enabled":
+        remove_cloudflare_dns()
+    else:
+        add_cloudflare_dns()
+
+    update_resolvconf_configuration()
