@@ -1,3 +1,12 @@
+pi-top-4-miniscreen (7.1.2-2) bullseye; urgency=medium
+
+  * Fix workflow variable: PYTHON_PYTHON_PACKAGE_VERSION -> PYTHON_PACKAGE_VERSION
+  * Update SDK imports to use subpackages (#285)
+  * Configure Cloudflare DNS via Settings menu (#287)
+  * Add 'Projects' menu to miniscreen (#283)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Tue, 04 Oct 2022 16:48:21 +0000
+
 pi-top-4-miniscreen (7.1.2-1) bullseye; urgency=medium
 
   * Set package version using environment variable (#279)
