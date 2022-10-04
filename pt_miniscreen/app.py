@@ -1,4 +1,5 @@
 import logging
+import traceback
 from os import environ
 from threading import Timer
 
@@ -84,6 +85,7 @@ class App(BaseApp):
 
             except Exception as e:
                 logger.error("Error in button handler: " + str(e))
+                traceback.print_exc()
                 self.stop(e)
 
             if self.dimmed:
@@ -92,20 +94,38 @@ class App(BaseApp):
         return handler
 
     def handle_select_button_release(self):
+        if self.root.is_project_page:
+            return
+
         if self.root.can_enter_menu:
             return self.root.enter_menu()
 
         if self.root.can_perform_action:
             return self.root.perform_action()
 
+        if self.root.can_select_row:
+            return self.root.enter_selected_row()
+
     def handle_cancel_button_release(self):
         self.root.handle_cancel_button_release()
 
     def handle_up_button_release(self):
-        self.root.scroll_up()
+        if self.root.is_project_page:
+            return
+
+        if self.root.can_select_row:
+            self.root.select_previous_row()
+        elif self.root.can_scroll:
+            self.root.scroll_up()
 
     def handle_down_button_release(self):
-        self.root.scroll_down()
+        if self.root.is_project_page:
+            return
+
+        if self.root.can_select_row:
+            self.root.select_next_row()
+        elif self.root.can_scroll:
+            self.root.scroll_down()
 
     def restore_miniscreen(self):
         try:

@@ -25,10 +25,10 @@ repos:
         "--ignore-directives", "autoclass,automodule",
       ]
 
--   repo: https://github.com/pycqa/isort
-    rev: 5.10.1
-    hooks:
-    - id: isort
+# -   repo: https://github.com/pycqa/isort
+#     rev: 5.10.1
+#     hooks:
+#     - id: isort
 
 -   repo: https://github.com/psf/black
     rev: 22.6.0

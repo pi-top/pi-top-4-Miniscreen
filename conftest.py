@@ -18,10 +18,12 @@ def patch_packages():
         "pitop",
         "pitop.common.command_runner",
         "pitop.common.common_ids",
+        "pitop.common.current_session_info",
         "pitop.common.configuration_file",
         "pitop.common.firmware_device",
         "pitop.common.formatting",
         "pitop.common.pt_os",
+        "pitop.common.switch_user",
     ]
     for module in modules_to_patch:
         modules[module] = MagicMock()
