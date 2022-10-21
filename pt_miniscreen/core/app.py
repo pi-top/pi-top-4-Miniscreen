@@ -6,6 +6,9 @@ from threading import Event
 
 from PIL import Image
 
+from pitop.common.ptdm import Message, PTDMSubscribeClient
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,6 +28,23 @@ class App:
             .replace(":", "-")
         )
 
+        def reset_miniscreen() -> None:
+            logger.info("pi-topd is ready - resetting miniscreen")
+            try:
+                miniscreen.reset()
+                self.display()
+            except RuntimeError as e:
+                logger.error(f"Error resetting miniscreen: {e}")
+
+                # stop the app so that systemd can restart the service
+                self.stop(e)
+
+        self._ptdm_subscribe_client = PTDMSubscribeClient()
+        self._ptdm_subscribe_client.initialise(
+            {Message.PUB_PITOPD_READY: reset_miniscreen}
+        )
+        self._ptdm_subscribe_client.start_listening()
+
     def start(self):
         self.root = self.Root(on_rerender=self.display)
         self.root._set_active(True)
@@ -35,6 +55,7 @@ class App:
         self.root = None
         self._stop_error = error
         self._stop_event.set()
+        self._ptdm_subscribe_client.stop_listening()
 
     def wait_for_stop(self) -> None:
         self._stop_event.wait()
