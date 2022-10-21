@@ -23,16 +23,16 @@ def patch_packages():
         "pitop.common.firmware_device",
         "pitop.common.formatting",
         "pitop.common.pt_os",
-        "pitop.common.ptdm",
         "pitop.common.switch_user",
     ]
     for module in modules_to_patch:
         modules[module] = MagicMock()
 
     # packages that need to be patched in tests
-    from tests.mocks import battery, pitop, sys_info
+    from tests.mocks import battery, pitop, sys_info, ptdm
 
     modules["pitop.common.sys_info"] = sys_info
+    modules["pitop.common.ptdm"] = ptdm
     modules["pitop.battery"] = battery
     modules["pitop.system.pitop"] = pitop
 

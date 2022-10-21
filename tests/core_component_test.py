@@ -9,7 +9,6 @@ from weakref import ref
 import pytest
 from PIL import Image
 
-from pt_miniscreen.core.component import RenderException
 
 logger = logging.getLogger(__name__)
 
@@ -345,6 +344,7 @@ def test_pausing(parent, SpotComponent):
 
 def test_render_exceptions(parent, SpotComponent, render):
     from pt_miniscreen.core import Component
+    from pt_miniscreen.core.component import RenderException
 
     class NoReturn(Component):
         def render(self, image):
