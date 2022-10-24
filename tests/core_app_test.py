@@ -121,6 +121,14 @@ def test_stop(app):
     assert child_interval() is None
 
 
+def test_subscribes_to_pitopd_ready_event(app):
+    from pitop.common.ptdm import Message
+
+    app.start()
+    callback = app._ptdm_subscribe_client.subs.get(Message.PUB_PITOPD_READY)
+    assert callback is not None
+
+
 def test_on_pitopd_initialization_callback(app):
     from pitop.common.ptdm import Message
 
@@ -129,7 +137,6 @@ def test_on_pitopd_initialization_callback(app):
     app.miniscreen.reset = MagicMock()
 
     callback = app._ptdm_subscribe_client.subs.get(Message.PUB_PITOPD_READY)
-    assert callback is not None
 
     assert app.display.call_count == 0
     assert app.miniscreen.reset.call_count == 0
