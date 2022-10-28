@@ -31,43 +31,50 @@ def Root():
 
 
 @pytest.fixture
-def app(Root):
-    from pt_miniscreen.core import App
-
+def miniscreen():
     miniscreen = Miniscreen()
     miniscreen.device = MagicMock(spec=Device)()
+    return miniscreen
 
-    return App(miniscreen=miniscreen, Root=Root)
+
+@pytest.fixture
+def app(miniscreen, Root):
+    from pt_miniscreen.core import App
+
+    return App(display=miniscreen.device.display, Root=Root)
 
 
-def test_creation(Root):
+def test_creation(miniscreen, Root):
     from pt_miniscreen.core import App
 
     # raises exception when miniscreen is not passed
     try:
         App(Root=Root)
     except Exception as e:
-        miniscreen_not_passed_error = e
+        display_not_passed = e
     finally:
-        assert str(miniscreen_not_passed_error) == ""
+        assert str(display_not_passed) == ""
 
     # raises exception Root is not passed
     try:
-        App(miniscreen=Miniscreen())
+        App(display=miniscreen.device.display)
     except Exception as e:
         root_not_passed_error = e
     finally:
         assert str(root_not_passed_error) == ""
 
     # app created successfully when miniscreen and Root are passed
-    app = App(miniscreen=Miniscreen(), Root=Root)
+    app = App(
+        display=miniscreen.device.display, Root=Root, size=(10, 10), image_mode="P"
+    )
 
-    # adds miniscreen and Root class as attributes
-    assert hasattr(app, "miniscreen")
+    # adds Root, size and mode as attributes
     assert hasattr(app, "Root")
+    assert app.size == (10, 10)
+    assert app.image_mode == "P"
 
 
-def test_start(app):
+def test_start(miniscreen, app):
     # does not initialise root component before being started
     assert not hasattr(app, "root")
 
@@ -77,26 +84,26 @@ def test_start(app):
     assert hasattr(app, "root")
 
     # calls render on root
-    app.root.render.assert_called_once_with(Image.new("1", app.miniscreen.size))
+    app.root.render.assert_called_once_with(Image.new("1", app.size))
 
     # calls miniscreen.device.display with render result
-    app.miniscreen.device.display.assert_called_once_with(app.root.render())
+    miniscreen.device.display.assert_called_once_with(app.root.render())
 
 
-def test_rerender(app):
+def test_rerender(miniscreen, app):
     app.start()
 
     # reset render and display mocks
     app.root.render.reset_mock()
-    app.miniscreen.device.display.reset_mock()
+    miniscreen.device.display.reset_mock()
 
     app.root.on_rerender()
 
     # calls render on root
-    app.root.render.assert_called_once_with(Image.new("1", app.miniscreen.size))
+    app.root.render.assert_called_once_with(Image.new("1", app.size))
 
     # calls miniscreen.device.display with render result
-    app.miniscreen.device.display.assert_called_once_with(app.root.render())
+    miniscreen.device.display.assert_called_once_with(app.root.render())
 
 
 def test_stop(app):
