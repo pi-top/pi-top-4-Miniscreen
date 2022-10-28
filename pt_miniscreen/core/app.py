@@ -10,11 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class App:
-    def __init__(self, miniscreen=None, Root=None):
-        assert miniscreen is not None
+    def __init__(self, display=None, Root=None, size=(128, 64), image_mode="1"):
+        assert display is not None
         assert Root is not None
-        self.miniscreen = miniscreen
+        self._display = display
         self.Root = Root
+
+        self.image_mode = image_mode
+        self.size = size
 
         self._stop_event = Event()
         self.saved_cache_frame_no = 0
@@ -42,13 +45,8 @@ class App:
         if isinstance(error, Exception):
             raise error
 
-    # This should use `miniscreen.display_image` but that method attempts to
-    # import opencv when it's called. We can catch the raised error but cannot
-    # prevent the module search. This produces overhead when display is called
-    # frequently, which is expected. It's worth noting the import is not cached
-    # since the module was not found so the search happens every import attempt
     def display(self):
-        image = self.root.render(Image.new("1", self.miniscreen.size))
+        image = self.root.render(Image.new(self.image_mode, self.size))
 
         # debug: print displayed image in terminal
         if environ.get("IMGCAT", "0") == "1":
@@ -64,4 +62,4 @@ class App:
             self.saved_cache_frame_no += 1
 
         logger.debug("Update display")
-        self.miniscreen.device.display(image)
+        self._display(image)

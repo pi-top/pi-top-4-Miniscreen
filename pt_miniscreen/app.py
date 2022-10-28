@@ -20,10 +20,20 @@ class App(BaseApp):
         environ["PT_MINISCREEN_SYSTEM"] = "1"
 
         logger.debug("Initializing miniscreen...")
-        miniscreen = Pitop().miniscreen
+        self.miniscreen = Pitop().miniscreen
 
         logger.debug("Initialising app...")
-        super().__init__(miniscreen, Root=RootComponent)
+
+        # display should be `miniscreen.display_image` but that method attempts to
+        # import opencv when it's called. We can catch the raised error but cannot
+        # prevent the module search. This produces overhead when display is called
+        # frequently, which is expected. It's worth noting the import is not cached
+        # since the module was not found so the search happens every import attempt
+        super().__init__(
+            display=self.miniscreen.device.display,
+            size=self.miniscreen.size,
+            Root=RootComponent,
+        )
 
     def start(self):
         super().start()

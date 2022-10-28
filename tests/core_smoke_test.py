@@ -86,33 +86,35 @@ def Root(Counter, Timer):
 def test_smoke(snapshot, Root):
     from pt_miniscreen.core import App
 
-    app = App(Miniscreen(), Root)
+    miniscreen = Miniscreen()
+
+    app = App(miniscreen.device.display, Root)
 
     # does not update display before being started
-    assert app.miniscreen.device.display_image == b""
+    assert miniscreen.device.display_image == b""
 
     app.start()
 
     # update display
-    snapshot.assert_match(app.miniscreen.device.display_image, "started.png")
+    snapshot.assert_match(miniscreen.device.display_image, "started.png")
 
     # get counter out of list rows
     counter = app.root.list.rows[0].columns[1]
 
     # shows nested component updates syncronously
     counter.state.update({"count": 1})
-    snapshot.assert_match(app.miniscreen.device.display_image, "update.png")
+    snapshot.assert_match(miniscreen.device.display_image, "update.png")
 
     # shows updates from an interval
     sleep(1.1)
-    snapshot.assert_match(app.miniscreen.device.display_image, "interval-update.png")
+    snapshot.assert_match(miniscreen.device.display_image, "interval-update.png")
 
     # does not show changes when stopped
     app.stop()
     counter.state.update({"count": 1})
     sleep(1.1)
-    snapshot.assert_match(app.miniscreen.device.display_image, "stopped.png")
+    snapshot.assert_match(miniscreen.device.display_image, "stopped.png")
 
     # can start app again
     app.start()
-    snapshot.assert_match(app.miniscreen.device.display_image, "started-again.png")
+    snapshot.assert_match(miniscreen.device.display_image, "started-again.png")
