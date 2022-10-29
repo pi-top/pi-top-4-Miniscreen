@@ -15,6 +15,8 @@ Architecture: all
 Depends:
  ${misc:Depends},
  ${python3:Depends},
+# SDK's CLI used by scripts
+ python3-pitop-cli
 Recommends:
  autorandr (>= 1.9),
  further-link,
