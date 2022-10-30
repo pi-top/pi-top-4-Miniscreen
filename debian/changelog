@@ -1,3 +1,11 @@
+pi-top-4-miniscreen (7.2.0-2) bullseye; urgency=medium
+
+  * refactor: remove miniscreen from core app
+  * test: prevent flakiness due to projects.gif
+  * Add missing CLI dependency (#291)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Sun, 30 Oct 2022 11:25:15 +0000
+
 pi-top-4-miniscreen (7.2.0-1) bullseye; urgency=medium
 
   * Fix workflow variable: PYTHON_PYTHON_PACKAGE_VERSION -> PYTHON_PACKAGE_VERSION
