@@ -1,11 +1,11 @@
 import configparser
 import logging
 import os
+from enum import Enum, auto
 from functools import partial
 from pathlib import Path
 from shlex import split
 from subprocess import Popen
-from threading import Thread
 from time import sleep
 from typing import Callable, List, Type, Union
 
@@ -14,12 +14,13 @@ from pitop.common.current_session_info import (
     get_user_using_first_display,
 )
 from pitop.common.switch_user import switch_user
+from pitop.common.ptdm import Message, PTDMSubscribeClient
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.selectable_list import SelectableList
-from pt_miniscreen.utils import get_image_file_path
+from pt_miniscreen.utils import Stopwatch, get_image_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -64,38 +65,104 @@ class ProjectConfig:
                 title=project_config["title"],
                 image=project_config.get("image", ""),
                 start=project_config["start"],
-                exit_condition=project_config.get("exit_condition"),
+                exit_condition=project_config.get("exit_condition", ""),
             )
         except Exception as e:
             logger.warning(f"Error parsing file '{file}': {e}")
             raise InvalidConfigFile(e)
 
 
-def get_project_environment():
-    env = os.environ.copy()
-
-    if "PT_MINISCREEN_SYSTEM" in env:
-        # Allow to take over miniscreen
-        env.pop("PT_MINISCREEN_SYSTEM")
-
-    first_display = get_first_display()
-    if first_display is not None:
-        env["DISPLAY"] = first_display
-
-    return env
+class ProjectExitCondition(Enum):
+    POWER_BUTTON_FLICKER = auto()
+    HOLD_X = auto()
 
 
-def run_project(cmd: str, cwd: str = None):
-    logger.info(f"run_project(command_str='{cmd}', cwd='{cwd}')")
-    user = get_user_using_first_display()
-    env = get_project_environment()
+class Project:
+    def __init__(self, config: ProjectConfig) -> None:
+        self.config = config
+        self.subscribe_client = None
+        self.process = None
 
-    return Popen(
-        split(cmd),
-        env=env,
-        cwd=cwd,
-        preexec_fn=lambda: switch_user(user),
-    )
+    def _get_environment(self):
+        env = os.environ.copy()
+
+        if "PT_MINISCREEN_SYSTEM" in env:
+            # Allow to take over miniscreen
+            env.pop("PT_MINISCREEN_SYSTEM")
+
+        first_display = get_first_display()
+        if first_display is not None:
+            env["DISPLAY"] = first_display
+
+        return env
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.stop()
+        self.cleanup()
+
+    def stop(self) -> None:
+        if self.process:
+            logger.info(f"Stopping project '{self.config.title}'")
+            self.process.kill()
+            self.process = None
+
+    def cleanup(self) -> None:
+        if self.subscribe_client:
+            self.subscribe_client.stop_listening()
+            self.subscribe_client = None
+
+    def wait(self):
+        if self.process:
+            exit_code = self.process.wait()
+            logger.info(
+                f"Project '{self.config.title}' finished with exit code {exit_code}"
+            )
+            return exit_code
+
+    def run(self):
+        logger.info(f"Starting project '{self.config.title}'")
+        user = get_user_using_first_display()
+
+        self.process = Popen(
+            split(self.config.start),
+            env=self._get_environment(),
+            cwd=self.config.path,
+            preexec_fn=lambda: switch_user(user),
+        )
+        self._handle_exit_condition()
+
+    def _handle_exit_condition(self):
+        try:
+            exit_condition = ProjectExitCondition[self.config.exit_condition.upper()]
+
+            if exit_condition == ProjectExitCondition.POWER_BUTTON_FLICKER:
+                event_callback = {Message.PUB_V3_BUTTON_POWER_RELEASED: self.stop}
+            elif exit_condition == ProjectExitCondition.HOLD_X:
+                stopwatch = Stopwatch()
+
+                def on_cancel_button_release():
+                    CANCEL_BUTTON_PRESS_TIME = 3
+                    if stopwatch.elapsed() > CANCEL_BUTTON_PRESS_TIME:
+                        logger.info(
+                            f"Cancel button pressed for {CANCEL_BUTTON_PRESS_TIME}s, stopping project... "
+                        )
+                        self.stop()
+
+                event_callback = {
+                    Message.PUB_V3_BUTTON_CANCEL_PRESSED: stopwatch.start,
+                    Message.PUB_V3_BUTTON_CANCEL_RELEASED: on_cancel_button_release,
+                }
+
+            self.subscribe_client = PTDMSubscribeClient()
+            self.subscribe_client.initialise(event_callback)
+            self.subscribe_client.start_listening()
+            logger.info(f"Using exit condition {exit_condition.name}")
+        except Exception:
+            logger.info("Not using an exit condition")
+            pass
 
 
 class ProjectPage(Component):
@@ -103,7 +170,6 @@ class ProjectPage(Component):
         self.project_config = project_config
         super().__init__(**kwargs)
 
-        self.process = None
         self.text = self.create_child(
             MarqueeText,
             text=f"Running '{self.project_config.title}'",
@@ -112,38 +178,25 @@ class ProjectPage(Component):
             vertical_align="center",
         )
 
-    def run(self, on_stop: Callable = None):
-        self.start()
-
-        def wait_and_run_on_stop():
-            self.wait()
-            on_stop()
-
-        if callable(on_stop):
-            Thread(target=wait_and_run_on_stop, daemon=True).run()
-
     def render(self, image):
         return self.text.render(image)
 
-    def start(self):
+    def run(self, on_stop: Callable = None):
         logger.info(
-            f"Starting project '{self.project_config.title}': '{self.project_config.start}'"
+            f"Running project '{self.project_config.title}': '{self.project_config.start}'"
         )
+
         sleep(3)
+
         try:
-            self.process = run_project(
-                self.project_config.start, cwd=self.project_config.path
-            )
+            with Project(self.project_config) as project:
+                project.run()
+                project.wait()
         except Exception as e:
             logger.error(f"Error starting project: {e}")
-
-    def wait(self):
-        if self.process:
-            exit_code = self.process.wait()
-            logger.info(
-                f"Project '{self.project_config.title}' finished with exit code {exit_code}"
-            )
-            self.process = None
+        finally:
+            if callable(on_stop):
+                on_stop()
 
 
 class ProjectRow(Component):
