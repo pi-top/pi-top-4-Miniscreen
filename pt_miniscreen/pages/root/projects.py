@@ -191,7 +191,7 @@ class ProjectPage(Component):
         if self.started:
             return ""
 
-        text = f"Running '{self.project_config.title}'..."
+        text = f"Starting '{self.project_config.title}'..."
         try:
             exit_condition = ProjectExitCondition[
                 self.project_config.exit_condition.upper()
