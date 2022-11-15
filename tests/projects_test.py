@@ -139,6 +139,7 @@ def test_returns_to_project_list_when_project_process_finishes(
         # wait for the project process to finish
         sleep(4)
 
+    sleep(3)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
 
@@ -162,6 +163,7 @@ def test_returns_to_project_list_when_project_process_errors(
     # wait for the project process to finish
     sleep(4)
 
+    sleep(3)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
 
