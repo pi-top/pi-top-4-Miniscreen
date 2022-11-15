@@ -49,7 +49,6 @@ def test_project_cls_as_context_manager(create_project_object):
     assert len(start_command.get_calls()) == 1
 
     assert project.process is None
-    assert project.subscribe_client is None
 
 
 @patch("pt_miniscreen.pages.root.projects.PTDMSubscribeClient")

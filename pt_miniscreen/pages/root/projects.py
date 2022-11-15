@@ -1,3 +1,4 @@
+import atexit
 import configparser
 import logging
 import os
@@ -84,6 +85,7 @@ class Project:
         self.config = config
         self.subscribe_client = None
         self.process = None
+        atexit.register(self.cleanup)
 
     def _get_environment(self):
         env = os.environ.copy()
@@ -103,7 +105,6 @@ class Project:
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.stop()
-        self.cleanup()
 
     def stop(self) -> None:
         if self.process:
