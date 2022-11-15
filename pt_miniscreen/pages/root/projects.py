@@ -174,7 +174,22 @@ class Project:
 class ProjectPage(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
+        self.started = False
         super().__init__(**kwargs)
+
+        self.text = self.create_child(
+            Text,
+            text=self.displayed_text,
+            get_text=lambda: self.displayed_text,
+            font_size=10,
+            align="center",
+            vertical_align="center",
+        )
+
+    @property
+    def displayed_text(self):
+        if self.started:
+            return ""
 
         text = f"Running '{self.project_config.title}'..."
         try:
@@ -188,13 +203,7 @@ class ProjectPage(Component):
         except Exception:
             pass
 
-        self.text = self.create_child(
-            Text,
-            text=text,
-            font_size=10,
-            align="center",
-            vertical_align="center",
-        )
+        return text
 
     def render(self, image):
         return self.text.render(image)
@@ -207,6 +216,7 @@ class ProjectPage(Component):
         sleep(3)
 
         try:
+            self.started = True
             with Project(self.project_config) as project:
                 project.run()
                 project.wait()
