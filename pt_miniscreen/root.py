@@ -43,6 +43,7 @@ class RootPageList(PageList):
     def __init__(self, **kwargs):
         super().__init__(
             **kwargs,
+            use_snapshot_when_scrolling=False,
             Pages=[
                 OverviewPage,
                 SystemMenuPage,
