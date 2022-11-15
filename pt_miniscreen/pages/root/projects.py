@@ -7,6 +7,7 @@ from pathlib import Path
 from shlex import split
 from subprocess import Popen
 from time import sleep
+from threading import Timer
 from typing import Callable, List, Type, Union
 
 from pitop.common.current_session_info import (
@@ -20,7 +21,7 @@ from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.selectable_list import SelectableList
-from pt_miniscreen.utils import Stopwatch, get_image_file_path
+from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -141,18 +142,22 @@ class Project:
             if exit_condition == ProjectExitCondition.POWER_BUTTON_FLICKER:
                 event_callback = {Message.PUB_V3_BUTTON_POWER_RELEASED: self.stop}
             elif exit_condition == ProjectExitCondition.HOLD_X:
-                stopwatch = Stopwatch()
+                CANCEL_BUTTON_PRESS_TIME = 3
+
+                timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
+
+                def on_cancel_button_pressed():
+                    nonlocal timer
+                    timer.cancel()
+                    timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
+                    timer.start()
 
                 def on_cancel_button_release():
-                    CANCEL_BUTTON_PRESS_TIME = 3
-                    if stopwatch.elapsed() > CANCEL_BUTTON_PRESS_TIME:
-                        logger.info(
-                            f"Cancel button pressed for {CANCEL_BUTTON_PRESS_TIME}s, stopping project... "
-                        )
-                        self.stop()
+                    nonlocal timer
+                    timer.cancel()
 
                 event_callback = {
-                    Message.PUB_V3_BUTTON_CANCEL_PRESSED: stopwatch.start,
+                    Message.PUB_V3_BUTTON_CANCEL_PRESSED: on_cancel_button_pressed,
                     Message.PUB_V3_BUTTON_CANCEL_RELEASED: on_cancel_button_release,
                 }
 
