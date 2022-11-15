@@ -224,6 +224,7 @@ class ProjectPage(Component):
             logger.error(f"Error starting project: {e}")
         finally:
             if callable(on_stop):
+                sleep(2)
                 on_stop()
 
 
