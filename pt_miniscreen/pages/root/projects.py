@@ -21,6 +21,7 @@ from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.selectable_list import SelectableList
+from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
@@ -174,10 +175,22 @@ class ProjectPage(Component):
         self.project_config = project_config
         super().__init__(**kwargs)
 
+        text = f"Running '{self.project_config.title}'..."
+        try:
+            exit_condition = ProjectExitCondition[
+                self.project_config.exit_condition.upper()
+            ]
+            if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
+                text += "\nHold power button briefly to exit"
+            elif exit_condition == ProjectExitCondition.HOLD_X:
+                text += "\nHold 'X' button for 3 seconds to exit"
+        except Exception:
+            pass
+
         self.text = self.create_child(
-            MarqueeText,
-            text=f"Running '{self.project_config.title}'",
-            font_size=14,
+            Text,
+            text=text,
+            font_size=10,
             align="center",
             vertical_align="center",
         )
