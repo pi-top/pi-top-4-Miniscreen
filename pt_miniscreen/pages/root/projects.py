@@ -74,7 +74,7 @@ class ProjectConfig:
 
 
 class ProjectExitCondition(Enum):
-    POWER_BUTTON_FLICKER = auto()
+    POWER_BUTTON_PRESS = auto()
     HOLD_X = auto()
 
 
@@ -139,8 +139,8 @@ class Project:
         try:
             exit_condition = ProjectExitCondition[self.config.exit_condition.upper()]
 
-            if exit_condition == ProjectExitCondition.POWER_BUTTON_FLICKER:
-                event_callback = {Message.PUB_V3_BUTTON_POWER_RELEASED: self.stop}
+            if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
+                event_callback = {Message.PUB_V3_BUTTON_POWER_PRESSED: self.stop}
             elif exit_condition == ProjectExitCondition.HOLD_X:
                 CANCEL_BUTTON_PRESS_TIME = 3
 

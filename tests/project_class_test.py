@@ -15,7 +15,7 @@ def create_project_object():
         title="Project #0",
         start="my-custom-start-command",
         image="",
-        exit_condition="POWER_BUTTON_FLICKER",
+        exit_condition="POWER_BUTTON_PRESS",
     )
     return partial(Project, config)
 
