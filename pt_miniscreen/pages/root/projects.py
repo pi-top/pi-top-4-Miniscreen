@@ -162,7 +162,6 @@ class Project:
             logger.info(f"Using exit condition {exit_condition.name}")
         except Exception:
             logger.info("Not using an exit condition")
-            pass
 
 
 class ProjectPage(Component):
