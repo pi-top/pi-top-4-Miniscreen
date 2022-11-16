@@ -105,6 +105,39 @@ def test_transitions(create_stack, render, ImagePage, CheckeredPage, snapshot):
     snapshot.assert_match(render(component), "nothing.png")
 
 
+def test_transitions_without_animation(
+    create_stack, render, ImagePage, CheckeredPage, snapshot
+):
+    component = create_stack(initial_stack=[ImagePage])
+
+    # render so transitions are animated
+    render(component)
+
+    # can push
+    component.push(CheckeredPage, animate=False)
+    snapshot.assert_match(render(component), "checkered-page.png")
+
+    # can push after push
+    component.push(ImagePage, animate=False)
+    snapshot.assert_match(render(component), "image-page.png")
+
+    # can pop after push
+    component.pop(animate=False)
+    snapshot.assert_match(render(component), "checkered-page.png")
+
+    # can pop after pop
+    component.pop(animate=False)
+    snapshot.assert_match(render(component), "image-page.png")
+
+    # can pop last page off stack
+    component.pop(animate=False)
+    snapshot.assert_match(render(component), "nothing.png")
+
+    # pop does nothing when stack is empty
+    component.pop(animate=False)
+    snapshot.assert_match(render(component), "nothing.png")
+
+
 def test_transitions_before_render(
     create_stack, render, ImagePage, CheckeredPage, snapshot
 ):
