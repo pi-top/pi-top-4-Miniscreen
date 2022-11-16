@@ -171,10 +171,17 @@ class Project:
             logger.info("Not using an exit condition")
 
 
+class ProjectState(Enum):
+    IDLE = auto()
+    STARTING = auto()
+    RUNNING = auto()
+    STOPPING = auto()
+
+
 class ProjectPage(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
-        self.started = False
+        self.state = ProjectState.IDLE
         super().__init__(**kwargs)
 
         self.text = self.create_child(
@@ -187,21 +194,24 @@ class ProjectPage(Component):
         )
 
     @property
-    def displayed_text(self):
-        if self.started:
-            return ""
-
-        text = f"Starting '{self.project_config.title}'..."
-        try:
-            exit_condition = ProjectExitCondition[
-                self.project_config.exit_condition.upper()
-            ]
-            if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
-                text += "\nHold power button briefly to exit"
-            elif exit_condition == ProjectExitCondition.HOLD_X:
-                text += "\nHold 'X' button for 3 seconds to exit"
-        except Exception:
-            pass
+    def displayed_text(self) -> str:
+        text = ""
+        if self.state == ProjectState.STOPPING:
+            text = f"Stopping '{self.project_config.title}'..."
+        elif self.state == ProjectState.STARTING:
+            text = f"Starting '{self.project_config.title}'..."
+            try:
+                exit_condition = ProjectExitCondition[
+                    self.project_config.exit_condition.upper()
+                ]
+                if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
+                    text += "\nHold power button briefly to exit"
+                elif exit_condition == ProjectExitCondition.HOLD_X:
+                    text += "\nHold 'X' button for 3 seconds to exit"
+            except Exception:
+                pass
+        elif self.state in [ProjectState.IDLE, ProjectState.RUNNING]:
+            text = ""
 
         return text
 
@@ -213,19 +223,21 @@ class ProjectPage(Component):
             f"Running project '{self.project_config.title}': '{self.project_config.start}'"
         )
 
+        self.state = ProjectState.STARTING
         sleep(3)
-
         try:
-            self.started = True
+            self.state = ProjectState.RUNNING
             with Project(self.project_config) as project:
                 project.run()
                 project.wait()
+                self.state = ProjectState.STOPPING
         except Exception as e:
             logger.error(f"Error starting project: {e}")
         finally:
             if callable(on_stop):
                 sleep(2)
                 on_stop()
+            self.state = ProjectState.IDLE
 
 
 class ProjectRow(Component):
