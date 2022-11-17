@@ -27,7 +27,7 @@ def go_to_projects_page(miniscreen):
         miniscreen.down_button.release()
         sleep(1)
         miniscreen.select_button.release()
-        sleep(1)
+        sleep(2)
 
     return go
 
@@ -90,7 +90,7 @@ def test_open_user_projects(miniscreen, go_to_projects_page, snapshot, create_pr
 
     # access project page
     miniscreen.select_button.release()
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
 
 
@@ -112,7 +112,7 @@ def test_opening_project_page_runs_project(
     with MockCommand("my-custom-start-command") as start_command:
         # access project page
         miniscreen.select_button.release()
-        sleep(1)
+        sleep(2)
         snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
         # wait for the project process to finish
         sleep(4)
@@ -134,7 +134,7 @@ def test_returns_to_project_list_when_project_process_finishes(
     with MockCommand("my-custom-start-command"):
         # access project page
         miniscreen.select_button.release()
-        sleep(1)
+        sleep(2)
         snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
         # wait for the project process to finish
         sleep(4)
@@ -158,7 +158,7 @@ def test_returns_to_project_list_when_project_process_errors(
 
     # access project page
     miniscreen.select_button.release()
-    sleep(1)
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
     # wait for the project process to finish
     sleep(4)

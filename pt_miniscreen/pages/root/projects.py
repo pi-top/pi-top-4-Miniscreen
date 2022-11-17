@@ -225,15 +225,16 @@ class ProjectPage(Component):
 
         self.state = ProjectState.STARTING
         sleep(3)
+
         try:
             self.state = ProjectState.RUNNING
             with Project(self.project_config) as project:
                 project.run()
                 project.wait()
-                self.state = ProjectState.STOPPING
         except Exception as e:
-            logger.error(f"Error starting project: {e}")
+            logger.error(f"Error running project: {e}")
         finally:
+            self.state = ProjectState.STOPPING
             if callable(on_stop):
                 sleep(2)
                 on_stop()
