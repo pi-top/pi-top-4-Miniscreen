@@ -176,6 +176,7 @@ class ProjectState(Enum):
     STARTING = auto()
     RUNNING = auto()
     STOPPING = auto()
+    ERROR = auto()
 
 
 class ProjectPage(Component):
@@ -196,7 +197,9 @@ class ProjectPage(Component):
     @property
     def displayed_text(self) -> str:
         text = ""
-        if self.state == ProjectState.STOPPING:
+        if self.state == ProjectState.ERROR:
+            text = f"There was an error while running '{self.project_config.title}'..."
+        elif self.state == ProjectState.STOPPING:
             text = f"Stopping '{self.project_config.title}'..."
         elif self.state == ProjectState.STARTING:
             text = f"Starting '{self.project_config.title}'..."
@@ -225,16 +228,16 @@ class ProjectPage(Component):
 
         self.state = ProjectState.STARTING
         sleep(3)
-
         try:
-            self.state = ProjectState.RUNNING
             with Project(self.project_config) as project:
                 project.run()
+                self.state = ProjectState.RUNNING
                 project.wait()
+                self.state = ProjectState.STOPPING
         except Exception as e:
-            logger.error(f"Error running project: {e}")
+            logger.error(f"Error starting project: {e}")
+            self.state = ProjectState.ERROR
         finally:
-            self.state = ProjectState.STOPPING
             if callable(on_stop):
                 sleep(2)
                 on_stop()
