@@ -154,9 +154,18 @@ class RootComponent(Component):
             }
         )
 
+    def should_animate_stack_operation(self):
+        return not (
+            isinstance(self.active_page, ProjectList)
+            or isinstance(self.active_page, ProjectPage)
+        )
+
     def enter_selected_row(self):
         if self.can_select_row:
-            self.stack.push(self.active_page.selected_row.page)
+            self.stack.push(
+                self.active_page.selected_row.page,
+                animate=self.should_animate_stack_operation(),
+            )
             self._set_gutter_icons()
 
             if self.is_project_page:
@@ -169,7 +178,7 @@ class RootComponent(Component):
 
     def exit_menu(self):
         if self.can_exit_menu:
-            self.stack.pop()
+            self.stack.pop(animate=self.should_animate_stack_operation())
             self._set_gutter_icons()
 
     def scroll_up(self):
