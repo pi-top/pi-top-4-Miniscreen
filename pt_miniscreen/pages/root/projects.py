@@ -237,6 +237,7 @@ class ProjectPage(Component):
         except Exception as e:
             logger.error(f"Error starting project: {e}")
             self.state = ProjectState.ERROR
+            sleep(2)
         finally:
             if callable(on_stop):
                 sleep(2)

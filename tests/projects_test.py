@@ -34,7 +34,7 @@ def go_to_projects_page(miniscreen):
 
 @pytest.fixture
 def create_project(mocker):
-    def create_project_rows(project_number):
+    def create_project_rows(project_number, exit_condition=""):
         from pt_miniscreen.pages.root.projects import ProjectConfig, ProjectRow
 
         pages = []
@@ -44,15 +44,15 @@ def create_project(mocker):
                 title=f"Project #{project + 1}",
                 start="my-custom-start-command",
                 image="",
-                exit_condition="",
+                exit_condition=exit_condition,
             )
             pages.append(partial(ProjectRow, config))
         return pages
 
-    def mock_project_rows(projects_to_create):
+    def mock_project_rows(projects_to_create, exit_condition=""):
         mocker.patch(
             "pt_miniscreen.pages.root.projects.ProjectList.load_project_rows",
-            side_effect=lambda: create_project_rows(projects_to_create),
+            side_effect=lambda: create_project_rows(projects_to_create, exit_condition),
         )
         mocker.patch(
             "pt_miniscreen.pages.root.projects.ProjectDirectoryList.directory_has_projects",
@@ -91,7 +91,9 @@ def test_open_user_projects(miniscreen, go_to_projects_page, snapshot, create_pr
     # access project page
     miniscreen.select_button.release()
     sleep(2)
-    snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
+    snapshot.assert_match(
+        miniscreen.device.display_image, "starting-project-message.png"
+    )
 
 
 def test_opening_project_page_runs_project(
@@ -113,9 +115,14 @@ def test_opening_project_page_runs_project(
         # access project page
         miniscreen.select_button.release()
         sleep(2)
-        snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
-        # wait for the project process to finish
-        sleep(4)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "starting-project-message.png"
+        )
+        # wait for the project process to finish and display 'stopping' message
+        sleep(3)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "stopping-project-message.png"
+        )
 
     assert len(start_command.get_calls()) == 1
 
@@ -135,15 +142,21 @@ def test_returns_to_project_list_when_project_process_finishes(
         # access project page
         miniscreen.select_button.release()
         sleep(2)
-        snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
-        # wait for the project process to finish
-        sleep(4)
+        # display 'starting' message for a few seconds before starting project
+        snapshot.assert_match(
+            miniscreen.device.display_image, "starting-project-message.png"
+        )
+        # wait for the project process to finish and display 'stopping' message
+        sleep(3)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "stopping-project-message.png"
+        )
 
     sleep(3)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
 
-def test_returns_to_project_list_when_project_process_errors(
+def test_displays_error_message_and_returns_to_project_list_on_error(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
     create_project(1)
@@ -154,17 +167,60 @@ def test_returns_to_project_list_when_project_process_errors(
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
-    # don't mock 'my-custom-start-command'
-
-    # access project page
+    # don't mock 'my-custom-start-command' and access project page
     miniscreen.select_button.release()
     sleep(2)
-    snapshot.assert_match(miniscreen.device.display_image, "project-page.png")
-    # wait for the project process to finish
-    sleep(4)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "starting-project-message.png"
+    )
 
+    # project fails to start
+    sleep(3)
+    snapshot.assert_match(miniscreen.device.display_image, "error-project-message.png")
+
+    # app goes back to project page
     sleep(3)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
+
+def test_display_stop_instructions_for_power_button_press_on_project_start(
+    miniscreen, go_to_projects_page, snapshot, create_project
+):
+    create_project(1, "POWER_BUTTON_PRESS")
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
+    with MockCommand("my-custom-start-command"):
+        miniscreen.select_button.release()
+        sleep(2)
+        snapshot.assert_match(
+            miniscreen.device.display_image,
+            "starting-project-message-with-instructions.png",
+        )
+
+
+def test_display_stop_instructions_for_hold_x_on_project_start(
+    miniscreen, go_to_projects_page, snapshot, create_project
+):
+    create_project(1, "HOLD_X")
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
+    with MockCommand("my-custom-start-command"):
+        miniscreen.select_button.release()
+        sleep(2)
+        snapshot.assert_match(
+            miniscreen.device.display_image,
+            "starting-project-message-with-instructions.png",
+        )
 
 
 def test_first_item_is_selected_by_default(
