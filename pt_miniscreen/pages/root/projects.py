@@ -8,7 +8,7 @@ from pathlib import Path
 from shlex import split
 from subprocess import Popen
 from time import sleep
-from threading import Timer
+from threading import Timer, Thread
 from typing import Callable, List, Type, Union
 
 from pitop.common.current_session_info import (
@@ -225,7 +225,16 @@ class ProjectPage(Component):
         logger.info(
             f"Running project '{self.project_config.title}': '{self.project_config.start}'"
         )
+        Thread(target=self._run_in_background, args=(on_stop,), daemon=True).start()
 
+    def _run_in_background(self, on_stop: Callable = None):
+        """Project needs to run & be waited in the background since otherwise
+        button events are queued and then passed & processed by the main app
+        once the project finishes.
+
+        When running in a thread, events are handled as they arrive and
+        skipped since user is in control.
+        """
         self.state = ProjectState.STARTING
         sleep(3)
         try:
