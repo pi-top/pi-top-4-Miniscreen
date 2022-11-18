@@ -196,13 +196,14 @@ class ProjectPage(Component):
     @property
     def displayed_text(self) -> str:
         text = ""
-        if self.state == ProjectState.ERROR:
+        project_state = self.state.get("project_state")
+        if project_state == ProjectState.ERROR:
             text = f"There was an error while running '{self.project_config.title}'..."
-        elif self.state == ProjectState.RUNNING:
+        elif project_state == ProjectState.RUNNING:
             text = f"Running '{self.project_config.title}'..."
-        elif self.state == ProjectState.STOPPING:
+        elif project_state == ProjectState.STOPPING:
             text = f"Stopping '{self.project_config.title}'..."
-        elif self.state == ProjectState.STARTING:
+        elif project_state == ProjectState.STARTING:
             text = f"Starting '{self.project_config.title}'..."
             try:
                 exit_condition = ProjectExitCondition[
