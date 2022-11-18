@@ -68,7 +68,9 @@ class ProjectConfig:
                 title=project_config["title"],
                 image=project_config.get("image", ""),
                 start=project_config["start"],
-                exit_condition=project_config.get("exit_condition", ""),
+                exit_condition=project_config.get(
+                    "exit_condition", ProjectExitCondition.POWER_BUTTON_PRESS.name
+                ),
             )
         except Exception as e:
             logger.warning(f"Error parsing file '{file}': {e}")
@@ -78,6 +80,7 @@ class ProjectConfig:
 class ProjectExitCondition(Enum):
     POWER_BUTTON_PRESS = auto()
     HOLD_X = auto()
+    NONE = auto()
 
 
 class Project:
@@ -140,35 +143,37 @@ class Project:
     def _handle_exit_condition(self):
         try:
             exit_condition = ProjectExitCondition[self.config.exit_condition.upper()]
+        except Exception:
+            exit_condition = ProjectExitCondition.NONE
 
-            if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
-                event_callback = {Message.PUB_V3_BUTTON_POWER_PRESSED: self.stop}
-            elif exit_condition == ProjectExitCondition.HOLD_X:
-                CANCEL_BUTTON_PRESS_TIME = 3
+        logger.info(f"Using exit condition '{exit_condition.name}'")
 
+        if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
+            event_callback = {Message.PUB_V3_BUTTON_POWER_PRESSED: self.stop}
+        elif exit_condition == ProjectExitCondition.HOLD_X:
+            CANCEL_BUTTON_PRESS_TIME = 3
+
+            timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
+
+            def on_cancel_button_pressed():
+                nonlocal timer
+                timer.cancel()
                 timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
+                timer.start()
 
-                def on_cancel_button_pressed():
-                    nonlocal timer
-                    timer.cancel()
-                    timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
-                    timer.start()
+            def on_cancel_button_release():
+                nonlocal timer
+                timer.cancel()
 
-                def on_cancel_button_release():
-                    nonlocal timer
-                    timer.cancel()
+            event_callback = {
+                Message.PUB_V3_BUTTON_CANCEL_PRESSED: on_cancel_button_pressed,
+                Message.PUB_V3_BUTTON_CANCEL_RELEASED: on_cancel_button_release,
+            }
 
-                event_callback = {
-                    Message.PUB_V3_BUTTON_CANCEL_PRESSED: on_cancel_button_pressed,
-                    Message.PUB_V3_BUTTON_CANCEL_RELEASED: on_cancel_button_release,
-                }
-
+        if exit_condition != ProjectExitCondition.NONE:
             self.subscribe_client = PTDMSubscribeClient()
             self.subscribe_client.initialise(event_callback)
             self.subscribe_client.start_listening()
-            logger.info(f"Using exit condition {exit_condition.name}")
-        except Exception:
-            logger.info("Not using an exit condition")
 
 
 class ProjectState(Enum):
