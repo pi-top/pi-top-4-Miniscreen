@@ -75,6 +75,54 @@ def create_numbered_rows(NumberedRow):
     return create_numbered_rows
 
 
+@pytest.fixture
+def assert_in_position(render, snapshot):
+    def assert_in_position(component, position):
+        snapshot.assert_match(render(component), f"position-{position}.png")
+
+    return assert_in_position
+
+
+@pytest.fixture
+def assert_scrolling_down_moves_to(assert_in_position):
+    def assert_scrolling_down_moves_to(component, position, distance=1):
+        component.scroll_down(distance=distance)
+        sleep(0.3)
+        assert_in_position(component, position)
+
+    return assert_scrolling_down_moves_to
+
+
+@pytest.fixture
+def assert_scrolling_up_moves_to(assert_in_position):
+    def assert_scrolling_up_moves_to(component, position, distance=1):
+        component.scroll_up(distance=distance)
+        sleep(0.3)
+        assert_in_position(component, position)
+
+    return assert_scrolling_up_moves_to
+
+
+@pytest.fixture
+def assert_to_bottom_moves_to(assert_in_position):
+    def assert_to_bottom_moves_to(component, position):
+        component.scroll_to_bottom()
+        sleep(0.3)
+        assert_in_position(component, position)
+
+    return assert_to_bottom_moves_to
+
+
+@pytest.fixture
+def assert_to_top_moves_to(assert_in_position):
+    def assert_to_top_moves_to(component, position):
+        component.scroll_to_top()
+        sleep(0.3)
+        assert_in_position(component, position)
+
+    return assert_to_top_moves_to
+
+
 def test_rows(create_list, create_rows, render, snapshot):
     with pytest.raises(TypeError):
         create_list()
@@ -205,100 +253,88 @@ def test_unscrollable_lists(create_list, create_rows, render, snapshot):
     snapshot.assert_match(render(component), "same-rows-as-num-visible-rows.png")
 
 
-def test_scrolling(create_list, create_rows, render, snapshot):
+def test_scrolling(
+    create_list,
+    create_rows,
+    render,
+    assert_in_position,
+    assert_scrolling_down_moves_to,
+    assert_scrolling_up_moves_to,
+):
     component = create_list(Rows=create_rows(5), num_visible_rows=2)
 
     # render component so transitions are run
     render(component)
 
-    def assert_in_position(position):
-        snapshot.assert_match(render(component), f"position-{position}.png")
-
-    def assert_scrolling_down_moves_to(position):
-        component.scroll_down()
-        sleep(0.3)
-        assert_in_position(position)
-
-    def assert_scrolling_up_moves_to(position):
-        component.scroll_up()
-        sleep(0.3)
-        assert_in_position(position)
-
     # check initial render is correct
-    assert_in_position(1)
+    assert_in_position(component, 1)
 
     # scrolling up when at top does nothing
-    assert_scrolling_up_moves_to(1)
+    assert_scrolling_up_moves_to(component, 1)
 
     # can scroll down
-    assert_scrolling_down_moves_to(2)
-    assert_scrolling_down_moves_to(3)
+    assert_scrolling_down_moves_to(component, 2)
+    assert_scrolling_down_moves_to(component, 3)
 
     # can scroll up when in middle of list
-    assert_scrolling_up_moves_to(2)
+    assert_scrolling_up_moves_to(component, 2)
 
     # can continue scrolling down after scrolling up
-    assert_scrolling_down_moves_to(3)
-    assert_scrolling_down_moves_to(4)
+    assert_scrolling_down_moves_to(component, 3)
+    assert_scrolling_down_moves_to(component, 4)
 
     # scrolling down when at bottom does nothing
-    assert_scrolling_down_moves_to(4)
+    assert_scrolling_down_moves_to(component, 4)
 
     # can scroll up to top
-    assert_scrolling_up_moves_to(3)
-    assert_scrolling_up_moves_to(2)
-    assert_scrolling_up_moves_to(1)
+    assert_scrolling_up_moves_to(component, 3)
+    assert_scrolling_up_moves_to(component, 2)
+    assert_scrolling_up_moves_to(component, 1)
 
     # scrolling up still does nothing
-    assert_scrolling_up_moves_to(1)
+    assert_scrolling_up_moves_to(component, 1)
 
 
-def test_virtual_list_scrolling(create_list, create_rows, render, snapshot):
+def test_virtual_list_scrolling(
+    create_list,
+    create_rows,
+    render,
+    assert_in_position,
+    assert_scrolling_down_moves_to,
+    assert_scrolling_up_moves_to,
+):
     component = create_list(Rows=create_rows(5), num_visible_rows=2, virtual=True)
 
     # render component so transitions are run
     render(component)
 
-    def assert_in_position(position):
-        snapshot.assert_match(render(component), f"position-{position}.png")
-
-    def assert_scrolling_down_moves_to(position):
-        component.scroll_down()
-        sleep(0.3)
-        assert_in_position(position)
-
-    def assert_scrolling_up_moves_to(position):
-        component.scroll_up()
-        sleep(0.3)
-        assert_in_position(position)
-
     # check initial render is correct
-    assert_in_position(1)
+    assert_in_position(component, 1)
 
     # scrolling up when at top does nothing
-    assert_scrolling_up_moves_to(1)
+    assert_scrolling_up_moves_to(component, 1)
 
     # can scroll down
-    assert_scrolling_down_moves_to(2)
-    assert_scrolling_down_moves_to(3)
+    assert_scrolling_down_moves_to(component, 2)
+    assert_scrolling_down_moves_to(component, 3)
 
     # can scroll up when in middle of list
-    assert_scrolling_up_moves_to(2)
+    assert_scrolling_up_moves_to(component, 2)
 
     # can continue scrolling down after scrolling up
-    assert_scrolling_down_moves_to(3)
-    assert_scrolling_down_moves_to(4)
+    assert_scrolling_down_moves_to(component, 3)
+    assert_scrolling_down_moves_to(component, 4)
 
     # scrolling down when at bottom does nothing
-    assert_scrolling_down_moves_to(4)
+    assert_scrolling_down_moves_to(component, 4)
 
     # can scroll up to top
-    assert_scrolling_up_moves_to(3)
-    assert_scrolling_up_moves_to(2)
-    assert_scrolling_up_moves_to(1)
+    assert_scrolling_up_moves_to(component, 3)
+    assert_scrolling_up_moves_to(component, 2)
+    assert_scrolling_up_moves_to(component, 1)
 
     # scrolling up still does nothing
-    assert_scrolling_up_moves_to(1)
+    assert_scrolling_up_moves_to(component, 1)
 
 
 def test_scrolling_before_render(create_list, create_rows, render, snapshot):
@@ -429,49 +465,46 @@ def test_virtual_list_scrolling_animation(
 
 
 def test_scroll_with_distance_parameter(
-    create_list, create_numbered_rows, render, snapshot
+    create_list,
+    create_numbered_rows,
+    render,
+    assert_in_position,
+    assert_scrolling_down_moves_to,
+    assert_scrolling_up_moves_to,
 ):
     component = create_list(Rows=create_numbered_rows(5), num_visible_rows=2)
 
     # render component so transitions are run
     render(component)
 
-    def assert_in_position(position):
-        snapshot.assert_match(render(component), f"position-{position}.png")
-
-    def assert_scrolling_down_moves_to(distance, position):
-        component.scroll_down(distance=distance)
-        sleep(0.3)
-        assert_in_position(position)
-
-    def assert_scrolling_up_moves_to(distance, position):
-        component.scroll_up(distance=distance)
-        sleep(0.3)
-        assert_in_position(position)
-
     # check initial render is correct
-    assert_in_position(1)
+    assert_in_position(component, 1)
 
     # scrolling up when at top does nothing
-    assert_scrolling_up_moves_to(distance=3, position=1)
+    assert_scrolling_up_moves_to(component, distance=3, position=1)
 
     # can scroll down using the distance parameter
-    assert_scrolling_down_moves_to(distance=1, position=2)
-    assert_scrolling_down_moves_to(distance=2, position=4)
+    assert_scrolling_down_moves_to(component, distance=1, position=2)
+    assert_scrolling_down_moves_to(component, distance=2, position=4)
 
     # can scroll up when in middle of list using the distance parameter
-    assert_scrolling_up_moves_to(distance=1, position=3)
-    assert_scrolling_up_moves_to(distance=2, position=1)
+    assert_scrolling_up_moves_to(component, distance=1, position=3)
+    assert_scrolling_up_moves_to(component, distance=2, position=1)
 
     # can continue scrolling down after scrolling up
-    assert_scrolling_down_moves_to(distance=3, position=4)
+    assert_scrolling_down_moves_to(component, distance=3, position=4)
 
     # scrolling down when at bottom does nothing
-    assert_scrolling_down_moves_to(distance=2, position=4)
+    assert_scrolling_down_moves_to(component, distance=2, position=4)
 
 
 def test_virtual_list_scroll_with_distance_parameter(
-    create_list, create_numbered_rows, render, snapshot
+    create_list,
+    create_numbered_rows,
+    render,
+    assert_in_position,
+    assert_scrolling_up_moves_to,
+    assert_scrolling_down_moves_to,
 ):
     component = create_list(
         Rows=create_numbered_rows(5), num_visible_rows=2, virtual=True
@@ -480,79 +513,63 @@ def test_virtual_list_scroll_with_distance_parameter(
     # render component so transitions are run
     render(component)
 
-    def assert_in_position(position):
-        snapshot.assert_match(render(component), f"position-{position}.png")
-
-    def assert_scrolling_down_moves_to(distance, position):
-        component.scroll_down(distance=distance)
-        sleep(0.3)
-        assert_in_position(position)
-
-    def assert_scrolling_up_moves_to(distance, position):
-        component.scroll_up(distance=distance)
-        sleep(0.3)
-        assert_in_position(position)
-
     # check initial render is correct
-    assert_in_position(1)
+    assert_in_position(component, 1)
 
     # scrolling up when at top does nothing
-    assert_scrolling_up_moves_to(distance=3, position=1)
+    assert_scrolling_up_moves_to(component, distance=3, position=1)
 
     # can scroll down using the distance parameter
-    assert_scrolling_down_moves_to(distance=1, position=2)
-    assert_scrolling_down_moves_to(distance=2, position=4)
+    assert_scrolling_down_moves_to(component, distance=1, position=2)
+    assert_scrolling_down_moves_to(component, distance=2, position=4)
 
     # can scroll up when in middle of list using the distance parameter
-    assert_scrolling_up_moves_to(distance=1, position=3)
-    assert_scrolling_up_moves_to(distance=2, position=1)
+    assert_scrolling_up_moves_to(component, distance=1, position=3)
+    assert_scrolling_up_moves_to(component, distance=2, position=1)
 
     # can continue scrolling down after scrolling up
-    assert_scrolling_down_moves_to(distance=3, position=4)
+    assert_scrolling_down_moves_to(component, distance=3, position=4)
 
     # scrolling down when at bottom does nothing
-    assert_scrolling_down_moves_to(distance=2, position=4)
+    assert_scrolling_down_moves_to(component, distance=2, position=4)
 
 
 def test_scroll_to_top_and_bottom_methods(
-    create_list, create_numbered_rows, render, snapshot
+    create_list,
+    create_numbered_rows,
+    render,
+    assert_in_position,
+    assert_to_bottom_moves_to,
+    assert_to_top_moves_to,
 ):
     component = create_list(Rows=create_numbered_rows(5), num_visible_rows=2)
 
     # render component so transitions are run
     render(component)
 
-    def assert_in_position(position):
-        snapshot.assert_match(render(component), f"position-{position}.png")
-
-    def assert_to_bottom_moves_to(position):
-        component.scroll_to_bottom()
-        sleep(0.3)
-        assert_in_position(position)
-
-    def assert_to_top_moves_to(position):
-        component.scroll_to_top()
-        sleep(0.3)
-        assert_in_position(position)
-
     # check initial render is correct
-    assert_in_position(1)
+    assert_in_position(component, 1)
 
     # scrolling to bottom moves to last position
-    assert_to_bottom_moves_to(position=4)
+    assert_to_bottom_moves_to(component, position=4)
 
     # scrolling to bottom again does nothing
-    assert_to_bottom_moves_to(position=4)
+    assert_to_bottom_moves_to(component, position=4)
 
     # scrolling to top moves to initial position
-    assert_to_top_moves_to(position=1)
+    assert_to_top_moves_to(component, position=1)
 
     # scrolling to top again does nothing
-    assert_to_top_moves_to(position=1)
+    assert_to_top_moves_to(component, position=1)
 
 
 def test_virtual_list_scroll_to_top_and_bottom_methods(
-    create_list, create_numbered_rows, render, snapshot
+    create_list,
+    create_numbered_rows,
+    render,
+    assert_in_position,
+    assert_to_bottom_moves_to,
+    assert_to_top_moves_to,
 ):
     component = create_list(
         Rows=create_numbered_rows(5), num_visible_rows=2, virtual=True
@@ -561,33 +578,20 @@ def test_virtual_list_scroll_to_top_and_bottom_methods(
     # render component so transitions are run
     render(component)
 
-    def assert_in_position(position):
-        snapshot.assert_match(render(component), f"position-{position}.png")
-
-    def assert_to_bottom_moves_to(position):
-        component.scroll_to_bottom()
-        sleep(0.3)
-        assert_in_position(position)
-
-    def assert_to_top_moves_to(position):
-        component.scroll_to_top()
-        sleep(0.3)
-        assert_in_position(position)
-
     # check initial render is correct
-    assert_in_position(1)
+    assert_in_position(component, 1)
 
     # scrolling to bottom moves to last position
-    assert_to_bottom_moves_to(position=4)
+    assert_to_bottom_moves_to(component, position=4)
 
     # scrolling to bottom again does nothing
-    assert_to_bottom_moves_to(position=4)
+    assert_to_bottom_moves_to(component, position=4)
 
     # scrolling to top moves to initial position
-    assert_to_top_moves_to(position=1)
+    assert_to_top_moves_to(component, position=1)
 
     # scrolling to top again does nothing
-    assert_to_top_moves_to(position=1)
+    assert_to_top_moves_to(component, position=1)
 
 
 def test_visible_rows_attribute(
