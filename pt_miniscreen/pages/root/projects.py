@@ -187,11 +187,14 @@ class ProjectPage(Component):
         self.text = self.create_child(
             Text,
             text=self.displayed_text,
-            get_text=lambda: self.displayed_text,
             font_size=10,
             align="center",
             vertical_align="center",
         )
+
+    def on_state_change(self, previous_state):
+        if self.state["project_state"] != previous_state["project_state"]:
+            self.text.state.update({"text": self.displayed_text})
 
     @property
     def displayed_text(self) -> str:
