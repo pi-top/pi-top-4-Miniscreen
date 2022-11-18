@@ -110,6 +110,11 @@ class List(Component):
     def invisible_rows(self):
         return list(filter(lambda row: row not in self.visible_rows, self.rows))
 
+    def _remove_invisible_rows(self):
+        for row in self.invisible_rows:
+            self.rows.remove(row)
+            self.remove_child(row)
+
     def _scroll_transition(self, distance):
         # only animate transition if list has been rendered before
         if self.height:
@@ -126,9 +131,7 @@ class List(Component):
                 self.state.update({"transition_progress": progress + progress_step})
 
         if self._virtual:
-            for row in self.invisible_rows:
-                self.rows.remove(row)
-                self.remove_child(row)
+            self._remove_invisible_rows()
 
         self._rows_snapshot = None
         self.state.update(
@@ -139,7 +142,7 @@ class List(Component):
             }
         )
 
-    def scroll_to(self, direction, distance=1):
+    def scroll_to(self, direction, distance=1, animate=True):
         if self.state["active_transition"] is not None:
             logger.info(f"{self} currently scrolling, ignoring scroll")
             return
@@ -179,6 +182,20 @@ class List(Component):
                     ]
                     self.rows.append(self.create_child(Row))
 
+        if not animate:
+            # remove rows that are no longer visible if virtual
+            if self._virtual:
+                if direction == "UP":
+                    self.rows = self.rows[: self.state["num_visible_rows"]]
+
+                if direction == "DOWN":
+                    self.rows = self.rows[distance:]
+
+                self._remove_invisible_rows()
+
+            self.state.update({"top_row_index": next_top_row_index})
+            return
+
         self.state.update(
             {
                 "active_transition": direction,
@@ -190,17 +207,17 @@ class List(Component):
             target=self._scroll_transition, args=[distance], daemon=True
         ).start()
 
-    def scroll_up(self, distance=1):
-        self.scroll_to(direction="UP", distance=distance)
+    def scroll_up(self, distance=1, animate=True):
+        self.scroll_to(direction="UP", distance=distance, animate=animate)
 
-    def scroll_down(self, distance=1):
-        self.scroll_to(direction="DOWN", distance=distance)
+    def scroll_down(self, distance=1, animate=True):
+        self.scroll_to(direction="DOWN", distance=distance, animate=animate)
 
-    def scroll_to_top(self):
-        self.scroll_up(distance=self.distance_to_top)
+    def scroll_to_top(self, animate=True):
+        self.scroll_up(distance=self.distance_to_top, animate=animate)
 
-    def scroll_to_bottom(self):
-        self.scroll_down(distance=self.distance_to_bottom)
+    def scroll_to_bottom(self, animate=True):
+        self.scroll_down(distance=self.distance_to_bottom, animate=animate)
 
     def _get_row_height(self):
         # height is 0 if there are no rows

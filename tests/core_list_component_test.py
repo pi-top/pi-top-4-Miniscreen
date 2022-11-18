@@ -85,9 +85,11 @@ def assert_in_position(render, snapshot):
 
 @pytest.fixture
 def assert_scrolling_down_moves_to(assert_in_position):
-    def assert_scrolling_down_moves_to(component, position, distance=1):
-        component.scroll_down(distance=distance)
-        sleep(0.3)
+    def assert_scrolling_down_moves_to(component, position, animate=True, distance=1):
+        component.scroll_down(animate=animate, distance=distance)
+        if animate:
+            sleep(0.3)
+
         assert_in_position(component, position)
 
     return assert_scrolling_down_moves_to
@@ -95,9 +97,11 @@ def assert_scrolling_down_moves_to(assert_in_position):
 
 @pytest.fixture
 def assert_scrolling_up_moves_to(assert_in_position):
-    def assert_scrolling_up_moves_to(component, position, distance=1):
-        component.scroll_up(distance=distance)
-        sleep(0.3)
+    def assert_scrolling_up_moves_to(component, position, animate=True, distance=1):
+        component.scroll_up(animate=animate, distance=distance)
+        if animate:
+            sleep(0.3)
+
         assert_in_position(component, position)
 
     return assert_scrolling_up_moves_to
@@ -105,9 +109,11 @@ def assert_scrolling_up_moves_to(assert_in_position):
 
 @pytest.fixture
 def assert_to_bottom_moves_to(assert_in_position):
-    def assert_to_bottom_moves_to(component, position):
-        component.scroll_to_bottom()
-        sleep(0.3)
+    def assert_to_bottom_moves_to(component, position, animate=True):
+        component.scroll_to_bottom(animate=animate)
+        if animate:
+            sleep(0.3)
+
         assert_in_position(component, position)
 
     return assert_to_bottom_moves_to
@@ -115,9 +121,11 @@ def assert_to_bottom_moves_to(assert_in_position):
 
 @pytest.fixture
 def assert_to_top_moves_to(assert_in_position):
-    def assert_to_top_moves_to(component, position):
-        component.scroll_to_top()
-        sleep(0.3)
+    def assert_to_top_moves_to(component, position, animate=True):
+        component.scroll_to_top(animate=animate)
+        if animate:
+            sleep(0.3)
+
         assert_in_position(component, position)
 
     return assert_to_top_moves_to
@@ -335,6 +343,118 @@ def test_virtual_list_scrolling(
 
     # scrolling up still does nothing
     assert_scrolling_up_moves_to(component, 1)
+
+
+def test_scrolling_without_animation(
+    create_list,
+    create_rows,
+    render,
+    assert_in_position,
+    assert_scrolling_down_moves_to,
+    assert_scrolling_up_moves_to,
+    assert_to_bottom_moves_to,
+    assert_to_top_moves_to,
+):
+    component = create_list(Rows=create_rows(5), num_visible_rows=2)
+
+    # render component so transitions are run
+    render(component)
+
+    # check initial render is correct
+    assert_in_position(component, 1)
+
+    # scrolling up when at top does nothing
+    assert_scrolling_up_moves_to(component, 1, animate=False)
+
+    # can scroll down
+    assert_scrolling_down_moves_to(component, 2, animate=False)
+    assert_scrolling_down_moves_to(component, 3, animate=False)
+
+    # can scroll up when in middle of list
+    assert_scrolling_up_moves_to(component, 2, animate=False)
+
+    # can continue scrolling down after scrolling up
+    assert_scrolling_down_moves_to(component, 3, animate=False)
+    assert_scrolling_down_moves_to(component, 4, animate=False)
+
+    # scrolling down when at bottom does nothing
+    assert_scrolling_down_moves_to(component, 4, animate=False)
+
+    # can scroll up to top
+    assert_scrolling_up_moves_to(component, 3, animate=False)
+    assert_scrolling_up_moves_to(component, 2, animate=False)
+    assert_scrolling_up_moves_to(component, 1, animate=False)
+
+    # scrolling up still does nothing
+    assert_scrolling_up_moves_to(component, 1, animate=False)
+
+    # can scroll down a custom distance
+    assert_scrolling_down_moves_to(component, 3, animate=False, distance=2)
+
+    # can scroll up a custom distance
+    assert_scrolling_up_moves_to(component, 1, animate=False, distance=2)
+
+    # can scroll down to bottom
+    assert_to_bottom_moves_to(component, 4, animate=False)
+
+    # can scroll up to top
+    assert_to_top_moves_to(component, 1, animate=False)
+
+
+def test_virtual_list_scrolling_without_animation(
+    create_list,
+    create_rows,
+    render,
+    assert_in_position,
+    assert_scrolling_down_moves_to,
+    assert_scrolling_up_moves_to,
+    assert_to_bottom_moves_to,
+    assert_to_top_moves_to,
+):
+    component = create_list(Rows=create_rows(5), num_visible_rows=2, virtual=True)
+
+    # render component so transitions are run
+    render(component)
+
+    # check initial render is correct
+    assert_in_position(component, 1)
+
+    # scrolling up when at top does nothing
+    assert_scrolling_up_moves_to(component, 1, animate=False)
+
+    # can scroll down
+    assert_scrolling_down_moves_to(component, 2, animate=False)
+    assert_scrolling_down_moves_to(component, 3, animate=False)
+
+    # can scroll up when in middle of list
+    assert_scrolling_up_moves_to(component, 2, animate=False)
+
+    # can continue scrolling down after scrolling up
+    assert_scrolling_down_moves_to(component, 3, animate=False)
+    assert_scrolling_down_moves_to(component, 4, animate=False)
+
+    # scrolling down when at bottom does nothing
+    assert_scrolling_down_moves_to(component, 4, animate=False)
+
+    # can scroll up to top
+    assert_scrolling_up_moves_to(component, 3, animate=False)
+    assert_scrolling_up_moves_to(component, 2, animate=False)
+    assert_scrolling_up_moves_to(component, 1, animate=False)
+
+    # scrolling up still does nothing
+    assert_scrolling_up_moves_to(component, 1, animate=False)
+
+    # can scroll down a custom distance
+    assert_scrolling_down_moves_to(component, 3, animate=False, distance=2)
+
+    # can scroll up a custom distance
+    assert_scrolling_up_moves_to(component, 1, animate=False, distance=2)
+
+    # can scroll down to bottom
+    assert_to_bottom_moves_to(component, 4, animate=False)
+
+    # can scroll up to top
+    assert_to_top_moves_to(component, 1, animate=False)
 
 
 def test_scrolling_before_render(create_list, create_rows, render, snapshot):
