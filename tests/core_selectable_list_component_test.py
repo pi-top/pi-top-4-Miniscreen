@@ -84,9 +84,10 @@ def assert_selected_row_is(snapshot, render):
 
 @pytest.fixture
 def assert_select_next_row_selects_row(assert_selected_row_is):
-    def assert_select_next_row_selects_row(component, position):
-        component.select_next_row()
-        sleep(0.3)
+    def assert_select_next_row_selects_row(component, position, animate_scroll=True):
+        component.select_next_row(animate_scroll=animate_scroll)
+        if animate_scroll:
+            sleep(0.3)
 
         assert_selected_row_is(component, position)
 
@@ -95,9 +96,12 @@ def assert_select_next_row_selects_row(assert_selected_row_is):
 
 @pytest.fixture
 def assert_select_previous_row_selects_row(assert_selected_row_is):
-    def assert_select_previous_row_selects_row(component, position):
-        component.select_previous_row()
-        sleep(0.3)
+    def assert_select_previous_row_selects_row(
+        component, position, animate_scroll=True
+    ):
+        component.select_previous_row(animate_scroll=animate_scroll)
+        if animate_scroll:
+            sleep(0.3)
 
         assert_selected_row_is(component, position)
 
@@ -327,6 +331,94 @@ def test_virtual_selectable_lists_select_next_and_previous(
 
     # selecting previous row still does nothing
     assert_select_previous_row_selects_row(component, 1)
+
+
+def test_select_next_and_previous_without_animation(
+    create_selectable_list,
+    create_numbered_rows,
+    render,
+    assert_selected_row_is,
+    assert_select_previous_row_selects_row,
+    assert_select_next_row_selects_row,
+):
+    component = create_selectable_list(Rows=create_numbered_rows(4), num_visible_rows=3)
+
+    # render component so transitions are run
+    render(component)
+
+    # check initial render is correct
+    assert_selected_row_is(component, 1)
+
+    # selecting previous row when at top does nothing
+    assert_select_previous_row_selects_row(component, 1, animate_scroll=False)
+
+    # can select next
+    assert_select_next_row_selects_row(component, 2, animate_scroll=False)
+    assert_select_next_row_selects_row(component, 3, animate_scroll=False)
+
+    # can select previous when in middle of list
+    assert_select_previous_row_selects_row(component, 2, animate_scroll=False)
+
+    # can continue selecting next after selecting previous row
+    assert_select_next_row_selects_row(component, 3, animate_scroll=False)
+    assert_select_next_row_selects_row(component, 4, animate_scroll=False)
+
+    # select next when at bottom does nothing
+    assert_select_next_row_selects_row(component, 4, animate_scroll=False)
+
+    # can navigate back to top
+    component.select_previous_row(animate_scroll=False)
+    component.select_previous_row(animate_scroll=False)
+    component.select_previous_row(animate_scroll=False)
+    assert_select_previous_row_selects_row(component, 1, animate_scroll=False)
+
+    # selecting previous row still does nothing
+    assert_select_previous_row_selects_row(component, 1, animate_scroll=False)
+
+
+def test_virtual_selectable_lists_select_next_and_previous_without_animation(
+    create_selectable_list,
+    create_numbered_rows,
+    render,
+    assert_selected_row_is,
+    assert_select_previous_row_selects_row,
+    assert_select_next_row_selects_row,
+):
+    component = create_selectable_list(
+        Rows=create_numbered_rows(4), num_visible_rows=3, virtual=True
+    )
+
+    # render component so transitions are run
+    render(component)
+
+    # check initial render is correct
+    assert_selected_row_is(component, 1)
+
+    # selecting previous row when at top does nothing
+    assert_select_previous_row_selects_row(component, 1, animate_scroll=False)
+
+    # can select next
+    assert_select_next_row_selects_row(component, 2, animate_scroll=False)
+    assert_select_next_row_selects_row(component, 3, animate_scroll=False)
+
+    # can select previous when in middle of list
+    assert_select_previous_row_selects_row(component, 2, animate_scroll=False)
+
+    # can continue selecting next after selecting previous row
+    assert_select_next_row_selects_row(component, 3, animate_scroll=False)
+    assert_select_next_row_selects_row(component, 4, animate_scroll=False)
+
+    # select next when at bottom does nothing
+    assert_select_next_row_selects_row(component, 4, animate_scroll=False)
+
+    # can navigate back to top
+    component.select_previous_row(animate_scroll=False)
+    component.select_previous_row(animate_scroll=False)
+    component.select_previous_row(animate_scroll=False)
+    assert_select_previous_row_selects_row(component, 1, animate_scroll=False)
+
+    # selecting previous row still does nothing
+    assert_select_previous_row_selects_row(component, 1, animate_scroll=False)
 
 
 def test_select_before_render(
