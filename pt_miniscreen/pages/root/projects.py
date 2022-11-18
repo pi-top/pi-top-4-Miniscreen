@@ -182,8 +182,7 @@ class ProjectState(Enum):
 class ProjectPage(Component):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
-        self.state = ProjectState.IDLE
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, initial_state={"project_state": ProjectState.IDLE})
 
         self.text = self.create_child(
             Text,
@@ -199,6 +198,8 @@ class ProjectPage(Component):
         text = ""
         if self.state == ProjectState.ERROR:
             text = f"There was an error while running '{self.project_config.title}'..."
+        elif self.state == ProjectState.RUNNING:
+            text = f"Running '{self.project_config.title}'..."
         elif self.state == ProjectState.STOPPING:
             text = f"Stopping '{self.project_config.title}'..."
         elif self.state == ProjectState.STARTING:
@@ -213,8 +214,6 @@ class ProjectPage(Component):
                     text += "\nHold 'X' button for 3 seconds to exit"
             except Exception:
                 pass
-        elif self.state in [ProjectState.IDLE, ProjectState.RUNNING]:
-            text = ""
 
         return text
 
@@ -235,23 +234,23 @@ class ProjectPage(Component):
         When running in a thread, events are handled as they arrive and
         skipped since user is in control.
         """
-        self.state = ProjectState.STARTING
+        self.state.update({"project_state": ProjectState.STARTING})
         sleep(3)
         try:
             with Project(self.project_config) as project:
                 project.run()
-                self.state = ProjectState.RUNNING
+                self.state.update({"project_state": ProjectState.RUNNING})
                 project.wait()
-                self.state = ProjectState.STOPPING
+                self.state.update({"project_state": ProjectState.STOPPING})
         except Exception as e:
             logger.error(f"Error starting project: {e}")
-            self.state = ProjectState.ERROR
+            self.state.update({"project_state": ProjectState.ERROR})
             sleep(2)
         finally:
             if callable(on_stop):
                 sleep(2)
                 on_stop()
-            self.state = ProjectState.IDLE
+            self.state.update({"project_state": ProjectState.IDLE})
 
 
 class ProjectRow(Component):
