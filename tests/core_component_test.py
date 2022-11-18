@@ -130,6 +130,17 @@ def test_state(parent):
     # state is a dictionary
     assert isinstance(component.state, dict)
 
+    # state cannot be assigned to
+    try:
+        component.state = None
+    except AttributeError as e:
+        assert (
+            str(e)
+            == "Component.state cannot be set, pass initial_state to super().__init__ or call self.state.update"
+        )
+    finally:
+        assert component.state is not None
+
     # state has same equality behaviour as a normal dict
     assert component.state == {"foo": "bar", "deep": {"foo": "bar"}}
 

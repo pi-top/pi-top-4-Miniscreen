@@ -135,7 +135,7 @@ class Component:
         self._intervals = []
         self._render_cache = RenderCache()
         self._get_on_rerender = WeakMethod(on_rerender)
-        self.state = State(
+        self._state = State(
             initial_state={**self.default_state, **initial_state},
             on_state_update=self._on_state_update,
         )
@@ -289,6 +289,16 @@ class Component:
         pass
 
     # external API
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        raise AttributeError(
+            "Component.state cannot be set, pass initial_state to super().__init__ or call self.state.update"
+        )
+
     def create_child(self, ChildComponent, **kwargs):
         child = ChildComponent(**kwargs, on_rerender=self._reconcile)
         self._children.append(child)
