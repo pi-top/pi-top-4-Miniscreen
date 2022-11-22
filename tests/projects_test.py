@@ -186,7 +186,7 @@ def test_displays_error_message_and_returns_to_project_list_on_error(
 def test_display_stop_instructions_for_power_button_press_on_project_start(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
-    create_project(1, "POWER_BUTTON_PRESS")
+    create_project(1, "POWER_BUTTON_FLICK")
     go_to_projects_page()
 
     # access user projects

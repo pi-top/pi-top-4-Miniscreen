@@ -69,7 +69,7 @@ class ProjectConfig:
                 image=project_config.get("image", ""),
                 start=project_config["start"],
                 exit_condition=project_config.get(
-                    "exit_condition", ProjectExitCondition.POWER_BUTTON_PRESS.name
+                    "exit_condition", ProjectExitCondition.POWER_BUTTON_FLICK.name
                 ),
             )
         except Exception as e:
@@ -78,7 +78,7 @@ class ProjectConfig:
 
 
 class ProjectExitCondition(Enum):
-    POWER_BUTTON_PRESS = auto()
+    POWER_BUTTON_FLICK = auto()
     HOLD_X = auto()
     NONE = auto()
 
@@ -148,7 +148,7 @@ class Project:
 
         logger.info(f"Using exit condition '{exit_condition.name}'")
 
-        if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
+        if exit_condition == ProjectExitCondition.POWER_BUTTON_FLICK:
             event_callback = {Message.PUB_V3_BUTTON_POWER_PRESSED: self.stop}
         elif exit_condition == ProjectExitCondition.HOLD_X:
             CANCEL_BUTTON_PRESS_TIME = 3
@@ -217,8 +217,8 @@ class ProjectPage(Component):
                 exit_condition = ProjectExitCondition[
                     self.project_config.exit_condition.upper()
                 ]
-                if exit_condition == ProjectExitCondition.POWER_BUTTON_PRESS:
-                    text += "\nHold power button briefly to exit"
+                if exit_condition == ProjectExitCondition.POWER_BUTTON_FLICK:
+                    text += "\nFlick power button to exit"
                 elif exit_condition == ProjectExitCondition.HOLD_X:
                     text += "\nHold 'X' button for 3 seconds to exit"
             except Exception:
