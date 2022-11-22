@@ -171,6 +171,17 @@ class RootComponent(Component):
             if self.is_project_page:
                 self.active_page.run(on_stop=self.exit_menu)
 
+    def is_running_project(self):
+        return (
+            self.is_project_page
+            and hasattr(self.active_page, "is_running")
+            and self.active_page.is_running
+        )
+
+    def project_uses_miniscreen(self, user_using_miniscreen):
+        if self.is_project_page:
+            self.active_page.set_user_controls_miniscreen(user_using_miniscreen)
+
     def enter_menu(self):
         if self.can_enter_menu:
             self.stack.push(self.active_page.PageList)

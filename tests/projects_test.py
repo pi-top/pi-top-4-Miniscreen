@@ -111,14 +111,70 @@ def test_opening_project_page_runs_project(
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
-    with MockCommand("my-custom-start-command") as start_command:
-        # access project page
+    with MockCommand(
+        "my-custom-start-command", python="from time import sleep; sleep(3)"
+    ) as start_command:
+        # Access project page
         miniscreen.select_button.release()
         sleep(2)
         snapshot.assert_match(
             miniscreen.device.display_image, "starting-project-message.png"
         )
-        # wait for the project process to finish and display 'stopping' message
+
+        # Run project
+        sleep(2)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "running-project-message.png"
+        )
+
+        # Wait for the project process to finish and display 'stopping' message
+        sleep(4)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "stopping-project-message.png"
+        )
+
+    assert len(start_command.get_calls()) == 1
+
+
+def test_running_project_that_uses_miniscreen(
+    miniscreen, go_to_projects_page, snapshot, create_project, mocker
+):
+    mocker.patch(
+        "pt_miniscreen.pages.root.projects.get_user_using_first_display",
+        return_value=None,
+    )
+    create_project(1)
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
+    with MockCommand(
+        "my-custom-start-command", python="from time import sleep; sleep(3)"
+    ) as start_command:
+        # Access project page
+        miniscreen.select_button.release()
+        sleep(2)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "starting-project-message.png"
+        )
+
+        # Run project
+        sleep(2)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "running-project-message.png"
+        )
+
+        # Emulate user using the miniscreen
+        miniscreen.when_user_controlled()
+        sleep(0.5)
+
+        # Screen doesn't display a message
+        snapshot.assert_match(miniscreen.device.display_image, "no-message.png")
+
+        # Wait for the project process to finish and display 'stopping' message
         sleep(3)
         snapshot.assert_match(
             miniscreen.device.display_image, "stopping-project-message.png"

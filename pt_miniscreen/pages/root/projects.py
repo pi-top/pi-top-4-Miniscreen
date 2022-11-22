@@ -180,6 +180,7 @@ class ProjectState(Enum):
     IDLE = auto()
     STARTING = auto()
     RUNNING = auto()
+    PROJECT_USES_MINISCREEN = auto()
     STOPPING = auto()
     ERROR = auto()
 
@@ -201,6 +202,10 @@ class ProjectPage(Component):
         if self.state["project_state"] != previous_state["project_state"]:
             self.text.state.update({"text": self.displayed_text})
 
+    def set_user_controls_miniscreen(self, user_using_miniscreen):
+        if user_using_miniscreen:
+            self.state.update({"project_state": ProjectState.PROJECT_USES_MINISCREEN})
+
     @property
     def displayed_text(self) -> str:
         text = ""
@@ -218,7 +223,7 @@ class ProjectPage(Component):
                     self.project_config.exit_condition.upper()
                 ]
                 if exit_condition == ProjectExitCondition.POWER_BUTTON_FLICK:
-                    text += "\nFlick power button to exit"
+                    text += "\nFlick the power button to exit"
                 elif exit_condition == ProjectExitCondition.HOLD_X:
                     text += "\nHold 'X' button for 3 seconds to exit"
             except Exception:
@@ -228,6 +233,10 @@ class ProjectPage(Component):
 
     def render(self, image):
         return self.text.render(image)
+
+    @property
+    def is_running(self):
+        return self.state.get("project_state") == ProjectState.RUNNING
 
     def run(self, on_stop: Callable = None):
         logger.info(
