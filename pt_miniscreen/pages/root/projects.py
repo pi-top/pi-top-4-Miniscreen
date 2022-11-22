@@ -208,7 +208,7 @@ class ProjectPage(Component):
         if project_state == ProjectState.ERROR:
             text = f"There was an error while running '{self.project_config.title}'..."
         elif project_state == ProjectState.RUNNING:
-            text = f"Running '{self.project_config.title}'..."
+            text = f"'{self.project_config.title}' is running..."
         elif project_state == ProjectState.STOPPING:
             text = f"Stopping '{self.project_config.title}'..."
         elif project_state == ProjectState.STARTING:
@@ -254,10 +254,9 @@ class ProjectPage(Component):
         except Exception as e:
             logger.error(f"Error starting project: {e}")
             self.state.update({"project_state": ProjectState.ERROR})
-            sleep(2)
         finally:
+            sleep(2)
             if callable(on_stop):
-                sleep(2)
                 on_stop()
             self.state.update({"project_state": ProjectState.IDLE})
 
