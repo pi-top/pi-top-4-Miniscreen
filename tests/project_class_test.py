@@ -15,7 +15,7 @@ def create_project_object():
         title="Project #0",
         start="my-custom-start-command",
         image="",
-        exit_condition="POWER_BUTTON_FLICK",
+        exit_condition="FLICK_POWER",
     )
     return partial(Project, config)
 
@@ -83,7 +83,7 @@ def test_project_cls_callbacks_for_exit_condition_hold_x(
     subscribe_client, create_project_object, mocker
 ):
     project = create_project_object()
-    project.config.exit_condition = "HOLD_X"
+    project.config.exit_condition = "HOLD_CANCEL"
 
     with MockCommand("my-custom-start-command"):
         project.run()
