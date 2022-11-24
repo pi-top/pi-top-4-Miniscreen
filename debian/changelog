@@ -1,3 +1,15 @@
+pi-top-4-miniscreen (7.3.0-2) bullseye; urgency=medium
+
+  * fix: sped up menu gif after scroll
+  * feat: add option to not animate Stack transitions
+  * fix: prevent assigning to Component.state
+  * test: convert List assertion helpers to fixtures
+  * test: improve SelectableList snaps and extract helpers
+  * feat: add option to not animate List scrolling
+  * Handle project exit conditions (#293)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 24 Nov 2022 14:08:25 +0000
+
 pi-top-4-miniscreen (7.3.0-1) bullseye; urgency=medium
 
   * refactor: remove miniscreen from core app
