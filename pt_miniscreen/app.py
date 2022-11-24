@@ -41,6 +41,8 @@ class App(BaseApp):
         def set_is_user_controlled(user_has_control) -> None:
             if user_has_control:
                 self.stop_timers()
+                if self.root.is_running_project:
+                    self.root.project_uses_miniscreen(True)
             else:
                 self.restore_miniscreen()
 
