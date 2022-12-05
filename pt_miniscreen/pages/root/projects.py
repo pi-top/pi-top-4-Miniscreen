@@ -6,7 +6,7 @@ from enum import Enum, auto
 from functools import partial
 from pathlib import Path
 from shlex import split
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from time import sleep
 from threading import Timer, Thread
 from typing import Callable, List, Type, Union
@@ -121,12 +121,15 @@ class Project:
             self.subscribe_client = None
 
     def wait(self):
-        if self.process:
-            exit_code = self.process.wait()
-            logger.info(
-                f"Project '{self.config.title}' finished with exit code {exit_code}"
-            )
-            return exit_code
+        if not self.process:
+            return
+
+        exit_code = self.process.wait()
+        logger.info(
+            f"Project '{self.config.title}' finished with exit code {exit_code}"
+        )
+        if exit_code != 0 and self.process.stderr:
+            raise Exception(self.process.stderr.read().decode())
 
     def run(self):
         logger.info(f"Starting project '{self.config.title}'")
@@ -134,6 +137,8 @@ class Project:
 
         self.process = Popen(
             split(self.config.start),
+            stdout=PIPE,
+            stderr=PIPE,
             env=self._get_environment(),
             cwd=self.config.path,
             preexec_fn=lambda: switch_user(user),
@@ -261,7 +266,7 @@ class ProjectPage(Component):
                 project.wait()
                 self.state.update({"project_state": ProjectState.STOPPING})
         except Exception as e:
-            logger.error(f"Error starting project: {e}")
+            logger.error(f"Error running project: {e}")
             self.state.update({"project_state": ProjectState.ERROR})
         finally:
             sleep(2)
