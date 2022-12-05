@@ -43,6 +43,7 @@ class RootPageList(PageList):
     def __init__(self, **kwargs):
         super().__init__(
             **kwargs,
+            use_snapshot_when_scrolling=False,
             Pages=[
                 OverviewPage,
                 SystemMenuPage,
@@ -153,13 +154,33 @@ class RootComponent(Component):
             }
         )
 
+    def should_animate_stack_operation(self):
+        return not (
+            isinstance(self.active_page, ProjectList)
+            or isinstance(self.active_page, ProjectPage)
+        )
+
     def enter_selected_row(self):
         if self.can_select_row:
-            self.stack.push(self.active_page.selected_row.page)
+            self.stack.push(
+                self.active_page.selected_row.page,
+                animate=self.should_animate_stack_operation(),
+            )
             self._set_gutter_icons()
 
             if self.is_project_page:
                 self.active_page.run(on_stop=self.exit_menu)
+
+    def is_running_project(self):
+        return (
+            self.is_project_page
+            and hasattr(self.active_page, "is_running")
+            and self.active_page.is_running
+        )
+
+    def project_uses_miniscreen(self, user_using_miniscreen):
+        if self.is_project_page:
+            self.active_page.set_user_controls_miniscreen(user_using_miniscreen)
 
     def enter_menu(self):
         if self.can_enter_menu:
@@ -168,7 +189,7 @@ class RootComponent(Component):
 
     def exit_menu(self):
         if self.can_exit_menu:
-            self.stack.pop()
+            self.stack.pop(animate=self.should_animate_stack_operation())
             self._set_gutter_icons()
 
     def scroll_up(self):

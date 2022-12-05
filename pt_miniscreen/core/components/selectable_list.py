@@ -32,7 +32,7 @@ class SelectableList(List):
     def selected_row(self):
         return self._get_row_at_index(self.state["selected_index"])
 
-    def select_row(self, index):
+    def select_row(self, index, animate_scroll=True):
         if self.state["active_transition"] is not None:
             logger.info(f"{self} selecting new row, ignoring select")
             return
@@ -45,19 +45,21 @@ class SelectableList(List):
 
         offset = index - self.state["top_row_index"]
         if offset < 0:
-            self.scroll_to(direction="UP", distance=-offset)
+            self.scroll_to(direction="UP", distance=-offset, animate=animate_scroll)
         elif offset >= self.state["num_visible_rows"]:
             self.scroll_to(
-                direction="DOWN", distance=1 + offset - self.state["num_visible_rows"]
+                direction="DOWN",
+                distance=1 + offset - self.state["num_visible_rows"],
+                animate=animate_scroll,
             )
 
         self.state.update({"selected_index": index})
 
-    def select_next_row(self):
-        self.select_row(self.state["selected_index"] + 1)
+    def select_next_row(self, animate_scroll=True):
+        self.select_row(self.state["selected_index"] + 1, animate_scroll=animate_scroll)
 
-    def select_previous_row(self):
-        self.select_row(self.state["selected_index"] - 1)
+    def select_previous_row(self, animate_scroll=True):
+        self.select_row(self.state["selected_index"] - 1, animate_scroll=animate_scroll)
 
     def _get_row_at_index(self, index):
         if len(self.rows) == 0:
