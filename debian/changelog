@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.3.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (7.4.0-1) bullseye; urgency=medium
 
   * fix: sped up menu gif after scroll
   * feat: add option to not animate Stack transitions
