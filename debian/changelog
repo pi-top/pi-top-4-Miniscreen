@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.4.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (7.5.0-1) bullseye; urgency=medium
 
   * Display message on project error (#299)
 
