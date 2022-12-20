@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.4.0-2) bullseye; urgency=medium
+
+  * Display message on project error (#299)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Tue, 20 Dec 2022 17:25:25 +0000
+
 pi-top-4-miniscreen (7.4.0-1) bullseye; urgency=medium
 
   * fix: sped up menu gif after scroll
