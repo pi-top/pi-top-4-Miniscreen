@@ -9,7 +9,7 @@ from shlex import split
 from subprocess import Popen, PIPE
 from time import sleep
 from threading import Timer, Thread
-from typing import Callable, List, Type, Union
+from typing import Callable, List, Optional, Type, Union
 
 from pitop.common.current_session_info import (
     get_first_display,
@@ -243,13 +243,13 @@ class ProjectPage(Component):
     def is_running(self):
         return self.state.get("project_state") == ProjectState.RUNNING
 
-    def run(self, on_stop: Callable = None):
+    def run(self, on_stop: Optional[Callable] = None):
         logger.info(
             f"Running project '{self.project_config.title}': '{self.project_config.start}'"
         )
         Thread(target=self._run_in_background, args=(on_stop,), daemon=True).start()
 
-    def _run_in_background(self, on_stop: Callable = None):
+    def _run_in_background(self, on_stop: Optional[Callable] = None):
         """Project needs to run & be waited in the background since otherwise
         button events are queued and then passed & processed by the main app
         once the project finishes.
