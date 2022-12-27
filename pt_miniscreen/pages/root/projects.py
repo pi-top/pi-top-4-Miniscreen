@@ -128,7 +128,7 @@ class Project:
         logger.info(
             f"Project '{self.config.title}' finished with exit code {exit_code}"
         )
-        if exit_code != 0 and self.process.stderr:
+        if self.process and exit_code != 0 and self.process.stderr:
             raise Exception(self.process.stderr.read().decode())
 
     def run(self):

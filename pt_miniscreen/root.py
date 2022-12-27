@@ -18,6 +18,7 @@ from pt_miniscreen.pages.root.projects import (
     EmptyProjectRow,
     ProjectPage,
     ProjectList,
+    ProjectDirectoryList,
     ProjectsMenuPage,
 )
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
@@ -82,6 +83,8 @@ class RootComponent(Component):
         if self.state["show_bootsplash"]:
             Thread(target=self._wait_for_bootsplash_finish, daemon=True).start()
 
+        self._set_gutter_icons()
+
     @property
     def active_page(self):
         if isinstance(self.stack.active_component, PageList):
@@ -96,8 +99,19 @@ class RootComponent(Component):
         return self.active_page and isinstance(self.active_page, ProjectPage)
 
     @property
+    def can_start_project(self):
+        return (
+            self.can_select_row
+            and self.active_page is not None
+            and isinstance(self.active_page, ProjectList)
+        )
+
+    @property
     def can_enter_menu(self):
-        return self.active_page and isinstance(self.active_page, MenuPage)
+        return self.active_page is not None and (
+            isinstance(self.active_page, MenuPage)
+            or isinstance(self.active_page, ProjectDirectoryList)
+        )
 
     @property
     def can_exit_menu(self):
@@ -112,7 +126,7 @@ class RootComponent(Component):
         return (
             isinstance(self.active_page, SelectableList)
             and not isinstance(self.active_page.selected_row, EmptyProjectRow)
-            and self.active_page.selected_row.page
+            and self.active_page.selected_row.page is not None
         )
 
     @property
@@ -142,6 +156,9 @@ class RootComponent(Component):
     def _get_lower_icon_path(self):
         if self.can_perform_action:
             return get_image_file_path("gutter/tick.png")
+
+        if self.can_start_project:
+            return get_image_file_path("gutter/play.png")
 
         if self.can_enter_menu:
             return get_image_file_path("gutter/right_arrow.png")
@@ -184,7 +201,10 @@ class RootComponent(Component):
 
     def enter_menu(self):
         if self.can_enter_menu:
-            self.stack.push(self.active_page.PageList)
+            if isinstance(self.active_page, MenuPage):
+                self.stack.push(self.active_page.PageList)
+            if isinstance(self.active_page, ProjectDirectoryList):
+                self.stack.push(self.active_page.selected_row.page)
             self._set_gutter_icons()
 
     def exit_menu(self):
@@ -209,14 +229,6 @@ class RootComponent(Component):
     def select_previous_row(self):
         if self.can_select_row:
             self.active_page.select_previous_row()
-
-    def start_project(self):
-        if self.is_project_page:
-            return self.active_page.start()
-
-    def wait_project(self):
-        if self.is_project_page:
-            return self.active_page.wait()
 
     def handle_cancel_button_release(self):
         if self.is_project_page:
