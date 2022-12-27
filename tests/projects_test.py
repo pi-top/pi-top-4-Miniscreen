@@ -239,6 +239,36 @@ def test_displays_error_message_and_returns_to_project_list_on_error(
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
 
+def test_displays_error_message_and_returns_to_project_list_on_nonzero_exit_code(
+    miniscreen, go_to_projects_page, snapshot, create_project
+):
+    create_project(1)
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
+    # use exit code 2 to mock an error
+    with MockCommand.fixed_output("my-custom-start-command", exit_status=2):
+        miniscreen.select_button.release()
+        sleep(2)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "starting-project-message.png"
+        )
+
+        # since exit code isn't 0, it's reported as an error
+        sleep(3)
+        snapshot.assert_match(
+            miniscreen.device.display_image, "error-project-message.png"
+        )
+
+    # app goes back to project page
+    sleep(3)
+    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+
+
 def test_display_stop_instructions_for_power_button_press_on_project_start(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):

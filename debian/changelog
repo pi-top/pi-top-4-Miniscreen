@@ -1,3 +1,21 @@
+pi-top-4-miniscreen (7.5.0-1) bullseye; urgency=medium
+
+  * Display message on project error (#299)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Tue, 20 Dec 2022 17:25:25 +0000
+
+pi-top-4-miniscreen (7.4.0-1) bullseye; urgency=medium
+
+  * fix: sped up menu gif after scroll
+  * feat: add option to not animate Stack transitions
+  * fix: prevent assigning to Component.state
+  * test: convert List assertion helpers to fixtures
+  * test: improve SelectableList snaps and extract helpers
+  * feat: add option to not animate List scrolling
+  * Handle project exit conditions (#293)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 24 Nov 2022 14:08:25 +0000
+
 pi-top-4-miniscreen (7.3.0-1) bullseye; urgency=medium
 
   * refactor: remove miniscreen from core app
