@@ -32,6 +32,10 @@ class SelectableList(List):
     def selected_row(self):
         return self._get_row_at_index(self.state["selected_index"])
 
+    @property
+    def is_empty(self):
+        return len(self.rows) == 0
+
     def select_row(self, index, animate_scroll=True):
         if self.state["active_transition"] is not None:
             logger.info(f"{self} selecting new row, ignoring select")
