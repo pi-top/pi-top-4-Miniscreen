@@ -1,4 +1,5 @@
-from functools import partial
+from typing import Optional
+from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.selectable_list import SelectableList
 
 
@@ -16,16 +17,9 @@ class MenuList(SelectableList):
         )
 
     @property
-    def can_enter(self):
+    def can_enter(self) -> bool:
         return hasattr(self.selected_row, "page") and self.selected_row.page is not None
 
     @property
-    def child(self):
-        if self.can_enter:
-            return self.selected_row.page
-
-    @property
-    def child_cls(self):
-        if isinstance(self.child, partial):
-            return self.child.func
-        return self.child
+    def child(self) -> Optional[Component]:
+        return self.selected_row.page if self.can_enter else None
