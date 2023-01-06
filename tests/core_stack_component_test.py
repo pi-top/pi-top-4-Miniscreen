@@ -29,7 +29,7 @@ def ImagePage(get_test_image_path):
                 **kwargs,
                 image_path=get_test_image_path("test-1.png"),
                 resize=True,
-                resize_resampling=Image.Resampling.BOX,
+                resize_resampling=Image.BOX,
             )
 
     return ImagePage

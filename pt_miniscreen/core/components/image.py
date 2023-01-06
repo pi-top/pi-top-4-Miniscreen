@@ -2,7 +2,7 @@ import logging
 from threading import Event, Thread
 from time import sleep
 
-from PIL.Image import open as open_image
+from PIL.Image import open as open_image, BICUBIC
 
 from ..component import Component
 from ..utils import offset_to_center
@@ -34,7 +34,9 @@ class Image(Component):
                 "align": align,
                 "vertical_align": vertical_align,
                 "resize": resize,
-                "resize_resampling": resize_resampling,
+                "resize_resampling": resize_resampling
+                if resize_resampling
+                else BICUBIC,
                 **initial_state,
             },
         )
