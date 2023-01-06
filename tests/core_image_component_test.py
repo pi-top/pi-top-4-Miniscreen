@@ -56,12 +56,12 @@ def test_image_resize_resampling(create_image, render, get_test_image_path, snap
     component = create_image(
         image_path=get_test_image_path("test-1.png"),
         resize=True,
-        resize_resampling=Image.Resampling.BOX,
+        resize_resampling=Image.BOX,
     )
     snapshot.assert_match(render(component), "box_resampling.png")
 
     # can change resampling dynamically
-    component.state.update({"resize_resampling": Image.Resampling.HAMMING})
+    component.state.update({"resize_resampling": Image.HAMMING})
     snapshot.assert_match(render(component), "hamming_resampling.png")
 
 
