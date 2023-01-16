@@ -1,17 +1,22 @@
-from functools import partial
 import logging
 from configparser import ConfigParser
 from os import path
 from pathlib import Path
 from threading import Thread
 
-from pt_miniscreen.components.action_page import ActionPage
-from pt_miniscreen.components.menu_list import MenuList
-from pt_miniscreen.components.menu_page import MenuPage
+from pt_miniscreen.components.button_navigatable_page_list import (
+    ButtonNavigatablePageList,
+)
 from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.components.image import Image
+from pt_miniscreen.components.mixins import (
+    Actionable,
+    Enterable,
+    HandlesButtonEvents,
+    HasGutterIcons,
+)
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
@@ -22,15 +27,9 @@ from pt_miniscreen.pages.root.projects import (
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
-from pt_miniscreen.utils import get_image_file_path
+from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 logger = logging.getLogger(__name__)
-
-
-def isclass(obj, cls):
-    return (
-        isinstance(obj, partial) and issubclass(obj.func, cls) or isinstance(obj, cls)
-    )
 
 
 def get_bootsplash_image_path():
@@ -44,11 +43,9 @@ def get_bootsplash_image_path():
     return get_image_file_path("startup/pi-top_startup.gif")
 
 
-class RootPageList(PageList):
+class RootPageList(ButtonNavigatablePageList):
     def __init__(self, **kwargs):
         super().__init__(
-            **kwargs,
-            use_snapshot_when_scrolling=False,
             Pages=[
                 OverviewPage,
                 SystemMenuPage,
@@ -56,6 +53,8 @@ class RootPageList(PageList):
                 ProjectsMenuPage,
                 SettingsMenuPage,
             ],
+            use_snapshot_when_scrolling=False,
+            **kwargs,
         )
 
 
@@ -90,54 +89,30 @@ class RootComponent(Component):
         self._set_gutter_icons()
 
     @property
+    def active_component(self):
+        return self.stack.active_component
+
+    @property
     def active_page(self):
-        active_component = self.stack.active_component
-        if isinstance(active_component, PageList):
-            return active_component.current_page
-        return active_component
+        if isinstance(self.active_component, PageList):
+            return self.active_component.current_page
 
     @property
     def is_project_page(self):
-        return isinstance(self.active_page, ProjectPage)
-
-    @property
-    def can_start_project(self):
-        return isinstance(self.active_page, MenuList) and isclass(
-            self.active_page.child, ProjectPage
-        )
-
-    @property
-    def is_running_project(self):
-        return self.is_project_page and self.active_page.is_running
+        return isinstance(self.active_component, ProjectPage)
 
     def project_uses_miniscreen(self, user_using_miniscreen):
         if self.is_project_page:
-            self.active_page.set_user_controls_miniscreen(user_using_miniscreen)
+            self.active_component.set_user_controls_miniscreen(user_using_miniscreen)
 
     @property
-    def can_enter_menu(self):
-        return any(
-            [
-                isinstance(self.active_page, MenuPage),
-                isinstance(self.active_page, MenuList) and self.active_page.can_enter,
-            ]
-        )
+    def can_enter(self):
+        return isinstance(self.active_component, Enterable)
 
     @property
-    def can_exit_menu(self):
-        return self.stack.active_index > 0
-
-    @property
-    def can_scroll(self):
-        return isinstance(self.stack.active_component, PageList)
-
-    @property
-    def can_select_row(self):
-        return isinstance(self.active_page, MenuList) and not self.active_page.is_empty
-
-    @property
-    def can_perform_action(self):
-        return isinstance(self.active_page, ActionPage)
+    def can_exit(self):
+        active_index = self.stack.active_index
+        return False if active_index is None else active_index > 0
 
     def _wait_for_bootsplash_finish(self):
         # wait for bootsplash animation to finish
@@ -152,90 +127,56 @@ class RootComponent(Component):
         # start showing main app
         self.state.update({"show_bootsplash": False})
 
-    def _get_upper_icon_path(self):
-        if self.can_exit_menu:
-            return get_image_file_path("gutter/left_arrow.png")
-
-        if self.stack.active_component.can_scroll_up():
-            return get_image_file_path("gutter/top_arrow.png")
-
-    def _get_lower_icon_path(self):
-        if self.can_perform_action:
-            return get_image_file_path("gutter/tick.png")
-
-        if self.can_start_project:
-            return get_image_file_path("gutter/play.png")
-
-        if self.can_enter_menu:
-            return get_image_file_path("gutter/right_arrow.png")
-
     def _set_gutter_icons(self):
-        self.right_gutter.state.update(
-            {
-                "upper_icon_path": self._get_upper_icon_path(),
-                "lower_icon_path": self._get_lower_icon_path(),
-            }
-        )
-
-    def should_animate_stack_operation(self):
-        return not isinstance(self.active_page, MenuList)
-
-    def enter_selected_row(self):
-        if self.can_enter_menu:
-            self.stack.push(
-                self.active_page.child,
-                animate=self.should_animate_stack_operation(),
+        if isinstance(self.active_component, HasGutterIcons):
+            self.right_gutter.state.update(
+                {
+                    "upper_icon_path": self.active_component.top_gutter_icon(
+                        self.stack
+                    ),
+                    "lower_icon_path": self.active_component.bottom_gutter_icon(),
+                }
             )
-            self._set_gutter_icons()
 
-            if self.is_project_page:
-                self.active_page.run(on_stop=self.exit_menu)
+    @property
+    def is_actionable(self):
+        return isinstance(self.active_page, Actionable)
 
-    def enter_menu(self):
-        if not self.can_enter_menu:
-            return
-        if isinstance(self.active_page, MenuPage):
-            self.stack.push(self.active_page.PageList)
-            self._set_gutter_icons()
-        elif isinstance(self.active_page, MenuList):
-            self.enter_selected_row()
-
-    def exit_menu(self):
-        if self.can_exit_menu:
-            self.stack.pop(animate=self.should_animate_stack_operation())
-            self._set_gutter_icons()
-
-    def scroll_up(self):
-        if self.can_scroll:
-            self.stack.active_component.scroll_up()
-            self._set_gutter_icons()
-
-    def scroll_down(self):
-        if self.can_scroll:
-            self.stack.active_component.scroll_down()
-            self._set_gutter_icons()
-
-    def select_next_row(self):
-        if self.can_select_row:
-            self.active_page.select_next_row()
-
-    def select_previous_row(self):
-        if self.can_select_row:
-            self.active_page.select_previous_row()
+    @property
+    def handles_button_events(self):
+        return isinstance(self.active_component, HandlesButtonEvents)
 
     def handle_cancel_button_release(self):
-        if self.is_project_page:
-            return
+        if self.handles_button_events:
+            self.active_component.handle_button(
+                button_event=ButtonEvents.CANCEL_RELEASE,
+                stack=self.stack,
+                callback=self._set_gutter_icons,
+            )
 
-        if self.can_exit_menu:
-            return self.exit_menu()
+    def handle_select_button_release(self):
+        if self.handles_button_events:
+            self.active_component.handle_button(
+                button_event=ButtonEvents.SELECT_RELEASE,
+                stack=self.stack,
+                callback=self._set_gutter_icons,
+            )
 
-        self.stack.active_component.scroll_to_top()
-        self._set_gutter_icons()
+    def handle_up_button_release(self):
+        if self.handles_button_events:
+            self.active_component.handle_button(
+                button_event=ButtonEvents.UP_RELEASE,
+                stack=self.stack,
+                callback=self._set_gutter_icons,
+            )
 
-    def perform_action(self):
-        if self.can_perform_action:
-            self.active_page.perform_action()
+    def handle_down_button_release(self):
+        if self.handles_button_events:
+            self.active_component.handle_button(
+                button_event=ButtonEvents.DOWN_RELEASE,
+                stack=self.stack,
+                callback=self._set_gutter_icons,
+            )
 
     def start_screensaver(self):
         self.state.update({"show_screensaver": True})
@@ -264,20 +205,20 @@ class RootComponent(Component):
         if self.is_screensaver_running:
             return self.screensaver.render(image)
 
-        if self.is_project_page:
-            return self.stack.render(image)
+        if isinstance(self.active_component, HasGutterIcons):
+            return apply_layers(
+                image,
+                (
+                    layer(
+                        self.stack.render,
+                        size=(image.width - self.right_gutter_width, image.height),
+                    ),
+                    layer(
+                        self.right_gutter.render,
+                        size=(self.right_gutter_width, image.height),
+                        pos=(image.size[0] - self.right_gutter_width, 0),
+                    ),
+                ),
+            )
 
-        return apply_layers(
-            image,
-            (
-                layer(
-                    self.stack.render,
-                    size=(image.width - self.right_gutter_width, image.height),
-                ),
-                layer(
-                    self.right_gutter.render,
-                    size=(self.right_gutter_width, image.height),
-                    pos=(image.size[0] - self.right_gutter_width, 0),
-                ),
-            ),
-        )
+        return self.stack.render(image)

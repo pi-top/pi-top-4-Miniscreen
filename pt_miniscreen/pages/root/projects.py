@@ -18,12 +18,15 @@ from pitop.common.current_session_info import (
 from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
 
+from pt_miniscreen.components.button_navigatable_selectable_list import (
+    ButtonNavigatableSelectableList,
+)
 from pt_miniscreen.components.menu_page import MenuPage
-from pt_miniscreen.components.menu_list import MenuList
+from pt_miniscreen.components.mixins import Actionable, Enterable
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.text import Text
-from pt_miniscreen.utils import get_image_file_path
+from pt_miniscreen.utils import ButtonEvents, get_image_file_path, isclass
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +193,7 @@ class ProjectState(Enum):
     ERROR = auto()
 
 
-class ProjectPage(Component):
+class ProjectPage(Component, Actionable):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
         super().__init__(**kwargs, initial_state={"project_state": ProjectState.IDLE})
@@ -208,7 +211,7 @@ class ProjectPage(Component):
             self.text.state.update({"text": self.displayed_text})
 
     def set_user_controls_miniscreen(self, user_using_miniscreen):
-        if user_using_miniscreen:
+        if user_using_miniscreen and self.is_running:
             self.state.update({"project_state": ProjectState.PROJECT_USES_MINISCREEN})
 
     @property
@@ -243,6 +246,9 @@ class ProjectPage(Component):
     def is_running(self):
         return self.state.get("project_state") == ProjectState.RUNNING
 
+    def perform_action(self, **kwargs):
+        self.run(kwargs.get("on_stop"))
+
     def run(self, on_stop: Optional[Callable] = None):
         logger.info(
             f"Running project '{self.project_config.title}': '{self.project_config.start}'"
@@ -275,7 +281,7 @@ class ProjectPage(Component):
             self.state.update({"project_state": ProjectState.IDLE})
 
 
-class ProjectRow(Component):
+class ProjectRow(Component, Enterable):
     def __init__(self, project_config: ProjectConfig, **kwargs) -> None:
         super().__init__(**kwargs)
         self.text = self.create_child(
@@ -289,6 +295,10 @@ class ProjectRow(Component):
             ProjectPage,
             project_config,
         )
+
+    @property
+    def enterable_component(self):
+        return self.page
 
     def render(self, image):
         return self.text.render(image)
@@ -310,7 +320,7 @@ class EmptyProjectRow(Component):
         return self.text.render(image)
 
 
-class ProjectDirectoryRow(Component):
+class ProjectDirectoryRow(Component, Enterable):
     def __init__(self, title: str, projects_directory: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self.text = self.create_child(
@@ -325,11 +335,17 @@ class ProjectDirectoryRow(Component):
             projects_directory,
         )
 
+    @property
+    def enterable_component(self):
+        return self.page
+
     def render(self, image):
         return self.text.render(image)
 
 
-class ProjectDirectoryList(MenuList):
+class ProjectDirectoryList(ButtonNavigatableSelectableList):
+    animate_enterable_operation = False
+
     PROJECT_DIRECTORY_LOOKUP = {
         "My Projects": "/home/pi/Desktop/Projects/",
         "Further": "/home/pi/further/",
@@ -370,7 +386,9 @@ class ProjectDirectoryList(MenuList):
         return rows
 
 
-class ProjectList(MenuList):
+class ProjectList(ButtonNavigatableSelectableList):
+    animate_enterable_operation = False
+
     def __init__(self, directory, **kwargs) -> None:
         self.directory = directory
         super().__init__(
@@ -399,6 +417,31 @@ class ProjectList(MenuList):
 
         return rows
 
+    def handle_button(
+        self,
+        button_event: ButtonEvents,
+        callback: Optional[Callable],
+        **kwargs,
+    ) -> None:
+
+        super().handle_button(button_event, callback, **kwargs)
+
+        # Start project right after entering page
+        stack = kwargs.get("stack")
+        if all(
+            [
+                button_event == ButtonEvents.SELECT_RELEASE,
+                isclass(self.enterable_component, Actionable),
+                stack,
+            ]
+        ):
+            stack.active_component.perform_action(
+                on_stop=lambda: self.exit(stack, callback)
+            )
+
+    def bottom_gutter_icon(self):
+        return get_image_file_path("gutter/play.png")
+
 
 class ProjectsMenuPage(MenuPage):
     def __init__(self, **kwargs):
@@ -406,5 +449,9 @@ class ProjectsMenuPage(MenuPage):
             **kwargs,
             text="Projects",
             image_path=get_image_file_path("menu/projects.gif"),
-            Pages=[ProjectDirectoryList],
+            Pages=[],
         )
+
+    @property
+    def enterable_component(self):
+        return ProjectDirectoryList
