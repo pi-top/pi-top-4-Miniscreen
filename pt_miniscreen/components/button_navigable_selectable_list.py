@@ -33,7 +33,7 @@ class ButtonNavigableSelectableList(
     def enterable_component(self):
         return self.selected_row.page if self.can_enter else None
 
-    def enter(self, stack: Stack, on_enter: Optional[Callable]) -> None:
+    def enter(self, stack: Optional[Stack], on_enter: Optional[Callable]) -> None:
         if self.can_enter:
             super().enter(stack, on_enter)
 
@@ -57,14 +57,15 @@ class ButtonNavigableSelectableList(
         if callable(callback):
             callback()
 
-    def top_gutter_icon(self, stack: Stack):
-        if len(stack.stack) > 1:
+    def top_gutter_icon(self, **kwargs):
+        stack = kwargs.get("stack")
+        if isinstance(stack, Stack) and len(stack.stack) > 1:
             return get_image_file_path("gutter/left_arrow.png")
 
         if self.can_select_previous:
             return get_image_file_path("gutter/top_arrow.png")
 
-    def bottom_gutter_icon(self):
+    def bottom_gutter_icon(self, **kwargs):
         if isinstance(self.selected_row.enterable_component, Actionable):
             return get_image_file_path("gutter/tick.png")
 

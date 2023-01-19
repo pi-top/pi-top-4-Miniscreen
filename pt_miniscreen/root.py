@@ -132,7 +132,7 @@ class RootComponent(Component):
             self.right_gutter.state.update(
                 {
                     "upper_icon_path": self.active_component.top_gutter_icon(
-                        self.stack
+                        stack=self.stack
                     ),
                     "lower_icon_path": self.active_component.bottom_gutter_icon(),
                 }

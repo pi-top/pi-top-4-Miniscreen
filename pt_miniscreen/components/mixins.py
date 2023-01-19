@@ -32,8 +32,8 @@ class Enterable:
     def enterable_component(self):
         pass
 
-    def enter(self, stack: Stack, on_enter: Optional[Callable]) -> None:
-        if self.enterable_component is None:
+    def enter(self, stack: Optional[Stack], on_enter: Optional[Callable]) -> None:
+        if self.enterable_component is None or stack is None:
             return
 
         stack.push(self.enterable_component, animate=self.animate_enterable_operation)
@@ -41,8 +41,8 @@ class Enterable:
         if callable(on_enter):
             on_enter()
 
-    def exit(self, stack: Stack, on_exit: Optional[Callable]) -> None:
-        if len(stack.stack) == 1:
+    def exit(self, stack: Optional[Stack], on_exit: Optional[Callable]) -> None:
+        if stack is None or len(stack.stack) == 1:
             return
 
         stack.pop(animate=self.animate_enterable_operation)

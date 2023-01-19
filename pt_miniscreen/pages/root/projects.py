@@ -25,6 +25,7 @@ from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.components.mixins import Actionable, Enterable
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
+from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path, isclass
 
@@ -428,12 +429,10 @@ class ProjectList(ButtonNavigableSelectableList):
 
         # Start project right after entering page
         stack = kwargs.get("stack")
-        if all(
-            [
-                button_event == ButtonEvents.SELECT_RELEASE,
-                isclass(self.enterable_component, Actionable),
-                stack,
-            ]
+        if (
+            isinstance(stack, Stack)
+            and button_event == ButtonEvents.SELECT_RELEASE
+            and isclass(self.enterable_component, Actionable)
         ):
             stack.active_component.perform_action(
                 on_stop=lambda: self.exit(stack, callback)

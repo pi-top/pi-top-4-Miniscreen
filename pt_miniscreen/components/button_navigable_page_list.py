@@ -8,6 +8,7 @@ from pt_miniscreen.components.mixins import (
     HasGutterIcons,
 )
 from pt_miniscreen.core.components.page_list import PageList
+from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 
@@ -40,8 +41,9 @@ class ButtonNavigablePageList(PageList, HandlesButtonEvents, Enterable, HasGutte
         elif button_event == ButtonEvents.DOWN_RELEASE:
             self.scroll_down()
         elif button_event == ButtonEvents.CANCEL_RELEASE:
-            if len(kwargs.get("stack").stack) > 1:
-                self.exit(kwargs.get("stack"), None)
+            stack = kwargs.get("stack")
+            if isinstance(stack, Stack) and len(stack.stack) > 1:
+                self.exit(stack, None)
             else:
                 self.scroll_to_top()
         elif button_event == ButtonEvents.SELECT_RELEASE:
@@ -61,14 +63,15 @@ class ButtonNavigablePageList(PageList, HandlesButtonEvents, Enterable, HasGutte
             return self.current_page.enterable_component
         return None
 
-    def top_gutter_icon(self, stack):
-        if len(stack.stack) > 1:
+    def top_gutter_icon(self, **kwargs):
+        stack = kwargs.get("stack")
+        if isinstance(stack, Stack) and len(stack.stack) > 1:
             return get_image_file_path("gutter/left_arrow.png")
 
         if self.can_scroll_up():
             return get_image_file_path("gutter/top_arrow.png")
 
-    def bottom_gutter_icon(self):
+    def bottom_gutter_icon(self, **kwargs):
         if isinstance(self.current_page, Actionable):
             return get_image_file_path("gutter/tick.png")
 

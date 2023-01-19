@@ -2,7 +2,6 @@ from enum import Enum, auto
 from os import path
 from pathlib import Path
 from functools import partial
-from typing import Any
 
 
 def get_project_root() -> Path:
@@ -13,9 +12,11 @@ def get_image_file_path(relative_file_name: str) -> str:
     return path.abspath(path.join(get_project_root(), "images", relative_file_name))
 
 
-def isclass(obj: Any, cls: Any) -> bool:
+def isclass(obj, cls) -> bool:
     return (
-        isinstance(obj, partial) and issubclass(obj.func, cls) or isinstance(obj, cls)
+        isinstance(obj, partial)
+        and issubclass(obj.func, cls)  # type: ignore
+        or isinstance(obj, cls)
     )
 
 
