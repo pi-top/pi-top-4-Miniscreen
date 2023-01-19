@@ -14,9 +14,7 @@ from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 logger = logging.getLogger(__name__)
 
 
-class ButtonNavigatablePageList(
-    PageList, HandlesButtonEvents, Enterable, HasGutterIcons
-):
+class ButtonNavigablePageList(PageList, HandlesButtonEvents, Enterable, HasGutterIcons):
     def __init__(
         self,
         Pages,

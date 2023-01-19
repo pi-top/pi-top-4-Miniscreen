@@ -10,7 +10,7 @@ from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 
-class ButtonNavigatableSelectableList(
+class ButtonNavigableSelectableList(
     SelectableList, HandlesButtonEvents, Enterable, HasGutterIcons
 ):
     def __init__(

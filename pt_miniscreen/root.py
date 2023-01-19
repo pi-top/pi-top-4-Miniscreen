@@ -4,8 +4,8 @@ from os import path
 from pathlib import Path
 from threading import Thread
 
-from pt_miniscreen.components.button_navigatable_page_list import (
-    ButtonNavigatablePageList,
+from pt_miniscreen.components.button_navigable_page_list import (
+    ButtonNavigablePageList,
 )
 from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
@@ -43,7 +43,7 @@ def get_bootsplash_image_path():
     return get_image_file_path("startup/pi-top_startup.gif")
 
 
-class RootPageList(ButtonNavigatablePageList):
+class RootPageList(ButtonNavigablePageList):
     def __init__(self, **kwargs):
         super().__init__(
             Pages=[

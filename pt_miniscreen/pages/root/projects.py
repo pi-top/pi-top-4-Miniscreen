@@ -18,8 +18,8 @@ from pitop.common.current_session_info import (
 from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
 
-from pt_miniscreen.components.button_navigatable_selectable_list import (
-    ButtonNavigatableSelectableList,
+from pt_miniscreen.components.button_navigable_selectable_list import (
+    ButtonNavigableSelectableList,
 )
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.components.mixins import Actionable, Enterable
@@ -343,7 +343,7 @@ class ProjectDirectoryRow(Component, Enterable):
         return self.text.render(image)
 
 
-class ProjectDirectoryList(ButtonNavigatableSelectableList):
+class ProjectDirectoryList(ButtonNavigableSelectableList):
     animate_enterable_operation = False
 
     PROJECT_DIRECTORY_LOOKUP = {
@@ -386,7 +386,7 @@ class ProjectDirectoryList(ButtonNavigatableSelectableList):
         return rows
 
 
-class ProjectList(ButtonNavigatableSelectableList):
+class ProjectList(ButtonNavigableSelectableList):
     animate_enterable_operation = False
 
     def __init__(self, directory, **kwargs) -> None:
