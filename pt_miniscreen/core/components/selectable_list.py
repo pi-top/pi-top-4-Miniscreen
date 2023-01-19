@@ -38,7 +38,7 @@ class SelectableList(List):
 
     @property
     def can_select_previous(self):
-        return 0 > self.state["selected_index"]
+        return self.state["selected_index"] > 0
 
     @property
     def can_select_next(self):

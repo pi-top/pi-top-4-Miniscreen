@@ -143,11 +143,11 @@ class RootComponent(Component):
         return isinstance(self.active_page, Actionable)
 
     @property
-    def handles_button_events(self):
+    def active_component_handles_button_events(self):
         return isinstance(self.active_component, HandlesButtonEvents)
 
     def handle_cancel_button_release(self):
-        if self.handles_button_events:
+        if self.active_component_handles_button_events:
             self.active_component.handle_button(
                 button_event=ButtonEvents.CANCEL_RELEASE,
                 stack=self.stack,
@@ -155,7 +155,7 @@ class RootComponent(Component):
             )
 
     def handle_select_button_release(self):
-        if self.handles_button_events:
+        if self.active_component_handles_button_events:
             self.active_component.handle_button(
                 button_event=ButtonEvents.SELECT_RELEASE,
                 stack=self.stack,
@@ -163,7 +163,7 @@ class RootComponent(Component):
             )
 
     def handle_up_button_release(self):
-        if self.handles_button_events:
+        if self.active_component_handles_button_events:
             self.active_component.handle_button(
                 button_event=ButtonEvents.UP_RELEASE,
                 stack=self.stack,
@@ -171,7 +171,7 @@ class RootComponent(Component):
             )
 
     def handle_down_button_release(self):
-        if self.handles_button_events:
+        if self.active_component_handles_button_events:
             self.active_component.handle_button(
                 button_event=ButtonEvents.DOWN_RELEASE,
                 stack=self.stack,
