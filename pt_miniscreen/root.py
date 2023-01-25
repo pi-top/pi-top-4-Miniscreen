@@ -5,7 +5,7 @@ from pathlib import Path
 from threading import Thread
 
 from pt_miniscreen.components.enterable_page_list import (
-    ButtonNavigablePageList,
+    EnterablePageList,
 )
 from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
@@ -14,9 +14,9 @@ from pt_miniscreen.core.components.image import Image
 from pt_miniscreen.components.mixins import (
     Actionable,
     Enterable,
-    Selectable,
-    Scrollable,
+    Navigable,
     HasGutterIcons,
+    OnEnterRuns,
 )
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
@@ -44,7 +44,7 @@ def get_bootsplash_image_path():
     return get_image_file_path("startup/pi-top_startup.gif")
 
 
-class RootPageList(ButtonNavigablePageList):
+class RootPageList(EnterablePageList):
     def __init__(self, **kwargs):
         super().__init__(
             Pages=[
@@ -149,11 +149,20 @@ class RootComponent(Component):
 
             if isinstance(self.active_page, Actionable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
-                    return self.active_page.action()
+                    return self.active_page.perform_action()
 
-            if isinstance(self.active_page, Enterable):
+            if isinstance(self.active_component, Enterable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
-                    return self.stack.append(self.active_page.enterable_component)
+                    component = self.active_component.enterable_component
+                    if component is None:
+                        return
+
+                    self.stack.push(component)
+
+                    if isinstance(self.active_component, OnEnterRuns):
+                        self.active_component.on_enter(stack=self.stack)
+
+                    return
 
             if isinstance(self.active_component, Navigable):
                 if button_event == ButtonEvents.UP_RELEASE:
@@ -164,19 +173,6 @@ class RootComponent(Component):
 
                 if button_event == ButtonEvents.CANCEL_RELEASE:
                     return self.active_component.go_top()
-
-            if isinstance(self.active_component, Scrollable):
-                if button_event == ButtonEvents.UP_RELEASE:
-                    return self.active_component.stop_scrolling_up()
-
-                if button_event == ButtonEvents.DOWN_RELEASE:
-                    return self.active_component.stop_scrolling_down()
-
-                if button_event == ButtonEvents.UP_PRESS:
-                    return self.active_component.start_scrolling_up()
-
-                if button_event == ButtonEvents.DOWN_PRESS:
-                    return self.active_component.start_scrolling_down()
 
         finally:
             self._set_gutter_icons()

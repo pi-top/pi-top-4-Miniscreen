@@ -1,8 +1,5 @@
 from abc import abstractmethod
-from time import sleep
-from typing import Callable, Optional
 
-from pt_miniscreen.core.components.stack import Stack
 
 class HasGutterIcons:
     @abstractmethod
@@ -12,7 +9,8 @@ class HasGutterIcons:
     @abstractmethod
     def bottom_gutter_icon(self, **kwargs):
         pass
-    
+
+
 class Navigable:
     @abstractmethod
     def go_next(self):
@@ -26,6 +24,7 @@ class Navigable:
     def go_top(self):
         pass
 
+
 class Enterable:
     animate_enterable_operation: bool = True
 
@@ -34,7 +33,14 @@ class Enterable:
     def enterable_component(self):
         pass
 
+
 class Actionable:
     @abstractmethod
     def perform_action(self, **kwargs):
+        pass
+
+
+class OnEnterRuns:
+    @abstractmethod
+    def on_enter(self, **kwargs):
         pass

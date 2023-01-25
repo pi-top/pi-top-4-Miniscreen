@@ -1,18 +1,15 @@
-from typing import Callable, Optional
 from pt_miniscreen.components.mixins import (
     Actionable,
     Enterable,
-    Selectable,
+    Navigable,
     HasGutterIcons,
 )
 from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.components.stack import Stack
-from pt_miniscreen.utils import ButtonEvents, get_image_file_path
+from pt_miniscreen.utils import get_image_file_path
 
 
-class EnterableSelectableList(
-    SelectableList, Selectable, Enterable, HasGutterIcons
-):
+class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIcons):
     def __init__(
         self,
         Rows,
@@ -31,11 +28,11 @@ class EnterableSelectableList(
 
     @property
     def enterable_component(self):
-        return self.selected_row.page if self.can_enter else None
-
-    def enter(self, stack: Optional[Stack], on_enter: Optional[Callable]) -> None:
-        if self.can_enter:
-            super().enter(stack, on_enter)
+        return (
+            self.selected_row.enterable_component
+            if self.can_enter
+            else self.selected_row
+        )
 
     def top_gutter_icon(self, **kwargs):
         stack = kwargs.get("stack")
