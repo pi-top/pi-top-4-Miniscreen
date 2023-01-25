@@ -1,7 +1,7 @@
 from functools import partial
 
-from pt_miniscreen.components.button_navigable_page_list import (
-    ButtonNavigablePageList,
+from pt_miniscreen.components.enterable_page_list import (
+    EnterablePageList,
 )
 from pt_miniscreen.components.mixins import Enterable
 from pt_miniscreen.core.component import Component
@@ -23,7 +23,7 @@ class MenuPage(Component, Enterable):
     ) -> None:
         super().__init__(**kwargs)
         self.PageList = partial(
-            ButtonNavigablePageList, Pages=Pages, virtual=virtual_page_list
+            EnterablePageList, Pages=Pages, virtual=virtual_page_list
         )
         self.cover_image_size = image_size
         self.cover_image = self.create_child(Image, image_path=image_path)

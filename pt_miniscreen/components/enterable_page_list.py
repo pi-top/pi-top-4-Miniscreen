@@ -1,21 +1,20 @@
 import logging
-from typing import Callable, Optional
 
 from pt_miniscreen.components.mixins import (
     Actionable,
     Enterable,
-    HandlesButtonEvents,
+    Navigable,
     HasGutterIcons,
 )
 from pt_miniscreen.core.components.page_list import PageList
 from pt_miniscreen.core.components.stack import Stack
-from pt_miniscreen.utils import ButtonEvents, get_image_file_path
+from pt_miniscreen.utils import get_image_file_path
 
 
 logger = logging.getLogger(__name__)
 
 
-class ButtonNavigablePageList(PageList, HandlesButtonEvents, Enterable, HasGutterIcons):
+class EnterablePageList(PageList, Navigable, Enterable, HasGutterIcons):
     def __init__(
         self,
         Pages,
@@ -30,32 +29,6 @@ class ButtonNavigablePageList(PageList, HandlesButtonEvents, Enterable, HasGutte
             row_gap=0,
         )
 
-    def handle_button(
-        self,
-        button_event: ButtonEvents,
-        callback: Optional[Callable],
-        **kwargs,
-    ) -> None:
-        if button_event == ButtonEvents.UP_RELEASE:
-            self.scroll_up()
-        elif button_event == ButtonEvents.DOWN_RELEASE:
-            self.scroll_down()
-        elif button_event == ButtonEvents.CANCEL_RELEASE:
-            stack = kwargs.get("stack")
-            if isinstance(stack, Stack) and len(stack.stack) > 1:
-                self.exit(stack, None)
-            else:
-                self.scroll_to_top()
-        elif button_event == ButtonEvents.SELECT_RELEASE:
-            if isinstance(self.current_page, Actionable):
-                self.current_page.perform_action()
-            else:
-                self.enter(kwargs.get("stack"), None)
-        else:
-            return
-
-        if callable(callback):
-            callback()
 
     @property
     def enterable_component(self):
@@ -77,3 +50,12 @@ class ButtonNavigablePageList(PageList, HandlesButtonEvents, Enterable, HasGutte
 
         if isinstance(self.current_page, Enterable):
             return get_image_file_path("gutter/right_arrow.png")
+
+    def go_next(self):
+        return super().scroll_down()
+    
+    def go_previous(self):
+        return super().scroll_up()
+
+    def go_top(self):
+        return super().scroll_to_top()

@@ -2,7 +2,7 @@ from typing import Callable, Optional
 from pt_miniscreen.components.mixins import (
     Actionable,
     Enterable,
-    HandlesButtonEvents,
+    Selectable,
     HasGutterIcons,
 )
 from pt_miniscreen.core.components.selectable_list import SelectableList
@@ -10,8 +10,8 @@ from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 
-class ButtonNavigableSelectableList(
-    SelectableList, HandlesButtonEvents, Enterable, HasGutterIcons
+class EnterableSelectableList(
+    SelectableList, Selectable, Enterable, HasGutterIcons
 ):
     def __init__(
         self,
@@ -36,26 +36,6 @@ class ButtonNavigableSelectableList(
     def enter(self, stack: Optional[Stack], on_enter: Optional[Callable]) -> None:
         if self.can_enter:
             super().enter(stack, on_enter)
-
-    def handle_button(
-        self,
-        button_event: ButtonEvents,
-        callback: Optional[Callable],
-        **kwargs,
-    ) -> None:
-        if button_event == ButtonEvents.UP_RELEASE:
-            self.select_previous_row()
-        elif button_event == ButtonEvents.DOWN_RELEASE:
-            self.select_next_row()
-        elif button_event == ButtonEvents.SELECT_RELEASE:
-            self.enter(kwargs.get("stack"), None)
-        elif button_event == ButtonEvents.CANCEL_RELEASE:
-            self.exit(kwargs.get("stack"), None)
-        else:
-            return
-
-        if callable(callback):
-            callback()
 
     def top_gutter_icon(self, **kwargs):
         stack = kwargs.get("stack")
