@@ -5,7 +5,6 @@ from pt_miniscreen.components.mixins import (
     HasGutterIcons,
 )
 from pt_miniscreen.core.components.selectable_list import SelectableList
-from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.utils import get_image_file_path
 
 
@@ -35,15 +34,11 @@ class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIco
             else self.selected_row
         )
 
-    def top_gutter_icon(self, **kwargs):
-        stack = kwargs.get("stack")
-        if isinstance(stack, Stack) and len(stack.stack) > 1:
-            return get_image_file_path("gutter/left_arrow.png")
-
+    def top_gutter_icon(self):
         if self.can_select_previous:
             return get_image_file_path("gutter/top_arrow.png")
 
-    def bottom_gutter_icon(self, **kwargs):
+    def bottom_gutter_icon(self):
         if isinstance(self.selected_row.enterable_component, Actionable):
             return get_image_file_path("gutter/tick.png")
 

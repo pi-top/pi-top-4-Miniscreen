@@ -7,7 +7,6 @@ from pt_miniscreen.components.mixins import (
     HasGutterIcons,
 )
 from pt_miniscreen.core.components.page_list import PageList
-from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.utils import get_image_file_path
 
 
@@ -29,22 +28,17 @@ class EnterablePageList(PageList, Navigable, Enterable, HasGutterIcons):
             row_gap=0,
         )
 
-
     @property
     def enterable_component(self):
         if isinstance(self.current_page, Enterable):
             return self.current_page.enterable_component
         return None
 
-    def top_gutter_icon(self, **kwargs):
-        stack = kwargs.get("stack")
-        if isinstance(stack, Stack) and len(stack.stack) > 1:
-            return get_image_file_path("gutter/left_arrow.png")
-
+    def top_gutter_icon(self):
         if self.can_scroll_up():
             return get_image_file_path("gutter/top_arrow.png")
 
-    def bottom_gutter_icon(self, **kwargs):
+    def bottom_gutter_icon(self):
         if isinstance(self.current_page, Actionable):
             return get_image_file_path("gutter/tick.png")
 
@@ -53,7 +47,7 @@ class EnterablePageList(PageList, Navigable, Enterable, HasGutterIcons):
 
     def go_next(self):
         return super().scroll_down()
-    
+
     def go_previous(self):
         return super().scroll_up()
 

@@ -131,11 +131,16 @@ class RootComponent(Component):
 
     def _set_gutter_icons(self):
         if isinstance(self.active_component, HasGutterIcons):
+
+            def top_gutter_icon():
+                if self.stack.active_index != 0:
+                    return get_image_file_path("gutter/left_arrow.png")
+
+                return self.active_component.top_gutter_icon()
+
             self.right_gutter.state.update(
                 {
-                    "upper_icon_path": self.active_component.top_gutter_icon(
-                        stack=self.stack
-                    ),
+                    "upper_icon_path": top_gutter_icon(),
                     "lower_icon_path": self.active_component.bottom_gutter_icon(),
                 }
             )

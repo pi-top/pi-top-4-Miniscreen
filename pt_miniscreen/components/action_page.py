@@ -87,7 +87,7 @@ class ActionPage(Component, Actionable):
             self.state.update({"action_state": ActionState.UNKNOWN})
             logger.error(f"{self} failed to start action: {e}")
 
-    def perform_action(self, **kwargs) -> None:
+    def perform_action(self) -> None:
         if self.state["action_state"] == ActionState.PROCESSING or not callable(
             self._action
         ):

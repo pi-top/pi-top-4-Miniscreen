@@ -4,11 +4,11 @@ from typing import Callable
 
 class HasGutterIcons:
     @abstractmethod
-    def top_gutter_icon(self, **kwargs):
+    def top_gutter_icon(self):
         pass
 
     @abstractmethod
-    def bottom_gutter_icon(self, **kwargs):
+    def bottom_gutter_icon(self):
         pass
 
 
@@ -47,7 +47,7 @@ class Enterable:
 
 class Actionable:
     @abstractmethod
-    def perform_action(self, **kwargs):
+    def perform_action(self):
         pass
 
 
