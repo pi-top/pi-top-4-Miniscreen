@@ -2,6 +2,7 @@ import logging
 import traceback
 from os import environ
 from threading import Timer
+from pt_miniscreen.utils import ButtonEvents
 
 from pitop.system.pitop import Pitop
 
@@ -53,16 +54,16 @@ class App(BaseApp):
         self.miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
         self.miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
         self.miniscreen.select_button.when_released = self.create_button_handler(
-            self.root.handle_select_button_release
+            lambda: self.root.handle_button(ButtonEvents.SELECT_RELEASE)
         )
         self.miniscreen.cancel_button.when_released = self.create_button_handler(
-            self.root.handle_cancel_button_release
+            lambda: self.root.handle_button(ButtonEvents.CANCEL_RELEASE)
         )
         self.miniscreen.up_button.when_released = self.create_button_handler(
-            self.root.handle_up_button_release
+            lambda: self.root.handle_button(ButtonEvents.UP_RELEASE)
         )
         self.miniscreen.down_button.when_released = self.create_button_handler(
-            self.root.handle_down_button_release
+            lambda: self.root.handle_button(ButtonEvents.DOWN_RELEASE)
         )
 
         self.dimmed = False

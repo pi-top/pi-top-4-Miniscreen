@@ -18,16 +18,15 @@ from pitop.common.current_session_info import (
 from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
 
-from pt_miniscreen.components.button_navigable_selectable_list import (
-    ButtonNavigableSelectableList,
+from pt_miniscreen.components.enterable_selectable_list import (
+    EnterableSelectableList,
 )
 from pt_miniscreen.components.menu_page import MenuPage
-from pt_miniscreen.components.mixins import Actionable, Enterable
+from pt_miniscreen.components.mixins import BlocksMiniscreenButtons, Enterable, Poppable
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
-from pt_miniscreen.core.components.stack import Stack
 from pt_miniscreen.core.components.text import Text
-from pt_miniscreen.utils import ButtonEvents, get_image_file_path, isclass
+from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +193,7 @@ class ProjectState(Enum):
     ERROR = auto()
 
 
-class ProjectPage(Component, Actionable):
+class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
         super().__init__(**kwargs, initial_state={"project_state": ProjectState.IDLE})
@@ -206,6 +205,12 @@ class ProjectPage(Component, Actionable):
             align="center",
             vertical_align="center",
         )
+
+        self.run(on_stop=self.pop)
+
+    @property
+    def block_buttons(self):
+        return True
 
     def on_state_change(self, previous_state):
         if self.state["project_state"] != previous_state["project_state"]:
@@ -247,9 +252,6 @@ class ProjectPage(Component, Actionable):
     def is_running(self):
         return self.state.get("project_state") == ProjectState.RUNNING
 
-    def perform_action(self, **kwargs):
-        self.run(kwargs.get("on_stop"))
-
     def run(self, on_stop: Optional[Callable] = None):
         logger.info(
             f"Running project '{self.project_config.title}': '{self.project_config.start}'"
@@ -285,6 +287,8 @@ class ProjectPage(Component, Actionable):
 class ProjectRow(Component, Enterable):
     def __init__(self, project_config: ProjectConfig, **kwargs) -> None:
         super().__init__(**kwargs)
+
+        self.project_config = project_config
         self.text = self.create_child(
             MarqueeText,
             text=project_config.title,
@@ -292,14 +296,13 @@ class ProjectRow(Component, Enterable):
             align="center",
             vertical_align="center",
         )
-        self.page = partial(
-            ProjectPage,
-            project_config,
-        )
 
     @property
     def enterable_component(self):
-        return self.page
+        return partial(
+            ProjectPage,
+            self.project_config,
+        )
 
     def render(self, image):
         return self.text.render(image)
@@ -324,6 +327,8 @@ class EmptyProjectRow(Component):
 class ProjectDirectoryRow(Component, Enterable):
     def __init__(self, title: str, projects_directory: str, **kwargs) -> None:
         super().__init__(**kwargs)
+
+        self.projects_directory = projects_directory
         self.text = self.create_child(
             MarqueeText,
             text=title,
@@ -331,20 +336,19 @@ class ProjectDirectoryRow(Component, Enterable):
             align="center",
             vertical_align="center",
         )
-        self.page = partial(
-            ProjectList,
-            projects_directory,
-        )
 
     @property
     def enterable_component(self):
-        return self.page
+        return partial(
+            ProjectList,
+            self.projects_directory,
+        )
 
     def render(self, image):
         return self.text.render(image)
 
 
-class ProjectDirectoryList(ButtonNavigableSelectableList):
+class ProjectDirectoryList(EnterableSelectableList):
     animate_enterable_operation = False
 
     PROJECT_DIRECTORY_LOOKUP = {
@@ -387,7 +391,7 @@ class ProjectDirectoryList(ButtonNavigableSelectableList):
         return rows
 
 
-class ProjectList(ButtonNavigableSelectableList):
+class ProjectList(EnterableSelectableList):
     animate_enterable_operation = False
 
     def __init__(self, directory, **kwargs) -> None:
@@ -417,26 +421,6 @@ class ProjectList(ButtonNavigableSelectableList):
             rows.append(EmptyProjectRow)
 
         return rows
-
-    def handle_button(
-        self,
-        button_event: ButtonEvents,
-        callback: Optional[Callable],
-        **kwargs,
-    ) -> None:
-
-        super().handle_button(button_event, callback, **kwargs)
-
-        # Start project right after entering page
-        stack = kwargs.get("stack")
-        if (
-            isinstance(stack, Stack)
-            and button_event == ButtonEvents.SELECT_RELEASE
-            and isclass(self.enterable_component, Actionable)
-        ):
-            stack.active_component.perform_action(
-                on_stop=lambda: self.exit(stack, callback)
-            )
 
     def bottom_gutter_icon(self):
         return get_image_file_path("gutter/play.png")

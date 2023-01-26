@@ -4,8 +4,8 @@ from os import path
 from pathlib import Path
 from threading import Thread
 
-from pt_miniscreen.components.button_navigable_page_list import (
-    ButtonNavigablePageList,
+from pt_miniscreen.components.enterable_page_list import (
+    EnterablePageList,
 )
 from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
@@ -13,9 +13,11 @@ from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.components.image import Image
 from pt_miniscreen.components.mixins import (
     Actionable,
+    BlocksMiniscreenButtons,
     Enterable,
-    HandlesButtonEvents,
+    Navigable,
     HasGutterIcons,
+    Poppable,
 )
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
@@ -43,7 +45,7 @@ def get_bootsplash_image_path():
     return get_image_file_path("startup/pi-top_startup.gif")
 
 
-class RootPageList(ButtonNavigablePageList):
+class RootPageList(EnterablePageList):
     def __init__(self, **kwargs):
         super().__init__(
             Pages=[
@@ -129,54 +131,64 @@ class RootComponent(Component):
 
     def _set_gutter_icons(self):
         if isinstance(self.active_component, HasGutterIcons):
+
+            def top_gutter_icon():
+                if self.stack.active_index != 0:
+                    return get_image_file_path("gutter/left_arrow.png")
+
+                return self.active_component.top_gutter_icon()
+
             self.right_gutter.state.update(
                 {
-                    "upper_icon_path": self.active_component.top_gutter_icon(
-                        stack=self.stack
-                    ),
+                    "upper_icon_path": top_gutter_icon(),
                     "lower_icon_path": self.active_component.bottom_gutter_icon(),
                 }
             )
 
-    @property
-    def is_actionable(self):
-        return isinstance(self.active_page, Actionable)
+    def handle_button(
+        self,
+        button_event: ButtonEvents,
+    ):
+        try:
+            if (
+                isinstance(self.active_component, BlocksMiniscreenButtons)
+                and self.active_component.block_buttons
+            ):
+                return
 
-    @property
-    def active_component_handles_button_events(self):
-        return isinstance(self.active_component, HandlesButtonEvents)
+            if button_event == ButtonEvents.CANCEL_RELEASE and self.can_exit:
+                return self.stack.pop()
 
-    def handle_cancel_button_release(self):
-        if self.active_component_handles_button_events:
-            self.active_component.handle_button(
-                button_event=ButtonEvents.CANCEL_RELEASE,
-                stack=self.stack,
-                callback=self._set_gutter_icons,
-            )
+            if isinstance(self.active_page, Actionable):
+                if button_event == ButtonEvents.SELECT_RELEASE:
+                    return self.active_page.perform_action()
 
-    def handle_select_button_release(self):
-        if self.active_component_handles_button_events:
-            self.active_component.handle_button(
-                button_event=ButtonEvents.SELECT_RELEASE,
-                stack=self.stack,
-                callback=self._set_gutter_icons,
-            )
+            if isinstance(self.active_component, Enterable):
+                if button_event == ButtonEvents.SELECT_RELEASE:
+                    component = self.active_component.enterable_component
+                    if component is None:
+                        return
 
-    def handle_up_button_release(self):
-        if self.active_component_handles_button_events:
-            self.active_component.handle_button(
-                button_event=ButtonEvents.UP_RELEASE,
-                stack=self.stack,
-                callback=self._set_gutter_icons,
-            )
+                    self.stack.push(component)
 
-    def handle_down_button_release(self):
-        if self.active_component_handles_button_events:
-            self.active_component.handle_button(
-                button_event=ButtonEvents.DOWN_RELEASE,
-                stack=self.stack,
-                callback=self._set_gutter_icons,
-            )
+                    # Check that the instantiated component (not the partial) is Poppable
+                    if isinstance(self.active_component, Poppable):
+                        self.active_component.set_pop(self.stack.pop)
+
+                    return
+
+            if isinstance(self.active_component, Navigable):
+                if button_event == ButtonEvents.UP_RELEASE:
+                    return self.active_component.go_previous()
+
+                if button_event == ButtonEvents.DOWN_RELEASE:
+                    return self.active_component.go_next()
+
+                if button_event == ButtonEvents.CANCEL_RELEASE:
+                    return self.active_component.go_top()
+
+        finally:
+            self._set_gutter_icons()
 
     def start_screensaver(self):
         self.state.update({"show_screensaver": True})

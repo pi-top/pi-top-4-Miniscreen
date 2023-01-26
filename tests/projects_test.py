@@ -345,7 +345,7 @@ def test_project_list_loads_projects_from_directories(mocker, create_component):
     project_list = create_component(ProjectDirectoryList)
     assert len(project_list.rows) == 1
     selected_row = project_list.selected_row
-    assert selected_row.page is not None
+    assert selected_row.enterable_component is not None
 
 
 def test_project_list_doesnt_add_project_page_when_projects_not_found(
