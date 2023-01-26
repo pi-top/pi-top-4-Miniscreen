@@ -115,6 +115,10 @@ class Text(Component):
 
         return 0
 
+    @property
+    def text(self):
+        return self.state["text"]
+
     def render(self, image):
         font = self.state["font"]
 

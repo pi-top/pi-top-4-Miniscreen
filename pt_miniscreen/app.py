@@ -65,6 +65,12 @@ class App(BaseApp):
         self.miniscreen.down_button.when_released = self.create_button_handler(
             lambda: self.root.handle_button(ButtonEvents.DOWN_RELEASE)
         )
+        self.miniscreen.up_button.when_pressed = self.create_button_handler(
+            lambda: self.root.handle_button(ButtonEvents.UP_PRESS)
+        )
+        self.miniscreen.down_button.when_pressed = self.create_button_handler(
+            lambda: self.root.handle_button(ButtonEvents.DOWN_PRESS)
+        )
 
         self.dimmed = False
         self.screensaver_timer = None

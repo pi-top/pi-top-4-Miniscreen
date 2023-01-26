@@ -32,8 +32,8 @@ class Poppable:
     def set_pop(self, callback: Callable):
         self._pop = callback
 
-    def pop(self):
-        self._pop()
+    def pop(self, elements=1):
+        self._pop(elements=elements)
 
 
 class Enterable:

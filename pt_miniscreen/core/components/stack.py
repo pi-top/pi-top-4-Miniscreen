@@ -69,19 +69,24 @@ class Stack(Component):
 
         self.state.update({"active_transition": None})
 
-    def _pop_transition(self):
+    def _pop_transition(self, elements=1):
         # only animate transition if we know our width
         if self.width:
-            for step in transition(self.width, self.transition_duration):
+            for step in transition(self.width * elements, self.transition_duration):
                 if self._cleanup_transition.is_set():
                     return
 
                 self.state.update(
-                    {"x_position": min(self.width, self.state["x_position"] + step)}
+                    {
+                        "x_position": min(
+                            self.width * elements, self.state["x_position"] + step
+                        )
+                    }
                 )
 
         stack = self.state["stack"]
-        self.remove_child(stack.pop())
+        for _ in range(elements):
+            self.remove_child(stack.pop())
         self.state.update({"stack": stack, "active_transition": None})
 
     @property
@@ -112,7 +117,7 @@ class Stack(Component):
 
         threading.Thread(target=self._push_transition, daemon=True).start()
 
-    def pop(self, animate=True):
+    def pop(self, animate=True, elements=1):
         if self.state["active_transition"] is not None:
             logger.debug("Currently transitioning, ignoring pop")
             return
@@ -121,10 +126,17 @@ class Stack(Component):
             logger.debug("Unable to pop since stack is empty, ignoring pop")
             return
 
+        if len(self.state["stack"]) < elements:
+            logger.debug(
+                f"Unable top pop {elements} elements, stack has {len(self.state['stack'])} elements"
+            )
+            return
+
         if not animate:
             logger.debug("Popping component without transition")
             stack = self.state["stack"].copy()
-            self.remove_child(stack.pop())
+            for _ in range(elements):
+                self.remove_child(stack.pop())
             self.state.update({"stack": stack})
             return
 
@@ -136,7 +148,9 @@ class Stack(Component):
             }
         )
 
-        threading.Thread(target=self._pop_transition, daemon=True).start()
+        threading.Thread(
+            target=self._pop_transition, args=(elements,), daemon=True
+        ).start()
 
     def render(self, image):
         if len(self.state["stack"]) == 0:
