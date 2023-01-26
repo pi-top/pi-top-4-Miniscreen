@@ -22,7 +22,7 @@ from pt_miniscreen.components.button_navigable_selectable_list import (
     EnterableSelectableList,
 )
 from pt_miniscreen.components.menu_page import MenuPage
-from pt_miniscreen.components.mixins import Enterable, OnEnterRuns
+from pt_miniscreen.components.mixins import Enterable, Poppable
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.text import Text
@@ -193,7 +193,7 @@ class ProjectState(Enum):
     ERROR = auto()
 
 
-class ProjectPage(Component, Enterable, OnEnterRuns):
+class ProjectPage(Component, Poppable):
     def __init__(self, project_config: ProjectConfig, **kwargs):
         self.project_config = project_config
         super().__init__(**kwargs, initial_state={"project_state": ProjectState.IDLE})
@@ -206,8 +206,7 @@ class ProjectPage(Component, Enterable, OnEnterRuns):
             vertical_align="center",
         )
 
-    def on_enter(self, **kwargs):
-        self.run(on_stop=kwargs.get("stack").pop)
+        self.run(on_stop=self.pop)
 
     def on_state_change(self, previous_state):
         if self.state["project_state"] != previous_state["project_state"]:

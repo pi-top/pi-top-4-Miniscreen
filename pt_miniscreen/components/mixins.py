@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Callable
 
 
 class HasGutterIcons:
@@ -25,22 +26,26 @@ class Navigable:
         pass
 
 
+class Poppable:
+    _pop: Callable
+
+    def set_pop(self, callback: Callable):
+        self._pop = callback
+
+    def pop(self):
+        self._pop()
+
+
 class Enterable:
     animate_enterable_operation: bool = True
 
     @property
     @abstractmethod
-    def enterable_component(self):
+    def enterable_component(self) -> Poppable:
         pass
 
 
 class Actionable:
     @abstractmethod
     def perform_action(self, **kwargs):
-        pass
-
-
-class OnEnterRuns:
-    @abstractmethod
-    def on_enter(self, **kwargs):
         pass

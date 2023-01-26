@@ -16,7 +16,7 @@ from pt_miniscreen.components.mixins import (
     Enterable,
     Navigable,
     HasGutterIcons,
-    OnEnterRuns,
+    Poppable,
 )
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
@@ -159,8 +159,9 @@ class RootComponent(Component):
 
                     self.stack.push(component)
 
-                    if isinstance(self.active_component, OnEnterRuns):
-                        self.active_component.on_enter(stack=self.stack)
+                    # Check that the instantiated component (not the partial) is Poppable
+                    if isinstance(self.active_component, Poppable):
+                        self.active_component.set_pop(self.stack.pop)
 
                     return
 
