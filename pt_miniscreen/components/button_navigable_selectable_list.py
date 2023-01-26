@@ -16,7 +16,8 @@ class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIco
         num_visible_rows=5,
         **kwargs,
     ) -> None:
-        super().__init__(
+        SelectableList.__init__(
+            self,
             Rows=Rows,
             num_visible_rows=num_visible_rows,
             **kwargs,
@@ -48,3 +49,12 @@ class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIco
 
         if self.can_enter:
             return get_image_file_path("gutter/right_arrow.png")
+
+    def go_next(self):
+        return self.select_next_row()
+
+    def go_previous(self):
+        return self.select_previous_row()
+
+    def go_top(self):
+        pass

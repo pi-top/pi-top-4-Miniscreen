@@ -41,11 +41,18 @@ class Enterable:
 
     @property
     @abstractmethod
-    def enterable_component(self) -> Poppable:
+    def enterable_component(self):
         pass
 
 
 class Actionable:
     @abstractmethod
     def perform_action(self, **kwargs):
+        pass
+
+
+class BlocksMiniscreenButtons:
+    @property
+    @abstractmethod
+    def block_buttons(self):
         pass

@@ -13,6 +13,7 @@ from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.components.image import Image
 from pt_miniscreen.components.mixins import (
     Actionable,
+    BlocksMiniscreenButtons,
     Enterable,
     Navigable,
     HasGutterIcons,
@@ -144,6 +145,12 @@ class RootComponent(Component):
         button_event: ButtonEvents,
     ):
         try:
+            if (
+                isinstance(self.active_component, BlocksMiniscreenButtons)
+                and self.active_component.block_buttons
+            ):
+                return
+
             if button_event == ButtonEvents.CANCEL_RELEASE and self.can_exit:
                 return self.stack.pop()
 
