@@ -18,7 +18,7 @@ from pitop.common.current_session_info import (
 from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
 
-from pt_miniscreen.components.button_navigable_selectable_list import (
+from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
 )
 from pt_miniscreen.components.menu_page import MenuPage
