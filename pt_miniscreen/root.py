@@ -1,3 +1,4 @@
+from functools import partial
 import logging
 from configparser import ConfigParser
 from os import path
@@ -32,6 +33,12 @@ from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 logger = logging.getLogger(__name__)
+
+
+def isclass(obj, cls):
+    return (
+        isinstance(obj, partial) and issubclass(obj.func, cls) or isinstance(obj, cls)
+    )
 
 
 def get_bootsplash_image_path():
@@ -135,7 +142,6 @@ class RootComponent(Component):
             def top_gutter_icon():
                 if self.stack.active_index != 0:
                     return get_image_file_path("gutter/left_arrow.png")
-
                 return self.active_component.top_gutter_icon()
 
             self.right_gutter.state.update(
