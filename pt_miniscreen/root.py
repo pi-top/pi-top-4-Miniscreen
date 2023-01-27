@@ -1,3 +1,4 @@
+from functools import partial
 import logging
 from configparser import ConfigParser
 from os import path
@@ -5,19 +6,17 @@ from pathlib import Path
 from threading import Thread
 
 from pt_miniscreen.components.action_page import ActionPage
+from pt_miniscreen.components.menu_list import MenuList
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.components.right_gutter import RightGutter
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.components.image import Image
-from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
 from pt_miniscreen.pages.root.projects import (
-    EmptyProjectRow,
     ProjectPage,
-    ProjectList,
     ProjectsMenuPage,
 )
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
@@ -26,6 +25,12 @@ from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
+
+
+def isclass(obj, cls):
+    return (
+        isinstance(obj, partial) and issubclass(obj.func, cls) or isinstance(obj, cls)
+    )
 
 
 def get_bootsplash_image_path():
@@ -82,22 +87,41 @@ class RootComponent(Component):
         if self.state["show_bootsplash"]:
             Thread(target=self._wait_for_bootsplash_finish, daemon=True).start()
 
+        self._set_gutter_icons()
+
     @property
     def active_page(self):
-        if isinstance(self.stack.active_component, PageList):
-            return self.stack.active_component.current_page
-        elif isinstance(self.stack.active_component, ProjectList) or isinstance(
-            self.stack.active_component, ProjectPage
-        ):
-            return self.stack.active_component
+        active_component = self.stack.active_component
+        if isinstance(active_component, PageList):
+            return active_component.current_page
+        return active_component
 
     @property
     def is_project_page(self):
-        return self.active_page and isinstance(self.active_page, ProjectPage)
+        return isinstance(self.active_page, ProjectPage)
+
+    @property
+    def can_start_project(self):
+        return isinstance(self.active_page, MenuList) and isclass(
+            self.active_page.child, ProjectPage
+        )
+
+    @property
+    def is_running_project(self):
+        return self.is_project_page and self.active_page.is_running
+
+    def project_uses_miniscreen(self, user_using_miniscreen):
+        if self.is_project_page:
+            self.active_page.set_user_controls_miniscreen(user_using_miniscreen)
 
     @property
     def can_enter_menu(self):
-        return self.active_page and isinstance(self.active_page, MenuPage)
+        return any(
+            [
+                isinstance(self.active_page, MenuPage),
+                isinstance(self.active_page, MenuList) and self.active_page.can_enter,
+            ]
+        )
 
     @property
     def can_exit_menu(self):
@@ -109,11 +133,7 @@ class RootComponent(Component):
 
     @property
     def can_select_row(self):
-        return (
-            isinstance(self.active_page, SelectableList)
-            and not isinstance(self.active_page.selected_row, EmptyProjectRow)
-            and self.active_page.selected_row.page
-        )
+        return isinstance(self.active_page, MenuList) and not self.active_page.is_empty
 
     @property
     def can_perform_action(self):
@@ -143,6 +163,9 @@ class RootComponent(Component):
         if self.can_perform_action:
             return get_image_file_path("gutter/tick.png")
 
+        if self.can_start_project:
+            return get_image_file_path("gutter/play.png")
+
         if self.can_enter_menu:
             return get_image_file_path("gutter/right_arrow.png")
 
@@ -155,15 +178,12 @@ class RootComponent(Component):
         )
 
     def should_animate_stack_operation(self):
-        return not (
-            isinstance(self.active_page, ProjectList)
-            or isinstance(self.active_page, ProjectPage)
-        )
+        return not isinstance(self.active_page, MenuList)
 
     def enter_selected_row(self):
-        if self.can_select_row:
+        if self.can_enter_menu:
             self.stack.push(
-                self.active_page.selected_row.page,
+                self.active_page.child,
                 animate=self.should_animate_stack_operation(),
             )
             self._set_gutter_icons()
@@ -171,21 +191,14 @@ class RootComponent(Component):
             if self.is_project_page:
                 self.active_page.run(on_stop=self.exit_menu)
 
-    def is_running_project(self):
-        return (
-            self.is_project_page
-            and hasattr(self.active_page, "is_running")
-            and self.active_page.is_running
-        )
-
-    def project_uses_miniscreen(self, user_using_miniscreen):
-        if self.is_project_page:
-            self.active_page.set_user_controls_miniscreen(user_using_miniscreen)
-
     def enter_menu(self):
-        if self.can_enter_menu:
+        if not self.can_enter_menu:
+            return
+        if isinstance(self.active_page, MenuPage):
             self.stack.push(self.active_page.PageList)
             self._set_gutter_icons()
+        elif isinstance(self.active_page, MenuList):
+            self.enter_selected_row()
 
     def exit_menu(self):
         if self.can_exit_menu:
@@ -209,14 +222,6 @@ class RootComponent(Component):
     def select_previous_row(self):
         if self.can_select_row:
             self.active_page.select_previous_row()
-
-    def start_project(self):
-        if self.is_project_page:
-            return self.active_page.start()
-
-    def wait_project(self):
-        if self.is_project_page:
-            return self.active_page.wait()
 
     def handle_cancel_button_release(self):
         if self.is_project_page:

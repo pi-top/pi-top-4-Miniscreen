@@ -19,9 +19,9 @@ from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
 
 from pt_miniscreen.components.menu_page import MenuPage
+from pt_miniscreen.components.menu_list import MenuList
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
-from pt_miniscreen.core.components.selectable_list import SelectableList
 from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.utils import get_image_file_path
 
@@ -128,7 +128,7 @@ class Project:
         logger.info(
             f"Project '{self.config.title}' finished with exit code {exit_code}"
         )
-        if exit_code != 0 and self.process.stderr:
+        if self.process and exit_code != 0 and self.process.stderr:
             raise Exception(self.process.stderr.read().decode())
 
     def run(self):
@@ -329,7 +329,7 @@ class ProjectDirectoryRow(Component):
         return self.text.render(image)
 
 
-class ProjectDirectoryList(SelectableList):
+class ProjectDirectoryList(MenuList):
     PROJECT_DIRECTORY_LOOKUP = {
         "My Projects": "/home/pi/Desktop/Projects/",
         "Further": "/home/pi/further/",
@@ -370,7 +370,7 @@ class ProjectDirectoryList(SelectableList):
         return rows
 
 
-class ProjectList(SelectableList):
+class ProjectList(MenuList):
     def __init__(self, directory, **kwargs) -> None:
         self.directory = directory
         super().__init__(
