@@ -2,12 +2,13 @@ import atexit
 import configparser
 import logging
 import os
+from queue import Queue
 import shutil
 from enum import Enum, auto
 from functools import partial
 from pathlib import Path
 from shlex import split
-from subprocess import STDOUT, Popen
+from subprocess import PIPE, Popen
 from time import sleep
 from threading import Timer, Thread
 from typing import Callable, List, Optional, Type, Union
@@ -92,9 +93,10 @@ class ProjectExitCondition(Enum):
 
 class Project:
     def __init__(self, config: ProjectConfig) -> None:
-        self.config = config
-        self.subscribe_client = None
-        self.process = None
+        self.config: ProjectConfig = config
+        self.subscribe_client: Optional[PTDMSubscribeClient] = None
+        self.process: Optional[Popen] = None
+        self.log_queue: Queue = Queue()
         atexit.register(self.cleanup)
 
     def _get_environment(self):
@@ -145,20 +147,42 @@ class Project:
         if self.process and exit_code not in (0, -9):
             raise Exception(f"Project finished with exit code {exit_code}")
 
+    def write_logs(self):
+        file = Path(self.config.logfile)
+        if file.exists():
+            file.unlink()
+
+        with open(self.config.logfile, "a") as f:
+            while self.process or not self.log_queue.empty():
+                try:
+                    line = self.log_queue.get_nowait()
+                    f.write(line)
+                except Exception:
+                    sleep(0.5)
+
     def run(self):
         logger.info(f"Starting project '{self.config.title}'")
         user = get_user_using_first_display()
 
-        with open(self.config.logfile, "w+") as f:
-            self.process = Popen(
-                split(self.config.start),
-                stdout=f,
-                stderr=STDOUT,
-                env=self._get_environment(),
-                cwd=self.config.path,
-                preexec_fn=lambda: switch_user(user),
-                text=True,
-            )
+        self.process = Popen(
+            split(self.config.start),
+            stdout=PIPE,
+            stderr=PIPE,
+            env=self._get_environment(),
+            cwd=self.config.path,
+            preexec_fn=lambda: switch_user(user),
+            text=True,
+        )
+
+        def queue_logs(stream):
+            for line in iter(stream.readline, ""):
+                self.log_queue.put(line)
+            stream.close()
+
+        Thread(target=queue_logs, args=[self.process.stdout], daemon=True).start()
+        Thread(target=queue_logs, args=[self.process.stderr], daemon=True).start()
+        Thread(target=self.write_logs, daemon=True).start()
+
         self._handle_exit_condition()
 
     def _handle_exit_condition(self):
