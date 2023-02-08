@@ -105,6 +105,7 @@ class RootComponent(Component):
     def active_page(self):
         if isinstance(self.active_component, PageList):
             return self.active_component.current_page
+        return None
 
     @property
     def is_project_page(self):
@@ -113,6 +114,7 @@ class RootComponent(Component):
     def project_uses_miniscreen(self, user_using_miniscreen):
         if self.is_project_page:
             self.active_component.set_user_controls_miniscreen(user_using_miniscreen)
+        return None
 
     @property
     def can_enter(self):

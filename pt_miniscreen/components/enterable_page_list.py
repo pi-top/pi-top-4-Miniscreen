@@ -37,6 +37,7 @@ class EnterablePageList(PageList, Navigable, Enterable, HasGutterIcons):
     def top_gutter_icon(self):
         if self.can_scroll_up():
             return get_image_file_path("gutter/top_arrow.png")
+        return None
 
     def bottom_gutter_icon(self):
         if isinstance(self.current_page, Actionable):
@@ -44,6 +45,8 @@ class EnterablePageList(PageList, Navigable, Enterable, HasGutterIcons):
 
         if isinstance(self.current_page, Enterable):
             return get_image_file_path("gutter/right_arrow.png")
+
+        return None
 
     def go_next(self):
         return super().scroll_down()

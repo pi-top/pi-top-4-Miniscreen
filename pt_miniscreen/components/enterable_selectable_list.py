@@ -37,6 +37,7 @@ class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIco
     def top_gutter_icon(self):
         if self.can_select_previous:
             return get_image_file_path("gutter/top_arrow.png")
+        return None
 
     def bottom_gutter_icon(self):
         if isinstance(self.selected_row.enterable_component, Actionable):
@@ -44,6 +45,8 @@ class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIco
 
         if self.can_enter:
             return get_image_file_path("gutter/right_arrow.png")
+
+        return None
 
     def go_next(self):
         return self.select_next_row()
