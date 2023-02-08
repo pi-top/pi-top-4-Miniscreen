@@ -19,7 +19,6 @@ from pitop.common.current_session_info import (
 )
 from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
-from pt_miniscreen.components.scrollable import Scrollable
 
 from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
@@ -27,10 +26,11 @@ from pt_miniscreen.components.enterable_selectable_list import (
 from pt_miniscreen.components.confirmation_page import ConfirmationPage
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.components.mixins import BlocksMiniscreenButtons, Enterable, Poppable
+from pt_miniscreen.components.scrollable_text_file import ScrollableTextFile
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.text import Text
-from pt_miniscreen.utils import file_to_image, get_image_file_path
+from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -301,14 +301,9 @@ class ProjectLogsRow(Component, Enterable):
         return self.text.render(image)
 
 
-class LogsPage(Scrollable):
+class LogsPage(ScrollableTextFile):
     def __init__(self, project_config, **kwargs) -> None:
-        image = file_to_image(
-            path=project_config.logfile,
-            font_size=10,
-            align="center",
-        )
-        super().__init__(image, **kwargs)
+        super().__init__(path=project_config.logfile, **kwargs)
 
 
 class OverviewProjectPage(EnterableSelectableList):
@@ -317,8 +312,11 @@ class OverviewProjectPage(EnterableSelectableList):
     def __init__(self, project_config, **kwargs) -> None:
         rows: List[partial] = [
             partial(RunProjectRow, project_config),
-            partial(ProjectLogsRow, project_config),
         ]
+
+        if Path(project_config.logfile).exists():
+            rows.append(partial(ProjectLogsRow, project_config))
+
         if PACKAGE_DIRECTORY not in project_config.path:
             rows.append(partial(DeleteProjectRow, project_config))
 

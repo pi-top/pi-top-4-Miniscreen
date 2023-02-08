@@ -1,24 +1,29 @@
 from time import sleep
 from threading import Thread
+import logging
 import time
 from pt_miniscreen.core.component import Component
-import logging
+from pt_miniscreen.utils import VIEWPORT_HEIGHT
 
 
 logger = logging.getLogger(__name__)
 
 
 class SpeedRamp:
-    speed = 20
+    TOP_SPEED = 20
+    BASE_SPEED = 5
+    ACCELERATION = 4
     ramp = False
-    top_speed = 2000
-    delta = 10
+    direction = 1
+
+    def __init__(self) -> None:
+        self.speed = self.BASE_SPEED * self.direction
 
     def forwards(self):
-        self.delta = abs(self.delta)
+        self.direction = abs(self.direction)
 
     def backwards(self):
-        self.delta = -1 * abs(self.delta)
+        self.direction = -1 * abs(self.direction)
 
     def stop(self):
         self.ramp = False
@@ -29,23 +34,35 @@ class SpeedRamp:
         Thread(target=self.run, daemon=True).start()
 
     def run(self):
-        i = 1
+        elapsed = 0
+        delta_t = 0.1
+
+        self.speed = self.BASE_SPEED * self.direction
+
         while self.ramp:
-            self.speed += self.delta * i
-            i += 1
-            if self.speed >= self.top_speed:
-                self.ramp = False
-            sleep(0.2)
+            if elapsed > 1:
+                self.speed += self.direction * self.ACCELERATION
+                if self.speed >= self.TOP_SPEED:
+                    self.ramp = False
+
+            sleep(delta_t)
+            elapsed += delta_t
 
 
 class Scrollable(Component):
-    def __init__(self, image, **kwargs) -> None:
+    def __init__(self, image, initial_state={}, **kwargs) -> None:
         super().__init__(
-            initial_state={"y_pos": 0, "speed": 0, "start_time": 0}, **kwargs
+            initial_state={
+                "image": image,
+                "y_pos": 0,
+                "speed": 0,
+                "start_time": 0,
+                **initial_state,
+            },
+            **kwargs
         )
-        self.image = image
         self.scroll_speed_tracker = SpeedRamp()
-        self.create_interval(self.update_state, timeout=0.2)
+        self.create_interval(self.update_state, timeout=0.05)
 
     def update_state(self):
         speed = self.scroll_speed_tracker.speed
@@ -53,7 +70,13 @@ class Scrollable(Component):
         if self.state["start_time"] > 0:
             now = time.time()
 
-        y_pos = self.state["y_pos"] + speed * (now - self.state["start_time"])
+        dt = now - self.state["start_time"]
+        if 0 < dt < 1:
+            dt = 1
+
+        y_pos = self.state["y_pos"] + speed * int(dt)
+        if y_pos + VIEWPORT_HEIGHT > self.state["image"].height:
+            y_pos = self.state["image"].height - VIEWPORT_HEIGHT
         if y_pos < 0:
             y_pos = 0
 
@@ -74,8 +97,6 @@ class Scrollable(Component):
         self.state.update({"start_time": 0})
 
     def render(self, image):
-        top_y = self.state["y_pos"]
-        if top_y + image.height > self.image.height:
-            top_y = self.image.height - image.height
-
-        return self.image.crop((0, top_y, image.width, top_y + image.height))
+        return self.state["image"].crop(
+            (0, self.state["y_pos"], image.width, self.state["y_pos"] + image.height)
+        )

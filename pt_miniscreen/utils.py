@@ -1,5 +1,6 @@
 import PIL.Image
 import PIL.ImageDraw
+import linecache
 from enum import Enum, auto
 from os import path
 from pathlib import Path
@@ -7,6 +8,10 @@ from functools import partial
 from pt_miniscreen.core.components.text import create_wrapped_text
 
 from pt_miniscreen.core.utils import get_font
+
+VIEWPORT_HEIGHT = 64
+VIEWPORT_WIDTH = 128
+VIEWPORT_SIZE = (VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
 
 
 def get_project_root() -> Path:
@@ -36,11 +41,32 @@ class ButtonEvents(Enum):
     SELECT_RELEASE = auto()
 
 
-def file_to_image(
-    path,
-    width=128,
+class TextFile:
+    def __init__(self, filename) -> None:
+        if not Path(filename).exists():
+            raise FileNotFoundError
+        self.filename = filename
+        self.len = 0
+
+        with open(self.filename) as f:
+            for _ in f:
+                self.len += 1
+
+    def line(self, line_number: int):
+        return linecache.getline(self.filename, line_number)
+
+    def range(self, start_line: int, end_line: int):
+        return [
+            linecache.getline(self.filename, line_number)
+            for line_number in range(start_line, end_line)
+        ]
+
+
+def text_to_image(
+    text,
+    width=VIEWPORT_WIDTH,
     font=None,
-    font_size=20,
+    font_size=8,
     fill=1,
     align="left",
     bold=False,
@@ -49,17 +75,10 @@ def file_to_image(
     wrap=True,
 ) -> PIL.Image.Image:
 
-    # Read file
-    with open(path, "r") as f:
-        text = f.read()
-
     image = PIL.Image.new("1", (width, 10))
     font = get_font(font_size, bold, italics) if font is None else font
     if wrap:
         text = create_wrapped_text(text, font, image.width)
-
-    # Multiline doesn't support anchor so pass none if any newlines found
-    anchor = "lt" if "\n" not in text else None
 
     # Draw text and get its size
     text_size = PIL.ImageDraw.Draw(image).textsize(
@@ -77,10 +96,10 @@ def file_to_image(
         fill=fill,
         spacing=spacing,
         align=align,
-        anchor=anchor,
+        anchor="la",
     )
 
     # Crop image to fit provided width
     return image.crop(
-        ((image.width - width) / 2, 0, image.width / 2 + width, image.height)
+        ((image.width - width) / 2, 0, (image.width + width) / 2, image.height)
     )
