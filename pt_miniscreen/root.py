@@ -165,11 +165,13 @@ class RootComponent(Component):
                 return
 
             if button_event == ButtonEvents.CANCEL_RELEASE and self.can_exit:
-                return self.stack.pop()
+                self.stack.pop()
+                return
 
             if isinstance(self.active_page, Actionable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
-                    return self.active_page.perform_action()
+                    self.active_page.perform_action()
+                    return
 
             if isinstance(self.active_component, Enterable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
@@ -187,13 +189,16 @@ class RootComponent(Component):
 
             if isinstance(self.active_component, Navigable):
                 if button_event == ButtonEvents.UP_RELEASE:
-                    return self.active_component.go_previous()
+                    self.active_component.go_previous()
+                    return
 
                 if button_event == ButtonEvents.DOWN_RELEASE:
-                    return self.active_component.go_next()
+                    self.active_component.go_next()
+                    return
 
                 if button_event == ButtonEvents.CANCEL_RELEASE:
-                    return self.active_component.go_top()
+                    self.active_component.go_top()
+                    return
 
         finally:
             self._set_gutter_icons()
