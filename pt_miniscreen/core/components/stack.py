@@ -84,6 +84,10 @@ class Stack(Component):
         self.remove_child(stack.pop())
         self.state.update({"stack": stack, "active_transition": None})
 
+    @property
+    def is_popping(self):
+        return self.state.get("active_transition") == "POP"
+
     def push(self, Component, animate=True):
         if self.state["active_transition"] is not None:
             logger.debug(f"Currently transitioning, ignoring push of {Component}")

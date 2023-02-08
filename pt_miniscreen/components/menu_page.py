@@ -1,13 +1,16 @@
 from functools import partial
 
+from pt_miniscreen.components.enterable_page_list import (
+    EnterablePageList,
+)
+from pt_miniscreen.components.mixins import Enterable
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.image import Image
-from pt_miniscreen.core.components.page_list import PageList
 from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.core.utils import apply_layers, layer, offset_to_center
 
 
-class MenuPage(Component):
+class MenuPage(Component, Enterable):
     def __init__(
         self,
         Pages,
@@ -19,7 +22,9 @@ class MenuPage(Component):
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
-        self.PageList = partial(PageList, Pages=Pages, virtual=virtual_page_list)
+        self.PageList = partial(
+            EnterablePageList, Pages=Pages, virtual=virtual_page_list
+        )
         self.cover_image_size = image_size
         self.cover_image = self.create_child(Image, image_path=image_path)
         self.title = self.create_child(Text, text=text, font_size=font_size)
@@ -52,3 +57,7 @@ class MenuPage(Component):
                 ),
             ],
         )
+
+    @property
+    def enterable_component(self):
+        return self.PageList

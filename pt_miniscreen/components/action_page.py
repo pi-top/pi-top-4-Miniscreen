@@ -5,6 +5,7 @@ from typing import Callable, Optional
 
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components import Image, Text
+from pt_miniscreen.components.mixins import Actionable
 from pt_miniscreen.core.utils import apply_layers, layer, offset_to_center
 from pt_miniscreen.utils import get_image_file_path
 
@@ -28,7 +29,7 @@ image_paths = {
 }
 
 
-class ActionPage(Component):
+class ActionPage(Component, Actionable):
     def __init__(
         self,
         text: str,

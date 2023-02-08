@@ -36,6 +36,14 @@ class SelectableList(List):
     def is_empty(self):
         return len(self.rows) == 0
 
+    @property
+    def can_select_previous(self):
+        return self.state["selected_index"] > 0
+
+    @property
+    def can_select_next(self):
+        return self.state["selected_index"] < len(self.state["Rows"])
+
     def select_row(self, index, animate_scroll=True):
         if self.state["active_transition"] is not None:
             logger.info(f"{self} selecting new row, ignoring select")

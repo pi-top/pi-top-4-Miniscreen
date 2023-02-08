@@ -2,6 +2,7 @@ import logging
 import traceback
 from os import environ
 from threading import Timer
+from pt_miniscreen.utils import ButtonEvents
 
 from pitop.system.pitop import Pitop
 
@@ -41,7 +42,7 @@ class App(BaseApp):
         def set_is_user_controlled(user_has_control) -> None:
             if user_has_control:
                 self.stop_timers()
-                if self.root.is_running_project:
+                if self.root.is_project_page:
                     self.root.project_uses_miniscreen(True)
             else:
                 self.restore_miniscreen()
@@ -53,16 +54,16 @@ class App(BaseApp):
         self.miniscreen.when_user_controlled = lambda: set_is_user_controlled(True)
         self.miniscreen.when_system_controlled = lambda: set_is_user_controlled(False)
         self.miniscreen.select_button.when_released = self.create_button_handler(
-            self.handle_select_button_release
+            lambda: self.root.handle_button(ButtonEvents.SELECT_RELEASE)
         )
         self.miniscreen.cancel_button.when_released = self.create_button_handler(
-            self.handle_cancel_button_release
+            lambda: self.root.handle_button(ButtonEvents.CANCEL_RELEASE)
         )
         self.miniscreen.up_button.when_released = self.create_button_handler(
-            self.handle_up_button_release
+            lambda: self.root.handle_button(ButtonEvents.UP_RELEASE)
         )
         self.miniscreen.down_button.when_released = self.create_button_handler(
-            self.handle_down_button_release
+            lambda: self.root.handle_button(ButtonEvents.DOWN_RELEASE)
         )
 
         self.dimmed = False
@@ -104,40 +105,6 @@ class App(BaseApp):
                 self.brighten()
 
         return handler
-
-    def handle_select_button_release(self):
-        if self.root.is_project_page:
-            return
-
-        if self.root.can_enter_menu:
-            return self.root.enter_menu()
-
-        if self.root.can_perform_action:
-            return self.root.perform_action()
-
-        if self.root.can_select_row:
-            return self.root.enter_selected_row()
-
-    def handle_cancel_button_release(self):
-        self.root.handle_cancel_button_release()
-
-    def handle_up_button_release(self):
-        if self.root.is_project_page:
-            return
-
-        if self.root.can_select_row:
-            self.root.select_previous_row()
-        elif self.root.can_scroll:
-            self.root.scroll_up()
-
-    def handle_down_button_release(self):
-        if self.root.is_project_page:
-            return
-
-        if self.root.can_select_row:
-            self.root.select_next_row()
-        elif self.root.can_scroll:
-            self.root.scroll_down()
 
     def restore_miniscreen(self):
         try:
