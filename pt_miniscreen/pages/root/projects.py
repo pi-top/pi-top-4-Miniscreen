@@ -312,10 +312,8 @@ class OverviewProjectPage(EnterableSelectableList):
     def __init__(self, project_config, **kwargs) -> None:
         rows: List[partial] = [
             partial(RunProjectRow, project_config),
+            partial(ProjectLogsRow, project_config),
         ]
-
-        if Path(project_config.logfile).exists():
-            rows.append(partial(ProjectLogsRow, project_config))
 
         if PACKAGE_DIRECTORY not in project_config.path:
             rows.append(partial(DeleteProjectRow, project_config))

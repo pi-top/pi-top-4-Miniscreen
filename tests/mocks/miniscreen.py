@@ -8,6 +8,11 @@ class Button:
             t = Thread(target=self.when_released, args=(), daemon=True)
             t.start()
 
+    def press(self):
+        if hasattr(self, "when_pressed") and callable(self.when_pressed):
+            t = Thread(target=self.when_pressed, args=(), daemon=True)
+            t.start()
+
 
 class Device:
     display_image = b""

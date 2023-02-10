@@ -43,14 +43,13 @@ class ButtonEvents(Enum):
 
 class TextFile:
     def __init__(self, filename) -> None:
-        if not Path(filename).exists():
-            raise FileNotFoundError
         self.filename = filename
         self.len = 0
 
-        with open(self.filename) as f:
-            for _ in f:
-                self.len += 1
+        if Path(filename).exists():
+            with open(self.filename) as f:
+                for _ in f:
+                    self.len += 1
 
     def line(self, line_number: int):
         return linecache.getline(self.filename, line_number)

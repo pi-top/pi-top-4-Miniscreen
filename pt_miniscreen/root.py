@@ -176,7 +176,8 @@ class RootComponent(Component):
 
             if isinstance(self.active_component, Actionable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
-                    return self.active_component.perform_action()
+                    self.active_component.perform_action()
+                    return
 
             if isinstance(self.active_component, Enterable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
@@ -207,13 +208,16 @@ class RootComponent(Component):
 
             if isinstance(self.active_component, Scrollable):
                 if button_event == ButtonEvents.UP_PRESS:
-                    return self.active_component.scroll_up()
+                    self.active_component.scroll_up()
+                    return
 
                 if button_event == ButtonEvents.DOWN_PRESS:
-                    return self.active_component.scroll_down()
+                    self.active_component.scroll_down()
+                    return
 
                 if button_event in (ButtonEvents.DOWN_RELEASE, ButtonEvents.UP_RELEASE):
-                    return self.active_component.stop_scrolling()
+                    self.active_component.stop_scrolling()
+                    return
 
         finally:
             self._set_gutter_icons()
