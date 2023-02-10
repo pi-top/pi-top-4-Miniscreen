@@ -2,6 +2,7 @@ from time import sleep
 from threading import Thread
 import logging
 import time
+from pt_miniscreen.components.mixins import HasGutterIcons
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.utils import VIEWPORT_HEIGHT
 
@@ -49,7 +50,7 @@ class SpeedRamp:
             elapsed += delta_t
 
 
-class Scrollable(Component):
+class Scrollable(Component, HasGutterIcons):
     def __init__(self, image, initial_state={}, **kwargs) -> None:
         super().__init__(
             initial_state={
