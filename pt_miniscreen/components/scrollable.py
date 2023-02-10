@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class SpeedRamp:
-    TOP_SPEED = 20
+    TOP_SPEED = 100
     BASE_SPEED = 5
-    ACCELERATION = 4
+    ACCELERATION = 10
     ramp = False
     direction = 1
 
