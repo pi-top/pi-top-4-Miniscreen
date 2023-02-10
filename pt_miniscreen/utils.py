@@ -70,7 +70,7 @@ def text_to_image(
     align="left",
     bold=False,
     italics=False,
-    spacing=0,
+    spacing=1,
     wrap=True,
 ) -> PIL.Image.Image:
 
@@ -80,14 +80,16 @@ def text_to_image(
         text = create_wrapped_text(text, font, image.width)
 
     # Draw text and get its size
-    text_size = PIL.ImageDraw.Draw(image).textsize(
+    text_box = PIL.ImageDraw.Draw(image).textbbox(
         text=text,
+        xy=(0, 0),
         font=font,
         spacing=spacing,
+        align=align,
     )
 
-    # Create new image with the text size
-    image = PIL.Image.new("1", text_size)
+    text_height = text_box[3] - text_box[1]
+    image = PIL.Image.new("1", (width, text_height))
     PIL.ImageDraw.Draw(image).text(
         text=text,
         xy=(0, 0),
@@ -95,10 +97,5 @@ def text_to_image(
         fill=fill,
         spacing=spacing,
         align=align,
-        anchor="la",
     )
-
-    # Crop image to fit provided width
-    return image.crop(
-        ((image.width - width) / 2, 0, (image.width + width) / 2, image.height)
-    )
+    return image
