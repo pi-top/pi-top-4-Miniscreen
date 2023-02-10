@@ -122,7 +122,7 @@ def test_overview_page_actions(
     miniscreen.up_button.release()
     sleep(1)
     miniscreen.select_button.release()
-    sleep(2)
+    sleep(1)
     snapshot.assert_match(
         miniscreen.device.display_image, "starting-project-message.png"
     )
