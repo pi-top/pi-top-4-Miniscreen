@@ -57,21 +57,21 @@ class Scrollable(Component, HasGutterIcons):
                 "image": image,
                 "y_pos": 0,
                 "speed": 0,
-                "start_time": 0,
                 **initial_state,
             },
             **kwargs
         )
+        self.start_time = 0
         self.scroll_speed_tracker = SpeedRamp()
         self.create_interval(self.update_state, timeout=0.05)
 
     def update_state(self):
         speed = self.scroll_speed_tracker.speed
         now = 0
-        if self.state["start_time"] > 0:
+        if self.start_time > 0:
             now = time.time()
 
-        dt = now - self.state["start_time"]
+        dt = now - self.start_time
         if 0 < dt < 1:
             dt = 1
 
@@ -85,12 +85,12 @@ class Scrollable(Component, HasGutterIcons):
 
     def scroll_down(self):
         self.scroll_speed_tracker.forwards()
-        self.state["start_time"] = time.time()
+        self.start_time = time.time()
         self.scroll_speed_tracker.start()
 
     def scroll_up(self):
         self.scroll_speed_tracker.backwards()
-        self.state["start_time"] = time.time()
+        self.start_time = time.time()
         self.scroll_speed_tracker.start()
 
     def stop_scrolling(self):
