@@ -58,7 +58,7 @@ jobs:
         uses: docker://lpenz/ghaction-version-gen:0.11.0
 
       - name: Add changelog entry for latest snapshot version
-        uses: pi-top/git-debian-changelog-bump-action@master
+        uses: pi-top/git-debian-changelog-bump-action@update
         with:
           release: false
           author_name: ${{ env.CHANGELOG_AUTHOR_NAME }}
@@ -67,7 +67,7 @@ jobs:
           since: ${{ steps.version.outputs.tag_latest }}
 
       - name: Build Debian package
-        uses: pi-top/debian-package-build-action@master
+        uses: pi-top/debian-package-build-action@update
         with:
           # https://github.com/pi-top/debian-package-build-action/pull/19
           # lintian_check_changelog_spelling: false
