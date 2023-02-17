@@ -1,4 +1,5 @@
 from threading import Thread
+from typing import Optional
 from pt_miniscreen.components.scrollable import Scrollable
 from pt_miniscreen.utils import VIEWPORT_HEIGHT, TextFile, text_to_image
 import PIL.Image
@@ -40,12 +41,18 @@ class ImageArray:
 
 class ScrollableTextFile(Scrollable):
     LINES_PER_IMAGE = 30
+    file: Optional[TextFile]
 
     def __init__(self, path, **kwargs) -> None:
-        self.file = TextFile(path)
         initial_text = "..."
-        if self.file.len == 0:
-            initial_text = "Log file is empty"
+        try:
+            self.file = TextFile(path)
+            if self.file.len == 0:
+                initial_text = "Log file is empty"
+        except Exception as e:
+            logger.error(f"Error reading {path}: {e}")
+            self.file = None
+            initial_text = "Couldn't read log file"
 
         self.start_line = 0
         self.is_loading = False
@@ -57,12 +64,12 @@ class ScrollableTextFile(Scrollable):
             **kwargs,
         )
 
-        if self.file.len > 0:
+        if self.file and self.file.len > 0:
             self._load_images(start_line=0, lines=self.LINES_PER_IMAGE)
             self.state.update({"image": self.image_array.image})
 
     def _load_images(self, start_line, lines):
-        if self.is_loading:
+        if self.file is None or self.is_loading:
             return
 
         self.is_loading = True
@@ -84,7 +91,7 @@ class ScrollableTextFile(Scrollable):
         self.is_loading = False
 
     def update_state(self):
-        if self.file.len == 0:
+        if self.file is None or self.file.len == 0:
             return
 
         super().update_state()
