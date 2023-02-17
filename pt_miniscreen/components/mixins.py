@@ -3,6 +3,8 @@ from typing import Callable
 
 
 class HasGutterIcons:
+    GUTTER_WIDTH = 10
+
     @abstractmethod
     def top_gutter_icon(self):
         pass

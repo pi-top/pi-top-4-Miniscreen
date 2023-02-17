@@ -72,12 +72,13 @@ def text_to_image(
     italics=False,
     spacing=1,
     wrap=True,
+    wrap_margin=0,
 ) -> PIL.Image.Image:
 
     image = PIL.Image.new("1", (width, 10))
     font = get_font(font_size, bold, italics) if font is None else font
     if wrap:
-        text = create_wrapped_text(text, font, image.width)
+        text = create_wrapped_text(text, font, image.width - wrap_margin)
 
     # Draw text and get its size
     text_box = PIL.ImageDraw.Draw(image).textbbox(

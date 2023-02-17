@@ -76,7 +76,9 @@ class ScrollableTextFile(Scrollable):
             f"Loading images from lines {start_line} to {start_line + lines - 1}"
         )
         for i in range(start_line, start_line + lines):
-            self.image_array.add(i, text_to_image(text=self.file.line(i)))
+            self.image_array.add(
+                i, text_to_image(text=self.file.line(i), wrap_margin=self.GUTTER_WIDTH)
+            )
             self.state.update({"last_line_loaded": start_line + lines})
 
         self.is_loading = False
