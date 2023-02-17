@@ -219,6 +219,10 @@ class RootComponent(Component):
                     self.active_component.stop_scrolling()
                     return
 
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            if self.active_component is None:
+                self.stack.pop()
         finally:
             self._set_gutter_icons()
 
