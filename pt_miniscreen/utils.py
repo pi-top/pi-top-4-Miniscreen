@@ -70,7 +70,7 @@ def text_to_image(
     align="left",
     bold=False,
     italics=False,
-    spacing=1,
+    spacing=2,
     wrap=True,
     wrap_margin=0,
 ) -> PIL.Image.Image:
