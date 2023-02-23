@@ -16,7 +16,7 @@ click_logging.basic_config(logger)
 # STREAM b'IHDR' 16 13
 # STREAM b'IDAT' 41 121
 logging.getLogger("PIL").setLevel(logging.INFO)
-logging.getLogger("pitop").setLevel(logging.INFO)
+logging.getLogger("pitop.common").setLevel(logging.INFO)
 
 
 @click.command()

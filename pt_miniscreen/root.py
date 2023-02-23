@@ -9,6 +9,7 @@ from pt_miniscreen.components.enterable_page_list import (
     EnterablePageList,
 )
 from pt_miniscreen.components.right_gutter import RightGutter
+from pt_miniscreen.components.scrollable import Scrollable
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components import PageList, Stack
 from pt_miniscreen.core.components.image import Image
@@ -173,6 +174,11 @@ class RootComponent(Component):
                     self.active_page.perform_action()
                     return
 
+            if isinstance(self.active_component, Actionable):
+                if button_event == ButtonEvents.SELECT_RELEASE:
+                    self.active_component.perform_action()
+                    return
+
             if isinstance(self.active_component, Enterable):
                 if button_event == ButtonEvents.SELECT_RELEASE:
                     component = self.active_component.enterable_component
@@ -200,6 +206,23 @@ class RootComponent(Component):
                     self.active_component.go_top()
                     return
 
+            if isinstance(self.active_component, Scrollable):
+                if button_event == ButtonEvents.UP_PRESS:
+                    self.active_component.scroll_up()
+                    return
+
+                if button_event == ButtonEvents.DOWN_PRESS:
+                    self.active_component.scroll_down()
+                    return
+
+                if button_event in (ButtonEvents.DOWN_RELEASE, ButtonEvents.UP_RELEASE):
+                    self.active_component.stop_scrolling()
+                    return
+
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            if self.active_component is None:
+                self.stack.pop()
         finally:
             self._set_gutter_icons()
 

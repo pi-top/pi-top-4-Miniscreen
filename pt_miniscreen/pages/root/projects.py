@@ -2,11 +2,13 @@ import atexit
 import configparser
 import logging
 import os
+from queue import Queue
+import shutil
 from enum import Enum, auto
 from functools import partial
 from pathlib import Path
 from shlex import split
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 from time import sleep
 from threading import Timer, Thread
 from typing import Callable, List, Optional, Type, Union
@@ -21,8 +23,10 @@ from pitop.common.ptdm import Message, PTDMSubscribeClient
 from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
 )
+from pt_miniscreen.components.confirmation_page import ConfirmationPage
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.components.mixins import BlocksMiniscreenButtons, Enterable, Poppable
+from pt_miniscreen.components.scrollable_text_file import ScrollableTextFile
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.core.components.text import Text
@@ -52,6 +56,7 @@ class ProjectConfig:
     ) -> None:
         self.file = file
         self.path = Path(file).parent.absolute().as_posix()
+        self.logfile = f"{self.path}/log.txt"
         self.title = title
         if len(image) == 0 or not Path(image).is_file():
             image = get_image_file_path("menu/projects.gif")
@@ -88,9 +93,10 @@ class ProjectExitCondition(Enum):
 
 class Project:
     def __init__(self, config: ProjectConfig) -> None:
-        self.config = config
-        self.subscribe_client = None
-        self.process = None
+        self.config: ProjectConfig = config
+        self.subscribe_client: Optional[PTDMSubscribeClient] = None
+        self.process: Optional[Popen] = None
+        self.log_queue: Queue = Queue()
         atexit.register(self.cleanup)
 
     def _get_environment(self):
@@ -115,13 +121,19 @@ class Project:
     def stop(self) -> None:
         if self.process:
             logger.info(f"Stopping project '{self.config.title}'")
-            self.process.kill()
+            self.process.terminate()
             self.process = None
 
     def cleanup(self) -> None:
         if self.subscribe_client:
             self.subscribe_client.stop_listening()
             self.subscribe_client = None
+
+    def remove(self) -> None:
+        logger.info(
+            f"Removing project '{self.config.title}' folder '{self.config.path}'"
+        )
+        shutil.rmtree(self.config.path)
 
     def wait(self):
         if not self.process:
@@ -131,8 +143,22 @@ class Project:
         logger.info(
             f"Project '{self.config.title}' finished with exit code {exit_code}"
         )
-        if self.process and exit_code != 0 and self.process.stderr:
-            raise Exception(self.process.stderr.read().decode())
+
+        if self.process and exit_code not in (0, -9):
+            raise Exception(f"Project finished with exit code {exit_code}")
+
+    def write_logs(self):
+        file = Path(self.config.logfile)
+        if file.exists():
+            file.unlink()
+
+        with open(self.config.logfile, "a") as f:
+            while self.process or not self.log_queue.empty():
+                try:
+                    line = self.log_queue.get_nowait()
+                    f.write(line)
+                except Exception:
+                    sleep(0.5)
 
     def run(self):
         logger.info(f"Starting project '{self.config.title}'")
@@ -145,7 +171,18 @@ class Project:
             env=self._get_environment(),
             cwd=self.config.path,
             preexec_fn=lambda: switch_user(user),
+            text=True,
         )
+
+        def queue_logs(stream):
+            for line in iter(stream.readline, ""):
+                self.log_queue.put(line)
+            stream.close()
+
+        Thread(target=queue_logs, args=[self.process.stdout], daemon=True).start()
+        Thread(target=queue_logs, args=[self.process.stderr], daemon=True).start()
+        Thread(target=self.write_logs, daemon=True).start()
+
         self._handle_exit_condition()
 
     def _handle_exit_condition(self):
@@ -191,6 +228,106 @@ class ProjectState(Enum):
     PROJECT_USES_MINISCREEN = auto()
     STOPPING = auto()
     ERROR = auto()
+
+
+class RunProjectRow(Component, Enterable):
+    def __init__(self, project_config, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.project_config = project_config
+        self.text = self.create_child(
+            MarqueeText,
+            text="Run",
+            font_size=10,
+            align="center",
+            vertical_align="center",
+        )
+
+    @property
+    def enterable_component(self):
+        return partial(ProjectPage, self.project_config)
+
+    def render(self, image):
+        return self.text.render(image)
+
+
+class DeleteProjectRow(Component, Enterable):
+    animate_enterable_operation = False
+
+    def __init__(self, project_config, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.project_config = project_config
+        self.text = self.create_child(
+            MarqueeText,
+            text="Delete",
+            font_size=10,
+            align="center",
+            vertical_align="center",
+        )
+
+    @property
+    def enterable_component(self):
+        return partial(
+            ConfirmationPage,
+            title="Really delete?",
+            confirm_text="Yes",
+            cancel_text="No",
+            on_confirm=Project(self.project_config).remove,
+            on_cancel=None,
+        )
+
+    def render(self, image):
+        return self.text.render(image)
+
+
+class ProjectLogsRow(Component, Enterable):
+    animate_enterable_operation = False
+
+    def __init__(self, project_config, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.project_config = project_config
+        self.text = self.create_child(
+            MarqueeText,
+            text="View Logs",
+            font_size=10,
+            align="center",
+            vertical_align="center",
+        )
+
+    @property
+    def enterable_component(self):
+        return partial(LogsPage, self.project_config)
+
+    def render(self, image):
+        return self.text.render(image)
+
+
+class LogsPage(ScrollableTextFile):
+    def __init__(self, project_config, **kwargs) -> None:
+        super().__init__(path=project_config.logfile, **kwargs)
+
+
+class OverviewProjectPage(EnterableSelectableList):
+    animate_enterable_operation = False
+
+    def __init__(self, project_config, **kwargs) -> None:
+        rows: List[partial] = [
+            partial(RunProjectRow, project_config),
+            partial(ProjectLogsRow, project_config),
+        ]
+
+        if PACKAGE_DIRECTORY not in project_config.path:
+            rows.append(partial(DeleteProjectRow, project_config))
+
+        super().__init__(
+            Rows=rows,
+            num_visible_rows=3,
+            **kwargs,
+        )
+
+    def bottom_gutter_icon(self):
+        if isinstance(self.selected_row, RunProjectRow):
+            return get_image_file_path("gutter/play.png")
+        return super().bottom_gutter_icon()
 
 
 class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
@@ -300,7 +437,7 @@ class ProjectRow(Component, Enterable):
     @property
     def enterable_component(self):
         return partial(
-            ProjectPage,
+            OverviewProjectPage,
             self.project_config,
         )
 

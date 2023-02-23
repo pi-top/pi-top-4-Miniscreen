@@ -74,7 +74,6 @@ def use_test_font(mocker, module):
         return get_mono_font(size, bold, italics)
 
     mocker.patch(f"{module}.get_font", get_font)
-    mocker.patch(f"{module}.get_mono_font", get_mono_font)
 
 
 def use_test_images(mocker):
@@ -109,7 +108,8 @@ def mock_timeouts(timeout):
 def global_setup(mocker):
     patch_packages()
     use_test_images(mocker)
-    use_test_font(mocker, "pt_miniscreen.core.utils")
+    use_test_font(mocker, "pt_miniscreen.utils")
+    use_test_font(mocker, "pt_miniscreen.core.components.text")
 
 
 @pytest.fixture(autouse=True)

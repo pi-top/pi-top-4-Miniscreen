@@ -1,11 +1,26 @@
 from functools import partial
 from os import path
+from shutil import copytree
+from tempfile import TemporaryDirectory
 from time import sleep
 
 import pytest
 from testpath import MockCommand
 
+
 config_file_path = f"{path.dirname(path.realpath(__file__))}/projects/"
+
+
+@pytest.fixture
+def use_example_project(mocker):
+    # create temporary directory and copy project files into it
+    with TemporaryDirectory() as temp_dir:
+        copytree(config_file_path, temp_dir, dirs_exist_ok=True)
+        mocker.patch(
+            "pt_miniscreen.pages.root.projects.ProjectDirectoryList.PROJECT_DIRECTORY_LOOKUP",
+            {"My projects": f"{temp_dir}"},
+        )
+        yield temp_dir
 
 
 @pytest.fixture
@@ -79,8 +94,9 @@ def test_open_projects_menu(miniscreen, go_to_projects_page, snapshot, create_pr
     )
 
 
-def test_open_user_projects(miniscreen, go_to_projects_page, snapshot, create_project):
-    create_project(1)
+def test_overview_page_actions(
+    miniscreen, go_to_projects_page, snapshot, use_example_project
+):
     go_to_projects_page()
 
     # access user projects
@@ -88,52 +104,78 @@ def test_open_user_projects(miniscreen, go_to_projects_page, snapshot, create_pr
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
 
-    # access project page
+    # access project overview page; 'delete' entry is visible
     miniscreen.select_button.release()
-    sleep(2)
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # check logs; should be empty
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "logs-empty.png")
+
+    # run project
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.up_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
     snapshot.assert_match(
         miniscreen.device.display_image, "starting-project-message.png"
     )
 
+    # wait for project to finish, goes back to overview page
+    sleep(5)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
-def test_opening_project_page_runs_project(
-    miniscreen, go_to_projects_page, snapshot, create_project, mocker
-):
-    mocker.patch(
-        "pt_miniscreen.pages.root.projects.get_user_using_first_display",
-        return_value=None,
-    )
-    create_project(1)
-    go_to_projects_page()
-
-    # access user projects
+    # 'view logs' should now display the project logs
+    miniscreen.down_button.release()
+    sleep(1)
     miniscreen.select_button.release()
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    snapshot.assert_match(miniscreen.device.display_image, "logs-first-page.png")
 
-    with MockCommand(
-        "my-custom-start-command", python="from time import sleep; sleep(3)"
-    ) as start_command:
-        # Access project page
-        miniscreen.select_button.release()
-        sleep(2)
-        snapshot.assert_match(
-            miniscreen.device.display_image, "starting-project-message.png"
-        )
+    # go to delete project confirmation page
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "confirmation-page.png")
 
-        # Run project
-        sleep(2)
-        snapshot.assert_match(
-            miniscreen.device.display_image, "running-project-message.png"
-        )
+    # pressing cancel goes back to overview
+    miniscreen.cancel_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image,
+        "project-overview-delete-selected.png",
+    )
 
-        # Wait for the project process to finish and display 'stopping' message
-        sleep(4)
-        snapshot.assert_match(
-            miniscreen.device.display_image, "stopping-project-message.png"
-        )
+    # pressing 'no' goes back to overview
+    miniscreen.select_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "confirmation-page-no-selected.png"
+    )
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image,
+        "project-overview-delete-selected.png",
+    )
 
-    assert len(start_command.get_calls()) == 1
+    # pressing 'yes' goes back to projects list
+    miniscreen.select_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "projects-list.png")
 
 
 def test_running_project_that_uses_miniscreen(
@@ -150,6 +192,9 @@ def test_running_project_that_uses_miniscreen(
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
     with MockCommand(
         "my-custom-start-command", python="from time import sleep; sleep(3)"
@@ -193,6 +238,9 @@ def test_returns_to_project_list_when_project_process_finishes(
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
     with MockCommand("my-custom-start-command"):
         # access project page
@@ -209,7 +257,7 @@ def test_returns_to_project_list_when_project_process_finishes(
         )
 
     sleep(3)
-    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
 
 def test_displays_error_message_and_returns_to_project_list_on_error(
@@ -222,6 +270,9 @@ def test_displays_error_message_and_returns_to_project_list_on_error(
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
     # don't mock 'my-custom-start-command' and access project page
     miniscreen.select_button.release()
@@ -234,9 +285,9 @@ def test_displays_error_message_and_returns_to_project_list_on_error(
     sleep(3)
     snapshot.assert_match(miniscreen.device.display_image, "error-project-message.png")
 
-    # app goes back to project page
+    # app goes back to project overview page
     sleep(3)
-    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
 
 def test_displays_error_message_and_returns_to_project_list_on_nonzero_exit_code(
@@ -249,6 +300,9 @@ def test_displays_error_message_and_returns_to_project_list_on_nonzero_exit_code
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
     # use exit code 2 to mock an error
     with MockCommand.fixed_output("my-custom-start-command", exit_status=2):
@@ -266,7 +320,7 @@ def test_displays_error_message_and_returns_to_project_list_on_nonzero_exit_code
 
     # app goes back to project page
     sleep(3)
-    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
 
 def test_display_stop_instructions_for_power_button_press_on_project_start(
@@ -279,6 +333,9 @@ def test_display_stop_instructions_for_power_button_press_on_project_start(
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
     with MockCommand("my-custom-start-command"):
         miniscreen.select_button.release()
@@ -299,6 +356,9 @@ def test_display_stop_instructions_for_hold_x_on_project_start(
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
 
     with MockCommand("my-custom-start-command"):
         miniscreen.select_button.release()
@@ -307,16 +367,6 @@ def test_display_stop_instructions_for_hold_x_on_project_start(
             miniscreen.device.display_image,
             "starting-project-message-with-instructions.png",
         )
-
-
-def test_first_item_is_selected_by_default(
-    miniscreen, go_to_projects_page, snapshot, create_project
-):
-    create_project(3)
-    go_to_projects_page()
-    snapshot.assert_match(
-        miniscreen.device.display_image, "first-project-is-selected.png"
-    )
 
 
 def test_load_project_config_from_valid_file():
