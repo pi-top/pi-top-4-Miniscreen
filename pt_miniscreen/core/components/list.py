@@ -110,6 +110,12 @@ class List(Component):
     def invisible_rows(self):
         return list(filter(lambda row: row not in self.visible_rows, self.rows))
 
+    def update_rows(self, rows):
+        self.rows = [
+            self.create_child(Row) for Row in rows[0 : self.state["num_visible_rows"]]
+        ]
+        self.state.update({"Rows": rows, "top_row_index": 0})
+
     def _remove_invisible_rows(self):
         for row in self.invisible_rows:
             self.rows.remove(row)
