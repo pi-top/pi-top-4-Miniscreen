@@ -25,8 +25,8 @@ from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
 from pt_miniscreen.pages.root.projects import (
-    ProjectPage,
     ProjectsMenuPage,
+    ProjectPage,
 )
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
