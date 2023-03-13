@@ -8,7 +8,7 @@ from testpath import MockCommand
 
 @pytest.fixture
 def create_project_object():
-    from pt_miniscreen.pages.root.projects import ProjectConfig, Project
+    from pt_miniscreen.pages.root.projects.menu_page import ProjectConfig, Project
 
     config = ProjectConfig(
         file="/tmp/config.cfg",
@@ -21,7 +21,7 @@ def create_project_object():
 
 
 def test_project_cls_instance(create_project_object):
-    from pt_miniscreen.pages.root.projects import ProjectConfig
+    from pt_miniscreen.pages.root.projects.menu_page import ProjectConfig
 
     project = create_project_object()
     assert isinstance(project.config, ProjectConfig)
