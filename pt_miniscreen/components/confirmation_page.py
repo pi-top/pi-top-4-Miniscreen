@@ -79,7 +79,7 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
             self.on_confirm
         ):
             self.on_confirm()
-            elements_to_pop = 3
+            elements_to_pop = 2
         elif self.selectable_list.selected_row.text == self.cancel_text and callable(
             self.on_cancel
         ):

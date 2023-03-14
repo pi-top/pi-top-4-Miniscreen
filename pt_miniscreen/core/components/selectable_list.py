@@ -88,26 +88,23 @@ class SelectableList(List):
         return self.rows[index - self.state["top_row_index"]]
 
     def update_rows(self, rows):
-        if len(rows) > 0:
-            self._selected_row_unmodified_render = rows[0].render
-            rows[0].render = lambda image: ImageOps.invert(
-                self._selected_row_unmodified_render(image).convert("L")
-            ).convert("1")
-
-        self.state.update({"selected_index": 0})
-        super().update_rows(rows)
+        self.rows = [
+            self.create_child(Row) for Row in rows[0 : self.state["num_visible_rows"]]
+        ]
+        self.state.update({"Rows": rows, "top_row_index": 0, "selected_index": 0})
 
     def on_state_change(self, previous_state):
-        if previous_state["selected_index"] != self.state["selected_index"]:
-            try:
-                previous_row = self._get_row_at_index(previous_state["selected_index"])
-                previous_row.render = self._selected_row_unmodified_render
-            except Exception as e:
-                logger.error(f"{e}")
+        selected_row = None
+        if previous_state["Rows"] != self.state["Rows"] and len(self.rows) > 0:
+            selected_row = self.rows[0]
+        elif previous_state["selected_index"] != self.state["selected_index"]:
+            selected_row = self.selected_row
+            previous_row = self._get_row_at_index(previous_state["selected_index"])
+            previous_row.render = self._selected_row_unmodified_render
 
-            logger.error(f"selected row is {self.selected_row}")
-            self._selected_row_unmodified_render = self.selected_row.render
-            self.selected_row.render = lambda image: ImageOps.invert(
+        if selected_row:
+            self._selected_row_unmodified_render = selected_row.render
+            selected_row.render = lambda image: ImageOps.invert(
                 self._selected_row_unmodified_render(image).convert("L")
             ).convert("1")
 

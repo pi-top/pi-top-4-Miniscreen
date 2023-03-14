@@ -87,19 +87,11 @@ class OverviewProjectPage(EnterableSelectableList):
 class ProjectOverviewList(EnterableSelectableList):
     def __init__(self, directory, **kwargs) -> None:
         self.directory = directory
-        super().__init__(Rows=self.load_rows(**kwargs), **kwargs)
+        super().__init__(Rows=self.load_rows(), **kwargs)
 
-    def load_rows(self, **kwargs) -> List:
+    def load_rows(self) -> List:
         def on_delete():
-            rows = self.load_rows()
-            start_index = 0
-            self.rows = [
-                self.create_child(Row)
-                for Row in rows[
-                    start_index : start_index + self.state["num_visible_rows"]
-                ]
-            ]
-            self.state.update({"Rows": rows, "top_row_index": start_index})
+            self.update_rows(rows=self.load_rows())
 
         rows: List[Union[Type[EmptyProjectRow], partial[Row]]] = []
 
