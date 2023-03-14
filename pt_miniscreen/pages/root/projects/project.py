@@ -129,6 +129,7 @@ class Project:
 
         logger.info(f"Using exit condition '{exit_condition.name}'")
 
+        event_callback = {}
         if exit_condition == ProjectExitCondition.FLICK_POWER:
             event_callback = {Message.PUB_V3_BUTTON_POWER_PRESSED: self.stop}
         elif exit_condition == ProjectExitCondition.HOLD_CANCEL:

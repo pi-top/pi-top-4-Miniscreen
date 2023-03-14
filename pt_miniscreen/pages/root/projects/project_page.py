@@ -62,8 +62,8 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
                     text += "\nFlick the power button to exit"
                 elif exit_condition == ProjectExitCondition.HOLD_CANCEL:
                     text += "\nHold 'X' button for 3 seconds to exit"
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Couldn't set exit condition text: {e}")
 
         return text
 

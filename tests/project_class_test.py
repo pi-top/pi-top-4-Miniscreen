@@ -8,7 +8,8 @@ from testpath import MockCommand
 
 @pytest.fixture
 def create_project_object():
-    from pt_miniscreen.pages.root.projects.menu_page import ProjectConfig, Project
+    from pt_miniscreen.pages.root.projects.config import ProjectConfig
+    from pt_miniscreen.pages.root.projects.project import Project
 
     config = ProjectConfig(
         file="/tmp/config.cfg",
@@ -21,7 +22,7 @@ def create_project_object():
 
 
 def test_project_cls_instance(create_project_object):
-    from pt_miniscreen.pages.root.projects.menu_page import ProjectConfig
+    from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
     project = create_project_object()
     assert isinstance(project.config, ProjectConfig)
@@ -51,7 +52,7 @@ def test_project_cls_as_context_manager(create_project_object):
     assert project.process is None
 
 
-@patch("pt_miniscreen.pages.root.projects.PTDMSubscribeClient")
+@patch("pt_miniscreen.pages.root.projects.project.PTDMSubscribeClient")
 def test_project_cls_subscribes_to_exit_condition_events(
     subscribe_client, create_project_object
 ):
@@ -63,7 +64,7 @@ def test_project_cls_subscribes_to_exit_condition_events(
     project.subscribe_client.initialise.assert_called_once()
 
 
-@patch("pt_miniscreen.pages.root.projects.PTDMSubscribeClient")
+@patch("pt_miniscreen.pages.root.projects.project.PTDMSubscribeClient")
 def test_project_cls_callback_for_exit_condition_flicker(
     subscribe_client, create_project_object
 ):
@@ -78,7 +79,7 @@ def test_project_cls_callback_for_exit_condition_flicker(
     assert callbacks[0] == project.stop
 
 
-@patch("pt_miniscreen.pages.root.projects.PTDMSubscribeClient")
+@patch("pt_miniscreen.pages.root.projects.project.PTDMSubscribeClient")
 def test_project_cls_callbacks_for_exit_condition_hold_x(
     subscribe_client, create_project_object, mocker
 ):
@@ -104,7 +105,7 @@ def test_project_cls_callbacks_for_exit_condition_hold_x(
     assert project.stop.call_count == 1
 
 
-@patch("pt_miniscreen.pages.root.projects.PTDMSubscribeClient")
+@patch("pt_miniscreen.pages.root.projects.project.PTDMSubscribeClient")
 def test_project_cls_no_ptdm_subscribe_on_invalid_exit_condition(
     subscribe_client, create_project_object, mocker
 ):
