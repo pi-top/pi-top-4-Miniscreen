@@ -424,7 +424,7 @@ def test_display_stop_instructions_for_hold_x_on_project_start(
 def test_load_project_config_from_valid_file():
     from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
-    config = ProjectConfig.from_file(f"{config_file_path}/valid/valid_project.cfg")
+    config = ProjectConfig.from_file(f"{config_file_path}/valid/project.cfg")
     assert config.title == "my project"
     assert config.start == "python3 project.py"
     assert config.exit_condition == "?"
@@ -435,4 +435,4 @@ def test_load_project_config_raises_on_invalid_file():
     from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
     with pytest.raises(InvalidConfigFile):
-        ProjectConfig.from_file(f"{config_file_path}/invalid/invalid_project.cfg")
+        ProjectConfig.from_file(f"{config_file_path}/invalid/project.cfg")

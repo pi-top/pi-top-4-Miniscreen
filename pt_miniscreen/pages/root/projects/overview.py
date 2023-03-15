@@ -95,7 +95,7 @@ class ProjectOverviewList(EnterableSelectableList):
 
         rows: List[Union[Type[EmptyProjectRow], partial[Row]]] = []
 
-        files = Path(self.directory).glob("*/*.cfg")
+        files = Path(self.directory).glob("*/project.cfg")
 
         # Sort found files by date/time of last modification
         for file in sorted(files, key=os.path.getmtime, reverse=True):

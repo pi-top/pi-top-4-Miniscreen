@@ -27,7 +27,7 @@ class InvalidConfigFile(Exception):
 def directory_contains_projects(directory: str, recurse: bool = False) -> bool:
     from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
-    search_pattern = "**/*.cfg" if recurse else "*/*.cfg"
+    search_pattern = "**/project.cfg" if recurse else "*/project.cfg"
     for file in Path(directory).glob(search_pattern):
         try:
             ProjectConfig.from_file(file)
