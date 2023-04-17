@@ -125,7 +125,7 @@ class Project:
         try:
             exit_condition = ProjectExitCondition[self.config.exit_condition.upper()]
         except Exception:
-            exit_condition = ProjectExitCondition.NONE
+            exit_condition = ProjectExitCondition.FLICK_POWER
 
         logger.info(f"Using exit condition '{exit_condition.name}'")
 

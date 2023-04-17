@@ -36,15 +36,25 @@ class ProjectConfig:
         try:
             config.read(file)
             project_config = config[cls.CONFIG_FILE_SECTION]
+            try:
+                exit_condition = project_config.get(
+                    "exit_condition", ProjectExitCondition.FLICK_POWER.name
+                )
+            except Exception:
+                exit_condition = None
+            finally:
+                if exit_condition not in ProjectExitCondition.__members__:
+                    logger.debug(
+                        f"Invalid exit condition '{exit_condition}', using FLICK_POWER."
+                    )
+                    exit_condition = ProjectExitCondition.FLICK_POWER.name
 
             return ProjectConfig(
                 file=file,
                 title=project_config["title"],
                 image=project_config.get("image", ""),
                 start=project_config["start"],
-                exit_condition=project_config.get(
-                    "exit_condition", ProjectExitCondition.FLICK_POWER.name
-                ),
+                exit_condition=exit_condition,
             )
         except Exception as e:
             logger.warning(f"Error parsing file '{file}': {e}")

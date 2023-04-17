@@ -234,6 +234,74 @@ def test_overview_page_actions(
     snapshot.assert_match(miniscreen.device.display_image, "no-projects-available.png")
 
 
+def test_log_pages_reflect_last_run(
+    miniscreen, go_to_projects_page, snapshot, use_example_project
+):
+    use_example_project(projects_to_create=2)
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "projects-list.png")
+
+    # access project overview page
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # check logs; should be empty
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "logs-empty.png")
+
+    # run project
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.up_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "starting-project-message.png"
+    )
+
+    # wait for project to finish, goes back to overview page
+    sleep(5)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # 'view logs' should now display the project logs
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "logs-first-view.png")
+
+    # run project again
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.up_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "starting-project-message.png"
+    )
+
+    # wait for project to finish, goes back to overview page
+    sleep(5)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # 'view logs' should now display the project logs
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "updated-logs.png")
+
+
 def test_running_project_that_uses_miniscreen(
     miniscreen, go_to_projects_page, snapshot, create_project, mocker
 ):
@@ -427,7 +495,8 @@ def test_load_project_config_from_valid_file():
     config = ProjectConfig.from_file(f"{config_file_path}/valid/project.cfg")
     assert config.title == "my project"
     assert config.start == "python3 project.py"
-    assert config.exit_condition == "?"
+    # If file has an invalid exit condition, use FLICK_POWER
+    assert config.exit_condition == "FLICK_POWER"
 
 
 def test_load_project_config_raises_on_invalid_file():
