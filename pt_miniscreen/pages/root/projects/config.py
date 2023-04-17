@@ -38,11 +38,11 @@ class ProjectConfig:
             project_config = config[cls.CONFIG_FILE_SECTION]
 
             exit_condition = project_config.get("exit_condition")
-            if exit_condition not in ProjectExitCondition.__members__:
-                logger.debug(
-                    f"Invalid exit condition '{exit_condition}', using FLICK_POWER."
-                )
+            if exit_condition in (None, ""):
                 exit_condition = ProjectExitCondition.FLICK_POWER.name
+
+            if exit_condition not in ProjectExitCondition.__members__:
+                raise Exception(f"Invalid exit condition '{exit_condition}'")
 
             return ProjectConfig(
                 file=file,

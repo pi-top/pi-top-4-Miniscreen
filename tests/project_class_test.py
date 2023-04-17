@@ -106,7 +106,7 @@ def test_project_cls_callbacks_for_exit_condition_hold_x(
 
 
 @patch("pt_miniscreen.pages.root.projects.project.PTDMSubscribeClient")
-def test_project_cls_no_ptdm_subscribe_on_invalid_exit_condition(
+def test_project_cls_runs_ptdm_subscribe_on_invalid_exit_condition(
     subscribe_client, create_project_object, mocker
 ):
     project = create_project_object()
@@ -116,4 +116,4 @@ def test_project_cls_no_ptdm_subscribe_on_invalid_exit_condition(
         project.run()
         sleep(1)
 
-    assert subscribe_client.call_count == 0
+    assert subscribe_client.call_count == 1

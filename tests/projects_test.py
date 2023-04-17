@@ -495,7 +495,7 @@ def test_load_project_config_from_valid_file():
     config = ProjectConfig.from_file(f"{config_file_path}/valid/project.cfg")
     assert config.title == "my project"
     assert config.start == "python3 project.py"
-    # If file has an invalid exit condition, use FLICK_POWER
+    # If file doesn't specify an exit condition, use FLICK_POWER
     assert config.exit_condition == "FLICK_POWER"
 
 
