@@ -4,8 +4,8 @@ from enum import auto, Enum
 class ProjectState(Enum):
     IDLE = auto()
     STARTING = auto()
-    RUNNING = auto()
-    PROJECT_USES_MINISCREEN = auto()
+    RUNNING_WITH_INSTRUCTIONS_IN_SCREEN = auto()
+    RUNNING_WITH_CLEAR_CREEN = auto()
     STOPPING = auto()
     ERROR = auto()
 

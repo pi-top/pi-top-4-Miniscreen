@@ -40,7 +40,7 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
 
     def set_user_controls_miniscreen(self, user_using_miniscreen):
         if user_using_miniscreen and self.is_running:
-            self.state.update({"project_state": ProjectState.PROJECT_USES_MINISCREEN})
+            self.state.update({"project_state": ProjectState.RUNNING_WITH_CLEAR_CREEN})
 
     @property
     def displayed_text(self) -> str:
@@ -48,7 +48,7 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
         project_state = self.state.get("project_state")
         if project_state == ProjectState.ERROR:
             text = f"There was an error while running '{self.project_config.title}'..."
-        elif project_state == ProjectState.RUNNING:
+        elif project_state == ProjectState.RUNNING_WITH_INSTRUCTIONS_IN_SCREEN:
             text = f"'{self.project_config.title}' is running..."
         elif project_state == ProjectState.STOPPING:
             text = f"Stopping '{self.project_config.title}'..."
@@ -72,7 +72,10 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
 
     @property
     def is_running(self):
-        return self.state.get("project_state") == ProjectState.RUNNING
+        return self.state.get("project_state") in (
+            ProjectState.RUNNING_WITH_INSTRUCTIONS_IN_SCREEN,
+            ProjectState.RUNNING_WITH_CLEAR_CREEN,
+        )
 
     def run(self, on_stop: Optional[Callable] = None):
         logger.info(
@@ -93,7 +96,9 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
         try:
             with Project(self.project_config) as project:
                 project.run()
-                self.state.update({"project_state": ProjectState.RUNNING})
+                self.state.update(
+                    {"project_state": ProjectState.RUNNING_WITH_INSTRUCTIONS_IN_SCREEN}
+                )
                 project.wait()
                 self.state.update({"project_state": ProjectState.STOPPING})
         except Exception as e:
