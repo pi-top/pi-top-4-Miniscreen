@@ -36,18 +36,13 @@ class ProjectConfig:
         try:
             config.read(file)
             project_config = config[cls.CONFIG_FILE_SECTION]
-            try:
-                exit_condition = project_config.get(
-                    "exit_condition", ProjectExitCondition.FLICK_POWER.name
+
+            exit_condition = project_config.get("exit_condition")
+            if exit_condition not in ProjectExitCondition.__members__:
+                logger.debug(
+                    f"Invalid exit condition '{exit_condition}', using FLICK_POWER."
                 )
-            except Exception:
-                exit_condition = None
-            finally:
-                if exit_condition not in ProjectExitCondition.__members__:
-                    logger.debug(
-                        f"Invalid exit condition '{exit_condition}', using FLICK_POWER."
-                    )
-                    exit_condition = ProjectExitCondition.FLICK_POWER.name
+                exit_condition = ProjectExitCondition.FLICK_POWER.name
 
             return ProjectConfig(
                 file=file,

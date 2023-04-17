@@ -104,9 +104,9 @@ class ProjectOverviewList(EnterableSelectableList):
         # Sort found files by date/time of last modification
         for file in sorted(files, key=os.path.getmtime, reverse=True):
             try:
-                logger.info(f"Trying to read {file}")
+                logger.debug(f"Trying to read {file}")
                 project_config = ProjectConfig.from_file(file)
-                logger.info(f"Found project {project_config.title}")
+                logger.debug(f"Found project {project_config.title}")
 
                 rows.append(
                     partial(
