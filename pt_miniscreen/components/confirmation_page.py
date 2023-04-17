@@ -32,6 +32,8 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
         cancel_text: Optional[str],
         on_confirm: Callable,
         on_cancel: Optional[Callable],
+        on_confirm_pop_elements: Optional[int],
+        on_cancel_pop_elements: Optional[int],
         **kwargs,
     ) -> None:
 
@@ -41,11 +43,17 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
             confirm_text = "Yes"
         if cancel_text is None:
             cancel_text = "No"
+        if on_confirm_pop_elements is None:
+            on_confirm_pop_elements = 1
+        if on_cancel_pop_elements is None:
+            on_cancel_pop_elements = 1
 
         self.on_confirm = on_confirm
         self.on_cancel = on_cancel
         self.confirm_text = confirm_text
         self.cancel_text = cancel_text
+        self.on_confirm_pop_elements = on_confirm_pop_elements
+        self.on_cancel_pop_elements = on_cancel_pop_elements
 
         self.title = Text(
             text=title,
@@ -73,19 +81,14 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
         logging.info(
             f"ConfirmationPage.perform_action: user selected '{self.selectable_list.selected_row.text}', executing callback"
         )
-
-        elements_to_pop = 1
-        if self.selectable_list.selected_row.text == self.confirm_text and callable(
-            self.on_confirm
-        ):
-            self.on_confirm()
-            elements_to_pop = 2
-        elif self.selectable_list.selected_row.text == self.cancel_text and callable(
-            self.on_cancel
-        ):
-            self.on_cancel()
-
-        self.pop(elements=elements_to_pop)
+        if self.selectable_list.selected_row.text == self.confirm_text:
+            if callable(self.on_confirm):
+                self.on_confirm()
+            self.pop(elements=self.on_confirm_pop_elements)
+        elif self.selectable_list.selected_row.text == self.cancel_text:
+            if callable(self.on_cancel):
+                self.on_cancel()
+            self.pop(elements=self.on_cancel_pop_elements)
 
     def top_gutter_icon(self):
         return get_image_file_path("gutter/left_arrow.png")

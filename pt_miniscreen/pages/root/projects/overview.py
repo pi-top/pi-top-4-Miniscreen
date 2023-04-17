@@ -68,6 +68,10 @@ class OverviewProjectPage(EnterableSelectableList):
                         cancel_text="No",
                         on_confirm=remove_project,
                         on_cancel=None,
+                        # Go back 2 levels to project list
+                        on_confirm_pop_elements=2,
+                        # Go back to overview page
+                        on_cancel_pop_elements=1,
                     ),
                 )
             )

@@ -96,6 +96,7 @@ class SelectableList(List):
     def on_state_change(self, previous_state):
         selected_row = None
         if previous_state["Rows"] != self.state["Rows"] and len(self.rows) > 0:
+            # Handle dynamic changes in state Rows; if rows changed, reset selection to the first
             selected_row = self.rows[0]
         elif previous_state["selected_index"] != self.state["selected_index"]:
             selected_row = self.selected_row
