@@ -40,7 +40,7 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
 
     def set_user_controls_miniscreen(self, user_using_miniscreen):
         if user_using_miniscreen and self.is_running:
-            self.state.update({"project_state": ProjectState.RUNNING_WITH_CLEAR_CREEN})
+            self.state.update({"project_state": ProjectState.RUNNING_WITH_CLEAR_SCREEN})
 
     @property
     def displayed_text(self) -> str:
@@ -74,7 +74,7 @@ class ProjectPage(Component, Poppable, BlocksMiniscreenButtons):
     def is_running(self):
         return self.state.get("project_state") in (
             ProjectState.RUNNING_WITH_INSTRUCTIONS_IN_SCREEN,
-            ProjectState.RUNNING_WITH_CLEAR_CREEN,
+            ProjectState.RUNNING_WITH_CLEAR_SCREEN,
         )
 
     def run(self, on_stop: Optional[Callable] = None):
