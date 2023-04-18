@@ -18,7 +18,7 @@ def use_example_project(mocker, tmp_path):
         project_info_to_mock="MyProjectsDirectory",
     ):
         mocker.patch(
-            "pt_miniscreen.pages.root.projects.menu_page.directory_contains_projects",
+            "pt_miniscreen.pages.root.projects.overview.directory_contains_projects",
             return_value=True,
         )
         mocker.patch(
@@ -38,7 +38,7 @@ def use_example_project(mocker, tmp_path):
         )
 
     yield _create_project
-    rmtree(tmp_path)
+    rmtree(tmp_path, ignore_errors=True)
 
 
 @pytest.fixture
@@ -69,7 +69,7 @@ def go_to_projects_page(miniscreen):
 def create_project(mocker, tmp_path):
     def _create_project(projects_to_create=1, exit_condition=""):
         mocker.patch(
-            "pt_miniscreen.pages.root.projects.menu_page.directory_contains_projects",
+            "pt_miniscreen.pages.root.projects.overview.directory_contains_projects",
             return_value=True,
         )
         mocker.patch(
@@ -123,15 +123,47 @@ def test_projects_on_nested_directories_display_directories_on_enter(
     )
     go_to_projects_page()
 
-    snapshot.assert_match(
-        miniscreen.device.display_image, "further-entry-is-displayed.png"
-    )
+    # Further entry is displayed
+    snapshot.assert_match(miniscreen.device.display_image, "folders-overview.png")
+
+    # Access 'Further' menu; projects and 'delete all' entry are visible
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "nested-project-view.png")
+
+    # Select user from list; project list is visible
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "project-list.png")
+
+    # Go back to Further, select 'delete all'
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.up_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "delete-all-selected.png")
+
+    # Access 'delete all' displays a confirmation dialog
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "confirmation-dialog.png")
+
+    # Can go back by pressing the cancel button
+    miniscreen.cancel_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "delete-all-selected.png")
+
+    # Go back to 'delete all' dialog; on confirmation, goes back one level
+    miniscreen.select_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "folders-overview.png")
+
+    # Select Further; no projects are available
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "no-projects.png")
 
 
 def test_overview_page_actions(

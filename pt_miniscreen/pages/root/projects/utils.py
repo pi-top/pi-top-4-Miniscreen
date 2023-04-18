@@ -43,10 +43,17 @@ class ProjectFolderInfo:
     title: str
     exclude_dirs: list
     recurse_search: bool = False
+    can_remove_all: bool = False
 
     @classmethod
     def from_directory(cls, directory, title):
-        return cls(folder=directory, title=title, exclude_dirs=[], recurse_search=False)
+        return cls(
+            folder=directory,
+            title=title,
+            exclude_dirs=[],
+            recurse_search=False,
+            can_remove_all=True,
+        )
 
 
 class MyProjectsDirectory(ProjectFolderInfo):
@@ -59,6 +66,7 @@ class FurtherDirectory(ProjectFolderInfo):
     folder = os.path.join(USER_HOME, "Desktop/Projects/Further")
     title = "Further"
     recurse_search = True
+    can_remove_all = True
 
 
 class PiTop4DemosDirectory(ProjectFolderInfo):

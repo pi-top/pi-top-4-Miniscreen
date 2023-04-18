@@ -1,4 +1,3 @@
-from functools import partial
 import logging
 from configparser import ConfigParser
 from os import path
@@ -34,12 +33,6 @@ from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 logger = logging.getLogger(__name__)
-
-
-def isclass(obj, cls):
-    return (
-        isinstance(obj, partial) and issubclass(obj.func, cls) or isinstance(obj, cls)
-    )
 
 
 def get_bootsplash_image_path():

@@ -1,9 +1,9 @@
 import os
 import logging
-from collections.abc import Callable
 from functools import partial
+from shutil import rmtree
+from typing import List, Union, Callable
 from pathlib import Path
-from typing import List, Type, Union
 
 from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
@@ -16,12 +16,13 @@ from pt_miniscreen.pages.root.projects.project_page import ProjectPage
 from pt_miniscreen.pages.root.projects.utils import (
     PACKAGE_DIRECTORY,
     EmptyProjectRow,
+    InvalidConfigFile,
     Row,
+    ProjectFolderInfo,
+    directory_contains_projects,
 )
-from pt_miniscreen.utils import get_image_file_path
+from pt_miniscreen.utils import get_image_file_path, isclass
 
-
-from pt_miniscreen.pages.root.projects.utils import InvalidConfigFile
 
 logger = logging.getLogger(__name__)
 
@@ -88,41 +89,209 @@ class OverviewProjectPage(EnterableSelectableList):
         return super().bottom_gutter_icon()
 
 
-class ProjectOverviewList(EnterableSelectableList):
-    def __init__(self, directory, **kwargs) -> None:
-        self.directory = directory
-        super().__init__(Rows=self.load_rows(), **kwargs)
+class SupportsDeleteAll:
+    def get_rows(self):
+        raise NotImplementedError
 
-    def load_rows(self) -> List:
-        def on_delete():
-            self.update_rows(rows=self.load_rows())
+    def on_delete(self):
+        raise NotImplementedError
 
-        rows: List[Union[Type[EmptyProjectRow], partial[Row]]] = []
+    def can_be_deleted(self):
+        raise NotImplementedError
 
-        files = Path(self.directory).glob("*/project.cfg")
+    def add_delete_row(
+        self, rows: List, folder_info: Union[List[ProjectFolderInfo], ProjectFolderInfo]
+    ):
+        if len(rows) == 0 or isclass(rows[0], EmptyProjectRow):
+            return
 
-        # Sort found files by date/time of last modification
-        for file in sorted(files, key=os.path.getmtime, reverse=True):
-            try:
-                logger.debug(f"Trying to read {file}")
-                project_config = ProjectConfig.from_file(file)
-                logger.debug(f"Found project {project_config.title}")
+        if not isinstance(folder_info, list):
+            # Convert to array to support all scenarios
+            folder_info = [folder_info]
 
+        def delete_all():
+            for x in folder_info:
+                rmtree(x.folder)
+            self.on_delete()
+
+        if all([folder.can_remove_all for folder in folder_info]):
+            rows.insert(
+                0,
+                partial(
+                    Row,
+                    title="Delete All",
+                    enterable_component=partial(
+                        ConfirmationPage,
+                        title="Really delete?",
+                        confirm_text="Yes",
+                        cancel_text="No",
+                        on_confirm=delete_all,
+                        on_cancel=None,
+                        # Go back 2 levels to projects/users list
+                        on_confirm_pop_elements=2,
+                        # Go back to overview page
+                        on_cancel_pop_elements=1,
+                    ),
+                ),
+            )
+
+
+class FolderOverviewList(EnterableSelectableList, SupportsDeleteAll):
+    def __init__(
+        self, folder_info: Union[List[ProjectFolderInfo], ProjectFolderInfo], **kwargs
+    ) -> None:
+        self.folder_info = folder_info
+
+        # Get an array of ProjectFolderInfo objects of interest
+        self.folders: Union[List[ProjectFolderInfo], ProjectFolderInfo]
+        if isinstance(self.folder_info, ProjectFolderInfo):
+            self.folders = get_nested_directories(self.folder_info)
+        elif not isinstance(self.folder_info, list):
+            self.folders = [self.folder_info]
+        else:
+            self.folders = self.folder_info
+
+        super().__init__(Rows=self.get_rows(), **kwargs)
+
+        if self.can_be_deleted():
+            # Don't select the 'Delete All' row
+            self.select_next_row(animate_scroll=False)
+
+    def can_be_deleted(self):
+        return (
+            len(self.state["Rows"]) > 0
+            and not isinstance(self.state["Rows"][0], EmptyProjectRow)
+            and all([folder_info.can_remove_all for folder_info in self.folders])
+        )
+
+    def on_delete(self):
+        self.update_rows(rows=self.get_rows())
+
+    def get_rows(self):
+        rows = rows_for_folders(self.folders)
+        self.add_delete_row(rows, self.folders)
+        return rows
+
+
+class ProjectOverviewList(EnterableSelectableList, SupportsDeleteAll):
+    def __init__(self, folder_info: ProjectFolderInfo, **kwargs) -> None:
+        self.folder_info = folder_info
+        super().__init__(Rows=self.get_rows(), **kwargs)
+
+        if self.can_be_deleted():
+            # Don't select the 'Delete All' row
+            self.select_next_row(animate_scroll=False)
+
+    def on_delete(self):
+        self.update_rows(rows=self.get_rows())
+
+    def get_rows(self):
+        rows = get_project_rows(self.folder_info, self.on_delete)
+        self.add_delete_row(rows, self.folder_info)
+        return rows
+
+    def can_be_deleted(self):
+        return (
+            len(self.state["Rows"]) > 0
+            and not isinstance(self.state["Rows"][0], EmptyProjectRow)
+            and self.folder_info.can_remove_all
+        )
+
+
+def get_nested_directories(
+    folder_info: ProjectFolderInfo,
+) -> List[ProjectFolderInfo]:
+    """Returns an array of 'ProjectFolderInfo' objects representing the
+    directories inside 'folder_info'."""
+    folders = []
+    for folder in os.listdir(folder_info.folder):
+        folders.append(
+            ProjectFolderInfo.from_directory(
+                directory=os.path.join(folder_info.folder, folder), title=folder
+            )
+        )
+    return folders
+
+
+def rows_for_folders(
+    folders: List[ProjectFolderInfo],
+) -> List[Union[partial[EmptyProjectRow], partial[Row]]]:
+    """Returns a List with Rows representing the directories with projects
+    found in the given 'folders' array.
+
+    The returned list can contain 'ProjectOverviewList' objects if
+    projects were found inside a folder and 'FolderOverviewList' objects
+    if projects were found in deeper levels of a folder.
+    """
+    rows: List[Union[partial[EmptyProjectRow], partial[Row]]] = []
+
+    for project_dir in folders:
+        if not os.path.isdir(project_dir.folder) or not directory_contains_projects(
+            project_dir.folder, recurse=project_dir.recurse_search
+        ):
+            # No projects available in this folder
+            continue
+
+        if project_dir.recurse_search:
+            folders = get_nested_directories(project_dir)
+            if len(folders) > 0:
                 rows.append(
                     partial(
                         Row,
-                        title=project_config.title,
+                        title=project_dir.title,
                         enterable_component=partial(
-                            OverviewProjectPage,
-                            project_config=project_config,
-                            on_delete=on_delete,
+                            FolderOverviewList,
+                            folder_info=folders,
                         ),
                     )
                 )
-            except InvalidConfigFile as e:
-                logger.error(f"Error parsing {file}: {e}")
+        else:
+            rows.append(
+                partial(
+                    Row,
+                    title=project_dir.title,
+                    enterable_component=partial(
+                        ProjectOverviewList,
+                        folder_info=project_dir,
+                    ),
+                )
+            )
 
-        if len(rows) == 0:
-            rows.append(EmptyProjectRow)
+    if len(rows) == 0:
+        rows.append(partial(EmptyProjectRow))
 
-        return rows
+    return rows
+
+
+def get_project_rows(folder_info: ProjectFolderInfo, on_delete: Callable) -> List:
+    """Returns a List with Rows representing the projects found in the provided
+    'folder_info'."""
+    rows: List[Union[partial[EmptyProjectRow], partial[Row]]] = []
+
+    files = Path(folder_info.folder).glob("*/project.cfg")
+
+    # Sort found files by date/time of last modification
+    for file in sorted(files, key=os.path.getmtime, reverse=True):
+        try:
+            logger.info(f"Trying to read {file}")
+            project_config = ProjectConfig.from_file(file)
+            logger.info(f"Found project {project_config.title}")
+
+            rows.append(
+                partial(
+                    Row,
+                    title=project_config.title,
+                    enterable_component=partial(
+                        OverviewProjectPage,
+                        project_config=project_config,
+                        on_delete=on_delete,
+                    ),
+                )
+            )
+        except InvalidConfigFile as e:
+            logger.error(f"Error parsing {file}: {e}")
+
+    if len(rows) == 0:
+        rows.append(partial(EmptyProjectRow))
+
+    return rows
