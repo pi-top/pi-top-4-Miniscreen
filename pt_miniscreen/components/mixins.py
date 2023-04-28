@@ -58,3 +58,9 @@ class BlocksMiniscreenButtons:
     @abstractmethod
     def block_buttons(self):
         pass
+
+
+class UpdatableByChild:
+    @abstractmethod
+    def on_child_action(self) -> None:
+        pass

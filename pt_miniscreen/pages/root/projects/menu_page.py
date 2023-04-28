@@ -35,4 +35,5 @@ class ProjectsMenuPage(MenuPage):
                 ElectronicsKitDirectory,
                 RoboticsKitDirectory,
             ],
+            parent=self,
         )

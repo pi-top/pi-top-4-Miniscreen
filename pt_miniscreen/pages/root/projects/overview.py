@@ -2,9 +2,11 @@ import os
 import logging
 from functools import partial
 from shutil import rmtree
-from typing import List, Union, Callable
+from typing import List, Union
 from pathlib import Path
+from weakref import ref
 
+from pt_miniscreen.components.mixins import UpdatableByChild
 from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
 )
@@ -36,8 +38,13 @@ class OverviewProjectPage(EnterableSelectableList):
     animate_enterable_operation = False
 
     def __init__(
-        self, project_config: ProjectConfig, on_delete: Callable, **kwargs
+        self,
+        project_config: ProjectConfig,
+        parent: UpdatableByChild,
+        **kwargs,
     ) -> None:
+        self.parent_ref = ref(parent)
+
         rows: List[partial] = [
             partial(
                 Row,
@@ -55,8 +62,6 @@ class OverviewProjectPage(EnterableSelectableList):
 
             def remove_project():
                 Project(project_config).remove()
-                if callable(on_delete):
-                    on_delete()
 
             rows.append(
                 partial(
@@ -64,6 +69,7 @@ class OverviewProjectPage(EnterableSelectableList):
                     title="Delete",
                     enterable_component=partial(
                         ConfirmationPage,
+                        parent=parent,
                         title="Really delete?",
                         confirm_text="Yes",
                         cancel_text="No",
@@ -90,18 +96,15 @@ class OverviewProjectPage(EnterableSelectableList):
 
 
 class SupportsDeleteAll:
-    def get_rows(self):
+    def get_rows(self) -> List:
         raise NotImplementedError
 
-    def on_delete(self):
-        raise NotImplementedError
-
-    def can_be_deleted(self):
+    def can_be_deleted(self) -> bool:
         raise NotImplementedError
 
     def add_delete_row(
         self, rows: List, folder_info: Union[List[ProjectFolderInfo], ProjectFolderInfo]
-    ):
+    ) -> None:
         if len(rows) == 0 or isclass(rows[0], EmptyProjectRow):
             return
 
@@ -111,8 +114,7 @@ class SupportsDeleteAll:
 
         def delete_all():
             for x in folder_info:
-                rmtree(x.folder)
-            self.on_delete()
+                rmtree(x.folder, ignore_errors=True)
 
         if all([folder.can_remove_all for folder in folder_info]):
             rows.insert(
@@ -122,6 +124,7 @@ class SupportsDeleteAll:
                     title="Delete All",
                     enterable_component=partial(
                         ConfirmationPage,
+                        parent=self,
                         title="Really delete?",
                         confirm_text="Yes",
                         cancel_text="No",
@@ -136,14 +139,18 @@ class SupportsDeleteAll:
             )
 
 
-class FolderOverviewList(EnterableSelectableList, SupportsDeleteAll):
+class FolderOverviewList(EnterableSelectableList, SupportsDeleteAll, UpdatableByChild):
     def __init__(
-        self, folder_info: Union[List[ProjectFolderInfo], ProjectFolderInfo], **kwargs
+        self,
+        folder_info: Union[List[ProjectFolderInfo], ProjectFolderInfo],
+        parent: UpdatableByChild,
+        **kwargs,
     ) -> None:
         self.folder_info = folder_info
+        self.parent_ref = ref(parent)
 
         # Get an array of ProjectFolderInfo objects of interest
-        self.folders: Union[List[ProjectFolderInfo], ProjectFolderInfo]
+        self.folders: List[ProjectFolderInfo]
         if isinstance(self.folder_info, ProjectFolderInfo):
             self.folders = get_nested_directories(self.folder_info)
         elif not isinstance(self.folder_info, list):
@@ -152,45 +159,67 @@ class FolderOverviewList(EnterableSelectableList, SupportsDeleteAll):
             self.folders = self.folder_info
 
         super().__init__(Rows=self.get_rows(), **kwargs)
+        self._set_selected_row()
 
+    def _set_selected_row(self) -> None:
         if self.can_be_deleted():
             # Don't select the 'Delete All' row
             self.select_next_row(animate_scroll=False)
 
-    def can_be_deleted(self):
+    def can_be_deleted(self) -> bool:
         return (
             len(self.state["Rows"]) > 0
             and not isinstance(self.state["Rows"][0], EmptyProjectRow)
             and all([folder_info.can_remove_all for folder_info in self.folders])
         )
 
-    def on_delete(self):
+    def on_child_action(self) -> None:
+        # Update component & parent rows to reflect changes
         self.update_rows(rows=self.get_rows())
+        self._set_selected_row()
 
-    def get_rows(self):
-        rows = rows_for_folders(self.folders)
+        parent_ref = self.parent_ref()
+        if parent_ref and isinstance(parent_ref, UpdatableByChild):
+            parent_ref.on_child_action()
+
+    def get_rows(self) -> List:
+        rows = rows_for_folders(folders=self.folders, parent=self)
         self.add_delete_row(rows, self.folders)
         return rows
 
 
-class ProjectOverviewList(EnterableSelectableList, SupportsDeleteAll):
-    def __init__(self, folder_info: ProjectFolderInfo, **kwargs) -> None:
+class ProjectOverviewList(EnterableSelectableList, SupportsDeleteAll, UpdatableByChild):
+    def __init__(
+        self,
+        folder_info: ProjectFolderInfo,
+        parent: UpdatableByChild,
+        **kwargs,
+    ) -> None:
         self.folder_info = folder_info
+        self.parent_ref = ref(parent)
         super().__init__(Rows=self.get_rows(), **kwargs)
+        self._set_selected_row()
 
+    def _set_selected_row(self) -> None:
         if self.can_be_deleted():
             # Don't select the 'Delete All' row
             self.select_next_row(animate_scroll=False)
 
-    def on_delete(self):
+    def on_child_action(self) -> None:
+        # Update component & parent rows to reflect changes
         self.update_rows(rows=self.get_rows())
+        self._set_selected_row()
 
-    def get_rows(self):
-        rows = get_project_rows(self.folder_info, self.on_delete)
+        parent_ref = self.parent_ref()
+        if parent_ref and isinstance(parent_ref, UpdatableByChild):
+            parent_ref.on_child_action()
+
+    def get_rows(self) -> List:
+        rows = get_project_rows(self.folder_info, self)
         self.add_delete_row(rows, self.folder_info)
         return rows
 
-    def can_be_deleted(self):
+    def can_be_deleted(self) -> bool:
         return (
             len(self.state["Rows"]) > 0
             and not isinstance(self.state["Rows"][0], EmptyProjectRow)
@@ -215,6 +244,7 @@ def get_nested_directories(
 
 def rows_for_folders(
     folders: List[ProjectFolderInfo],
+    parent: UpdatableByChild,
 ) -> List[Union[partial[EmptyProjectRow], partial[Row]]]:
     """Returns a List with Rows representing the directories with projects
     found in the given 'folders' array.
@@ -242,6 +272,7 @@ def rows_for_folders(
                         enterable_component=partial(
                             FolderOverviewList,
                             folder_info=folders,
+                            parent=parent,
                         ),
                     )
                 )
@@ -253,6 +284,7 @@ def rows_for_folders(
                     enterable_component=partial(
                         ProjectOverviewList,
                         folder_info=project_dir,
+                        parent=parent,
                     ),
                 )
             )
@@ -263,7 +295,7 @@ def rows_for_folders(
     return rows
 
 
-def get_project_rows(folder_info: ProjectFolderInfo, on_delete: Callable) -> List:
+def get_project_rows(folder_info: ProjectFolderInfo, parent: UpdatableByChild) -> List:
     """Returns a List with Rows representing the projects found in the provided
     'folder_info'."""
     rows: List[Union[partial[EmptyProjectRow], partial[Row]]] = []
@@ -284,7 +316,7 @@ def get_project_rows(folder_info: ProjectFolderInfo, on_delete: Callable) -> Lis
                     enterable_component=partial(
                         OverviewProjectPage,
                         project_config=project_config,
-                        on_delete=on_delete,
+                        parent=parent,
                     ),
                 )
             )

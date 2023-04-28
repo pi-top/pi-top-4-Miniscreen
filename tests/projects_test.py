@@ -14,7 +14,7 @@ config_file_path = f"{path.dirname(path.realpath(__file__))}/projects/"
 def use_example_project(mocker, tmp_path):
     def _create_project(
         projects_to_create=1,
-        base_directory="",
+        base_directories_array=[""],
         project_info_to_mock="MyProjectsDirectory",
     ):
         mocker.patch(
@@ -27,10 +27,11 @@ def use_example_project(mocker, tmp_path):
         )
 
         tmp_path.mkdir(exist_ok=True)
-        for i in range(projects_to_create):
-            full_path = f"{tmp_path}/{base_directory}/project_{i + 1}"
-            makedirs(full_path)
-            copytree(f"{config_file_path}/valid", full_path, dirs_exist_ok=True)
+        for base_directory in base_directories_array:
+            for i in range(projects_to_create):
+                full_path = f"{tmp_path}/{base_directory}/project_{i + 1}"
+                makedirs(full_path)
+                copytree(f"{config_file_path}/valid", full_path, dirs_exist_ok=True)
 
         mocker.patch(
             f"pt_miniscreen.pages.root.projects.utils.{project_info_to_mock}.folder",
@@ -119,31 +120,30 @@ def test_projects_on_nested_directories_display_directories_on_enter(
     miniscreen, go_to_projects_page, snapshot, use_example_project
 ):
     use_example_project(
-        base_directory="further_username", project_info_to_mock="FurtherDirectory"
+        base_directories_array=["user1", "user2"],
+        project_info_to_mock="FurtherDirectory",
+        projects_to_create=2,
     )
     go_to_projects_page()
 
     # Further entry is displayed
     snapshot.assert_match(miniscreen.device.display_image, "folders-overview.png")
 
-    # Access 'Further' menu; projects and 'delete all' entry are visible
+    # Access 'Further' menu; list of users and 'delete all' entry are visible
     miniscreen.select_button.release()
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "nested-project-view.png")
+    snapshot.assert_match(
+        miniscreen.device.display_image, "further-users-list-2-users.png"
+    )
 
     # Select user from list; project list is visible
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "project-list.png")
 
-    # Go back to Further, select 'delete all'
-    miniscreen.cancel_button.release()
-    sleep(1)
+    # Delete All projects for user; displays a confirmation dialog
     miniscreen.up_button.release()
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "delete-all-selected.png")
-
-    # Access 'delete all' displays a confirmation dialog
     miniscreen.select_button.release()
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "confirmation-dialog.png")
@@ -153,17 +153,28 @@ def test_projects_on_nested_directories_display_directories_on_enter(
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "delete-all-selected.png")
 
-    # Go back to 'delete all' dialog; on confirmation, goes back one level
+    # Go back to 'delete all' dialog; on confirmation, goes back to users list
     miniscreen.select_button.release()
     sleep(1)
     miniscreen.select_button.release()
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "folders-overview.png")
+    snapshot.assert_match(
+        miniscreen.device.display_image, "further-users-list-1-user.png"
+    )
 
-    # Select Further; no projects are available
+    # Delete All projects for all users; displays a confirmation dialog
+    miniscreen.up_button.release()
+    sleep(1)
     miniscreen.select_button.release()
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "no-projects.png")
+    snapshot.assert_match(miniscreen.device.display_image, "confirmation-dialog.png")
+
+    # On confirmation, goes back to folders overview; Further entry is not present
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "folders-overview-no-further.png"
+    )
 
 
 def test_overview_page_actions(
