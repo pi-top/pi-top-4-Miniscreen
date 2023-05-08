@@ -34,7 +34,6 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
         on_cancel: Optional[Callable],
         **kwargs,
     ) -> None:
-
         if title is None:
             title = "Are you sure?"
         if confirm_text is None:
