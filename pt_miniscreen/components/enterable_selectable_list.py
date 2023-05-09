@@ -40,7 +40,11 @@ class EnterableSelectableList(SelectableList, Navigable, Enterable, HasGutterIco
         return None
 
     def bottom_gutter_icon(self):
-        if isinstance(self.selected_row.enterable_component, Actionable):
+        # If selected row is Enterable, check if the component we'll
+        # be moving into is Actionable to display the tick icon
+        if isinstance(self.selected_row, Enterable) and isinstance(
+            self.selected_row.enterable_component, Actionable
+        ):
             return get_image_file_path("gutter/tick.png")
 
         if self.can_enter:

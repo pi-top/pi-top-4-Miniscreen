@@ -51,6 +51,9 @@ class TextFile:
                 for _ in f:
                     self.len += 1
 
+        # Clear line cache to read overwritten files correctly
+        linecache.clearcache()
+
     def line(self, line_number: int):
         return linecache.getline(self.filename, line_number)
 

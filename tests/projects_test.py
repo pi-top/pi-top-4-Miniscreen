@@ -1,7 +1,6 @@
-from functools import partial
-from os import path
+from shutil import rmtree
+from os import path, makedirs
 from shutil import copytree
-from tempfile import TemporaryDirectory
 from time import sleep
 
 import pytest
@@ -11,16 +10,35 @@ from testpath import MockCommand
 config_file_path = f"{path.dirname(path.realpath(__file__))}/projects/"
 
 
-@pytest.fixture
-def use_example_project(mocker):
-    # create temporary directory and copy project files into it
-    with TemporaryDirectory() as temp_dir:
-        copytree(config_file_path, temp_dir, dirs_exist_ok=True)
+@pytest.fixture(scope="function")
+def use_example_project(mocker, tmp_path):
+    def _create_project(
+        projects_to_create=1,
+        base_directory="",
+        project_info_to_mock="MyProjectsDirectory",
+    ):
         mocker.patch(
-            "pt_miniscreen.pages.root.projects.ProjectDirectoryList.PROJECT_DIRECTORY_LOOKUP",
-            {"My projects": f"{temp_dir}"},
+            "pt_miniscreen.pages.root.projects.menu_page.directory_contains_projects",
+            return_value=True,
         )
-        yield temp_dir
+        mocker.patch(
+            "pt_miniscreen.pages.root.projects.project.switch_user",
+            return_value=None,
+        )
+
+        tmp_path.mkdir(exist_ok=True)
+        for i in range(projects_to_create):
+            full_path = f"{tmp_path}/{base_directory}/project_{i + 1}"
+            makedirs(full_path)
+            copytree(f"{config_file_path}/valid", full_path, dirs_exist_ok=True)
+
+        mocker.patch(
+            f"pt_miniscreen.pages.root.projects.utils.{project_info_to_mock}.folder",
+            tmp_path,
+        )
+
+    yield _create_project
+    rmtree(tmp_path)
 
 
 @pytest.fixture
@@ -48,37 +66,40 @@ def go_to_projects_page(miniscreen):
 
 
 @pytest.fixture
-def create_project(mocker):
-    def create_project_rows(project_number, exit_condition=""):
-        from pt_miniscreen.pages.root.projects import ProjectConfig, ProjectRow
-
-        pages = []
-        for project in range(project_number):
-            config = ProjectConfig(
-                file=f"/tmp/config-{project + 1}.cfg",
-                title=f"Project #{project + 1}",
-                start="my-custom-start-command",
-                image="",
-                exit_condition=exit_condition,
-            )
-            pages.append(partial(ProjectRow, config))
-        return pages
-
-    def mock_project_rows(projects_to_create, exit_condition=""):
+def create_project(mocker, tmp_path):
+    def _create_project(projects_to_create=1, exit_condition=""):
         mocker.patch(
-            "pt_miniscreen.pages.root.projects.ProjectList.load_project_rows",
-            side_effect=lambda: create_project_rows(projects_to_create, exit_condition),
-        )
-        mocker.patch(
-            "pt_miniscreen.pages.root.projects.ProjectDirectoryList.directory_has_projects",
+            "pt_miniscreen.pages.root.projects.menu_page.directory_contains_projects",
             return_value=True,
         )
         mocker.patch(
-            "pt_miniscreen.pages.root.projects.switch_user",
+            "pt_miniscreen.pages.root.projects.project.switch_user",
             return_value=None,
         )
 
-    return mock_project_rows
+        tmp_path.mkdir(exist_ok=True)
+        for i in range(projects_to_create):
+            file_content = f"""
+            [project]
+            title=Project #{i + 1}
+            start=my-custom-start-command
+            exit_condition={exit_condition}
+            """
+
+            makedirs(f"{tmp_path}/my_project_{i + 1}")
+            with open(f"{tmp_path}/my_project_{i + 1}/project.cfg", "w") as f:
+                f.write(file_content)
+
+        from pt_miniscreen.pages.root.projects.utils import MyProjectsDirectory
+
+        mocker.patch.object(
+            MyProjectsDirectory,
+            "folder",
+            f"{tmp_path}",
+        )
+
+    yield _create_project
+    rmtree(tmp_path)
 
 
 def test_no_user_projects_available(miniscreen, go_to_projects_page, snapshot, mocker):
@@ -87,22 +108,42 @@ def test_no_user_projects_available(miniscreen, go_to_projects_page, snapshot, m
 
 
 def test_open_projects_menu(miniscreen, go_to_projects_page, snapshot, create_project):
-    create_project(1)
+    create_project()
     go_to_projects_page()
     snapshot.assert_match(
         miniscreen.device.display_image, "projects-page-subsections.png"
     )
 
 
+def test_projects_on_nested_directories_display_directories_on_enter(
+    miniscreen, go_to_projects_page, snapshot, use_example_project
+):
+    use_example_project(
+        base_directory="further_username", project_info_to_mock="FurtherDirectory"
+    )
+    go_to_projects_page()
+
+    snapshot.assert_match(
+        miniscreen.device.display_image, "further-entry-is-displayed.png"
+    )
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "nested-project-view.png")
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-list.png")
+
+
 def test_overview_page_actions(
     miniscreen, go_to_projects_page, snapshot, use_example_project
 ):
+    use_example_project(projects_to_create=2)
     go_to_projects_page()
 
     # access user projects
     miniscreen.select_button.release()
     sleep(1)
-    snapshot.assert_match(miniscreen.device.display_image, "1-project-row.png")
+    snapshot.assert_match(miniscreen.device.display_image, "projects-list.png")
 
     # access project overview page; 'delete' entry is visible
     miniscreen.select_button.release()
@@ -175,17 +216,96 @@ def test_overview_page_actions(
     sleep(1)
     miniscreen.select_button.release()
     sleep(2)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "projects-list-after-deleting.png"
+    )
+
+    # Delete project again - should display an 'no projects' message
+    miniscreen.select_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "no-projects-available.png")
+
+
+def test_log_pages_reflect_last_run(
+    miniscreen, go_to_projects_page, snapshot, use_example_project
+):
+    use_example_project(projects_to_create=2)
+    go_to_projects_page()
+
+    # access user projects
+    miniscreen.select_button.release()
+    sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "projects-list.png")
+
+    # access project overview page
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # check logs; should be empty
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "logs-empty.png")
+
+    # run project
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.up_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "starting-project-message.png"
+    )
+
+    # wait for project to finish, goes back to overview page
+    sleep(5)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # 'view logs' should now display the project logs
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "logs-first-view.png")
+
+    # run project again
+    miniscreen.cancel_button.release()
+    sleep(1)
+    miniscreen.up_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(
+        miniscreen.device.display_image, "starting-project-message.png"
+    )
+
+    # wait for project to finish, goes back to overview page
+    sleep(5)
+    snapshot.assert_match(miniscreen.device.display_image, "project-overview.png")
+
+    # 'view logs' should now display the project logs
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "updated-logs.png")
 
 
 def test_running_project_that_uses_miniscreen(
     miniscreen, go_to_projects_page, snapshot, create_project, mocker
 ):
-    mocker.patch(
-        "pt_miniscreen.pages.root.projects.get_user_using_first_display",
-        return_value=None,
-    )
-    create_project(1)
+    create_project()
     go_to_projects_page()
 
     # access user projects
@@ -231,7 +351,7 @@ def test_running_project_that_uses_miniscreen(
 def test_returns_to_project_list_when_project_process_finishes(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
-    create_project(1)
+    create_project()
     go_to_projects_page()
 
     # access user projects
@@ -263,7 +383,7 @@ def test_returns_to_project_list_when_project_process_finishes(
 def test_displays_error_message_and_returns_to_project_list_on_error(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
-    create_project(1)
+    create_project()
     go_to_projects_page()
 
     # access user projects
@@ -293,7 +413,7 @@ def test_displays_error_message_and_returns_to_project_list_on_error(
 def test_displays_error_message_and_returns_to_project_list_on_nonzero_exit_code(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
-    create_project(1)
+    create_project()
     go_to_projects_page()
 
     # access user projects
@@ -326,7 +446,7 @@ def test_displays_error_message_and_returns_to_project_list_on_nonzero_exit_code
 def test_display_stop_instructions_for_power_button_press_on_project_start(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
-    create_project(1, "FLICK_POWER")
+    create_project(exit_condition="FLICK_POWER")
     go_to_projects_page()
 
     # access user projects
@@ -349,7 +469,7 @@ def test_display_stop_instructions_for_power_button_press_on_project_start(
 def test_display_stop_instructions_for_hold_x_on_project_start(
     miniscreen, go_to_projects_page, snapshot, create_project
 ):
-    create_project(1, "HOLD_CANCEL")
+    create_project(exit_condition="HOLD_CANCEL")
     go_to_projects_page()
 
     # access user projects
@@ -370,40 +490,18 @@ def test_display_stop_instructions_for_hold_x_on_project_start(
 
 
 def test_load_project_config_from_valid_file():
-    from pt_miniscreen.pages.root.projects import ProjectConfig
+    from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
-    config = ProjectConfig.from_file(f"{config_file_path}/valid/valid_project.cfg")
+    config = ProjectConfig.from_file(f"{config_file_path}/valid/project.cfg")
     assert config.title == "my project"
     assert config.start == "python3 project.py"
-    assert config.exit_condition == "?"
+    # If file doesn't specify an exit condition, use FLICK_POWER
+    assert config.exit_condition == "FLICK_POWER"
 
 
 def test_load_project_config_raises_on_invalid_file():
-    from pt_miniscreen.pages.root.projects import InvalidConfigFile, ProjectConfig
+    from pt_miniscreen.pages.root.projects.utils import InvalidConfigFile
+    from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
     with pytest.raises(InvalidConfigFile):
-        ProjectConfig.from_file(f"{config_file_path}/invalid/invalid_project.cfg")
-
-
-def test_project_list_loads_projects_from_directories(mocker, create_component):
-    mocker.patch(
-        "pt_miniscreen.pages.root.projects.ProjectDirectoryList.PROJECT_DIRECTORY_LOOKUP",
-        {"Test projects": f"{config_file_path}"},
-    )
-    from pt_miniscreen.pages.root.projects import ProjectDirectoryList
-
-    project_list = create_component(ProjectDirectoryList)
-    assert len(project_list.rows) == 1
-    selected_row = project_list.selected_row
-    assert selected_row.enterable_component is not None
-
-
-def test_project_list_doesnt_add_project_page_when_projects_not_found(
-    mocker, create_component
-):
-    from pt_miniscreen.pages.root.projects import ProjectList
-
-    project_list = create_component(ProjectList, directory="")
-    assert len(project_list.rows) == 1
-    selected_row = project_list.selected_row
-    assert selected_row.page is None
+        ProjectConfig.from_file(f"{config_file_path}/invalid/project.cfg")
