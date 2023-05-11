@@ -14,6 +14,7 @@ class Stack(Component):
         "x_position": 0,
         "stack": [],
         "active_transition": None,
+        "elements_to_pop": 0,
     }
 
     def cleanup(self):
@@ -34,7 +35,7 @@ class Stack(Component):
         try:
             # when popping the top component is being removed and so isn't active
             if self.state["active_transition"] == "POP":
-                return self.state["stack"][-2]
+                return self.state["stack"][-1 - self.state.get("elements_to_pop")]
 
             # active component is the top item
             return self.state["stack"][-1]
@@ -87,7 +88,9 @@ class Stack(Component):
         stack = self.state["stack"]
         for _ in range(elements):
             self.remove_child(stack.pop())
-        self.state.update({"stack": stack, "active_transition": None})
+        self.state.update(
+            {"stack": stack, "active_transition": None, "elements_to_pop": 0}
+        )
 
     @property
     def is_popping(self):
@@ -144,6 +147,7 @@ class Stack(Component):
         self.state.update(
             {
                 "active_transition": "POP",
+                "elements_to_pop": elements,
                 "x_position": 0,
             }
         )
