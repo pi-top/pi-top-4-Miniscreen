@@ -87,13 +87,25 @@ class SelectableList(List):
 
         return self.rows[index - self.state["top_row_index"]]
 
+    def update_rows(self, rows):
+        self.rows = [
+            self.create_child(Row) for Row in rows[0 : self.state["num_visible_rows"]]
+        ]
+        self.state.update({"Rows": rows, "top_row_index": 0, "selected_index": 0})
+
     def on_state_change(self, previous_state):
-        if previous_state["selected_index"] != self.state["selected_index"]:
+        selected_row = None
+        if previous_state["Rows"] != self.state["Rows"] and len(self.rows) > 0:
+            # Handle dynamic changes in state Rows; if rows changed, reset selection to the first
+            selected_row = self.rows[0]
+        elif previous_state["selected_index"] != self.state["selected_index"]:
+            selected_row = self.selected_row
             previous_row = self._get_row_at_index(previous_state["selected_index"])
             previous_row.render = self._selected_row_unmodified_render
 
-            self._selected_row_unmodified_render = self.selected_row.render
-            self.selected_row.render = lambda image: ImageOps.invert(
+        if selected_row:
+            self._selected_row_unmodified_render = selected_row.render
+            selected_row.render = lambda image: ImageOps.invert(
                 self._selected_row_unmodified_render(image).convert("L")
             ).convert("1")
 

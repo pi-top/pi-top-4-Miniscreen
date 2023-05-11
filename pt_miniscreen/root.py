@@ -1,4 +1,3 @@
-from functools import partial
 import logging
 from configparser import ConfigParser
 from os import path
@@ -25,8 +24,8 @@ from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
 from pt_miniscreen.pages.root.overview import OverviewPage
 from pt_miniscreen.pages.root.projects import (
-    ProjectPage,
     ProjectsMenuPage,
+    ProjectPage,
 )
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
@@ -34,12 +33,6 @@ from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
 logger = logging.getLogger(__name__)
-
-
-def isclass(obj, cls):
-    return (
-        isinstance(obj, partial) and issubclass(obj.func, cls) or isinstance(obj, cls)
-    )
 
 
 def get_bootsplash_image_path():
