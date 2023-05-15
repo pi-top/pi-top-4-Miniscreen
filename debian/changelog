@@ -1,18 +1,8 @@
-pi-top-4-miniscreen (7.5.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (7.6.0-1) bullseye; urgency=medium
 
-  * [pre-commit.ci] pre-commit autoupdate (#278)
-  * Add CodeQL workflow for GitHub code scanning (#292)
-  * Version lock relevant test dependencies (#303)
-  * Set gutter icons for project menus (#302)
-  * Abstract component & navigation logic with Mixins (#307)
-  * Updated master workflow files
-  * Updated master workflow files
-  * Update codecov version used in test workflow
-  * Update setup-python version used in test workflow
   * Add project options: view logs & delete (#310)
   * Handle Further projects (#311)
   * Add 'delete all' option in Further projects menu (#312)
-  * [pre-commit.ci] pre-commit autoupdate (#308)
 
  -- pi-top <deb-maintainers@pi-top.com>  Thu, 11 May 2023 15:01:16 +0000
 
