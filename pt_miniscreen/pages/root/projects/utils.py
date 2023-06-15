@@ -46,7 +46,7 @@ class ProjectFolderInfo:
     can_remove_all: bool = False
 
     @classmethod
-    def from_directory(cls, directory, title):
+    def from_directory(cls, directory: str, title: str):
         return cls(
             folder=directory,
             title=title,

@@ -231,12 +231,12 @@ def get_nested_directories(
     folder_info: ProjectFolderInfo,
 ) -> List[ProjectFolderInfo]:
     """Returns an array of 'ProjectFolderInfo' objects representing the
-    directories inside 'folder_info'."""
+    directories inside 'folder_info', sorted by date."""
     folders = []
-    for folder in os.listdir(folder_info.folder):
+    for folder in sorted(Path(folder_info.folder).iterdir(), key=os.path.getmtime):
         folders.append(
             ProjectFolderInfo.from_directory(
-                directory=os.path.join(folder_info.folder, folder), title=folder
+                directory=folder.as_posix(), title=folder.stem
             )
         )
     return folders
