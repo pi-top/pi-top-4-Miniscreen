@@ -10,7 +10,7 @@ from pt_miniscreen.components.mixins import UpdatableByChild
 from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
 )
-from pt_miniscreen.components.confirmation_page import ConfirmationPage
+from pt_miniscreen.components.confirmation_page import AppConfirmationPage
 from pt_miniscreen.components.scrollable_text_file import ScrollableTextFile
 from pt_miniscreen.pages.root.projects.project import Project
 from pt_miniscreen.pages.root.projects.config import ProjectConfig
@@ -68,7 +68,7 @@ class OverviewProjectPage(EnterableSelectableList):
                     Row,
                     title="Delete",
                     enterable_component=partial(
-                        ConfirmationPage,
+                        AppConfirmationPage,
                         parent=parent,
                         title="Really delete?",
                         confirm_text="Yes",
@@ -123,7 +123,7 @@ class SupportsDeleteAll:
                     Row,
                     title="Delete All",
                     enterable_component=partial(
-                        ConfirmationPage,
+                        AppConfirmationPage,
                         parent=self,
                         title="Really delete?",
                         confirm_text="Yes",

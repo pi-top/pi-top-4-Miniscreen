@@ -24,19 +24,21 @@ logger = logging.getLogger(__name__)
 TITLE_FONT_SIZE = 14
 OPTIONS_FONT_SIZE = 13
 SELECTABLE_LIST_VERTICAL_OFFSET = 5
+PADDING = 5
 
 
-class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigable):
+class ConfirmationPage(Component, Actionable, Navigable):
     def __init__(
         self,
         parent: UpdatableByChild,
-        title: Optional[str],
-        confirm_text: Optional[str],
-        cancel_text: Optional[str],
-        on_confirm: Callable,
-        on_cancel: Optional[Callable],
-        on_confirm_pop_elements: Optional[int],
-        on_cancel_pop_elements: Optional[int],
+        title: Optional[str] = None,
+        font_size: Optional[int] = None,
+        options_font_size: Optional[int] = None,
+        confirm_text: Optional[str] = None,
+        cancel_text: Optional[str] = None,
+        on_confirm: Optional[Callable] = None,
+        on_cancel: Optional[Callable] = None,
+        title_max_height: Optional[int] = None,
         **kwargs,
     ) -> None:
         if title is None:
@@ -45,31 +47,34 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
             confirm_text = "Yes"
         if cancel_text is None:
             cancel_text = "No"
-        if on_confirm_pop_elements is None:
-            on_confirm_pop_elements = 1
-        if on_cancel_pop_elements is None:
-            on_cancel_pop_elements = 1
+        if font_size is None:
+            font_size = TITLE_FONT_SIZE
+        if options_font_size is None:
+            options_font_size = OPTIONS_FONT_SIZE
+        if title_max_height is None:
+            title_max_height = font_size
 
         self.parent_ref = ref(parent)
         self.on_confirm = on_confirm
         self.on_cancel = on_cancel
         self.confirm_text = confirm_text
         self.cancel_text = cancel_text
-        self.on_confirm_pop_elements = on_confirm_pop_elements
-        self.on_cancel_pop_elements = on_cancel_pop_elements
+        self.font_size = font_size
+        self.options_font_size = options_font_size
+        self.title_max_height = title_max_height
 
         self.title = Text(
             text=title,
-            font_size=TITLE_FONT_SIZE,
+            font_size=font_size,
             **kwargs,
         )
         self.selectable_list = SelectableList(
             Rows=[
                 partial(
-                    MarqueeText, text=self.confirm_text, font_size=OPTIONS_FONT_SIZE
+                    MarqueeText, text=self.confirm_text, font_size=options_font_size
                 ),
                 partial(
-                    MarqueeText, text=self.cancel_text, font_size=OPTIONS_FONT_SIZE
+                    MarqueeText, text=self.cancel_text, font_size=options_font_size
                 ),
             ],
             num_visible_rows=2,
@@ -84,44 +89,40 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
         logging.info(
             f"ConfirmationPage.perform_action: user selected '{self.selectable_list.selected_row.text}', executing callback"
         )
-        elements = 0
         if self.selectable_list.selected_row.text == self.confirm_text:
             if callable(self.on_confirm):
                 self.on_confirm()
-            elements = self.on_confirm_pop_elements
         elif self.selectable_list.selected_row.text == self.cancel_text:
             if callable(self.on_cancel):
                 self.on_cancel()
-            elements = self.on_cancel_pop_elements
         else:
             return
 
         if isinstance(self.parent_ref(), UpdatableByChild):
             self.parent_ref().on_child_action()
 
-        self.pop(elements)
-
-    def top_gutter_icon(self):
-        return get_image_file_path("gutter/left_arrow.png")
-
-    def bottom_gutter_icon(self):
-        return get_image_file_path("gutter/tick.png")
-
     def render(self, image):
+        SEPARATOR_HEIGHT = 1
         return apply_layers(
             image,
             [
                 layer(
-                    self.title.render, size=(image.width, TITLE_FONT_SIZE), pos=(0, 0)
+                    self.title.render,
+                    size=(image.width, self.title_max_height),
+                    pos=(0, 0),
                 ),
-                layer(rectangle, size=(image.width, 1), pos=(0, TITLE_FONT_SIZE)),
+                layer(
+                    rectangle,
+                    size=(image.width, SEPARATOR_HEIGHT),
+                    pos=(0, self.title_max_height + 1),
+                ),
                 layer(
                     self.selectable_list.render,
                     size=(
                         image.width,
-                        OPTIONS_FONT_SIZE * 2 + SELECTABLE_LIST_VERTICAL_OFFSET,
+                        2 * self.options_font_size + PADDING,
                     ),
-                    pos=(0, TITLE_FONT_SIZE + SELECTABLE_LIST_VERTICAL_OFFSET),
+                    pos=(0, self.title_max_height + 2 + SEPARATOR_HEIGHT * 2),
                 ),
             ],
         )
@@ -136,3 +137,39 @@ class ConfirmationPage(Component, Actionable, HasGutterIcons, Poppable, Navigabl
 
     def go_top(self):
         pass
+
+
+class AppConfirmationPage(ConfirmationPage, HasGutterIcons, Poppable):
+    def __init__(
+        self,
+        on_confirm_pop_elements: Optional[int] = None,
+        on_cancel_pop_elements: Optional[int] = None,
+        **kwargs,
+    ) -> None:
+        if on_confirm_pop_elements is None:
+            on_confirm_pop_elements = 1
+        if on_cancel_pop_elements is None:
+            on_cancel_pop_elements = 1
+
+        self.on_confirm_pop_elements = on_confirm_pop_elements
+        self.on_cancel_pop_elements = on_cancel_pop_elements
+
+        super().__init__(**kwargs)
+
+    def perform_action(self):
+        super().perform_action()
+
+        if self.selectable_list.selected_row.text == self.confirm_text:
+            elements = self.on_confirm_pop_elements
+        elif self.selectable_list.selected_row.text == self.cancel_text:
+            elements = self.on_cancel_pop_elements
+        else:
+            return
+
+        self.pop(elements)
+
+    def top_gutter_icon(self):
+        return get_image_file_path("gutter/left_arrow.png")
+
+    def bottom_gutter_icon(self):
+        return get_image_file_path("gutter/tick.png")
