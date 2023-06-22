@@ -10,7 +10,7 @@ from pt_miniscreen.components.mixins import UpdatableByChild
 from pt_miniscreen.components.enterable_selectable_list import (
     EnterableSelectableList,
 )
-from pt_miniscreen.components.confirmation_page import ConfirmationPage
+from pt_miniscreen.components.confirmation_page import AppConfirmationPage
 from pt_miniscreen.components.scrollable_text_file import ScrollableTextFile
 from pt_miniscreen.pages.root.projects.project import Project
 from pt_miniscreen.pages.root.projects.config import ProjectConfig
@@ -68,7 +68,7 @@ class OverviewProjectPage(EnterableSelectableList):
                     Row,
                     title="Delete",
                     enterable_component=partial(
-                        ConfirmationPage,
+                        AppConfirmationPage,
                         parent=parent,
                         title="Really delete?",
                         confirm_text="Yes",
@@ -123,7 +123,7 @@ class SupportsDeleteAll:
                     Row,
                     title="Delete All",
                     enterable_component=partial(
-                        ConfirmationPage,
+                        AppConfirmationPage,
                         parent=self,
                         title="Really delete?",
                         confirm_text="Yes",
@@ -231,12 +231,12 @@ def get_nested_directories(
     folder_info: ProjectFolderInfo,
 ) -> List[ProjectFolderInfo]:
     """Returns an array of 'ProjectFolderInfo' objects representing the
-    directories inside 'folder_info'."""
+    directories inside 'folder_info', sorted by date."""
     folders = []
-    for folder in os.listdir(folder_info.folder):
+    for folder in sorted(Path(folder_info.folder).iterdir(), key=os.path.getmtime):
         folders.append(
             ProjectFolderInfo.from_directory(
-                directory=os.path.join(folder_info.folder, folder), title=folder
+                directory=folder.as_posix(), title=folder.stem
             )
         )
     return folders
