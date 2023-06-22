@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.6.0-2) bullseye; urgency=medium
+
+  * Add generic confirmation dialog (#315)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 22 Jun 2023 16:41:29 +0000
+
 pi-top-4-miniscreen (7.6.0-1) bullseye; urgency=medium
 
   * Add project options: view logs & delete (#310)
