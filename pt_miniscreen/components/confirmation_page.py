@@ -71,10 +71,16 @@ class ConfirmationPage(Component, Actionable, Navigable):
         self.selectable_list = SelectableList(
             Rows=[
                 partial(
-                    MarqueeText, text=self.confirm_text, font_size=options_font_size
+                    MarqueeText,
+                    text=self.confirm_text,
+                    font_size=options_font_size,
+                    vertical_align="center",
                 ),
                 partial(
-                    MarqueeText, text=self.cancel_text, font_size=options_font_size
+                    MarqueeText,
+                    text=self.cancel_text,
+                    font_size=options_font_size,
+                    vertical_align="center",
                 ),
             ],
             num_visible_rows=2,
