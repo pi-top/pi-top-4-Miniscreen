@@ -9,6 +9,8 @@ that are essential and / or address common areas of difficulty.
 The App class is used to start and stop the application and show produced images
 on the OLED display. It takes a miniscreen instance and a root Component class.
 
+The App class is a good place to handle button presses and keep global state.
+
 ### Examples
 
 To use the miniscreen instance a new App class should be created that inherits
@@ -27,6 +29,17 @@ class MiniscreenApp(App):
   def when_select_button_released(self):
     self.root.increment()
 ```
+
+In the code above the Root component is called Counter, an example of which can
+be found in the [component examples below](#state). The Counter component
+renders a number to the screen and has an `increment` method that increases the
+number by one. In order to increment when the select button is released we need
+to set the `when_released` callback on the select button, this can be done in
+the `__init__` method. In this case a `when_select_button_released` method is
+set as the `when_released` callback, which then calls `self.root.increment`.
+
+For more information on the miniscreen's button API see the
+[documentation](https://pi-top-pi-top-python-sdk.readthedocs-hosted.com/en/latest/api_pitop_device.html#using-the-miniscreen-s-buttons)
 
 ## Component
 
