@@ -1,5 +1,7 @@
+from functools import partial
 import logging
 from math import ceil
+from os import system
 
 from pitop.battery import Battery
 from pitop.common.sys_info import get_pi_top_ip
@@ -9,6 +11,9 @@ from pt_miniscreen.core.components.image import Image
 from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.core.utils import apply_layers, layer, rectangle
 from pt_miniscreen.utils import get_image_file_path
+from pt_miniscreen.components.mixins import Enterable, HasGutterIcons
+from pt_miniscreen.core.components.marquee_text import MarqueeText
+from pt_miniscreen.pages.root.bluetooth_pairing import BluetoothPairingPage
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +73,15 @@ def offset_pos_for_vertical_center(page_height, height: int) -> int:
     return int((page_height - height) / 2)
 
 
-class OverviewPage(Component):
+def package_is_installed(package_name: str) -> bool:
+    try:
+        system(f"dpkg -l {package_name} > /dev/null 2>&1")
+        return True
+    except Exception:
+        return False
+
+
+class OverviewPageBase(Component):
     def __init__(self, **kwargs):
         super().__init__(**kwargs, initial_state={"capacity_size": get_capacity_size()})
 
@@ -85,7 +98,7 @@ class OverviewPage(Component):
         )
 
         self.ip_text = self.create_child(
-            Text,
+            MarqueeText,
             text=get_ip(),
             get_text=get_ip,
             get_text_interval=3,
@@ -99,6 +112,13 @@ class OverviewPage(Component):
         battery.when_charging = self.update_battery_properties
         battery.when_full = self.update_battery_properties
         battery.when_discharging = self.update_battery_properties
+
+    @property
+    def enterable_component(self):
+        return partial(BluetoothPairingPage)
+
+    def bottom_gutter_icon(self):
+        return get_image_file_path("gutter/bluetooth.png")
 
     def cleanup(self):
         battery.on_capacity_change = None
@@ -126,7 +146,7 @@ class OverviewPage(Component):
         BATTERY_POS = (BATTERY_LEFT, BATTERY_TOP)
         CAPACITY_POS = (CAPACITY_LEFT, CAPACITY_TOP)
         CAPACITY_TEXT_POS = (CAPACITY_TEXT_LEFT, BATTERY_TOP)
-        IP_TEXT_POS = (0, IP_TEXT_TOP)
+        IP_TEXT_POS = (IP_TEXT_LEFT, IP_TEXT_TOP)
 
         return apply_layers(
             image,
@@ -145,3 +165,22 @@ class OverviewPage(Component):
                 ),
             ],
         )
+
+
+class OverviewPageWithBluetooth(OverviewPageBase, Enterable, HasGutterIcons):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def enterable_component(self):
+        return partial(BluetoothPairingPage)
+
+    def bottom_gutter_icon(self):
+        return get_image_file_path("gutter/bluetooth.png")
+
+
+OverviewPage = (
+    OverviewPageWithBluetooth
+    if package_is_installed("further-link")
+    else OverviewPageBase
+)

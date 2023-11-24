@@ -13,6 +13,7 @@ from pt_miniscreen.utils import get_image_file_path
 pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
 
 
+@pytest.fixture(autouse=True)
 def patch_packages():
     modules_to_patch = [
         "pitop",
@@ -25,6 +26,10 @@ def patch_packages():
         "pitop.common.pt_os",
         "pitop.common.ptdm",
         "pitop.common.switch_user",
+        "further_link",
+        "further_link.util",
+        "further_link.util.bluetooth",
+        "further_link.util.bluetooth.utils",
     ]
     for module in modules_to_patch:
         modules[module] = MagicMock()
@@ -106,7 +111,6 @@ def mock_timeouts(timeout):
 
 
 def global_setup(mocker):
-    patch_packages()
     use_test_images(mocker)
     use_test_font(mocker, "pt_miniscreen.utils")
     use_test_font(mocker, "pt_miniscreen.core.components.text")

@@ -13,11 +13,26 @@ def setup(mocker):
         "pt_miniscreen.pages.system.login.is_pi_using_default_password",
         return_value=True,
     )
+    mocker.patch(
+        "pt_miniscreen.pages.root.bluetooth_pairing.get_bluetooth_server_name",
+        return_value="Further-1234",
+    )
+    mocker.patch(
+        "pt_miniscreen.pages.root.bluetooth_pairing.system",
+    )
 
 
 def test_hud_navigation(miniscreen, snapshot):
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+    miniscreen.select_button.release()
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "enter-pairing.png")
+
+    miniscreen.cancel_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "leave-pairing.png")
 
     miniscreen.down_button.release()
     sleep(1)
