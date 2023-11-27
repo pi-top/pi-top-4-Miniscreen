@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.7.0-2) bullseye; urgency=medium
+pi-top-4-miniscreen (7.7.1-1) bullseye; urgency=medium
 
   * docs: improve core button handling explanation (#316)
   * Handle project menu errors when no user home is available (#319)
