@@ -16,7 +16,7 @@ from pt_miniscreen.core.component import Component
 logger = logging.getLogger(__name__)
 
 
-USER_HOME = get_home_directory(user=get_user_using_first_display())
+USER_HOME = get_home_directory(user=get_user_using_first_display()) or ""
 PACKAGE_DIRECTORY = os.path.abspath(f"{__file__}/../../../..")
 
 
