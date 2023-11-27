@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (7.7.1-1) bullseye; urgency=medium
+
+  * docs: improve core button handling explanation (#316)
+  * Handle project menu errors when no user home is available (#319)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 27 Nov 2023 14:28:19 +0000
+
 pi-top-4-miniscreen (7.7.0-1) bullseye; urgency=medium
 
   * Add generic confirmation dialog (#315)
