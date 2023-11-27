@@ -14,17 +14,13 @@ from pitop.common.current_session_info import (
     get_first_display,
     get_user_using_first_display,
 )
-from pitop.common.switch_user import get_home_directory, switch_user
+from pitop.common.switch_user import switch_user
 from pitop.common.ptdm import Message, PTDMSubscribeClient
 from pt_miniscreen.pages.root.projects.config import ProjectConfig
 from pt_miniscreen.pages.root.projects.enums import ProjectExitCondition
 
 
 logger = logging.getLogger(__name__)
-
-
-USER_HOME = get_home_directory(user=get_user_using_first_display())
-PACKAGE_DIRECTORY = os.path.abspath(f"{__file__}/../../..")
 
 
 class Project:

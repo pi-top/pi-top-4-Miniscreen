@@ -1,5 +1,6 @@
 import logging
 from functools import partial
+from pathlib import Path
 
 from pt_miniscreen.components.menu_page import MenuPage
 from pt_miniscreen.pages.root.projects.overview import FolderOverviewList
@@ -29,11 +30,15 @@ class ProjectsMenuPage(MenuPage):
         return partial(
             FolderOverviewList,
             folder_info=[
-                MyProjectsDirectory,
-                FurtherDirectory,
-                PiTop4DemosDirectory,
-                ElectronicsKitDirectory,
-                RoboticsKitDirectory,
+                cls
+                for cls in (
+                    MyProjectsDirectory,
+                    FurtherDirectory,
+                    PiTop4DemosDirectory,
+                    ElectronicsKitDirectory,
+                    RoboticsKitDirectory,
+                )
+                if Path(cls.folder).exists()
             ],
             parent=self,
         )
