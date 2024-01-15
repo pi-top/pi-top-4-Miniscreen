@@ -9,6 +9,7 @@ class SettingsState:
     def __init__(self) -> None:
         self.service_state: Dict = {}
         self.ap_mode_status: Dict = {}
+        self.bluetooth_encryption_enabled = True
         self.reset_status()
 
     def reset_status(self):
@@ -21,6 +22,7 @@ class SettingsState:
         ):
             self.service_state[service] = "Disabled"
         self.ap_mode_status["state"] = "Inactive"
+        self.bluetooth_encryption_enabled = True
 
     def start_service(self, service_to_enable):
         sleep(1)
@@ -52,6 +54,13 @@ class SettingsState:
             self.stop_service("cloudflare_dns")
         else:
             self.start_service("cloudflare_dns")
+
+    def get_bluetooth_gatt_encryption_state(self):
+        return self.bluetooth_encryption_enabled
+
+    def toggle_bluetooth_gatt_encryption_state(self):
+        sleep(1)
+        self.bluetooth_encryption_enabled = not self.bluetooth_encryption_enabled
 
 
 @pytest.fixture(autouse=True)
@@ -102,6 +111,14 @@ def setup(miniscreen, mocker):
     mocker.patch(
         "pt_miniscreen.pages.settings.cloudflare_dns.toggle_cloudflare_dns",
         settings_manager.toggle_cloudflare_dns,
+    )
+    mocker.patch(
+        "pt_miniscreen.pages.settings.bluetooth_encrypted_gatt_toggle_page.toggle_bluetooth_gatt_encryption_state",
+        settings_manager.get_bluetooth_gatt_encryption_state,
+    )
+    mocker.patch(
+        "pt_miniscreen.pages.settings.bluetooth_encrypted_gatt_toggle_page.get_bluetooth_gatt_encryption_state",
+        settings_manager.toggle_bluetooth_gatt_encryption_state,
     )
 
     # enter settings menu
@@ -199,8 +216,36 @@ def test_ap(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
 
 
+def test_encrypted_bluetooth(miniscreen, snapshot):
+    # scroll down to page
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+
+    # enable
+    miniscreen.select_button.release()
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "enabling.png")
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "enabled.png")
+
+    # disable
+    miniscreen.select_button.release()
+    sleep(0.5)
+    snapshot.assert_match(miniscreen.device.display_image, "disabling.png")
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "disabled.png")
+
+
 def test_hdmi_reset(miniscreen, snapshot):
     # scroll down to screen reset
+    miniscreen.down_button.release()
+    sleep(1)
     miniscreen.down_button.release()
     sleep(1)
     miniscreen.down_button.release()
@@ -222,6 +267,8 @@ def test_hdmi_reset(miniscreen, snapshot):
 
 def test_cloudflare_dns(miniscreen, snapshot):
     # scroll down to cloudflare dns
+    miniscreen.down_button.release()
+    sleep(1)
     miniscreen.down_button.release()
     sleep(1)
     miniscreen.down_button.release()

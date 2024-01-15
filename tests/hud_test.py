@@ -15,7 +15,7 @@ def setup(mocker):
     )
     mocker.patch(
         "pt_miniscreen.pages.root.bluetooth_pairing.get_bluetooth_server_name",
-        return_value="Further-1234",
+        return_value="pi-top-1234",
     )
     mocker.patch(
         "pt_miniscreen.pages.root.bluetooth_pairing.system",

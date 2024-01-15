@@ -7,6 +7,10 @@ from pt_miniscreen.pages.settings.display_reset import DisplayResetPage
 from pt_miniscreen.pages.settings.further_link_toggle import FurtherLinkTogglePage
 from pt_miniscreen.pages.settings.ssh_toggle import SSHTogglePage
 from pt_miniscreen.pages.settings.vnc_toggle import VNCTogglePage
+from pt_miniscreen.pages.settings.bluetooth_encrypted_gatt_toggle_page import (
+    BluetoothEncryptedGattTogglePage,
+)
+
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
@@ -24,6 +28,7 @@ class SettingsMenuPage(MenuPage):
                 VNCTogglePage,
                 FurtherLinkTogglePage,
                 APTogglePage,
+                BluetoothEncryptedGattTogglePage,
                 DisplayResetPage,
                 CloudflareDnsPage,
             ],

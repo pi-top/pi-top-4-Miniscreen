@@ -160,3 +160,20 @@ def toggle_cloudflare_dns():
         add_cloudflare_dns()
 
     update_resolvconf_configuration()
+
+
+def get_bluetooth_gatt_encryption_state():
+    state = run_command(
+        "/usr/bin/further-link-bluetooth-encryption", timeout=10
+    ).strip()
+    return "Enabled" if state in ("true", "1") else "Disabled"
+
+
+def toggle_bluetooth_gatt_encryption_state():
+    using_encryption = get_bluetooth_gatt_encryption_state() == "Enabled"
+    run_command(
+        f"sudo /usr/bin/further-link-bluetooth-encryption {'false' if using_encryption else 'true'}",
+        timeout=10,
+    )
+    # restart further-link service to apply changes
+    run_command("sudo systemctl restart further-link.service", timeout=10)
