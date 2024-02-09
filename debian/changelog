@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.7.1-2) bullseye; urgency=medium
+
+  * Access bluetooth pairing from overview page (#318)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 09 Feb 2024 17:44:11 +0000
+
 pi-top-4-miniscreen (7.7.1-1) bullseye; urgency=medium
 
   * docs: improve core button handling explanation (#316)
