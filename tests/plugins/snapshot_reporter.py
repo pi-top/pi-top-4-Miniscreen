@@ -3,11 +3,12 @@ from io import BytesIO
 from os import environ
 
 import pytest
-from imgcat import imgcat as pyimgcat
 from PIL import Image, ImageChops
 
 
 if not environ.get("PITOP_ALT_IMGCAT"):
+    from imgcat import imgcat as pyimgcat
+
     imgcat = pyimgcat
 else:
     # pypi imgcat only supports iTerm2 so for other terminals set

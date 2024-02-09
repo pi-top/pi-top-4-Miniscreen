@@ -97,8 +97,8 @@ class ActionPage(Component, Actionable):
         threading.Thread(target=self._perform_action, daemon=True).start()
 
     def render(self, image):
-        FIRST_COLUMN_POS = 7
-        FIRST_COLUMN_WIDTH = 52
+        FIRST_COLUMN_POS = 5
+        FIRST_COLUMN_WIDTH = 55
         COLUMN_GAP = 8
         SECOND_COLUMN_POS = FIRST_COLUMN_POS + FIRST_COLUMN_WIDTH + COLUMN_GAP
         STATUS_ICON_SIZE = 24

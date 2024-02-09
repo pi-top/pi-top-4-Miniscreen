@@ -40,6 +40,9 @@ class EnterablePageList(PageList, Navigable, Enterable, HasGutterIcons):
         return None
 
     def bottom_gutter_icon(self):
+        if isinstance(self.current_page, HasGutterIcons):
+            return self.current_page.bottom_gutter_icon()
+
         if isinstance(self.current_page, Actionable):
             return get_image_file_path("gutter/tick.png")
 
