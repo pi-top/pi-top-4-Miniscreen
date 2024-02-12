@@ -36,9 +36,9 @@ class List(Component):
             **kwargs,
             initial_state={
                 "Rows": Rows,
-                "num_visible_rows": len(Rows)
-                if num_visible_rows is None
-                else num_visible_rows,
+                "num_visible_rows": (
+                    len(Rows) if num_visible_rows is None else num_visible_rows
+                ),
                 "row_gap": row_gap,
                 "top_row_index": initial_top_row_index,
                 "scrollbar_width": scrollbar_width,

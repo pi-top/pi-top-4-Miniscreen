@@ -34,9 +34,9 @@ class Image(Component):
                 "align": align,
                 "vertical_align": vertical_align,
                 "resize": resize,
-                "resize_resampling": resize_resampling
-                if resize_resampling
-                else BICUBIC,
+                "resize_resampling": (
+                    resize_resampling if resize_resampling else BICUBIC
+                ),
                 **initial_state,
             },
         )
