@@ -1,3 +1,3 @@
-pt-miniscreen: no-manual-page usr/bin/pt-miniscreen
-pt-miniscreen: no-manual-page usr/bin/pt-miniscreen-should-start
-pt-miniscreen: package-supports-alternative-init-but-no-init.d-script lib/systemd/system/pt-miniscreen.service
+pt-miniscreen: no-manual-page [usr/bin/pt-miniscreen]
+pt-miniscreen: no-manual-page [usr/bin/pt-miniscreen-should-start]
+pt-miniscreen: package-supports-alternative-init-but-no-init.d-script [lib/systemd/system/pt-miniscreen.service]
