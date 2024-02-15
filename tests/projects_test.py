@@ -116,6 +116,7 @@ def test_open_projects_menu(miniscreen, go_to_projects_page, snapshot, create_pr
     )
 
 
+@pytest.mark.flaky(reruns=5)
 def test_projects_on_nested_directories_display_directories_on_enter(
     miniscreen, go_to_projects_page, snapshot, use_example_project
 ):

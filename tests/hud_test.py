@@ -22,6 +22,13 @@ def setup(mocker):
     )
 
 
+@pytest.fixture
+def no_bluetooth(mocker):
+    mocker.patch(
+        "pt_miniscreen.pages.root.overview.package_is_installed", lambda _: False
+    )
+
+
 def test_hud_navigation(miniscreen, snapshot):
     sleep(1)
     snapshot.assert_match(miniscreen.device.display_image, "overview.png")
@@ -122,4 +129,14 @@ def test_hud_navigation_on_cancel_button_press(miniscreen, snapshot):
     snapshot.assert_match(miniscreen.device.display_image, "settings.png")
 
     press_cancel_button_and_wait()
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+
+def test_hud_without_bluetooth(no_bluetooth, miniscreen, snapshot):
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "overview.png")
+
+    # pressing the button does nothing
+    miniscreen.select_button.release()
+    sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "overview.png")

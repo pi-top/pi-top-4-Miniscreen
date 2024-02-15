@@ -1,7 +1,6 @@
 from functools import partial
 import logging
 from math import ceil
-from os import system
 
 from pitop.battery import Battery
 from pitop.common.sys_info import get_pi_top_ip
@@ -75,8 +74,11 @@ def offset_pos_for_vertical_center(page_height, height: int) -> int:
 
 def package_is_installed(package_name: str) -> bool:
     try:
-        system(f"dpkg -l {package_name} > /dev/null 2>&1")
-        return True
+        import apt
+
+        cache = apt.Cache()
+        package = cache.get(package_name)
+        return package.is_installed
     except Exception:
         return False
 
@@ -179,8 +181,9 @@ class OverviewPageWithBluetooth(OverviewPageBase, Enterable, HasGutterIcons):
         return get_image_file_path("gutter/bluetooth.png")
 
 
-OverviewPage = (
-    OverviewPageWithBluetooth
-    if package_is_installed("further-link")
-    else OverviewPageBase
-)
+def getOverviewPage():
+    return (
+        OverviewPageWithBluetooth
+        if package_is_installed("further-link")
+        else OverviewPageBase
+    )

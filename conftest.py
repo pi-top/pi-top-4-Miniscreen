@@ -14,7 +14,7 @@ pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
 
 
 @pytest.fixture(autouse=True)
-def patch_packages():
+def patch_packages(mocker):
     modules_to_patch = [
         "pitop",
         "pitop.common.command_runner",
@@ -40,6 +40,10 @@ def patch_packages():
     modules["pitop.common.sys_info"] = sys_info
     modules["pitop.battery"] = battery
     modules["pitop.system.pitop"] = pitop
+
+    mocker.patch(
+        "pt_miniscreen.pages.root.overview.package_is_installed", lambda _: True
+    )
 
 
 def use_test_font(mocker, module):
