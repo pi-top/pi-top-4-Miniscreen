@@ -7,7 +7,11 @@ from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.core.components.image import Image
 from pt_miniscreen.utils import get_image_file_path
 from pt_miniscreen.core.utils import apply_layers, layer, offset_to_center
-from further_link.util.bluetooth.utils import get_bluetooth_server_name
+
+try:
+    from further_link.util.bluetooth.utils import get_bluetooth_server_name
+except ModuleNotFoundError:
+    get_bluetooth_server_name = None
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +54,8 @@ class BluetoothPairingPage(Component, Poppable):
 
     def get_text(self):
         try:
+            if get_bluetooth_server_name is None:
+                return "further-link not installed"
             return f"On Further, connect to {get_bluetooth_server_name()}"
         except Exception as e:
             logging.warning(f"Failed to get bluetooth server name: {e}")
