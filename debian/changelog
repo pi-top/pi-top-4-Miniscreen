@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.8.2-2) bullseye; urgency=medium
+
+  * Use apt module to check for installed packages (#324)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 15 Feb 2024 23:13:30 +0000
+
 pi-top-4-miniscreen (7.8.2-1) bullseye; urgency=medium
 
   * Don't fail if further-link isn't installed (#322)
