@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.8.2-1) bullseye; urgency=medium
+
+  * Don't fail if further-link isn't installed (#322)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 15 Feb 2024 17:42:42 +0000
+
 pi-top-4-miniscreen (7.8.1-1) bullseye; urgency=medium
 
   * Access bluetooth pairing from overview page (#318)
