@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (7.8.2-4) bullseye; urgency=medium
+
+  * Upload all artifacts on release
+  * Update release workflow
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 22 Feb 2024 16:45:48 +0000
+
 pi-top-4-miniscreen (7.8.2-3) bullseye; urgency=medium
 
   * Package for bookworm (#321)
