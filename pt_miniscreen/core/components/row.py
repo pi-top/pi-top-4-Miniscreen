@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def isint(value):
-    type(value) == int
+    isinstance(value, int)
 
 
 class Row(Component):
