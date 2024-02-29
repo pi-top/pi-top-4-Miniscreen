@@ -22,7 +22,7 @@ from pt_miniscreen.components.mixins import (
 )
 from pt_miniscreen.core.utils import apply_layers, layer
 from pt_miniscreen.pages.root.network_menu import NetworkMenuPage
-from pt_miniscreen.pages.root.overview import OverviewPage
+from pt_miniscreen.pages.root.overview import getOverviewPage
 from pt_miniscreen.pages.root.projects import (
     ProjectsMenuPage,
     ProjectPage,
@@ -50,7 +50,7 @@ class RootPageList(EnterablePageList):
     def __init__(self, **kwargs):
         super().__init__(
             Pages=[
-                OverviewPage,
+                getOverviewPage(),
                 SystemMenuPage,
                 NetworkMenuPage,
                 ProjectsMenuPage,
