@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (7.8.2-5) bullseye; urgency=medium
+
+  * Don't use python_version in package dependencies (#329)
+  * [pre-commit.ci] pre-commit autoupdate (#313)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 29 Feb 2024 15:50:09 +0000
+
 pi-top-4-miniscreen (7.8.2-4) bullseye; urgency=medium
 
   * Upload all artifacts on release
