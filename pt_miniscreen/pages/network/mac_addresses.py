@@ -1,6 +1,6 @@
 from functools import partial
 
-import psutil
+from psutil import net_if_addrs, AF_LINK
 
 from pt_miniscreen.components.info_page import InfoPage
 from pt_miniscreen.core.components.marquee_text import MarqueeText
@@ -17,16 +17,15 @@ def iface_mac_address(iface_name: str) -> str:
     txt = ""
 
     try:
-        nics = psutil.net_if_addrs()
+        nics = net_if_addrs()
     except Exception:
         return txt
-
     if iface_name in nics:
         for data in nics[iface_name]:
             if (
                 hasattr(data, "family")
                 and hasattr(data, "address")
-                and data.family == psutil.AF_LINK
+                and data.family == AF_LINK
             ):
                 txt = f"{iface_name_lookup.get(iface_name)}: {data.address}"
                 break
@@ -42,8 +41,20 @@ class MacAddressesPage(InfoPage):
             **kwargs,
             title="MAC addresses",
             Rows=[
-                partial(Row, text=iface_mac_address("wlan0")),
-                partial(Row, text=iface_mac_address("eth0")),
-                partial(Row, text=iface_mac_address("wlan_ap0")),
+                partial(
+                    Row,
+                    text=iface_mac_address("wlan0"),
+                    get_text=lambda: iface_mac_address("wlan0"),
+                ),
+                partial(
+                    Row,
+                    text=iface_mac_address("eth0"),
+                    get_text=lambda: iface_mac_address("eth0"),
+                ),
+                partial(
+                    Row,
+                    text=iface_mac_address("wlan_ap0"),
+                    get_text=lambda: iface_mac_address("wlan_ap0"),
+                ),
             ],
         )
