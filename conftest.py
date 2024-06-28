@@ -191,8 +191,10 @@ def create_component(parent):
 
 @pytest.fixture
 def render():
-    def render(component, size=(128, 64)):
-        image = component.render(Image.new("1", size))
+    def render(component, image=None):
+        if image is None:
+            image = Image.new("1", (128, 64))
+        image = component.render(image)
         img_byte_arr = io.BytesIO()
         image.save(img_byte_arr, format="PNG")
         return img_byte_arr.getvalue()

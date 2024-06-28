@@ -6,7 +6,7 @@ from time import sleep
 from weakref import ref
 
 import pytest
-from PIL import ImageFont
+from PIL import Image, ImageFont
 
 font_dir = f"{path.dirname(path.realpath(__file__))}/fonts"
 vera_dir = f"{font_dir}/ttf-bitstream-vera"
@@ -139,6 +139,19 @@ def test_text_fill(freeze_text, create_marquee_text, render, snapshot):
     # can update fill to hide text again
     component.state.update({"fill": 0})
     snapshot.assert_match(render(component), "no-fill.png")
+
+
+def test_text_on_top_of_image(create_marquee_text, render, snapshot):
+    # create a white base image
+    base_image = Image.new("1", size=(128, 64), color=1)
+
+    # use 'no fill' for text to be visible on top of provided image
+    component = create_marquee_text(text="Test text", fill=0)
+    snapshot.assert_match(render(component, base_image), "text-visible.png")
+
+    # update 'fill' to make text invisible
+    component.state.update({"fill": 1})
+    snapshot.assert_match(render(component, base_image), "text-not-visible.png")
 
 
 def test_font(freeze_text, create_marquee_text, render, snapshot):
