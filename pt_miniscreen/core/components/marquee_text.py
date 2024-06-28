@@ -2,8 +2,6 @@ import logging
 from threading import Event, Thread
 from time import sleep
 
-from PIL import Image
-
 from ..utils import carousel
 from .text import Text
 
@@ -102,8 +100,11 @@ class MarqueeText(Text):
         text_size = self.get_text_size(self.state["text"], self.state["font"])
         offset = self.state["offset"] if self.needs_scrolling else DEFAULT_OFFSET_VALUE
 
+        # crop a section of the provided image to write on top of
+        crop = image.crop((offset, 0, text_size[0], image.height))
+
         image.paste(
-            super().render(Image.new("1", size=(text_size[0], image.height))),
+            super().render(crop),
             (offset, 0),
         )
         return image

@@ -387,7 +387,7 @@ def test_render_exceptions(parent, SpotComponent, render):
         )
 
     try:
-        render(parent.create_child(SpotComponent), size=(0, 64))
+        render(parent.create_child(SpotComponent), Image.new("1", size=(0, 64)))
     except RenderException as e:
         no_width_exception = e
     finally:
@@ -397,7 +397,7 @@ def test_render_exceptions(parent, SpotComponent, render):
         )
 
     try:
-        render(parent.create_child(SpotComponent), size=(128, 0))
+        render(parent.create_child(SpotComponent), Image.new("1", size=(128, 0)))
     except RenderException as e:
         no_height_exception = e
     finally:
