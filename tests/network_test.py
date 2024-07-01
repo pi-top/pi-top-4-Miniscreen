@@ -124,7 +124,7 @@ def test_mac(miniscreen, snapshot, mocker):
 
     snapshot.assert_match(miniscreen.device.display_image, "mac_addresses_no_ap.png")
 
-    # Display AP MAC address
+    # Display AP MAC
     mock_net_if_addrs(with_ap=True)
     sleep(2)
     snapshot.assert_match(miniscreen.device.display_image, "mac_addresses_with_ap.png")
