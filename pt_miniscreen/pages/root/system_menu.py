@@ -8,6 +8,7 @@ from pt_miniscreen.pages.system.memory import MemoryPage
 from pt_miniscreen.pages.system.pt_hardware import PitopHardwarePage
 from pt_miniscreen.pages.system.rpi_hardware import RPiHardwarePage
 from pt_miniscreen.pages.system.software import SoftwarePage
+from pt_miniscreen.pages.system.last_update import LastUpdatePage
 from pt_miniscreen.utils import get_image_file_path
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class SystemMenuPage(MenuPage):
                 BatteryPage,
                 CPUPage,
                 MemoryPage,
+                LastUpdatePage,
                 SoftwarePage,
                 PitopHardwarePage,
                 RPiHardwarePage,

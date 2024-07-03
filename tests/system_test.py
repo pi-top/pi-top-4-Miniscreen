@@ -1,4 +1,5 @@
 from time import sleep
+from unittest.mock import Mock
 
 import pytest
 
@@ -238,8 +239,68 @@ def test_memory(miniscreen, snapshot, memory):
     snapshot.assert_match(miniscreen.device.display_image, "memory-change.png")
 
 
+def test_updates(miniscreen, snapshot, mocker):
+    run_command_mock = Mock(return_value="....")
+    mocker.patch("pt_miniscreen.pages.system.last_update.run_command", run_command_mock)
+
+    has_fw_updates_mock = Mock(return_value=False)
+    mocker.patch(
+        "pt_miniscreen.pages.system.last_update._has_fw_updates", has_fw_updates_mock
+    )
+
+    last_update_date_mock = Mock(return_value=False)
+    mocker.patch(
+        "pt_miniscreen.pages.system.last_update._get_last_update_breadcrumb_mtime",
+        last_update_date_mock,
+    )
+
+    # scroll to updates page
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+    miniscreen.down_button.release()
+    sleep(1)
+
+    snapshot.assert_match(miniscreen.device.display_image, "on_enter.png")
+
+    # Set breadcrumb date
+    last_update_date_mock.return_value = "2024-07-02 12:50"
+
+    # System updates are now available
+    run_command_mock.return_value = """
+Listing... Done
+pt-os-web-portal-desktop/bullseye 0.20.2-1 all [upgradable from: 0.20.2-1]
+pt-os-web-portal/bullseye 0.20.2-1 all [upgradable from: 0.20.2-1]"""
+
+    # Firmware updates are now available
+    has_fw_updates_mock.return_value = True
+
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "updates_available.png")
+
+    # Fail to check for last update breadcrumb date
+    last_update_date_mock.return_value = None
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "no_latest_date.png")
+
+    # No system updates available
+    run_command_mock.return_value = ""
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "no_system_updates.png")
+
+    # No firwmare updates available
+    has_fw_updates_mock.return_value = False
+    sleep(1)
+    snapshot.assert_match(miniscreen.device.display_image, "no_fw_updates.png")
+
+
 def test_software(miniscreen, snapshot):
     # scroll to software page
+    miniscreen.down_button.release()
+    sleep(1)
     miniscreen.down_button.release()
     sleep(1)
     miniscreen.down_button.release()

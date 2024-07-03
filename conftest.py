@@ -19,6 +19,7 @@ def patch_packages(mocker):
         "pitop",
         "pitop.common.command_runner",
         "pitop.common.common_ids",
+        "pitop.common.common_names",
         "pitop.common.current_session_info",
         "pitop.common.configuration_file",
         "pitop.common.firmware_device",
@@ -30,6 +31,8 @@ def patch_packages(mocker):
         "further_link.util",
         "further_link.util.bluetooth",
         "further_link.util.bluetooth.utils",
+        "pt_fw_updater",
+        "pt_fw_updater.utils",
     ]
     for module in modules_to_patch:
         modules[module] = MagicMock()
