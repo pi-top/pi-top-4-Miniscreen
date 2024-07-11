@@ -24,7 +24,7 @@ def get_ip_url():
 
 
 def _get_last_update_breadcrumb_mtime():
-    filename = "/var/lib/pt-os-web-portal/last-update"
+    filename = "/var/lib/pt-miniscreen/last-update"
     try:
         # Find last modified date from breadcrumb
         mtime = Path(filename).stat().st_mtime
