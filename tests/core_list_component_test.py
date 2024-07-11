@@ -70,7 +70,7 @@ def create_rows(ImageRow, CheckeredRow):
 @pytest.fixture
 def create_numbered_rows(NumberedRow):
     def create_numbered_rows(length):
-        return [partial(NumberedRow, text=f"{i+ 1}") for i in range(length)]
+        return [partial(NumberedRow, text=f"{i + 1}") for i in range(length)]
 
     return create_numbered_rows
 
