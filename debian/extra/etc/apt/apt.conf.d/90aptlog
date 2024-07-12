@@ -1,0 +1,4 @@
+# Create breadcrumb to indicate last-update date
+DPkg::Post-Invoke {
+    "mkdir -p /var/lib/pt-miniscreen/ && rm -f /var/lib/pt-miniscreen/last-update && touch /var/lib/pt-miniscreen/last-update";
+};
