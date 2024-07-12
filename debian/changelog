@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.8.2-6) bullseye; urgency=medium
+pi-top-4-miniscreen (7.9.0-1) bullseye; urgency=medium
 
   * MarqueeText renders on top of provided image (#333)
   * Add MAC addresses page in Network menu (#332)
