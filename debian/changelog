@@ -1,3 +1,11 @@
+pi-top-4-miniscreen (7.8.2-6) bullseye; urgency=medium
+
+  * MarqueeText renders on top of provided image (#333)
+  * Add MAC addresses page in Network menu (#332)
+  * Add system & firmware update status in System Menu (#335)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 12 Jul 2024 13:44:11 +0000
+
 pi-top-4-miniscreen (7.8.2-5) bullseye; urgency=medium
 
   * Don't use python_version in package dependencies (#329)
