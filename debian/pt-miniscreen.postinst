@@ -8,8 +8,18 @@ IFS=$'\n\t'
 ###############################################################
 
 case "${1}" in
+  configure)
+    LAST_UPDATE_FOLDER="/var/lib/pt-miniscreen"
+    LAST_UPDATE_FILE="${LAST_UPDATE_FOLDER}/last-update"
+    if [ ! -f "${LAST_UPDATE_FILE}" ]; then
+      echo "Creating last-update breadcrumb..."
+      mkdir -p "${LAST_UPDATE_FOLDER}"
+      touch "${LAST_UPDATE_FILE}"
+    fi
 
-configure | abort-upgrade | abort-remove | abort-deconfigure) ;;
+  ;;
+\
+  abort-upgrade | abort-remove | abort-deconfigure) ;;
 
 \
 	try-restart)

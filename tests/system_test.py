@@ -273,7 +273,8 @@ def test_updates(miniscreen, snapshot, mocker):
     run_command_mock.return_value = """
 Listing... Done
 pt-os-web-portal-desktop/bullseye 0.20.2-1 all [upgradable from: 0.20.2-1]
-pt-os-web-portal/bullseye 0.20.2-1 all [upgradable from: 0.20.2-1]"""
+pt-os-web-portal/bullseye 0.20.2-1 all [upgradable from: 0.20.2-1]
+"""
 
     # Firmware updates are now available
     has_fw_updates_mock.return_value = True

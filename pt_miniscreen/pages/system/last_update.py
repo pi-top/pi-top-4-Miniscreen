@@ -44,7 +44,7 @@ def system_updates_available():
     updates_available = False
     try:
         output = run_command("apt list --upgradable", timeout=10)
-        updates_available = len(output.split("\n")) - 1 > 0
+        updates_available = len(output.strip().split("\n")) - 1 > 0
     except Exception:
         updates_available = False
     if updates_available:
