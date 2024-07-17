@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.9.0-2) bullseye; urgency=medium
+
+  * Create last-update breadcrumb on postinst (#336)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 15 Jul 2024 20:18:21 +0000
+
 pi-top-4-miniscreen (7.9.0-1) bullseye; urgency=medium
 
   * MarqueeText renders on top of provided image (#333)
