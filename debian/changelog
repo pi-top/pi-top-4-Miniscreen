@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (7.9.0-3) bullseye; urgency=medium
+
+  * Don't fail if firmware updater isn't installed (#338)
+  * Don't start systemd service on pi-topCEED  (#340)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 19 Jul 2024 18:41:22 +0000
+
 pi-top-4-miniscreen (7.9.0-2) bullseye; urgency=medium
 
   * Create last-update breadcrumb on postinst (#336)
