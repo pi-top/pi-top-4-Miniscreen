@@ -6,11 +6,6 @@ from pitop.common.firmware_device import FirmwareDevice
 from pitop.common.common_names import FirmwareDeviceName
 from pitop.common.common_ids import FirmwareDeviceID
 from pitop.common.sys_info import get_pi_top_ip
-from pt_fw_updater.utils import (
-    default_firmware_folder,
-    find_latest_firmware,
-    is_valid_fw_object,
-)
 from pt_miniscreen.components.info_page import InfoPage
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 
@@ -53,6 +48,16 @@ def system_updates_available():
 
 
 def _has_fw_updates():
+    try:
+        from pt_fw_updater.utils import (
+            default_firmware_folder,
+            find_latest_firmware,
+            is_valid_fw_object,
+        )
+    except ImportError:
+        # probably running pi-topOS lite ...
+        return False
+
     for device_enum in FirmwareDeviceName:
         device_str = device_enum.name
         path_to_fw_folder = default_firmware_folder(device_str)
