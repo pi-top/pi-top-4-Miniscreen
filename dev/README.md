@@ -30,3 +30,38 @@ This starts the miniscreen with logging to stdout.
 - Syncing takes around a second. You need to wait for it to finish before running.
 
 - Sometimes it helps to stop the running miniscreen `systemctl stop pt-miniscreen.service`
+
+## Tests
+
+We recommend running tests in a docker image. Most of the tests produce images that are compared with
+a base, but sometimes results might be a bit different from machine to machine (e.g.: image might be shifted 1 pixel).
+
+A `Dockerfile` can be found in the `tests` folder to build the image locally.
+We also provide images you can use to run the tests directly.
+
+
+### Using pi-top test runner image
+
+```
+$ docker run \
+    --rm \
+    --volume "$PWD":/src \
+    pitop/pt-miniscreen-test-runner:latest
+```
+
+### Building the image
+
+Build the image by running:
+
+```
+$ docker build -t pt-miniscreen-test-runner tests
+```
+
+Then, run the tests with:
+
+```
+$ docker run \
+    --rm \
+    --volume "$PWD":/src \
+    pt-miniscreen-test-runner
+```
