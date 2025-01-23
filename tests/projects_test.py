@@ -34,8 +34,8 @@ def use_example_project(mocker, tmp_path):
                 copytree(f"{config_file_path}/valid", full_path, dirs_exist_ok=True)
 
         mocker.patch(
-            f"pt_miniscreen.pages.root.projects.utils.{project_info_to_mock}.folder",
-            tmp_path,
+            f"pt_miniscreen.pages.root.projects.utils.{project_info_to_mock}.get_folder",
+            lambda: tmp_path,
         )
 
     yield _create_project
@@ -95,8 +95,8 @@ def create_project(mocker, tmp_path):
 
         mocker.patch.object(
             MyProjectsDirectory,
-            "folder",
-            f"{tmp_path}",
+            "get_folder",
+            lambda: f"{tmp_path}",
         )
 
     yield _create_project
