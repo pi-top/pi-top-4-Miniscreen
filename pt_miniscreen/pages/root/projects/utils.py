@@ -1,5 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
+from typing import Callable
 import logging
 import os
 
@@ -16,7 +17,10 @@ from pt_miniscreen.core.component import Component
 logger = logging.getLogger(__name__)
 
 
-USER_HOME = get_home_directory(user=get_user_using_first_display()) or ""
+def get_user_home_directory():
+    return get_home_directory(user=get_user_using_first_display()) or ""
+
+
 PACKAGE_DIRECTORY = os.path.abspath(f"{__file__}/../../../..")
 
 
@@ -39,7 +43,7 @@ def directory_contains_projects(directory: str, recurse: bool = False) -> bool:
 
 @dataclass
 class ProjectFolderInfo:
-    folder: str
+    get_folder: Callable
     title: str
     exclude_dirs: list
     recurse_search: bool = False
@@ -48,40 +52,55 @@ class ProjectFolderInfo:
     @classmethod
     def from_directory(cls, directory: str, title: str):
         return cls(
-            folder=directory,
+            get_folder=lambda: directory,
             title=title,
             exclude_dirs=[],
             recurse_search=False,
             can_remove_all=True,
         )
 
-
-class MyProjectsDirectory(ProjectFolderInfo):
-    folder = os.path.join(USER_HOME, "Desktop/Projects")
-    exclude_dirs = ["Further"]
-    title = "My Projects"
+    @property
+    def folder(self):
+        return self.get_folder()
 
 
-class FurtherDirectory(ProjectFolderInfo):
-    folder = os.path.join(USER_HOME, "Desktop/Projects/Further")
-    title = "Further"
-    recurse_search = True
-    can_remove_all = True
+MyProjectsDirectory = ProjectFolderInfo(
+    get_folder=lambda: os.path.join(get_user_home_directory(), "Desktop/Projects"),
+    exclude_dirs=["Further"],
+    title="My Projects",
+)
 
 
-class PiTop4DemosDirectory(ProjectFolderInfo):
-    folder = f"{PACKAGE_DIRECTORY}/demo_projects/pi_top_4/"
-    title = "pi-top [4] Demos"
+FurtherDirectory = ProjectFolderInfo(
+    get_folder=lambda: os.path.join(
+        get_user_home_directory(), "Desktop/Projects/Further"
+    ),
+    title="Further",
+    recurse_search=True,
+    can_remove_all=True,
+    exclude_dirs=[],
+)
 
 
-class ElectronicsKitDirectory(ProjectFolderInfo):
-    title = "Electronics Kit"
-    folder = f"{PACKAGE_DIRECTORY}/demo_projects/electronics/"
+PiTop4DemosDirectory = ProjectFolderInfo(
+    get_folder=lambda: f"{PACKAGE_DIRECTORY}/demo_projects/pi_top_4/",
+    title="pi-top [4] Demos",
+    exclude_dirs=[],
+)
 
 
-class RoboticsKitDirectory(ProjectFolderInfo):
-    title = "Robotics Kit"
-    folder = f"{PACKAGE_DIRECTORY}/demo_projects/robotics/"
+ElectronicsKitDirectory = ProjectFolderInfo(
+    title="Electronics Kit",
+    get_folder=lambda: f"{PACKAGE_DIRECTORY}/demo_projects/electronics/",
+    exclude_dirs=[],
+)
+
+
+RoboticsKitDirectory = ProjectFolderInfo(
+    title="Robotics Kit",
+    get_folder=lambda: f"{PACKAGE_DIRECTORY}/demo_projects/robotics/",
+    exclude_dirs=[],
+)
 
 
 class Row(Component, Enterable):
