@@ -1,3 +1,13 @@
+pi-top-4-miniscreen (7.9.0-4) bullseye; urgency=medium
+
+  * Run tests in a docker container (#342)
+  * Updated master workflow files
+  * Updated master workflow files
+  * Get user home everytime project page is accessed
+  * Stack doesn't use negative numbers when cropping
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 23 Jan 2025 20:00:26 +0000
+
 pi-top-4-miniscreen (7.9.0-3) bullseye; urgency=medium
 
   * Don't fail if firmware updater isn't installed (#338)
