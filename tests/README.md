@@ -25,6 +25,7 @@ Then, run the tests with:
 ```
 $ docker run \
     --rm \
+    --platform linux/amd64 \
     --volume "$PWD":/src \
     pt-miniscreen-test-runner
 ```
@@ -35,8 +36,10 @@ Override the entrypoint to access the image using `bash`. Then use `pytest --sna
 
 ```
 $ docker run \
+    -ti \
     --rm \
     --volume "$PWD":/src \
+    --platform linux/amd64 \
     --entrypoint bash \
     pitop/pt-miniscreen-test-runner:latest
 ```

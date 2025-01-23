@@ -169,7 +169,12 @@ class Stack(Component):
             return foreground_layer
 
         # crop foreground so it can be offset to the right by x_position
-        crop_boundaries = (0, 0, image.size[0] - x_position, image.size[1])
+        right_bound = image.size[0] - x_position
+        if right_bound < 0:
+            # Newer versions of PIL have a crop method that will raise an error
+            # if the crop boundaries are invalid.
+            right_bound = 0
+        crop_boundaries = (0, 0, right_bound, image.size[1])
         cropped_foreground_layer = foreground_layer.crop(crop_boundaries)
 
         # only foreground exists if one item on the stack
