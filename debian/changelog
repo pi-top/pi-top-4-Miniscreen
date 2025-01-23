@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.9.0-5) bullseye; urgency=medium
+
+  * Updated master workflow files
+
+ -- pi-top <deb-maintainers@pi-top.com>  Thu, 23 Jan 2025 21:21:38 +0000
+
 pi-top-4-miniscreen (7.9.0-4) bullseye; urgency=medium
 
   * Run tests in a docker container (#342)
