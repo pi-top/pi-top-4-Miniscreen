@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.9.0-6) bullseye; urgency=medium
+
+  * Don't start service on original pi-top
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 24 Jan 2025 14:30:36 +0000
+
 pi-top-4-miniscreen (7.9.0-5) bullseye; urgency=medium
 
   * Updated master workflow files
