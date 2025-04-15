@@ -33,6 +33,12 @@ class LogsPage(ScrollableTextFile):
     def __init__(self, project_config, **kwargs) -> None:
         super().__init__(path=project_config.logfile, **kwargs)
 
+    def bottom_gutter_icon(self):
+        return None
+
+    def top_gutter_icon(self):
+        return None
+
 
 class OverviewProjectPage(EnterableSelectableList):
     animate_enterable_operation = False

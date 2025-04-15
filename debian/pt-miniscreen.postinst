@@ -11,6 +11,20 @@ case "${1}" in
   configure)
     LAST_UPDATE_FOLDER="/var/lib/pt-miniscreen"
     LAST_UPDATE_FILE="${LAST_UPDATE_FOLDER}/last-update"
+    STATE_FILE="${LAST_UPDATE_FOLDER}/state.cfg"
+
+    if [ ! -z "$2" ]; then
+	  # Upgrading from a previous version...
+      if [ ! -f "${STATE_FILE}" ]; then
+        # Creating state file to avoid running the welcome app
+		mkdir -p "${LAST_UPDATE_FOLDER}"
+        cat > "${STATE_FILE}" << EOL
+[app]
+first_boot = false
+EOL
+      fi
+    fi
+
     if [ ! -f "${LAST_UPDATE_FILE}" ]; then
       echo "Creating last-update breadcrumb..."
       mkdir -p "${LAST_UPDATE_FOLDER}"

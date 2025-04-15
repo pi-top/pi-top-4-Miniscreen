@@ -6,6 +6,7 @@ from pt_miniscreen.utils import ButtonEvents
 
 from pitop.system.pitop import Pitop
 
+
 from .core import App as BaseApp
 from .root import RootComponent
 
@@ -16,12 +17,14 @@ class App(BaseApp):
     DIMMING_TIMEOUT = 20
     SCREENSAVER_TIMEOUT = 20
 
-    def __init__(self):
-        logger.debug("Setting ENV VAR to use miniscreen as system...")
-        environ["PT_MINISCREEN_SYSTEM"] = "1"
-
-        logger.debug("Initializing miniscreen...")
-        self.miniscreen = Pitop().miniscreen
+    def __init__(self, miniscreen=None):
+        self.miniscreen = miniscreen
+        if miniscreen is None:
+            logger.debug("Setting ENV VAR to use miniscreen as system...")
+            environ["PT_MINISCREEN_SYSTEM"] = "1"
+            logger.debug("Initializing miniscreen...")
+            self.miniscreen = Pitop().miniscreen
+        assert self.miniscreen is not None
 
         logger.debug("Initialising app...")
 
@@ -147,7 +150,7 @@ class App(BaseApp):
 
     @property
     def user_has_control(self) -> bool:
-        return self.miniscreen.is_active
+        return self.miniscreen is not None and self.miniscreen.is_active
 
     def start_screensaver_timer(self):
         self.screensaver_timer = Timer(
