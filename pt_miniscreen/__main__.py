@@ -5,11 +5,12 @@ import click
 import click_logging
 from pitop.system.pitop import Pitop
 from pitop.common.pt_os import is_pi_top_os
+from pitop.common.state_manager import StateManager
 
 
 from .app import App
 from .welcome.app import WelcomeApp
-from .state import StateManager
+
 
 logger = logging.getLogger()
 click_logging.basic_config(logger)
