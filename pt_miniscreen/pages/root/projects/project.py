@@ -134,13 +134,13 @@ class Project:
             timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
 
             def on_cancel_button_pressed():
-                nonlocal timer
+                nonlocal timer  # noqa: F824
                 timer.cancel()
                 timer = Timer(CANCEL_BUTTON_PRESS_TIME, self.stop)
                 timer.start()
 
             def on_cancel_button_release():
-                nonlocal timer
+                nonlocal timer  # noqa: F824
                 timer.cancel()
 
             event_callback = {
