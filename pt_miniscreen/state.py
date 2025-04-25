@@ -1,45 +1,66 @@
-import logging
 from configparser import ConfigParser
 from os import environ
 from pathlib import Path
 from threading import Lock
-from typing import Optional
+from typing import Dict, Set
 
 
 class StateManager:
-    _instance = None
-    _initialized = False
+    _instances: Dict[str, "StateManager"] = {}
+    _initialized: Set[str] = set()
 
-    def __new__(cls, package_name: str, testing: Optional[bool] = None):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        # python will automatically call __init__ after __new__
-        return cls._instance
+    def __new__(cls, name: str):
+        if name not in cls._instances:
+            cls._instances[name] = super().__new__(cls)
+        return cls._instances[name]
 
-    def __init__(self, package_name: str, testing: Optional[bool] = None):
-        # Skip initialization if already done
-        if StateManager._initialized:
+    def __init__(self, name: str):
+        # Skip initialization if already done for this package
+        if name in StateManager._initialized:
             return
 
-        if testing is None:
-            testing = environ.get("TESTING", "") == "1"
-
-        state_file_dir = "/tmp" if testing else "/var/lib"
-        self.state_file_path = f"{state_file_dir}/{package_name}/state.cfg"
-        self.config_parser = ConfigParser()
-        self.lock = Lock()
+        self.name = name
 
         # Initialize state file
-        path = Path(self.state_file_path)
+        path = Path(self.path)
         if not path.exists():
-            logging.info(
-                f"State file {self.state_file_path} does not exist, creating it..."
-            )
             Path(path.parent).mkdir(parents=True, exist_ok=True)
             path.touch()
 
-        self.config_parser.read(self.state_file_path)
-        StateManager._initialized = True
+        self.config_parser = ConfigParser()
+        self.config_parser.read(self.path)
+
+        self.lock = Lock()
+        StateManager._initialized.add(name)
+
+    @staticmethod
+    def exists(name: str) -> bool:
+        return Path(StateManager.get_file_path(name)).exists()
+
+    @staticmethod
+    def folder(name: str) -> str:
+        testing = environ.get("TESTING", "") == "1"
+        base = "/tmp" if testing else "/var/lib"
+        return f"{base}/{name}"
+
+    @staticmethod
+    def get_file_path(name: str) -> str:
+        return f"{StateManager.folder(name)}/state.cfg"
+
+    @property
+    def path(self) -> str:
+        return StateManager.get_file_path(self.name)
+
+    def _cleanup(self):
+        if hasattr(self, "name"):
+            StateManager._initialized.discard(self.name)
+            StateManager._instances.pop(self.name, None)
+
+    def __del__(self):
+        self._cleanup()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._cleanup()
 
     def get(self, section: str, key: str, fallback=None):
         with self.lock:
@@ -52,6 +73,10 @@ class StateManager:
             return val
 
     def set(self, section: str, key: str, value):
+        for data_to_validate in [section, key]:
+            if not isinstance(data_to_validate, str) or len(data_to_validate) == 0:
+                raise ValueError("Section and key must be non-empty strings")
+
         with self.lock:
             try:
                 if not self.config_parser.has_section(section):
@@ -72,12 +97,22 @@ class StateManager:
                 raise
             self._save()
 
-    def _save(self):
-        with open(self.state_file_path, "w") as f:
-            self.config_parser.write(f)
+    def remove_section(self, section: str):
+        if section not in self.config_parser.sections():
+            return
+        with self.lock:
+            self.config_parser.remove_section(section)
+            self._save()
 
-    @classmethod
-    def exists(cls, package_name: str, testing: Optional[bool] = None):
-        state_file_dir = "/tmp" if testing else "/var/lib"
-        state_file_path = f"{state_file_dir}/{package_name}/state.cfg"
-        return Path(state_file_path).exists()
+    def remove_key(self, section: str, key: str):
+        if section not in self.config_parser.sections():
+            return
+        if key not in self.config_parser[section]:
+            return
+        with self.lock:
+            self.config_parser.remove_option(section, key)
+            self._save()
+
+    def _save(self):
+        with open(self.path, "w") as f:
+            self.config_parser.write(f)

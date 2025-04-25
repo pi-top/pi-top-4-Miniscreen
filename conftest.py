@@ -1,6 +1,6 @@
 import io
 from itertools import repeat
-from os import path
+from os import path, environ
 from pathlib import Path
 from sys import modules
 from unittest.mock import MagicMock, Mock
@@ -11,6 +11,11 @@ from PIL import Image, ImageFont
 from pt_miniscreen.utils import get_image_file_path
 
 pytest_plugins = ("pytest_snapshot", "tests.plugins.snapshot_reporter")
+
+
+@pytest.fixture(autouse=True)
+def set_environment():
+    environ["TESTING"] = "1"
 
 
 @pytest.fixture(autouse=True)

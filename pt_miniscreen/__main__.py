@@ -37,14 +37,14 @@ def should_run_welcome_app():
         is_pi_top_os()
         # read the first_boot value in the state file
         and (
-            StateManager(package_name="pt-miniscreen").get("app", "first_boot", "true")
+            StateManager(name="pt-miniscreen").get("app", "first_boot", "true")
             == "true"
         )
     )
 
 
 def set_first_boot_done():
-    StateManager(package_name="pt-miniscreen").set("app", "first_boot", "false")
+    StateManager(name="pt-miniscreen").set("app", "first_boot", "false")
 
 
 @click.command()
