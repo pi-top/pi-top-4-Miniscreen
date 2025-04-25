@@ -86,17 +86,6 @@ class StateManager:
                 raise
             self._save()
 
-    def remove(self, section: str, key: str = ""):
-        with self.lock:
-            try:
-                if key and self.config_parser.has_option(section, key):
-                    self.config_parser.remove_option(section, key)
-                elif len(key) == 0 and self.config_parser.has_section(section):
-                    self.config_parser.remove_section(section)
-            except Exception:
-                raise
-            self._save()
-
     def remove_section(self, section: str):
         if section not in self.config_parser.sections():
             return
