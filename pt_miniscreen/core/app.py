@@ -34,8 +34,9 @@ class App:
         self.display()
 
     def stop(self, error=None):
-        self.root._cleanup()
-        self.root = None
+        if self.root:
+            self.root._cleanup()
+            self.root = None
         self._stop_error = error
         self._stop_event.set()
 

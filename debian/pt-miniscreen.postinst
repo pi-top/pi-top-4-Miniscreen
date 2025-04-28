@@ -8,36 +8,47 @@ IFS=$'\n\t'
 ###############################################################
 
 case "${1}" in
-  configure)
-    LAST_UPDATE_FOLDER="/var/lib/pt-miniscreen"
-    LAST_UPDATE_FILE="${LAST_UPDATE_FOLDER}/last-update"
-    if [ ! -f "${LAST_UPDATE_FILE}" ]; then
-      echo "Creating last-update breadcrumb..."
+configure)
+  LAST_UPDATE_FOLDER="/var/lib/pt-miniscreen"
+  LAST_UPDATE_FILE="${LAST_UPDATE_FOLDER}/last-update"
+  STATE_FILE="${LAST_UPDATE_FOLDER}/state.cfg"
+
+  if [ ! -z "$2" ]; then
+    # Upgrading from a previous version...
+    if [ ! -f "${STATE_FILE}" ]; then
+      # Creating state file to avoid running the welcome app
       mkdir -p "${LAST_UPDATE_FOLDER}"
-      touch "${LAST_UPDATE_FILE}"
+      cat >"${STATE_FILE}" <<EOL
+[app]
+first_boot = false
+EOL
     fi
+  fi
+
+  if [ ! -f "${LAST_UPDATE_FILE}" ]; then
+    echo "Creating last-update breadcrumb..."
+    mkdir -p "${LAST_UPDATE_FOLDER}"
+    touch "${LAST_UPDATE_FILE}"
+  fi
 
   ;;
-\
-  abort-upgrade | abort-remove | abort-deconfigure) ;;
 
-\
-	try-restart)
-	$0 status >/dev/null 2>&1 && $0 restart
-	;;
+abort-upgrade | abort-remove | abort-deconfigure) ;;
 
-\
-	triggered)
-	# Try to restart service
-	invoke-rc.d pt-miniscreen try-restart || true
-	exit 0
-	;;
+try-restart)
+  $0 status >/dev/null 2>&1 && $0 restart
+  ;;
 
-\
-	*)
-	echo "postinst called with unknown argument \`$1'" >&2
-	exit 1
-	;;
+triggered)
+  # Try to restart service
+  invoke-rc.d pt-miniscreen try-restart || true
+  exit 0
+  ;;
+
+*)
+  echo "postinst called with unknown argument \`$1'" >&2
+  exit 1
+  ;;
 esac
 
 #DEBHELPER#
