@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.9.0-7) bullseye; urgency=medium
+pi-top-4-miniscreen (7.10.0-1) bullseye; urgency=medium
 
   * Add 'welcome' app for first boot (#347)
 
