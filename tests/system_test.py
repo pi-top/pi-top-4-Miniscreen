@@ -180,6 +180,16 @@ def test_login(miniscreen, snapshot, user):
     snapshot.assert_match(miniscreen.device.display_image, "custom.png")
 
 
+def test_login_env_override(miniscreen, snapshot, user, mocker):
+    # Test PT_MINISCREEN_USER override
+    mocker.patch.dict(
+        "os.environ",
+        {"PT_MINISCREEN_USER": "customuser", "PT_MINISCREEN_PASS": "custompass"},
+    )
+    sleep(2)
+    snapshot.assert_match(miniscreen.device.display_image, "env_both_override.png")
+
+
 def test_battery(battery, miniscreen, snapshot):
     # scroll to battery page
     miniscreen.down_button.release()
