@@ -1,3 +1,10 @@
+pi-top-4-miniscreen (7.10.0-2) bullseye; urgency=medium
+
+  * feat: Allow custom username and password in the pi-top mini screen (#352)
+  * feat: adding apache guacamole to the mini screen if the feature is enabled. (#354)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 10 Jul 2026 16:02:09 +0000
+
 pi-top-4-miniscreen (7.10.0-1) bullseye; urgency=medium
 
   * Add 'welcome' app for first boot (#347)
