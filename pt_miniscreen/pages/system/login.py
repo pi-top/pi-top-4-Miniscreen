@@ -1,5 +1,6 @@
 from functools import partial
 from getpass import getuser
+import os
 
 from pitop.common.pt_os import is_pi_using_default_password
 
@@ -9,11 +10,21 @@ from pt_miniscreen.utils import get_image_file_path
 
 
 def get_user():
+    # Check for override env var first
+    override_user = os.environ.get("PT_MINISCREEN_USER")
+    if override_user:
+        return override_user
+
     user = getuser()
     return "pi" if user == "root" else user
 
 
 def get_password():
+    # Check for override env var first
+    override_pass = os.environ.get("PT_MINISCREEN_PASS")
+    if override_pass:
+        return override_pass
+
     return "pi-top" if is_pi_using_default_password() is True else "********"
 
 
