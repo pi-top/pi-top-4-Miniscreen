@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [dependency-groups]
 dev = [
     "setuptools==57.5.0",
-    "coverage==7.14.2",
+    "coverage==7.15.0",
     "execnet==2.1.2",
     "imgcat==0.6.0",
     "iniconfig==2.3.0",
