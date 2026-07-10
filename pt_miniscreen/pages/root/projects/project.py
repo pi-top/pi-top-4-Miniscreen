@@ -42,6 +42,11 @@ class Project:
         if first_display is not None:
             env["DISPLAY"] = first_display
 
+        venv = env.get("PI_TOP_VENV")
+        if venv and os.path.isfile(os.path.join(venv, "bin", "python3")):
+            env["VIRTUAL_ENV"] = venv
+            env["PATH"] = f"{venv}/bin:{env.get('PATH', '')}"
+
         return env
 
     def __enter__(self):

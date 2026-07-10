@@ -49,6 +49,23 @@ def change_further_link_enabled_state():
     __change_service_enabled_state("further-link.service")
 
 
+GUACAMOLE_SERVICES = ("guacd.service", "tomcat9.service")
+
+
+def get_guacamole_enabled_state():
+    states = [get_systemd_enabled_state(svc) for svc in GUACAMOLE_SERVICES]
+    return "Enabled" if all(s == "Enabled" for s in states) else "Disabled"
+
+
+def change_guacamole_enabled_state():
+    if get_guacamole_enabled_state() == "Enabled":
+        for svc in GUACAMOLE_SERVICES:
+            __disable_and_stop_systemd_service(svc)
+    else:
+        for svc in GUACAMOLE_SERVICES:
+            __enable_and_start_systemd_service(svc)
+
+
 def change_wifi_mode():
     if get_wifi_ap_state() == "Enabled":
         run_command("/usr/bin/wifi-ap-sta stop", timeout=30)
