@@ -6,7 +6,6 @@ from pt_miniscreen.components.mixins import HasGutterIcons
 from pt_miniscreen.core.component import Component
 from pt_miniscreen.utils import VIEWPORT_HEIGHT
 
-
 logger = logging.getLogger(__name__)
 
 
