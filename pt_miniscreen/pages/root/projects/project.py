@@ -19,7 +19,6 @@ from pitop.common.ptdm import Message, PTDMSubscribeClient
 from pt_miniscreen.pages.root.projects.config import ProjectConfig
 from pt_miniscreen.pages.root.projects.enums import ProjectExitCondition
 
-
 logger = logging.getLogger(__name__)
 
 
