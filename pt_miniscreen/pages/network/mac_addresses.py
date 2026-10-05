@@ -5,7 +5,6 @@ from psutil import net_if_addrs, AF_LINK
 from pt_miniscreen.components.info_page import InfoPage
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 
-
 iface_name_lookup = {
     "eth0": "Eth",
     "wlan0": "WiFi",
