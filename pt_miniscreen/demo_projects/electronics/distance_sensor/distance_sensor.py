@@ -3,7 +3,6 @@ from time import sleep
 from pitop.pma import UltrasonicSensor
 from pitop.miniscreen import Miniscreen
 
-
 distance_sensor = UltrasonicSensor("D3", threshold_distance=0.2)
 miniscreen = Miniscreen()
 

@@ -5,7 +5,6 @@ from os import environ
 import pytest
 from PIL import Image, ImageChops
 
-
 if not environ.get("PITOP_ALT_IMGCAT"):
     from imgcat import imgcat as pyimgcat
 
