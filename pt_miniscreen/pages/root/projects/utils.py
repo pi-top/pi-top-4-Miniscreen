@@ -13,7 +13,6 @@ from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.components.mixins import Enterable
 from pt_miniscreen.core.component import Component
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -5,7 +5,6 @@ from pt_miniscreen.utils import VIEWPORT_HEIGHT, TextFile, text_to_image
 import PIL.Image
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
