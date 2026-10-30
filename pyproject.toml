@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools >= 52.0.0", "wheel"]
+requires = ["setuptools >= 83.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
-    "setuptools==57.5.0",
+    "setuptools==83.0.0",
     "coverage==7.14.2",
     "execnet==2.1.2",
     "imgcat==0.6.0",
