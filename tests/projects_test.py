@@ -6,7 +6,6 @@ from time import sleep
 import pytest
 from testpath import MockCommand
 
-
 config_file_path = f"{path.dirname(path.realpath(__file__))}/projects/"
 
 
