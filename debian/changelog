@@ -1,3 +1,12 @@
+pi-top-4-miniscreen (7.10.0-3) bullseye; urgency=medium
+
+  * feat: Allow custom username and password in the pi-top mini screen (#352)
+  * feat: adding apache guacamole to the mini screen if the feature is enabled. (#354)
+  * New changelog entry: v7.10.0-2 (#355)
+  * Regenerate Debian workflows: drop bullseye (#360)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 30 Oct 2026 16:23:23 +0000
+
 pi-top-4-miniscreen (7.10.0-2) bullseye; urgency=medium
 
   * feat: Allow custom username and password in the pi-top mini screen (#352)
