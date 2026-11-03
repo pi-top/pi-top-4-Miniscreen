@@ -100,7 +100,8 @@ def test_project_cls_callbacks_for_exit_condition_hold_x(
 
     on_cancel_button_press()
     assert project.stop.call_count == 0
-    sleep(3)
+    # hold past the 3s threshold; releasing at exactly 3s races the timer
+    sleep(3.5)
     on_cancel_button_release()
     assert project.stop.call_count == 1
 
