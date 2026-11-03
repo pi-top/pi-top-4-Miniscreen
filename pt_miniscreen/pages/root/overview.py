@@ -110,7 +110,8 @@ class OverviewPageBase(Component):
         )
 
         # setup battery callbacks
-        battery.on_capacity_change = lambda _: self.update_battery_properties()
+        self._on_capacity_change = lambda _: self.update_battery_properties()
+        battery.on_capacity_change = self._on_capacity_change
         battery.when_charging = self.update_battery_properties
         battery.when_full = self.update_battery_properties
         battery.when_discharging = self.update_battery_properties
@@ -123,10 +124,12 @@ class OverviewPageBase(Component):
         return get_image_file_path("gutter/bluetooth.png")
 
     def cleanup(self):
-        battery.on_capacity_change = None
-        battery.when_charging = None
-        battery.when_full = None
-        battery.when_discharging = None
+        # battery is shared, so only clear callbacks a newer page hasn't replaced
+        if battery.on_capacity_change is self._on_capacity_change:
+            battery.on_capacity_change = None
+        for event in ("when_charging", "when_full", "when_discharging"):
+            if getattr(battery, event) == self.update_battery_properties:
+                setattr(battery, event, None)
 
     def update_battery_properties(self):
         self.capacity_text.state.update({"text": get_capacity_text()})
