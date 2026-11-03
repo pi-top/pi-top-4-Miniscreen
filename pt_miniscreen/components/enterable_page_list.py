@@ -9,7 +9,6 @@ from pt_miniscreen.components.mixins import (
 from pt_miniscreen.core.components.page_list import PageList
 from pt_miniscreen.utils import get_image_file_path
 
-
 logger = logging.getLogger(__name__)
 
 

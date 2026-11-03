@@ -11,7 +11,6 @@ from pt_miniscreen.core.component import Component
 from pt_miniscreen.core.components.text import Text
 from pt_miniscreen.pages.root.projects.config import ProjectConfig
 
-
 logger = logging.getLogger(__name__)
 
 
