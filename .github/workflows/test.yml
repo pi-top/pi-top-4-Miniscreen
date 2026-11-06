@@ -21,6 +21,7 @@ jobs:
           docker run \
             --rm \
             --volume "$PWD":/src \
+            --entrypoint /src/tests/scripts/run.sh \
             ${{ env.IMAGE_NAME }}
 
       - name: Upload coverage reports to Codecov
