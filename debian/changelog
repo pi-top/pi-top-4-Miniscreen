@@ -1,3 +1,21 @@
+pi-top-4-miniscreen (7.10.0-3) bullseye; urgency=medium
+
+  * feat: Allow custom username and password in the pi-top mini screen (#352)
+  * feat: adding apache guacamole to the mini screen if the feature is enabled. (#354)
+  * New changelog entry: v7.10.0-2 (#355)
+  * Regenerate Debian workflows: drop bullseye (#360)
+  * Remove debian/bullseye-overrides (#362)
+  * Create releases with the workflow's own token (#363)
+  * Read the package version with importlib.metadata (#364)
+  * Fix the two failing Miniscreen tests (#365)
+  * Only clear battery callbacks the overview page still owns (#366)
+  * Move CodeQL to codeql-action v4 and drop the schedule (#367)
+  * Remove the Dependabot config (#368)
+  * Test against the bookworm Pillow and psutil devices run (#369)
+  * Use bookworm apt output in system test fixture (#373)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 06 Nov 2026 15:20:30 +0000
+
 pi-top-4-miniscreen (7.10.0-2) bullseye; urgency=medium
 
   * feat: Allow custom username and password in the pi-top mini screen (#352)
