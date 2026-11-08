@@ -11,7 +11,6 @@ from pitop.common.state_manager import StateManager
 from .app import App
 from .welcome.app import WelcomeApp
 
-
 logger = logging.getLogger()
 click_logging.basic_config(logger)
 
