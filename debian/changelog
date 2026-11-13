@@ -1,3 +1,9 @@
+pi-top-4-miniscreen (7.10.1-1) bookworm; urgency=medium
+
+  * Allow running the changelog bump by hand (#374)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 13 Nov 2026 14:13:59 +0000
+
 pi-top-4-miniscreen (7.10.0-3) bullseye; urgency=medium
 
   * feat: Allow custom username and password in the pi-top mini screen (#352)
