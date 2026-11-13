@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.10.1-1) bookworm; urgency=medium
+pi-top-4-miniscreen (7.11.0-1) bookworm; urgency=medium
 
   * Allow running the changelog bump by hand (#374)
 
