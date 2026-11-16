@@ -25,7 +25,6 @@ from pt_miniscreen.pages.root.projects.utils import (
 )
 from pt_miniscreen.utils import get_image_file_path, isclass
 
-
 logger = logging.getLogger(__name__)
 
 
