@@ -125,4 +125,3 @@ def test_popup_keeps_the_screen_awake(app_with_short_timeouts, portal, mocker):
     mocker.patch.object(app, "WIFI_SIGN_IN_KEEP_AWAKE", 0)
     sleep(3)
     assert app.dimmed or app.root.is_screensaver_running
-

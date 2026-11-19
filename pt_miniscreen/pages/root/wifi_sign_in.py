@@ -89,7 +89,9 @@ class WifiSignInPopup(Component, Actionable, HasGutterIcons):
         self.text.state.update(
             {
                 "text": get_popup_text(
-                    self.state["hotspot"], self.state["signed_in"], self.state["starting"]
+                    self.state["hotspot"],
+                    self.state["signed_in"],
+                    self.state["starting"],
                 )
             }
         )

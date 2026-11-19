@@ -194,16 +194,18 @@ class OverviewPageBase(Component, Enterable, HasGutterIcons):
                     size=CAPACITY_TEXT_SIZE,
                     pos=CAPACITY_TEXT_POS,
                 ),
-                layer(
-                    self.sign_in_hint.render,
-                    size=(image.width, image.height - HINT_TOP),
-                    pos=(0, HINT_TOP),
-                )
-                if self.state["behind_portal"]
-                else layer(
-                    self.ip_text.render,
-                    size=(image.width, IP_FONT_SIZE),
-                    pos=IP_TEXT_POS,
+                (
+                    layer(
+                        self.sign_in_hint.render,
+                        size=(image.width, image.height - HINT_TOP),
+                        pos=(0, HINT_TOP),
+                    )
+                    if self.state["behind_portal"]
+                    else layer(
+                        self.ip_text.render,
+                        size=(image.width, IP_FONT_SIZE),
+                        pos=IP_TEXT_POS,
+                    )
                 ),
             ],
         )
