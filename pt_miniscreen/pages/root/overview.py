@@ -12,6 +12,8 @@ from pt_miniscreen.core.utils import apply_layers, layer, rectangle
 from pt_miniscreen.utils import get_image_file_path
 from pt_miniscreen.components.mixins import Enterable, HasGutterIcons
 from pt_miniscreen.core.components.marquee_text import MarqueeText
+from pt_miniscreen.network_status import is_behind_portal
+from pt_miniscreen.pages.root.wifi_sign_in import WifiSignInPopup
 from pt_miniscreen.pages.root.bluetooth_pairing import BluetoothPairingPage
 
 logger = logging.getLogger(__name__)
@@ -61,6 +63,10 @@ def get_battery_image_path():
     )
 
 
+SIGN_IN_HINT = "Press O to\nset up Wi-Fi"
+SIGN_IN_HINT_MARGIN_TOP = 4
+
+
 def get_ip():
     ip_address = get_pi_top_ip()
     if len(ip_address) > 0:
@@ -83,9 +89,15 @@ def package_is_installed(package_name: str) -> bool:
         return False
 
 
-class OverviewPageBase(Component):
+class OverviewPageBase(Component, Enterable, HasGutterIcons):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs, initial_state={"capacity_size": get_capacity_size()})
+        super().__init__(
+            **kwargs,
+            initial_state={
+                "capacity_size": get_capacity_size(),
+                "behind_portal": is_behind_portal(),
+            },
+        )
 
         self.battery_image = self.create_child(
             Image,
@@ -109,6 +121,17 @@ class OverviewPageBase(Component):
             vertical_align="bottom",
         )
 
+        # replaces the IP address while the Wi-Fi needs a sign-in
+        self.sign_in_hint = self.create_child(
+            Text,
+            text=SIGN_IN_HINT,
+            font_size=IP_FONT_SIZE,
+            align="center",
+            spacing=1,
+            wrap=False,
+        )
+        self.create_interval(self.update_behind_portal, 3)
+
         # setup battery callbacks
         self._on_capacity_change = lambda _: self.update_battery_properties()
         battery.on_capacity_change = self._on_capacity_change
@@ -118,10 +141,14 @@ class OverviewPageBase(Component):
 
     @property
     def enterable_component(self):
-        return partial(BluetoothPairingPage)
+        # O opens the Wi-Fi sign-in steps again after they were closed
+        return WifiSignInPopup if is_behind_portal() else None
+
+    def top_gutter_icon(self):
+        return None
 
     def bottom_gutter_icon(self):
-        return get_image_file_path("gutter/bluetooth.png")
+        return get_image_file_path("gutter/tick.png") if is_behind_portal() else None
 
     def cleanup(self):
         # battery is shared, so only clear callbacks a newer page hasn't replaced
@@ -130,6 +157,9 @@ class OverviewPageBase(Component):
         for event in ("when_charging", "when_full", "when_discharging"):
             if getattr(battery, event) == self.update_battery_properties:
                 setattr(battery, event, None)
+
+    def update_behind_portal(self):
+        self.state.update({"behind_portal": is_behind_portal()})
 
     def update_battery_properties(self):
         self.capacity_text.state.update({"text": get_capacity_text()})
@@ -147,6 +177,7 @@ class OverviewPageBase(Component):
             + BATTERY_OFFSET
         )
         IP_TEXT_TOP = BATTERY_TOP + BATTERY_SIZE[1] + ROW_SPACING
+        HINT_TOP = BATTERY_TOP + BATTERY_SIZE[1] + SIGN_IN_HINT_MARGIN_TOP
 
         BATTERY_POS = (BATTERY_LEFT, BATTERY_TOP)
         CAPACITY_POS = (CAPACITY_LEFT, CAPACITY_TOP)
@@ -164,6 +195,12 @@ class OverviewPageBase(Component):
                     pos=CAPACITY_TEXT_POS,
                 ),
                 layer(
+                    self.sign_in_hint.render,
+                    size=(image.width, image.height - HINT_TOP),
+                    pos=(0, HINT_TOP),
+                )
+                if self.state["behind_portal"]
+                else layer(
                     self.ip_text.render,
                     size=(image.width, IP_FONT_SIZE),
                     pos=IP_TEXT_POS,
@@ -172,15 +209,19 @@ class OverviewPageBase(Component):
         )
 
 
-class OverviewPageWithBluetooth(OverviewPageBase, Enterable, HasGutterIcons):
+class OverviewPageWithBluetooth(OverviewPageBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @property
     def enterable_component(self):
+        if is_behind_portal():
+            return WifiSignInPopup
         return partial(BluetoothPairingPage)
 
     def bottom_gutter_icon(self):
+        if is_behind_portal():
+            return get_image_file_path("gutter/tick.png")
         return get_image_file_path("gutter/bluetooth.png")
 
 

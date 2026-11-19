@@ -29,6 +29,7 @@ from pt_miniscreen.pages.root.projects import (
 )
 from pt_miniscreen.pages.root.screensaver import StarfieldScreensaver
 from pt_miniscreen.pages.root.settings_menu import SettingsMenuPage
+from pt_miniscreen.pages.root.wifi_sign_in import WifiSignInPopup
 from pt_miniscreen.pages.root.system_menu import SystemMenuPage
 from pt_miniscreen.utils import ButtonEvents, get_image_file_path
 
@@ -217,6 +218,29 @@ class RootComponent(Component):
             if self.active_component is None:
                 self.stack.pop()
         finally:
+            self._set_gutter_icons()
+
+    @property
+    def showing_wifi_sign_in(self):
+        return isinstance(self.active_component, WifiSignInPopup)
+
+    def show_wifi_sign_in(self):
+        """Pops up the sign-in steps; False if the miniscreen is busy."""
+        if self.showing_wifi_sign_in:
+            return True
+        if self.is_project_page or self.stack.state["active_transition"] is not None:
+            return False
+        self.stack.push(WifiSignInPopup)
+        self._set_gutter_icons()
+        return self.showing_wifi_sign_in
+
+    def wifi_signed_in(self):
+        if self.showing_wifi_sign_in:
+            self.active_component.show_signed_in()
+
+    def close_wifi_sign_in(self):
+        if self.showing_wifi_sign_in:
+            self.stack.pop()
             self._set_gutter_icons()
 
     def start_screensaver(self):
