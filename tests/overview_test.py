@@ -64,3 +64,18 @@ def test_overview_network(miniscreen, snapshot, internal_ip):
     internal_ip("127.0.0.1")
     sleep(4.5)
     snapshot.assert_match(miniscreen.device.display_image, "localhost.png")
+
+
+def test_overview_shows_an_update_in_place_of_the_ip(
+    miniscreen, snapshot, internal_ip, mocker
+):
+    internal_ip("192.168.192.168")
+    updating = mocker.patch(
+        "pt_miniscreen.pages.root.overview.is_updating", return_value=True
+    )
+    sleep(4.5)
+    snapshot.assert_match(miniscreen.device.display_image, "updating.png")
+
+    updating.return_value = False
+    sleep(4.5)
+    snapshot.assert_match(miniscreen.device.display_image, "update-finished.png")
