@@ -1,3 +1,11 @@
+pi-top-4-miniscreen (7.12.0-1) bookworm; urgency=medium
+
+  * Name GitHub releases after their tag and add changelog notes (#376)
+  * Show how to sign in when the Wi-Fi needs it (#379)
+  * Show "Updating..." under the battery while an update holds shutdown (#381)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 20 Nov 2026 17:24:30 +0000
+
 pi-top-4-miniscreen (7.11.0-1) bookworm; urgency=medium
 
   * Allow running the changelog bump by hand (#374)
