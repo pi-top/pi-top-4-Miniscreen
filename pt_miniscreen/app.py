@@ -1,13 +1,16 @@
 import logging
 import traceback
 from os import environ
-from threading import Timer
+from threading import Event, Thread, Timer
+from time import monotonic
 from pt_miniscreen.utils import ButtonEvents
 
 from pitop.system.pitop import Pitop
 
 
 from .core import App as BaseApp
+from .network_status import needs_sign_in
+from .pages.root.wifi_sign_in import stop_hotspot_if_started
 from .root import RootComponent
 
 logger = logging.getLogger(__name__)
@@ -16,6 +19,10 @@ logger = logging.getLogger(__name__)
 class App(BaseApp):
     DIMMING_TIMEOUT = 20
     SCREENSAVER_TIMEOUT = 20
+    WIFI_SIGN_IN_POLL = 5
+    WIFI_SIGNED_IN_SECONDS = 3
+    # the steps stay lit while someone follows them, but not for hours (OLED wear)
+    WIFI_SIGN_IN_KEEP_AWAKE = 300
 
     def __init__(self, miniscreen=None):
         self.miniscreen = miniscreen
@@ -80,6 +87,12 @@ class App(BaseApp):
         self.dimming_timer = None
         self.start_dimming_timer()
 
+        self.behind_portal = False
+        self._sign_in_shown = False
+        self._sign_in_awake_since = None
+        self._sign_in_stop = Event()
+        Thread(target=self._watch_wifi_sign_in, daemon=True).start()
+
     def brighten(self):
         self.miniscreen.contrast(255)
         self.dimmed = False
@@ -95,6 +108,7 @@ class App(BaseApp):
                 return
 
             self.restart_dimming_timer()
+            self._sign_in_awake_since = None
 
             try:
                 if self.root.is_screensaver_running:
@@ -114,6 +128,52 @@ class App(BaseApp):
                 self.brighten()
 
         return handler
+
+    def wake(self):
+        if self.root.is_screensaver_running:
+            self.root.stop_screensaver()
+        self.brighten()
+        self.restart_dimming_timer()
+
+    def _watch_wifi_sign_in(self):
+        while not self._sign_in_stop.wait(self.WIFI_SIGN_IN_POLL):
+            try:
+                self._check_wifi_sign_in()
+            except Exception as e:
+                logger.error(f"Wi-Fi sign-in check failed: {e}")
+
+    def _check_wifi_sign_in(self):
+        if self.root is None:
+            return
+        # behind a portal NetworkManager rechecks every 5 minutes; while the steps
+        # are on screen, check now so they clear soon after signing in
+        portal = needs_sign_in(check_now=self.root.showing_wifi_sign_in)
+        was_behind_portal = self.behind_portal
+        self.behind_portal = portal
+
+        self._keep_sign_in_awake()
+
+        # pop up once per portal, retrying while the miniscreen is busy
+        if portal and not self._sign_in_shown and not self.user_has_control:
+            if self.root.show_wifi_sign_in():
+                self._sign_in_shown = True
+                self.wake()
+        elif not portal and was_behind_portal:
+            self._sign_in_shown = False
+            stop_hotspot_if_started()
+            if self.root.showing_wifi_sign_in:
+                self.root.wifi_signed_in()
+                Timer(self.WIFI_SIGNED_IN_SECONDS, self.root.close_wifi_sign_in).start()
+
+    def _keep_sign_in_awake(self):
+        if not self.root.showing_wifi_sign_in or self.user_has_control:
+            self._sign_in_awake_since = None
+            return
+        if self._sign_in_awake_since is None:
+            self._sign_in_awake_since = monotonic()
+        if monotonic() - self._sign_in_awake_since < self.WIFI_SIGN_IN_KEEP_AWAKE:
+            if not self.dimmed and not self.root.is_screensaver_running:
+                self.restart_dimming_timer()
 
     def restore_miniscreen(self):
         try:
@@ -145,6 +205,8 @@ class App(BaseApp):
             self.stop(e)
 
     def stop(self, error=None):
+        if hasattr(self, "_sign_in_stop"):
+            self._sign_in_stop.set()
         super().stop(error)
         self.stop_timers()
 
