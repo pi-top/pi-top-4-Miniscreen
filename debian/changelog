@@ -1,4 +1,4 @@
-pi-top-4-miniscreen (7.11.1-1) bookworm; urgency=medium
+pi-top-4-miniscreen (7.12.0-1) bookworm; urgency=medium
 
   * Name GitHub releases after their tag and add changelog notes (#376)
   * Show how to sign in when the Wi-Fi needs it (#379)
