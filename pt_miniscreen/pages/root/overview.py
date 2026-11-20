@@ -13,6 +13,7 @@ from pt_miniscreen.utils import get_image_file_path
 from pt_miniscreen.components.mixins import Enterable, HasGutterIcons
 from pt_miniscreen.core.components.marquee_text import MarqueeText
 from pt_miniscreen.network_status import is_behind_portal
+from pt_miniscreen.update_status import is_updating
 from pt_miniscreen.pages.root.wifi_sign_in import WifiSignInPopup
 from pt_miniscreen.pages.root.bluetooth_pairing import BluetoothPairingPage
 
@@ -67,7 +68,13 @@ SIGN_IN_HINT = "Press O to\nset up Wi-Fi"
 SIGN_IN_HINT_MARGIN_TOP = 4
 
 
+UPDATING_TEXT = "Updating..."
+
+
 def get_ip():
+    # a shutdown waits for the update, so say one is running
+    if is_updating():
+        return UPDATING_TEXT
     ip_address = get_pi_top_ip()
     if len(ip_address) > 0:
         return ip_address
